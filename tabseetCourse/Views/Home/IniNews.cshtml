@@ -1,0 +1,48 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.NewsModel>
+
+@foreach (var item in Model)
+{
+    <div class="item">
+        <div class="image">
+            <a href="/Home/ReadMoreNews?News_ID=@item.ID">
+                @if (item.Shourt_image == null)
+                {
+                    <img src="https://cdn.europosters.eu/image/1300/zen-nature-i49609.jpg" alt="event name">
+
+                }
+                else
+                {
+                    <img src="~/Uploade/Images/@item.Shourt_image" alt="event name">
+                }
+            </a>
+        </div>
+        @if (item.Title != null)
+        {
+            <h3>@item.Title</h3>
+        }
+        else
+        {
+            <h3>النشاط الاول</h3>
+        }
+
+
+        @if (item.ShortDescription != null)
+        {<p>
+                @item.ShortDescription
+            </p>
+        }
+        else
+        {
+            <p>
+                هذا النص هو مثال لنص يمكن أن يستبدل في نفس المساحة، لقد تم توليد هذا النص من مولد النص العربى، حيث يمكنك أن تولد مثل هذا النص أو العديد من النصوص الأخرى إضافة إلى زيادة عدد الحروف التى يولدها التطبيق.
+            </p>
+        }
+
+
+
+        @Html.ActionLink("المزيد...", "ReadMoreNews", "Home", new { News_ID = item.ID }, new { @class = "read_more", @id = "read_more_word" })
+
+    </div>
+}
+
+

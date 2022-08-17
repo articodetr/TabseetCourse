@@ -1,0 +1,28 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.SliderModel>
+
+@foreach (var item in Model)
+{
+    <div class="swiper-slide">
+
+        <div class="slide-inner slide-bg-image" style="background-image:url(../Uploade/Images/@item.Image);background-size:cover">
+            <div class="container">
+                <div data-swiper-parallax="300" class="slide-title">
+                    <h2>
+                        @item.TextMessage
+                    </h2>
+                </div>
+                @*<div data-swiper-parallax="400" class="slide-text">
+                        <p>اصبح اكثر تميزا معنا</p>
+                    </div>*@
+                <div class="clearfix"></div>
+                <div data-swiper-parallax="500" class="slide-btns">
+                    <a href="/Home/RegesterNewStdView" class="theme-btn-s2">اشترك الآن</a>
+                    <a href="/Home/aboutPage?pageID=7" class="theme-btn-s3"><i class="fas fa-chevron-circle-right"></i>اعرف أكثر</a>
+                </div>
+            </div>
+        </div>
+        <!-- end slide-inner -->
+    </div>
+
+}
+

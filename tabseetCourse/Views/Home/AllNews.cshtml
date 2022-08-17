@@ -1,0 +1,89 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.NewsModel>
+
+@{
+    ViewBag.Title = "AllNews";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var viewmodelHomepage = (tabseetCourse.Models_UI.HomePageModel)ViewBag.HomepageViewModel;
+}
+
+<div class='top_baner' style="background-image:url(../Uploade/Images/@viewmodelHomepage.MainImage);">
+    <center>
+        @* <span>@viewmodelHomepage.MainText</span>
+            <p>هذا النص هو مثال لنص يمكن أن يستبدل في نفس المساحة</p>
+                  <a href="javascript:;">@Model.Title</a>*@
+    </center>
+</div>
+
+
+
+
+<div class="grid_sec">
+
+    <div class="container">
+
+        <div class="row">
+
+
+            @foreach (var item in Model)
+            {<div class="col-md-4">
+                    <div class="item">
+                        <div class="image">
+                            @if (item.Shourt_image == null)
+                            {
+                                <a href="javascript:;"><img src="https://cdn.europosters.eu/image/1300/zen-nature-i49609.jpg" alt="event name"></a>
+                            }
+                            else
+                            {
+                                <a href="javascript:;"><img src="~/Uploade/Images/@item.Shourt_image" alt="event name"></a>
+                            }
+
+                        </div>
+                        @if (item.Title != null)
+                        {
+                            <h3>@item.Title</h3>
+                        }
+                        else
+                        {
+                            <h3>النشاط الاول</h3>
+                        }
+
+
+                        @if (item.ShortDescription != null)
+                        {<p>
+                                @item.ShortDescription
+                            </p>
+                        }
+                        else
+                        {
+                            <p>
+                                هذا النص هو مثال لنص يمكن أن يستبدل في نفس المساحة، لقد تم توليد هذا النص من مولد النص العربى، حيث يمكنك أن تولد مثل هذا النص أو العديد من النصوص الأخرى إضافة إلى زيادة عدد الحروف التى يولدها التطبيق.
+                            </p>
+                        }
+
+
+
+                        @Html.ActionLink("...المزيد", "ReadMoreNews", "Home", new { News_ID = item.ID }, new { @class = "read_more", @id = "read_more_word" })
+
+                    </div>
+                </div>
+            }
+
+
+
+
+
+            @*//Html.ActionLink("اقرأ المزيد", "GoPageMenu", new { PageID = item.DocLinke }, new { class = "nav-link" })*@
+
+
+        </div>
+    </div>
+
+
+</div>
+<script>
+
+    var isLoading = false;
+
+</script>
+
+

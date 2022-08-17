@@ -9055,6 +9055,13 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_AdminLayout.cshtml" />
+    <Content Include="Views\Shared\_LayoutStudent.cshtml" />
+    <Content Include="Views\Shared\_TeacherLayout.cshtml" />
+    <Content Include="Views\Shared\_UIUXlayout.cshtml" />
+    <Content Include="Views\Home\IniSlider.cshtml" />
+    <Content Include="Views\Home\IniNews.cshtml" />
+    <Content Include="Views\Home\AllNews.cshtml" />
+    <Content Include="Views\Home\MoreCourse.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
