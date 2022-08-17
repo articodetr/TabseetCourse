@@ -1,0 +1,3335 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="TabseetDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Assignment_Q">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Q_ID" Type="int" Nullable="false" />
+          <Property Name="Assignment_ID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Assignments">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="Lecture_ID" Type="int" />
+          <Property Name="Assignmet_Degry" Type="float" />
+          <Property Name="Assignmet_degry_Win" Type="int" />
+        </EntityType>
+        <EntityType Name="Categories">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NameAr" Type="nvarchar(max)" />
+          <Property Name="NameEn" Type="nvarchar(max)" />
+          <Property Name="ParentCateogry_ID" Type="int" />
+          <Property Name="IsPayed" Type="int" />
+          <Property Name="PayedValue" Type="nvarchar" MaxLength="50" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="CategoryType_ID" Type="int" />
+          <Property Name="DescriptionEN" Type="nvarchar(max)" />
+          <Property Name="New_Page_ID" Type="int" />
+          <Property Name="CertificationAR" Type="nvarchar(max)" />
+          <Property Name="EndTime" Type="nvarchar" MaxLength="50" />
+          <Property Name="CertificationEN" Type="nvarchar(max)" />
+          <Property Name="CanRegister" Type="int" />
+          <Property Name="Icon" Type="nvarchar(max)" />
+          <Property Name="DocumentBook" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="CategoryTypes">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NameAR" Type="nvarchar" MaxLength="100" />
+          <Property Name="NameEn" Type="nvarchar" MaxLength="100" />
+          <Property Name="ParentType" Type="int" />
+        </EntityType>
+        <EntityType Name="ChatTables">
+          <Key>
+            <PropertyRef Name="int" />
+          </Key>
+          <Property Name="int" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Message" Type="nvarchar(max)" />
+          <Property Name="Category_ID" Type="int" />
+          <Property Name="User_ID" Type="nvarchar" MaxLength="128" />
+          <Property Name="date_Time" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="CodeGenerateds">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Code" Type="nvarchar" MaxLength="50" />
+          <Property Name="TimeEnd" Type="nvarchar" MaxLength="50" />
+          <Property Name="Count" Type="int" />
+          <Property Name="User_ID" Type="nvarchar" MaxLength="128" />
+        </EntityType>
+        <EntityType Name="Exam_Q">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Q_ID" Type="int" Nullable="false" />
+          <Property Name="Exam_ID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Exams">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="Day_Time" Type="nvarchar(max)" />
+          <Property Name="Start_Time" Type="nvarchar(max)" />
+          <Property Name="Duration" Type="float" />
+          <Property Name="Category_ID" Type="int" />
+          <Property Name="Exam_Degry" Type="float" />
+          <Property Name="Exam_win_Degry" Type="float" />
+        </EntityType>
+        <EntityType Name="Lectures">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Lecture_Name" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Category_ID" Type="int" Nullable="false" />
+          <Property Name="DayandTime" Type="nvarchar(max)" />
+          <Property Name="LectureTypeOnOff" Type="nvarchar(max)" />
+          <Property Name="LectureLink_Host" Type="nvarchar(max)" />
+          <Property Name="DocumenFile" Type="nvarchar(max)" />
+          <Property Name="MediaLink" Type="nvarchar(max)" />
+          <Property Name="Others" Type="nvarchar(max)" />
+          <Property Name="LectureLink_Client" Type="nvarchar(max)" />
+          <Property Name="LectureMinTime" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="New_About">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="new_pages_ID" Type="int" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="Title" Type="nvarchar" MaxLength="50" />
+          <Property Name="Image_Cover" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="New_About_Content">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="New_About_ID" Type="int" Nullable="false" />
+          <Property Name="Tab_Title" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Tab_Content" Type="nvarchar(max)" Nullable="false" />
+        </EntityType>
+        <EntityType Name="New_ContactUs">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="New_Page_ID" Type="int" Nullable="false" />
+          <Property Name="Image_Cover" Type="nvarchar(max)" />
+          <Property Name="Map_Link" Type="nvarchar(max)" />
+          <Property Name="UN_Adress" Type="nvarchar(max)" />
+          <Property Name="UN_PhoneNumber" Type="nvarchar(max)" />
+          <Property Name="UN_Email" Type="nvarchar(max)" />
+          <Property Name="Name_word_trans" Type="nvarchar(max)" />
+          <Property Name="Email_word_trans" Type="nvarchar(max)" />
+          <Property Name="PhoneNumber_word_trans" Type="nvarchar(max)" />
+          <Property Name="Message_word_trans" Type="nvarchar(max)" />
+          <Property Name="Send_word_trans" Type="nvarchar(max)" />
+          <Property Name="Adress_word_trans" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="New_CustomerContactUs">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" />
+          <Property Name="Email" Type="nvarchar" MaxLength="50" />
+          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="Message" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="New_FastNews">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" />
+          <Property Name="NewsText" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="New_FooterMenu">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="New_page_ID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="New_Home_Page">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="phoneNumber" Type="nvarchar(max)" />
+          <Property Name="email" Type="nvarchar(max)" />
+          <Property Name="MainVideo" Type="nvarchar(max)" />
+          <Property Name="MainImage" Type="nvarchar(max)" />
+          <Property Name="MainText" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="New_lang">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Direction" Type="int" Nullable="false" />
+          <Property Name="DefultLang" Type="int" />
+        </EntityType>
+        <EntityType Name="New_LR">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" />
+          <Property Name="Image_cover" Type="nvarchar(max)" />
+          <Property Name="Password_tran" Type="nvarchar(max)" />
+          <Property Name="FirstName_tran" Type="nvarchar(max)" />
+          <Property Name="LastName_tran" Type="nvarchar(max)" />
+          <Property Name="Place_of_birth_tran" Type="nvarchar(max)" />
+          <Property Name="Mobile_number_tran" Type="nvarchar(max)" />
+          <Property Name="Email_tran" Type="nvarchar(max)" />
+          <Property Name="Private_one" Type="nvarchar(max)" />
+          <Property Name="Private_two" Type="nvarchar(max)" />
+          <Property Name="Private_three" Type="nvarchar(max)" />
+          <Property Name="Country" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="New_Menu">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="New_Page_ID" Type="int" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="New_news">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="DateTime" Type="nvarchar(max)" />
+          <Property Name="ShortDescription" Type="nvarchar(max)" />
+          <Property Name="FullDescription" Type="nvarchar(max)" />
+          <Property Name="Cover_image" Type="nvarchar(max)" />
+          <Property Name="Shourt_image" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="New_page_department">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Cover_image" Type="nvarchar(max)" />
+          <Property Name="Shourt_image" Type="nvarchar(max)" />
+          <Property Name="Facility_ID" Type="int" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="New_page_Department_tab">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="Department_ID" Type="int" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="New_Page_Tabe">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="New_Page_ID" Type="int" Nullable="false" />
+          <Property Name="page_H_V_tabe" Type="int" Nullable="false" />
+          <Property Name="Image_Cover" Type="nvarchar(max)" />
+          <Property Name="Title" Type="nvarchar(max)" />
+          <Property Name="Category_ID" Type="int" />
+        </EntityType>
+        <EntityType Name="New_Page_tabe_Content">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Page_Tabe_ID" Type="int" Nullable="false" />
+          <Property Name="Tabe_title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Tab_Description" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="New_Page_V_A_Horizantal_Tabe">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="New_page_V_A_H_ID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="New_Page_Vertical_and_H_Tabe">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="New_PageHorizantal_Tabe_ID" Type="int" Nullable="false" />
+          <Property Name="Description" Type="nvarchar(max)" Nullable="false" />
+        </EntityType>
+        <EntityType Name="New_pages">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Page_Type" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="New_pages_facality">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Image_Cover" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="New_pages_ID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="New_pages_Text">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="New_pages_ID" Type="int" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Image_Cover" Type="nvarchar(max)" />
+          <Property Name="Text_Description" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="New_pracktes">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="DateTime" Type="nvarchar(max)" />
+          <Property Name="ShortDescription" Type="nvarchar(max)" />
+          <Property Name="FullDescription" Type="nvarchar(max)" />
+          <Property Name="Cover_image" Type="nvarchar(max)" />
+          <Property Name="Shourt_image" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="New_Slider">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Slider_Image" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="TextMessage" Type="nvarchar" MaxLength="250" />
+        </EntityType>
+        <EntityType Name="New_SocialMedia">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Facebook" Type="nvarchar(max)" />
+          <Property Name="Twitter" Type="nvarchar(max)" />
+          <Property Name="Instgram" Type="nvarchar(max)" />
+          <Property Name="WhatsApp" Type="nvarchar(max)" />
+          <Property Name="Linkedin" Type="nvarchar(max)" />
+          <Property Name="Lang_ID" Type="int" Nullable="false" />
+          <Property Name="Youtube" Type="nvarchar(max)" />
+          <Property Name="Tiktok" Type="nvarchar(max)" />
+          <Property Name="Telegram" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="NewGridPage_Content">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="Image" Type="nvarchar(max)" />
+          <Property Name="DocLinke" Type="nvarchar(max)" />
+          <Property Name="GridPageID" Type="int" />
+        </EntityType>
+        <EntityType Name="NewGridPages">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Lang_ID" Type="int" />
+          <Property Name="Pages_ID" Type="int" />
+          <Property Name="Title" Type="nvarchar(max)" />
+          <Property Name="Image_Cover" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="Q_FillVoid">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Question_ID" Type="int" Nullable="false" />
+          <Property Name="TrueValue" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Degry" Type="float" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Q_Matching">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Question_ID" Type="int" Nullable="false" />
+          <Property Name="ChoiceText" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Degry" Type="float" Nullable="false" />
+          <Property Name="ChoiseTrueAnswer" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="Q_MultiChoice">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Question_ID" Type="int" Nullable="false" />
+          <Property Name="Choose" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Degry" Type="float" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Q_TrueOrFolse">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Question_ID" Type="int" Nullable="false" />
+          <Property Name="TrueValue" Type="int" Nullable="false" />
+          <Property Name="Degry" Type="float" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Questions">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Type" Type="int" Nullable="false" />
+          <Property Name="Q_Name" Type="nvarchar(max)" />
+          <Property Name="Q_Text" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Q_Description" Type="nvarchar(max)" />
+          <Property Name="Category_ID" Type="int" />
+        </EntityType>
+        <EntityType Name="Std_ExamFinish">
+          <Key>
+            <PropertyRef Name="int" />
+          </Key>
+          <Property Name="int" Type="int" Nullable="false" />
+          <Property Name="Std_ID" Type="int" />
+          <Property Name="Exam_ID" Type="int" />
+          <Property Name="std_Req_category_ID" Type="int" />
+          <Property Name="isFinishExam" Type="int" />
+        </EntityType>
+        <EntityType Name="std_lecture">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Lecture_ID" Type="int" />
+          <Property Name="Std_ID" Type="nvarchar" MaxLength="128" />
+          <Property Name="IsFinish" Type="int" />
+          <Property Name="IsTimeEnd" Type="int" />
+          <Property Name="IsAssingmetFinish" Type="int" />
+        </EntityType>
+        <EntityType Name="Std_Reg_Category">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Category_ID" Type="int" />
+          <Property Name="Std_ID" Type="nvarchar" MaxLength="128" />
+          <Property Name="category_Ispayed" Type="int" />
+          <Property Name="std_category_Ispayed" Type="int" />
+          <Property Name="std_exam_isFinish" Type="int" />
+          <Property Name="PayMent_Method" Type="int" />
+          <Property Name="TransactionFile" Type="nvarchar(max)" />
+          <Property Name="Code" Type="nvarchar" MaxLength="50" />
+          <Property Name="PayMent_Value" Type="nvarchar" MaxLength="50" />
+          <Property Name="std_exam_Finish_Time" Type="nvarchar" MaxLength="50" />
+          <Property Name="Certificate_appreciation" Type="nchar" MaxLength="10" />
+          <Property Name="Serial_Number" Type="nchar" MaxLength="10" />
+        </EntityType>
+        <EntityType Name="StyleTables">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MinuColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="BackGroundMinuColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="UpderMenuColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="PracticeBackgroundColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="FooterColor" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="sysdiagrams">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="principal_id" Type="int" Nullable="false" />
+          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="version" Type="int" />
+          <Property Name="definition" Type="varbinary(max)" />
+        </EntityType>
+        <EntityType Name="UserLocations">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CountryName" Type="nvarchar" MaxLength="50" />
+          <Property Name="Count" Type="int" />
+        </EntityType>
+        <Association Name="FK_Assignment_Lecture">
+          <End Role="Lectures" Type="Self.Lectures" Multiplicity="0..1" />
+          <End Role="Assignments" Type="Self.Assignments" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Lectures">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Assignments">
+              <PropertyRef Name="Lecture_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Assignment_Q_Assignment">
+          <End Role="Assignments" Type="Self.Assignments" Multiplicity="1" />
+          <End Role="Assignment_Q" Type="Self.Assignment_Q" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Assignments">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Assignment_Q">
+              <PropertyRef Name="Assignment_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Assignment_Q_Questions">
+          <End Role="Questions" Type="Self.Questions" Multiplicity="1" />
+          <End Role="Assignment_Q" Type="Self.Assignment_Q" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Assignment_Q">
+              <PropertyRef Name="Q_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Category_Category">
+          <End Role="Categories" Type="Self.Categories" Multiplicity="0..1" />
+          <End Role="Categories1" Type="Self.Categories" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Categories1">
+              <PropertyRef Name="ParentCateogry_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Category_CategoryType">
+          <End Role="CategoryTypes" Type="Self.CategoryTypes" Multiplicity="0..1" />
+          <End Role="Categories" Type="Self.Categories" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CategoryTypes">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Categories">
+              <PropertyRef Name="CategoryType_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CategoryType_CategoryType">
+          <End Role="CategoryTypes" Type="Self.CategoryTypes" Multiplicity="0..1" />
+          <End Role="CategoryTypes1" Type="Self.CategoryTypes" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CategoryTypes">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="CategoryTypes1">
+              <PropertyRef Name="ParentType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Exam_Q_Exams">
+          <End Role="Exams" Type="Self.Exams" Multiplicity="1" />
+          <End Role="Exam_Q" Type="Self.Exam_Q" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Exams">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Exam_Q">
+              <PropertyRef Name="Exam_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Exam_Q_Questions">
+          <End Role="Questions" Type="Self.Questions" Multiplicity="1" />
+          <End Role="Exam_Q" Type="Self.Exam_Q" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Exam_Q">
+              <PropertyRef Name="Q_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Exams_Category">
+          <End Role="Categories" Type="Self.Categories" Multiplicity="0..1" />
+          <End Role="Exams" Type="Self.Exams" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Exams">
+              <PropertyRef Name="Category_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GridPage_Content_GridPage">
+          <End Role="NewGridPages" Type="Self.NewGridPages" Multiplicity="0..1" />
+          <End Role="NewGridPage_Content" Type="Self.NewGridPage_Content" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="NewGridPages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="NewGridPage_Content">
+              <PropertyRef Name="GridPageID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GridPage_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="0..1" />
+          <End Role="NewGridPages" Type="Self.NewGridPages" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="NewGridPages">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GridPage_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="0..1" />
+          <End Role="NewGridPages" Type="Self.NewGridPages" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="NewGridPages">
+              <PropertyRef Name="Pages_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Lecture_Category">
+          <End Role="Categories" Type="Self.Categories" Multiplicity="1" />
+          <End Role="Lectures" Type="Self.Lectures" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Lectures">
+              <PropertyRef Name="Category_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_About_Content_New_About">
+          <End Role="New_About" Type="Self.New_About" Multiplicity="1" />
+          <End Role="New_About_Content" Type="Self.New_About_Content" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_About">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_About_Content">
+              <PropertyRef Name="New_About_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_About_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_About" Type="Self.New_About" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_About">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_About_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_About" Type="Self.New_About" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_About">
+              <PropertyRef Name="new_pages_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_ContactUs_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_ContactUs" Type="Self.New_ContactUs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_ContactUs">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_ContactUs_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_ContactUs" Type="Self.New_ContactUs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_ContactUs">
+              <PropertyRef Name="New_Page_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_FastNews_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="0..1" />
+          <End Role="New_FastNews" Type="Self.New_FastNews" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_FastNews">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_FooterMenu_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_FooterMenu" Type="Self.New_FooterMenu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_FooterMenu">
+              <PropertyRef Name="New_page_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_LR_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_LR" Type="Self.New_LR" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_LR">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Menu_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_Menu" Type="Self.New_Menu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Menu">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Menu_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_Menu" Type="Self.New_Menu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Menu">
+              <PropertyRef Name="New_Page_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_news_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_news" Type="Self.New_news" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_news">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_page_department_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_page_department" Type="Self.New_page_department" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_page_department">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_page_department_New_Page_V_A_Horizantal_Tabe">
+          <End Role="New_Page_V_A_Horizantal_Tabe" Type="Self.New_Page_V_A_Horizantal_Tabe" Multiplicity="1" />
+          <End Role="New_page_department" Type="Self.New_page_department" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_Page_V_A_Horizantal_Tabe">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_page_department">
+              <PropertyRef Name="Facility_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_page_Department_tab_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_page_Department_tab" Type="Self.New_page_Department_tab" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_page_Department_tab">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_page_Department_tab_New_page_department">
+          <End Role="New_page_department" Type="Self.New_page_department" Multiplicity="1" />
+          <End Role="New_page_Department_tab" Type="Self.New_page_Department_tab" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_page_department">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_page_Department_tab">
+              <PropertyRef Name="Department_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_tabe_Content_New_Page_Tabe">
+          <End Role="New_Page_Tabe" Type="Self.New_Page_Tabe" Multiplicity="1" />
+          <End Role="New_Page_tabe_Content" Type="Self.New_Page_tabe_Content" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_Page_Tabe">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_tabe_Content">
+              <PropertyRef Name="Page_Tabe_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_Tabe_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_Page_Tabe" Type="Self.New_Page_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_Tabe">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_Tabe_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_Page_Tabe" Type="Self.New_Page_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_Tabe">
+              <PropertyRef Name="New_Page_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_V_A_Horizantal_Tabe_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_Page_V_A_Horizantal_Tabe" Type="Self.New_Page_V_A_Horizantal_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_V_A_Horizantal_Tabe">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_V_A_Horizantal_Tabe_New_pages_facality">
+          <End Role="New_pages_facality" Type="Self.New_pages_facality" Multiplicity="1" />
+          <End Role="New_Page_V_A_Horizantal_Tabe" Type="Self.New_Page_V_A_Horizantal_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages_facality">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_V_A_Horizantal_Tabe">
+              <PropertyRef Name="New_page_V_A_H_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_Vertical_and_H_Tabe_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_Page_Vertical_and_H_Tabe" Type="Self.New_Page_Vertical_and_H_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_Vertical_and_H_Tabe">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_Vertical_and_H_Tabe_New_Page_V_A_Horizantal_Tabe">
+          <End Role="New_Page_V_A_Horizantal_Tabe" Type="Self.New_Page_V_A_Horizantal_Tabe" Multiplicity="1" />
+          <End Role="New_Page_Vertical_and_H_Tabe" Type="Self.New_Page_Vertical_and_H_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_Page_V_A_Horizantal_Tabe">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_Vertical_and_H_Tabe">
+              <PropertyRef Name="New_PageHorizantal_Tabe_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_pages_facality_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_pages_facality" Type="Self.New_pages_facality" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_pages_facality">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_pages_Text_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_pages_Text" Type="Self.New_pages_Text" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_pages_Text">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_pages_Text_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_pages_Text" Type="Self.New_pages_Text" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_pages_Text">
+              <PropertyRef Name="New_pages_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_pracktes_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_pracktes" Type="Self.New_pracktes" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_pracktes">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Slider_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_Slider" Type="Self.New_Slider" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Slider">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_SocialMedia_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_SocialMedia" Type="Self.New_SocialMedia" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_SocialMedia">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Q_FillVoid_Questions">
+          <End Role="Questions" Type="Self.Questions" Multiplicity="1" />
+          <End Role="Q_FillVoid" Type="Self.Q_FillVoid" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Q_FillVoid">
+              <PropertyRef Name="Question_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Q_Matching_Questions">
+          <End Role="Questions" Type="Self.Questions" Multiplicity="1" />
+          <End Role="Q_Matching" Type="Self.Q_Matching" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Q_Matching">
+              <PropertyRef Name="Question_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Q_MultiChoice_Questions">
+          <End Role="Questions" Type="Self.Questions" Multiplicity="1" />
+          <End Role="Q_MultiChoice" Type="Self.Q_MultiChoice" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Q_MultiChoice">
+              <PropertyRef Name="Question_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Q_TrueOrFolse_Questions">
+          <End Role="Questions" Type="Self.Questions" Multiplicity="1" />
+          <End Role="Q_TrueOrFolse" Type="Self.Q_TrueOrFolse" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Q_TrueOrFolse">
+              <PropertyRef Name="Question_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Questions_Category">
+          <End Role="Categories" Type="Self.Categories" Multiplicity="0..1" />
+          <End Role="Questions" Type="Self.Questions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Questions">
+              <PropertyRef Name="Category_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Std_ExamFinish_Exams">
+          <End Role="Exams" Type="Self.Exams" Multiplicity="0..1" />
+          <End Role="Std_ExamFinish" Type="Self.Std_ExamFinish" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Exams">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Std_ExamFinish">
+              <PropertyRef Name="Exam_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_std_lecture_Lecture">
+          <End Role="Lectures" Type="Self.Lectures" Multiplicity="0..1" />
+          <End Role="std_lecture" Type="Self.std_lecture" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Lectures">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="std_lecture">
+              <PropertyRef Name="Lecture_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Std_Reg_Category_Category">
+          <End Role="Categories" Type="Self.Categories" Multiplicity="0..1" />
+          <End Role="Std_Reg_Category" Type="Self.Std_Reg_Category" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Std_Reg_Category">
+              <PropertyRef Name="Category_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TabseetDBModelStoreContainer">
+          <EntitySet Name="Assignment_Q" EntityType="Self.Assignment_Q" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Assignments" EntityType="Self.Assignments" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Categories" EntityType="Self.Categories" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CategoryTypes" EntityType="Self.CategoryTypes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ChatTables" EntityType="Self.ChatTables" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CodeGenerateds" EntityType="Self.CodeGenerateds" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Exam_Q" EntityType="Self.Exam_Q" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Exams" EntityType="Self.Exams" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Lectures" EntityType="Self.Lectures" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_About" EntityType="Self.New_About" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_About_Content" EntityType="Self.New_About_Content" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_ContactUs" EntityType="Self.New_ContactUs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_CustomerContactUs" EntityType="Self.New_CustomerContactUs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_FastNews" EntityType="Self.New_FastNews" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_FooterMenu" EntityType="Self.New_FooterMenu" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_Home_Page" EntityType="Self.New_Home_Page" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_lang" EntityType="Self.New_lang" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_LR" EntityType="Self.New_LR" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_Menu" EntityType="Self.New_Menu" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_news" EntityType="Self.New_news" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_page_department" EntityType="Self.New_page_department" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_page_Department_tab" EntityType="Self.New_page_Department_tab" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_Page_Tabe" EntityType="Self.New_Page_Tabe" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_Page_tabe_Content" EntityType="Self.New_Page_tabe_Content" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_Page_V_A_Horizantal_Tabe" EntityType="Self.New_Page_V_A_Horizantal_Tabe" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_Page_Vertical_and_H_Tabe" EntityType="Self.New_Page_Vertical_and_H_Tabe" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_pages" EntityType="Self.New_pages" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_pages_facality" EntityType="Self.New_pages_facality" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_pages_Text" EntityType="Self.New_pages_Text" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_pracktes" EntityType="Self.New_pracktes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_Slider" EntityType="Self.New_Slider" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="New_SocialMedia" EntityType="Self.New_SocialMedia" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="NewGridPage_Content" EntityType="Self.NewGridPage_Content" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="NewGridPages" EntityType="Self.NewGridPages" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Q_FillVoid" EntityType="Self.Q_FillVoid" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Q_Matching" EntityType="Self.Q_Matching" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Q_MultiChoice" EntityType="Self.Q_MultiChoice" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Q_TrueOrFolse" EntityType="Self.Q_TrueOrFolse" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Questions" EntityType="Self.Questions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Std_ExamFinish" EntityType="Self.Std_ExamFinish" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="std_lecture" EntityType="Self.std_lecture" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Std_Reg_Category" EntityType="Self.Std_Reg_Category" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="StyleTables" EntityType="Self.StyleTables" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UserLocations" EntityType="Self.UserLocations" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Assignment_Lecture" Association="Self.FK_Assignment_Lecture">
+            <End Role="Lectures" EntitySet="Lectures" />
+            <End Role="Assignments" EntitySet="Assignments" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Assignment_Q_Assignment" Association="Self.FK_Assignment_Q_Assignment">
+            <End Role="Assignments" EntitySet="Assignments" />
+            <End Role="Assignment_Q" EntitySet="Assignment_Q" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Assignment_Q_Questions" Association="Self.FK_Assignment_Q_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Assignment_Q" EntitySet="Assignment_Q" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Category_Category" Association="Self.FK_Category_Category">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Categories1" EntitySet="Categories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Category_CategoryType" Association="Self.FK_Category_CategoryType">
+            <End Role="CategoryTypes" EntitySet="CategoryTypes" />
+            <End Role="Categories" EntitySet="Categories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CategoryType_CategoryType" Association="Self.FK_CategoryType_CategoryType">
+            <End Role="CategoryTypes" EntitySet="CategoryTypes" />
+            <End Role="CategoryTypes1" EntitySet="CategoryTypes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Exam_Q_Exams" Association="Self.FK_Exam_Q_Exams">
+            <End Role="Exams" EntitySet="Exams" />
+            <End Role="Exam_Q" EntitySet="Exam_Q" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Exam_Q_Questions" Association="Self.FK_Exam_Q_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Exam_Q" EntitySet="Exam_Q" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Exams_Category" Association="Self.FK_Exams_Category">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Exams" EntitySet="Exams" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GridPage_Content_GridPage" Association="Self.FK_GridPage_Content_GridPage">
+            <End Role="NewGridPages" EntitySet="NewGridPages" />
+            <End Role="NewGridPage_Content" EntitySet="NewGridPage_Content" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GridPage_New_lang" Association="Self.FK_GridPage_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="NewGridPages" EntitySet="NewGridPages" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GridPage_New_pages" Association="Self.FK_GridPage_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="NewGridPages" EntitySet="NewGridPages" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Lecture_Category" Association="Self.FK_Lecture_Category">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Lectures" EntitySet="Lectures" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_About_Content_New_About" Association="Self.FK_New_About_Content_New_About">
+            <End Role="New_About" EntitySet="New_About" />
+            <End Role="New_About_Content" EntitySet="New_About_Content" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_About_New_lang" Association="Self.FK_New_About_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_About" EntitySet="New_About" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_About_New_pages" Association="Self.FK_New_About_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_About" EntitySet="New_About" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_ContactUs_New_lang" Association="Self.FK_New_ContactUs_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_ContactUs" EntitySet="New_ContactUs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_ContactUs_New_pages" Association="Self.FK_New_ContactUs_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_ContactUs" EntitySet="New_ContactUs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_FastNews_New_lang" Association="Self.FK_New_FastNews_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_FastNews" EntitySet="New_FastNews" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_FooterMenu_New_pages" Association="Self.FK_New_FooterMenu_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_FooterMenu" EntitySet="New_FooterMenu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_LR_New_lang" Association="Self.FK_New_LR_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_LR" EntitySet="New_LR" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Menu_New_lang" Association="Self.FK_New_Menu_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_Menu" EntitySet="New_Menu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Menu_New_pages" Association="Self.FK_New_Menu_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_Menu" EntitySet="New_Menu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_news_New_lang" Association="Self.FK_New_news_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_news" EntitySet="New_news" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_page_department_New_lang" Association="Self.FK_New_page_department_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_page_department" EntitySet="New_page_department" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_page_department_New_Page_V_A_Horizantal_Tabe" Association="Self.FK_New_page_department_New_Page_V_A_Horizantal_Tabe">
+            <End Role="New_Page_V_A_Horizantal_Tabe" EntitySet="New_Page_V_A_Horizantal_Tabe" />
+            <End Role="New_page_department" EntitySet="New_page_department" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_page_Department_tab_New_lang" Association="Self.FK_New_page_Department_tab_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_page_Department_tab" EntitySet="New_page_Department_tab" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_page_Department_tab_New_page_department" Association="Self.FK_New_page_Department_tab_New_page_department">
+            <End Role="New_page_department" EntitySet="New_page_department" />
+            <End Role="New_page_Department_tab" EntitySet="New_page_Department_tab" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_tabe_Content_New_Page_Tabe" Association="Self.FK_New_Page_tabe_Content_New_Page_Tabe">
+            <End Role="New_Page_Tabe" EntitySet="New_Page_Tabe" />
+            <End Role="New_Page_tabe_Content" EntitySet="New_Page_tabe_Content" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_Tabe_New_lang" Association="Self.FK_New_Page_Tabe_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_Page_Tabe" EntitySet="New_Page_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_Tabe_New_pages" Association="Self.FK_New_Page_Tabe_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_Page_Tabe" EntitySet="New_Page_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_V_A_Horizantal_Tabe_New_lang" Association="Self.FK_New_Page_V_A_Horizantal_Tabe_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_Page_V_A_Horizantal_Tabe" EntitySet="New_Page_V_A_Horizantal_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_V_A_Horizantal_Tabe_New_pages_facality" Association="Self.FK_New_Page_V_A_Horizantal_Tabe_New_pages_facality">
+            <End Role="New_pages_facality" EntitySet="New_pages_facality" />
+            <End Role="New_Page_V_A_Horizantal_Tabe" EntitySet="New_Page_V_A_Horizantal_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_Vertical_and_H_Tabe_New_lang" Association="Self.FK_New_Page_Vertical_and_H_Tabe_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_Page_Vertical_and_H_Tabe" EntitySet="New_Page_Vertical_and_H_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_Vertical_and_H_Tabe_New_Page_V_A_Horizantal_Tabe" Association="Self.FK_New_Page_Vertical_and_H_Tabe_New_Page_V_A_Horizantal_Tabe">
+            <End Role="New_Page_V_A_Horizantal_Tabe" EntitySet="New_Page_V_A_Horizantal_Tabe" />
+            <End Role="New_Page_Vertical_and_H_Tabe" EntitySet="New_Page_Vertical_and_H_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_pages_facality_New_lang" Association="Self.FK_New_pages_facality_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_pages_facality" EntitySet="New_pages_facality" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_pages_Text_New_lang" Association="Self.FK_New_pages_Text_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_pages_Text" EntitySet="New_pages_Text" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_pages_Text_New_pages" Association="Self.FK_New_pages_Text_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_pages_Text" EntitySet="New_pages_Text" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_pracktes_New_lang" Association="Self.FK_New_pracktes_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_pracktes" EntitySet="New_pracktes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Slider_New_lang" Association="Self.FK_New_Slider_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_Slider" EntitySet="New_Slider" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_SocialMedia_New_lang" Association="Self.FK_New_SocialMedia_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_SocialMedia" EntitySet="New_SocialMedia" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Q_FillVoid_Questions" Association="Self.FK_Q_FillVoid_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Q_FillVoid" EntitySet="Q_FillVoid" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Q_Matching_Questions" Association="Self.FK_Q_Matching_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Q_Matching" EntitySet="Q_Matching" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Q_MultiChoice_Questions" Association="Self.FK_Q_MultiChoice_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Q_MultiChoice" EntitySet="Q_MultiChoice" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Q_TrueOrFolse_Questions" Association="Self.FK_Q_TrueOrFolse_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Q_TrueOrFolse" EntitySet="Q_TrueOrFolse" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Questions_Category" Association="Self.FK_Questions_Category">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Questions" EntitySet="Questions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Std_ExamFinish_Exams" Association="Self.FK_Std_ExamFinish_Exams">
+            <End Role="Exams" EntitySet="Exams" />
+            <End Role="Std_ExamFinish" EntitySet="Std_ExamFinish" />
+          </AssociationSet>
+          <AssociationSet Name="FK_std_lecture_Lecture" Association="Self.FK_std_lecture_Lecture">
+            <End Role="Lectures" EntitySet="Lectures" />
+            <End Role="std_lecture" EntitySet="std_lecture" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Std_Reg_Category_Category" Association="Self.FK_Std_Reg_Category_Category">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Std_Reg_Category" EntitySet="Std_Reg_Category" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="TabseetDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Assignment_Q">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Q_ID" Type="Int32" Nullable="false" />
+          <Property Name="Assignment_ID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Assignment" Relationship="Self.FK_Assignment_Q_Assignment" FromRole="Assignment_Q" ToRole="Assignments" />
+          <NavigationProperty Name="Question" Relationship="Self.FK_Assignment_Q_Questions" FromRole="Assignment_Q" ToRole="Questions" />
+        </EntityType>
+        <EntityType Name="Assignment">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Lecture_ID" Type="Int32" />
+          <Property Name="Assignmet_Degry" Type="Double" />
+          <Property Name="Assignmet_degry_Win" Type="Int32" />
+          <NavigationProperty Name="Assignment_Q" Relationship="Self.FK_Assignment_Q_Assignment" FromRole="Assignments" ToRole="Assignment_Q" />
+          <NavigationProperty Name="Lecture" Relationship="Self.FK_Assignment_Lecture" FromRole="Assignments" ToRole="Lectures" />
+        </EntityType>
+        <EntityType Name="Category">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NameAr" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="NameEn" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ParentCateogry_ID" Type="Int32" />
+          <Property Name="IsPayed" Type="Int32" />
+          <Property Name="PayedValue" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CategoryType_ID" Type="Int32" />
+          <Property Name="DescriptionEN" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="New_Page_ID" Type="Int32" />
+          <Property Name="CertificationAR" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="EndTime" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="CertificationEN" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CanRegister" Type="Int32" />
+          <Property Name="Icon" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="DocumentBook" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Categories1" Relationship="Self.FK_Category_Category" FromRole="Categories" ToRole="Categories1" />
+          <NavigationProperty Name="Category1" Relationship="Self.FK_Category_Category" FromRole="Categories1" ToRole="Categories" />
+          <NavigationProperty Name="CategoryType" Relationship="Self.FK_Category_CategoryType" FromRole="Categories" ToRole="CategoryTypes" />
+          <NavigationProperty Name="Exams" Relationship="Self.FK_Exams_Category" FromRole="Categories" ToRole="Exams" />
+          <NavigationProperty Name="Lectures" Relationship="Self.FK_Lecture_Category" FromRole="Categories" ToRole="Lectures" />
+          <NavigationProperty Name="Questions" Relationship="Self.FK_Questions_Category" FromRole="Categories" ToRole="Questions" />
+          <NavigationProperty Name="Std_Reg_Category" Relationship="Self.FK_Std_Reg_Category_Category" FromRole="Categories" ToRole="Std_Reg_Category" />
+        </EntityType>
+        <EntityType Name="CategoryType">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NameAR" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="NameEn" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ParentType" Type="Int32" />
+          <NavigationProperty Name="Categories" Relationship="Self.FK_Category_CategoryType" FromRole="CategoryTypes" ToRole="Categories" />
+          <NavigationProperty Name="CategoryTypes1" Relationship="Self.FK_CategoryType_CategoryType" FromRole="CategoryTypes" ToRole="CategoryTypes1" />
+          <NavigationProperty Name="CategoryType1" Relationship="Self.FK_CategoryType_CategoryType" FromRole="CategoryTypes1" ToRole="CategoryTypes" />
+        </EntityType>
+        <EntityType Name="ChatTable">
+          <Key>
+            <PropertyRef Name="int" />
+          </Key>
+          <Property Name="int" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Message" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Category_ID" Type="Int32" />
+          <Property Name="User_ID" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="date_Time" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="CodeGenerated">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Code" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TimeEnd" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Count" Type="Int32" />
+          <Property Name="User_ID" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Exam_Q">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Q_ID" Type="Int32" Nullable="false" />
+          <Property Name="Exam_ID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Exam" Relationship="Self.FK_Exam_Q_Exams" FromRole="Exam_Q" ToRole="Exams" />
+          <NavigationProperty Name="Question" Relationship="Self.FK_Exam_Q_Questions" FromRole="Exam_Q" ToRole="Questions" />
+        </EntityType>
+        <EntityType Name="Exam">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Day_Time" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Start_Time" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Duration" Type="Double" />
+          <Property Name="Category_ID" Type="Int32" />
+          <Property Name="Exam_Degry" Type="Double" />
+          <Property Name="Exam_win_Degry" Type="Double" />
+          <NavigationProperty Name="Category" Relationship="Self.FK_Exams_Category" FromRole="Exams" ToRole="Categories" />
+          <NavigationProperty Name="Exam_Q" Relationship="Self.FK_Exam_Q_Exams" FromRole="Exams" ToRole="Exam_Q" />
+          <NavigationProperty Name="Std_ExamFinish" Relationship="Self.FK_Std_ExamFinish_Exams" FromRole="Exams" ToRole="Std_ExamFinish" />
+        </EntityType>
+        <EntityType Name="Lecture">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Lecture_Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Category_ID" Type="Int32" Nullable="false" />
+          <Property Name="DayandTime" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LectureTypeOnOff" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LectureLink_Host" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="DocumenFile" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="MediaLink" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Others" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LectureLink_Client" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LectureMinTime" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Assignments" Relationship="Self.FK_Assignment_Lecture" FromRole="Lectures" ToRole="Assignments" />
+          <NavigationProperty Name="Category" Relationship="Self.FK_Lecture_Category" FromRole="Lectures" ToRole="Categories" />
+          <NavigationProperty Name="std_lecture" Relationship="Self.FK_std_lecture_Lecture" FromRole="Lectures" ToRole="std_lecture" />
+        </EntityType>
+        <EntityType Name="New_About">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="new_pages_ID" Type="Int32" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="Title" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Image_Cover" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="New_About_Content" Relationship="Self.FK_New_About_Content_New_About" FromRole="New_About" ToRole="New_About_Content" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_About_New_lang" FromRole="New_About" ToRole="New_lang" />
+          <NavigationProperty Name="New_pages" Relationship="Self.FK_New_About_New_pages" FromRole="New_About" ToRole="New_pages" />
+        </EntityType>
+        <EntityType Name="New_About_Content">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="New_About_ID" Type="Int32" Nullable="false" />
+          <Property Name="Tab_Title" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Tab_Content" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="New_About" Relationship="Self.FK_New_About_Content_New_About" FromRole="New_About_Content" ToRole="New_About" />
+        </EntityType>
+        <EntityType Name="New_ContactUs">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="New_Page_ID" Type="Int32" Nullable="false" />
+          <Property Name="Image_Cover" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Map_Link" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="UN_Adress" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="UN_PhoneNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="UN_Email" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Name_word_trans" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Email_word_trans" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber_word_trans" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Message_word_trans" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Send_word_trans" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Adress_word_trans" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_ContactUs_New_lang" FromRole="New_ContactUs" ToRole="New_lang" />
+          <NavigationProperty Name="New_pages" Relationship="Self.FK_New_ContactUs_New_pages" FromRole="New_ContactUs" ToRole="New_pages" />
+        </EntityType>
+        <EntityType Name="New_CustomerContactUs">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Message" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="New_FastNews">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Lang_ID" Type="Int32" />
+          <Property Name="NewsText" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_FastNews_New_lang" FromRole="New_FastNews" ToRole="New_lang" />
+        </EntityType>
+        <EntityType Name="New_FooterMenu">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="New_page_ID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="New_pages" Relationship="Self.FK_New_FooterMenu_New_pages" FromRole="New_FooterMenu" ToRole="New_pages" />
+        </EntityType>
+        <EntityType Name="New_Home_Page">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="phoneNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="email" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="MainVideo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="MainImage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="MainText" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="New_lang">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Direction" Type="Int32" Nullable="false" />
+          <Property Name="DefultLang" Type="Int32" />
+          <NavigationProperty Name="New_About" Relationship="Self.FK_New_About_New_lang" FromRole="New_lang" ToRole="New_About" />
+          <NavigationProperty Name="New_ContactUs" Relationship="Self.FK_New_ContactUs_New_lang" FromRole="New_lang" ToRole="New_ContactUs" />
+          <NavigationProperty Name="New_FastNews" Relationship="Self.FK_New_FastNews_New_lang" FromRole="New_lang" ToRole="New_FastNews" />
+          <NavigationProperty Name="NewGridPages" Relationship="Self.FK_GridPage_New_lang" FromRole="New_lang" ToRole="NewGridPages" />
+          <NavigationProperty Name="New_LR" Relationship="Self.FK_New_LR_New_lang" FromRole="New_lang" ToRole="New_LR" />
+          <NavigationProperty Name="New_Menu" Relationship="Self.FK_New_Menu_New_lang" FromRole="New_lang" ToRole="New_Menu" />
+          <NavigationProperty Name="New_news" Relationship="Self.FK_New_news_New_lang" FromRole="New_lang" ToRole="New_news" />
+          <NavigationProperty Name="New_page_department" Relationship="Self.FK_New_page_department_New_lang" FromRole="New_lang" ToRole="New_page_department" />
+          <NavigationProperty Name="New_page_Department_tab" Relationship="Self.FK_New_page_Department_tab_New_lang" FromRole="New_lang" ToRole="New_page_Department_tab" />
+          <NavigationProperty Name="New_Page_Tabe" Relationship="Self.FK_New_Page_Tabe_New_lang" FromRole="New_lang" ToRole="New_Page_Tabe" />
+          <NavigationProperty Name="New_Page_V_A_Horizantal_Tabe" Relationship="Self.FK_New_Page_V_A_Horizantal_Tabe_New_lang" FromRole="New_lang" ToRole="New_Page_V_A_Horizantal_Tabe" />
+          <NavigationProperty Name="New_Page_Vertical_and_H_Tabe" Relationship="Self.FK_New_Page_Vertical_and_H_Tabe_New_lang" FromRole="New_lang" ToRole="New_Page_Vertical_and_H_Tabe" />
+          <NavigationProperty Name="New_pages_facality" Relationship="Self.FK_New_pages_facality_New_lang" FromRole="New_lang" ToRole="New_pages_facality" />
+          <NavigationProperty Name="New_pages_Text" Relationship="Self.FK_New_pages_Text_New_lang" FromRole="New_lang" ToRole="New_pages_Text" />
+          <NavigationProperty Name="New_pracktes" Relationship="Self.FK_New_pracktes_New_lang" FromRole="New_lang" ToRole="New_pracktes" />
+          <NavigationProperty Name="New_Slider" Relationship="Self.FK_New_Slider_New_lang" FromRole="New_lang" ToRole="New_Slider" />
+          <NavigationProperty Name="New_SocialMedia" Relationship="Self.FK_New_SocialMedia_New_lang" FromRole="New_lang" ToRole="New_SocialMedia" />
+        </EntityType>
+        <EntityType Name="New_LR">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Image_cover" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Password_tran" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FirstName_tran" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LastName_tran" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Place_of_birth_tran" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Mobile_number_tran" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Email_tran" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Private_one" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Private_two" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Private_three" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Country" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_LR_New_lang" FromRole="New_LR" ToRole="New_lang" />
+        </EntityType>
+        <EntityType Name="New_Menu">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="New_Page_ID" Type="Int32" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_Menu_New_lang" FromRole="New_Menu" ToRole="New_lang" />
+          <NavigationProperty Name="New_pages" Relationship="Self.FK_New_Menu_New_pages" FromRole="New_Menu" ToRole="New_pages" />
+        </EntityType>
+        <EntityType Name="New_news">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="DateTime" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ShortDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FullDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Cover_image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Shourt_image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_news_New_lang" FromRole="New_news" ToRole="New_lang" />
+        </EntityType>
+        <EntityType Name="New_page_department">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Cover_image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Shourt_image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Facility_ID" Type="Int32" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_page_department_New_lang" FromRole="New_page_department" ToRole="New_lang" />
+          <NavigationProperty Name="New_Page_V_A_Horizantal_Tabe" Relationship="Self.FK_New_page_department_New_Page_V_A_Horizantal_Tabe" FromRole="New_page_department" ToRole="New_Page_V_A_Horizantal_Tabe" />
+          <NavigationProperty Name="New_page_Department_tab" Relationship="Self.FK_New_page_Department_tab_New_page_department" FromRole="New_page_department" ToRole="New_page_Department_tab" />
+        </EntityType>
+        <EntityType Name="New_page_Department_tab">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Department_ID" Type="Int32" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_page_Department_tab_New_lang" FromRole="New_page_Department_tab" ToRole="New_lang" />
+          <NavigationProperty Name="New_page_department" Relationship="Self.FK_New_page_Department_tab_New_page_department" FromRole="New_page_Department_tab" ToRole="New_page_department" />
+        </EntityType>
+        <EntityType Name="New_Page_Tabe">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="New_Page_ID" Type="Int32" Nullable="false" />
+          <Property Name="page_H_V_tabe" Type="Int32" Nullable="false" />
+          <Property Name="Image_Cover" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Category_ID" Type="Int32" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_Page_Tabe_New_lang" FromRole="New_Page_Tabe" ToRole="New_lang" />
+          <NavigationProperty Name="New_Page_tabe_Content" Relationship="Self.FK_New_Page_tabe_Content_New_Page_Tabe" FromRole="New_Page_Tabe" ToRole="New_Page_tabe_Content" />
+          <NavigationProperty Name="New_pages" Relationship="Self.FK_New_Page_Tabe_New_pages" FromRole="New_Page_Tabe" ToRole="New_pages" />
+        </EntityType>
+        <EntityType Name="New_Page_tabe_Content">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Page_Tabe_ID" Type="Int32" Nullable="false" />
+          <Property Name="Tabe_title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Tab_Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="New_Page_Tabe" Relationship="Self.FK_New_Page_tabe_Content_New_Page_Tabe" FromRole="New_Page_tabe_Content" ToRole="New_Page_Tabe" />
+        </EntityType>
+        <EntityType Name="New_Page_V_A_Horizantal_Tabe">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="New_page_V_A_H_ID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_Page_V_A_Horizantal_Tabe_New_lang" FromRole="New_Page_V_A_Horizantal_Tabe" ToRole="New_lang" />
+          <NavigationProperty Name="New_page_department" Relationship="Self.FK_New_page_department_New_Page_V_A_Horizantal_Tabe" FromRole="New_Page_V_A_Horizantal_Tabe" ToRole="New_page_department" />
+          <NavigationProperty Name="New_pages_facality" Relationship="Self.FK_New_Page_V_A_Horizantal_Tabe_New_pages_facality" FromRole="New_Page_V_A_Horizantal_Tabe" ToRole="New_pages_facality" />
+          <NavigationProperty Name="New_Page_Vertical_and_H_Tabe" Relationship="Self.FK_New_Page_Vertical_and_H_Tabe_New_Page_V_A_Horizantal_Tabe" FromRole="New_Page_V_A_Horizantal_Tabe" ToRole="New_Page_Vertical_and_H_Tabe" />
+        </EntityType>
+        <EntityType Name="New_Page_Vertical_and_H_Tabe">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="New_PageHorizantal_Tabe_ID" Type="Int32" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_Page_Vertical_and_H_Tabe_New_lang" FromRole="New_Page_Vertical_and_H_Tabe" ToRole="New_lang" />
+          <NavigationProperty Name="New_Page_V_A_Horizantal_Tabe" Relationship="Self.FK_New_Page_Vertical_and_H_Tabe_New_Page_V_A_Horizantal_Tabe" FromRole="New_Page_Vertical_and_H_Tabe" ToRole="New_Page_V_A_Horizantal_Tabe" />
+        </EntityType>
+        <EntityType Name="New_pages">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Page_Type" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="New_About" Relationship="Self.FK_New_About_New_pages" FromRole="New_pages" ToRole="New_About" />
+          <NavigationProperty Name="New_ContactUs" Relationship="Self.FK_New_ContactUs_New_pages" FromRole="New_pages" ToRole="New_ContactUs" />
+          <NavigationProperty Name="New_FooterMenu" Relationship="Self.FK_New_FooterMenu_New_pages" FromRole="New_pages" ToRole="New_FooterMenu" />
+          <NavigationProperty Name="New_Menu" Relationship="Self.FK_New_Menu_New_pages" FromRole="New_pages" ToRole="New_Menu" />
+          <NavigationProperty Name="New_Page_Tabe" Relationship="Self.FK_New_Page_Tabe_New_pages" FromRole="New_pages" ToRole="New_Page_Tabe" />
+          <NavigationProperty Name="NewGridPages" Relationship="Self.FK_GridPage_New_pages" FromRole="New_pages" ToRole="NewGridPages" />
+          <NavigationProperty Name="New_pages_Text" Relationship="Self.FK_New_pages_Text_New_pages" FromRole="New_pages" ToRole="New_pages_Text" />
+        </EntityType>
+        <EntityType Name="New_pages_facality">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Image_Cover" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="New_pages_ID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_pages_facality_New_lang" FromRole="New_pages_facality" ToRole="New_lang" />
+          <NavigationProperty Name="New_Page_V_A_Horizantal_Tabe" Relationship="Self.FK_New_Page_V_A_Horizantal_Tabe_New_pages_facality" FromRole="New_pages_facality" ToRole="New_Page_V_A_Horizantal_Tabe" />
+        </EntityType>
+        <EntityType Name="New_pages_Text">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="New_pages_ID" Type="Int32" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Image_Cover" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Text_Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_pages_Text_New_lang" FromRole="New_pages_Text" ToRole="New_lang" />
+          <NavigationProperty Name="New_pages" Relationship="Self.FK_New_pages_Text_New_pages" FromRole="New_pages_Text" ToRole="New_pages" />
+        </EntityType>
+        <EntityType Name="New_pracktes">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="DateTime" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ShortDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FullDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Cover_image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Shourt_image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_pracktes_New_lang" FromRole="New_pracktes" ToRole="New_lang" />
+        </EntityType>
+        <EntityType Name="New_Slider">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Slider_Image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="TextMessage" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_Slider_New_lang" FromRole="New_Slider" ToRole="New_lang" />
+        </EntityType>
+        <EntityType Name="New_SocialMedia">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Facebook" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Twitter" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Instgram" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="WhatsApp" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Linkedin" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Lang_ID" Type="Int32" Nullable="false" />
+          <Property Name="Youtube" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Tiktok" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Telegram" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_New_SocialMedia_New_lang" FromRole="New_SocialMedia" ToRole="New_lang" />
+        </EntityType>
+        <EntityType Name="NewGridPage_Content">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="DocLinke" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="GridPageID" Type="Int32" />
+          <NavigationProperty Name="NewGridPage" Relationship="Self.FK_GridPage_Content_GridPage" FromRole="NewGridPage_Content" ToRole="NewGridPages" />
+        </EntityType>
+        <EntityType Name="NewGridPage">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Lang_ID" Type="Int32" />
+          <Property Name="Pages_ID" Type="Int32" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Image_Cover" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="New_lang" Relationship="Self.FK_GridPage_New_lang" FromRole="NewGridPages" ToRole="New_lang" />
+          <NavigationProperty Name="New_pages" Relationship="Self.FK_GridPage_New_pages" FromRole="NewGridPages" ToRole="New_pages" />
+          <NavigationProperty Name="NewGridPage_Content" Relationship="Self.FK_GridPage_Content_GridPage" FromRole="NewGridPages" ToRole="NewGridPage_Content" />
+        </EntityType>
+        <EntityType Name="Q_FillVoid">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Question_ID" Type="Int32" Nullable="false" />
+          <Property Name="TrueValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Degry" Type="Double" Nullable="false" />
+          <NavigationProperty Name="Question" Relationship="Self.FK_Q_FillVoid_Questions" FromRole="Q_FillVoid" ToRole="Questions" />
+        </EntityType>
+        <EntityType Name="Q_Matching">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Question_ID" Type="Int32" Nullable="false" />
+          <Property Name="ChoiceText" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Degry" Type="Double" Nullable="false" />
+          <Property Name="ChoiseTrueAnswer" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Question" Relationship="Self.FK_Q_Matching_Questions" FromRole="Q_Matching" ToRole="Questions" />
+        </EntityType>
+        <EntityType Name="Q_MultiChoice">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Question_ID" Type="Int32" Nullable="false" />
+          <Property Name="Choose" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Degry" Type="Double" Nullable="false" />
+          <NavigationProperty Name="Question" Relationship="Self.FK_Q_MultiChoice_Questions" FromRole="Q_MultiChoice" ToRole="Questions" />
+        </EntityType>
+        <EntityType Name="Q_TrueOrFolse">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Question_ID" Type="Int32" Nullable="false" />
+          <Property Name="TrueValue" Type="Int32" Nullable="false" />
+          <Property Name="Degry" Type="Double" Nullable="false" />
+          <NavigationProperty Name="Question" Relationship="Self.FK_Q_TrueOrFolse_Questions" FromRole="Q_TrueOrFolse" ToRole="Questions" />
+        </EntityType>
+        <EntityType Name="Question">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Type" Type="Int32" Nullable="false" />
+          <Property Name="Q_Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Q_Text" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Q_Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Category_ID" Type="Int32" />
+          <NavigationProperty Name="Assignment_Q" Relationship="Self.FK_Assignment_Q_Questions" FromRole="Questions" ToRole="Assignment_Q" />
+          <NavigationProperty Name="Category" Relationship="Self.FK_Questions_Category" FromRole="Questions" ToRole="Categories" />
+          <NavigationProperty Name="Exam_Q" Relationship="Self.FK_Exam_Q_Questions" FromRole="Questions" ToRole="Exam_Q" />
+          <NavigationProperty Name="Q_FillVoid" Relationship="Self.FK_Q_FillVoid_Questions" FromRole="Questions" ToRole="Q_FillVoid" />
+          <NavigationProperty Name="Q_Matching" Relationship="Self.FK_Q_Matching_Questions" FromRole="Questions" ToRole="Q_Matching" />
+          <NavigationProperty Name="Q_MultiChoice" Relationship="Self.FK_Q_MultiChoice_Questions" FromRole="Questions" ToRole="Q_MultiChoice" />
+          <NavigationProperty Name="Q_TrueOrFolse" Relationship="Self.FK_Q_TrueOrFolse_Questions" FromRole="Questions" ToRole="Q_TrueOrFolse" />
+        </EntityType>
+        <EntityType Name="Std_ExamFinish">
+          <Key>
+            <PropertyRef Name="int" />
+          </Key>
+          <Property Name="int" Type="Int32" Nullable="false" />
+          <Property Name="Std_ID" Type="Int32" />
+          <Property Name="Exam_ID" Type="Int32" />
+          <Property Name="std_Req_category_ID" Type="Int32" />
+          <Property Name="isFinishExam" Type="Int32" />
+          <NavigationProperty Name="Exam" Relationship="Self.FK_Std_ExamFinish_Exams" FromRole="Std_ExamFinish" ToRole="Exams" />
+        </EntityType>
+        <EntityType Name="std_lecture">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Lecture_ID" Type="Int32" />
+          <Property Name="Std_ID" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="IsFinish" Type="Int32" />
+          <Property Name="IsTimeEnd" Type="Int32" />
+          <Property Name="IsAssingmetFinish" Type="Int32" />
+          <NavigationProperty Name="Lecture" Relationship="Self.FK_std_lecture_Lecture" FromRole="std_lecture" ToRole="Lectures" />
+        </EntityType>
+        <EntityType Name="Std_Reg_Category">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Category_ID" Type="Int32" />
+          <Property Name="Std_ID" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="category_Ispayed" Type="Int32" />
+          <Property Name="std_category_Ispayed" Type="Int32" />
+          <Property Name="std_exam_isFinish" Type="Int32" />
+          <Property Name="PayMent_Method" Type="Int32" />
+          <Property Name="TransactionFile" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Code" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PayMent_Value" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="std_exam_Finish_Time" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Certificate_appreciation" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+          <Property Name="Serial_Number" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+          <NavigationProperty Name="Category" Relationship="Self.FK_Std_Reg_Category_Category" FromRole="Std_Reg_Category" ToRole="Categories" />
+        </EntityType>
+        <EntityType Name="StyleTable">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MinuColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="BackGroundMinuColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="UpderMenuColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PracticeBackgroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="FooterColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="sysdiagram">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="principal_id" Type="Int32" Nullable="false" />
+          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="version" Type="Int32" />
+          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="UserLocation">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CountryName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Count" Type="Int32" />
+        </EntityType>
+        <Association Name="FK_Assignment_Q_Assignment">
+          <End Role="Assignments" Type="Self.Assignment" Multiplicity="1" />
+          <End Role="Assignment_Q" Type="Self.Assignment_Q" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Assignments">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Assignment_Q">
+              <PropertyRef Name="Assignment_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Assignment_Q_Questions">
+          <End Role="Questions" Type="Self.Question" Multiplicity="1" />
+          <End Role="Assignment_Q" Type="Self.Assignment_Q" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Assignment_Q">
+              <PropertyRef Name="Q_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Assignment_Lecture">
+          <End Role="Lectures" Type="Self.Lecture" Multiplicity="0..1" />
+          <End Role="Assignments" Type="Self.Assignment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Lectures">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Assignments">
+              <PropertyRef Name="Lecture_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Category_Category">
+          <End Role="Categories" Type="Self.Category" Multiplicity="0..1" />
+          <End Role="Categories1" Type="Self.Category" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Categories1">
+              <PropertyRef Name="ParentCateogry_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Category_CategoryType">
+          <End Role="CategoryTypes" Type="Self.CategoryType" Multiplicity="0..1" />
+          <End Role="Categories" Type="Self.Category" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CategoryTypes">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Categories">
+              <PropertyRef Name="CategoryType_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Exams_Category">
+          <End Role="Categories" Type="Self.Category" Multiplicity="0..1" />
+          <End Role="Exams" Type="Self.Exam" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Exams">
+              <PropertyRef Name="Category_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Lecture_Category">
+          <End Role="Categories" Type="Self.Category" Multiplicity="1" />
+          <End Role="Lectures" Type="Self.Lecture" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Lectures">
+              <PropertyRef Name="Category_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Questions_Category">
+          <End Role="Categories" Type="Self.Category" Multiplicity="0..1" />
+          <End Role="Questions" Type="Self.Question" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Questions">
+              <PropertyRef Name="Category_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Std_Reg_Category_Category">
+          <End Role="Categories" Type="Self.Category" Multiplicity="0..1" />
+          <End Role="Std_Reg_Category" Type="Self.Std_Reg_Category" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Std_Reg_Category">
+              <PropertyRef Name="Category_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CategoryType_CategoryType">
+          <End Role="CategoryTypes" Type="Self.CategoryType" Multiplicity="0..1" />
+          <End Role="CategoryTypes1" Type="Self.CategoryType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CategoryTypes">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="CategoryTypes1">
+              <PropertyRef Name="ParentType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Exam_Q_Exams">
+          <End Role="Exams" Type="Self.Exam" Multiplicity="1" />
+          <End Role="Exam_Q" Type="Self.Exam_Q" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Exams">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Exam_Q">
+              <PropertyRef Name="Exam_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Exam_Q_Questions">
+          <End Role="Questions" Type="Self.Question" Multiplicity="1" />
+          <End Role="Exam_Q" Type="Self.Exam_Q" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Exam_Q">
+              <PropertyRef Name="Q_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Std_ExamFinish_Exams">
+          <End Role="Exams" Type="Self.Exam" Multiplicity="0..1" />
+          <End Role="Std_ExamFinish" Type="Self.Std_ExamFinish" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Exams">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Std_ExamFinish">
+              <PropertyRef Name="Exam_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_std_lecture_Lecture">
+          <End Role="Lectures" Type="Self.Lecture" Multiplicity="0..1" />
+          <End Role="std_lecture" Type="Self.std_lecture" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Lectures">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="std_lecture">
+              <PropertyRef Name="Lecture_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_About_Content_New_About">
+          <End Role="New_About" Type="Self.New_About" Multiplicity="1" />
+          <End Role="New_About_Content" Type="Self.New_About_Content" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_About">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_About_Content">
+              <PropertyRef Name="New_About_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_About_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_About" Type="Self.New_About" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_About">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_About_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_About" Type="Self.New_About" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_About">
+              <PropertyRef Name="new_pages_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_ContactUs_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_ContactUs" Type="Self.New_ContactUs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_ContactUs">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_ContactUs_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_ContactUs" Type="Self.New_ContactUs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_ContactUs">
+              <PropertyRef Name="New_Page_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_FastNews_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="0..1" />
+          <End Role="New_FastNews" Type="Self.New_FastNews" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_FastNews">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_FooterMenu_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_FooterMenu" Type="Self.New_FooterMenu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_FooterMenu">
+              <PropertyRef Name="New_page_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GridPage_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="0..1" />
+          <End Role="NewGridPages" Type="Self.NewGridPage" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="NewGridPages">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_LR_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_LR" Type="Self.New_LR" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_LR">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Menu_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_Menu" Type="Self.New_Menu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Menu">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_news_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_news" Type="Self.New_news" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_news">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_page_department_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_page_department" Type="Self.New_page_department" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_page_department">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_page_Department_tab_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_page_Department_tab" Type="Self.New_page_Department_tab" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_page_Department_tab">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_Tabe_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_Page_Tabe" Type="Self.New_Page_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_Tabe">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_V_A_Horizantal_Tabe_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_Page_V_A_Horizantal_Tabe" Type="Self.New_Page_V_A_Horizantal_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_V_A_Horizantal_Tabe">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_Vertical_and_H_Tabe_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_Page_Vertical_and_H_Tabe" Type="Self.New_Page_Vertical_and_H_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_Vertical_and_H_Tabe">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_pages_facality_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_pages_facality" Type="Self.New_pages_facality" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_pages_facality">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_pages_Text_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_pages_Text" Type="Self.New_pages_Text" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_pages_Text">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_pracktes_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_pracktes" Type="Self.New_pracktes" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_pracktes">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Slider_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_Slider" Type="Self.New_Slider" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Slider">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_SocialMedia_New_lang">
+          <End Role="New_lang" Type="Self.New_lang" Multiplicity="1" />
+          <End Role="New_SocialMedia" Type="Self.New_SocialMedia" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_lang">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_SocialMedia">
+              <PropertyRef Name="Lang_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Menu_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_Menu" Type="Self.New_Menu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Menu">
+              <PropertyRef Name="New_Page_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_page_department_New_Page_V_A_Horizantal_Tabe">
+          <End Role="New_Page_V_A_Horizantal_Tabe" Type="Self.New_Page_V_A_Horizantal_Tabe" Multiplicity="1" />
+          <End Role="New_page_department" Type="Self.New_page_department" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_Page_V_A_Horizantal_Tabe">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_page_department">
+              <PropertyRef Name="Facility_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_page_Department_tab_New_page_department">
+          <End Role="New_page_department" Type="Self.New_page_department" Multiplicity="1" />
+          <End Role="New_page_Department_tab" Type="Self.New_page_Department_tab" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_page_department">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_page_Department_tab">
+              <PropertyRef Name="Department_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_tabe_Content_New_Page_Tabe">
+          <End Role="New_Page_Tabe" Type="Self.New_Page_Tabe" Multiplicity="1" />
+          <End Role="New_Page_tabe_Content" Type="Self.New_Page_tabe_Content" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_Page_Tabe">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_tabe_Content">
+              <PropertyRef Name="Page_Tabe_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_Tabe_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_Page_Tabe" Type="Self.New_Page_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_Tabe">
+              <PropertyRef Name="New_Page_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_V_A_Horizantal_Tabe_New_pages_facality">
+          <End Role="New_pages_facality" Type="Self.New_pages_facality" Multiplicity="1" />
+          <End Role="New_Page_V_A_Horizantal_Tabe" Type="Self.New_Page_V_A_Horizantal_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages_facality">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_V_A_Horizantal_Tabe">
+              <PropertyRef Name="New_page_V_A_H_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_Page_Vertical_and_H_Tabe_New_Page_V_A_Horizantal_Tabe">
+          <End Role="New_Page_V_A_Horizantal_Tabe" Type="Self.New_Page_V_A_Horizantal_Tabe" Multiplicity="1" />
+          <End Role="New_Page_Vertical_and_H_Tabe" Type="Self.New_Page_Vertical_and_H_Tabe" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_Page_V_A_Horizantal_Tabe">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_Page_Vertical_and_H_Tabe">
+              <PropertyRef Name="New_PageHorizantal_Tabe_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GridPage_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="0..1" />
+          <End Role="NewGridPages" Type="Self.NewGridPage" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="NewGridPages">
+              <PropertyRef Name="Pages_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_New_pages_Text_New_pages">
+          <End Role="New_pages" Type="Self.New_pages" Multiplicity="1" />
+          <End Role="New_pages_Text" Type="Self.New_pages_Text" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="New_pages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="New_pages_Text">
+              <PropertyRef Name="New_pages_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GridPage_Content_GridPage">
+          <End Role="NewGridPages" Type="Self.NewGridPage" Multiplicity="0..1" />
+          <End Role="NewGridPage_Content" Type="Self.NewGridPage_Content" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="NewGridPages">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="NewGridPage_Content">
+              <PropertyRef Name="GridPageID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Q_FillVoid_Questions">
+          <End Role="Questions" Type="Self.Question" Multiplicity="1" />
+          <End Role="Q_FillVoid" Type="Self.Q_FillVoid" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Q_FillVoid">
+              <PropertyRef Name="Question_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Q_Matching_Questions">
+          <End Role="Questions" Type="Self.Question" Multiplicity="1" />
+          <End Role="Q_Matching" Type="Self.Q_Matching" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Q_Matching">
+              <PropertyRef Name="Question_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Q_MultiChoice_Questions">
+          <End Role="Questions" Type="Self.Question" Multiplicity="1" />
+          <End Role="Q_MultiChoice" Type="Self.Q_MultiChoice" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Q_MultiChoice">
+              <PropertyRef Name="Question_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Q_TrueOrFolse_Questions">
+          <End Role="Questions" Type="Self.Question" Multiplicity="1" />
+          <End Role="Q_TrueOrFolse" Type="Self.Q_TrueOrFolse" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Questions">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Q_TrueOrFolse">
+              <PropertyRef Name="Question_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TabseetDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Assignment_Q" EntityType="Self.Assignment_Q" />
+          <EntitySet Name="Assignments" EntityType="Self.Assignment" />
+          <EntitySet Name="Categories" EntityType="Self.Category" />
+          <EntitySet Name="CategoryTypes" EntityType="Self.CategoryType" />
+          <EntitySet Name="ChatTables" EntityType="Self.ChatTable" />
+          <EntitySet Name="CodeGenerateds" EntityType="Self.CodeGenerated" />
+          <EntitySet Name="Exam_Q" EntityType="Self.Exam_Q" />
+          <EntitySet Name="Exams" EntityType="Self.Exam" />
+          <EntitySet Name="Lectures" EntityType="Self.Lecture" />
+          <EntitySet Name="New_About" EntityType="Self.New_About" />
+          <EntitySet Name="New_About_Content" EntityType="Self.New_About_Content" />
+          <EntitySet Name="New_ContactUs" EntityType="Self.New_ContactUs" />
+          <EntitySet Name="New_CustomerContactUs" EntityType="Self.New_CustomerContactUs" />
+          <EntitySet Name="New_FastNews" EntityType="Self.New_FastNews" />
+          <EntitySet Name="New_FooterMenu" EntityType="Self.New_FooterMenu" />
+          <EntitySet Name="New_Home_Page" EntityType="Self.New_Home_Page" />
+          <EntitySet Name="New_lang" EntityType="Self.New_lang" />
+          <EntitySet Name="New_LR" EntityType="Self.New_LR" />
+          <EntitySet Name="New_Menu" EntityType="Self.New_Menu" />
+          <EntitySet Name="New_news" EntityType="Self.New_news" />
+          <EntitySet Name="New_page_department" EntityType="Self.New_page_department" />
+          <EntitySet Name="New_page_Department_tab" EntityType="Self.New_page_Department_tab" />
+          <EntitySet Name="New_Page_Tabe" EntityType="Self.New_Page_Tabe" />
+          <EntitySet Name="New_Page_tabe_Content" EntityType="Self.New_Page_tabe_Content" />
+          <EntitySet Name="New_Page_V_A_Horizantal_Tabe" EntityType="Self.New_Page_V_A_Horizantal_Tabe" />
+          <EntitySet Name="New_Page_Vertical_and_H_Tabe" EntityType="Self.New_Page_Vertical_and_H_Tabe" />
+          <EntitySet Name="New_pages" EntityType="Self.New_pages" />
+          <EntitySet Name="New_pages_facality" EntityType="Self.New_pages_facality" />
+          <EntitySet Name="New_pages_Text" EntityType="Self.New_pages_Text" />
+          <EntitySet Name="New_pracktes" EntityType="Self.New_pracktes" />
+          <EntitySet Name="New_Slider" EntityType="Self.New_Slider" />
+          <EntitySet Name="New_SocialMedia" EntityType="Self.New_SocialMedia" />
+          <EntitySet Name="NewGridPage_Content" EntityType="Self.NewGridPage_Content" />
+          <EntitySet Name="NewGridPages" EntityType="Self.NewGridPage" />
+          <EntitySet Name="Q_FillVoid" EntityType="Self.Q_FillVoid" />
+          <EntitySet Name="Q_Matching" EntityType="Self.Q_Matching" />
+          <EntitySet Name="Q_MultiChoice" EntityType="Self.Q_MultiChoice" />
+          <EntitySet Name="Q_TrueOrFolse" EntityType="Self.Q_TrueOrFolse" />
+          <EntitySet Name="Questions" EntityType="Self.Question" />
+          <EntitySet Name="Std_ExamFinish" EntityType="Self.Std_ExamFinish" />
+          <EntitySet Name="std_lecture" EntityType="Self.std_lecture" />
+          <EntitySet Name="Std_Reg_Category" EntityType="Self.Std_Reg_Category" />
+          <EntitySet Name="StyleTables" EntityType="Self.StyleTable" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagram" />
+          <EntitySet Name="UserLocations" EntityType="Self.UserLocation" />
+          <AssociationSet Name="FK_Assignment_Q_Assignment" Association="Self.FK_Assignment_Q_Assignment">
+            <End Role="Assignments" EntitySet="Assignments" />
+            <End Role="Assignment_Q" EntitySet="Assignment_Q" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Assignment_Q_Questions" Association="Self.FK_Assignment_Q_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Assignment_Q" EntitySet="Assignment_Q" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Assignment_Lecture" Association="Self.FK_Assignment_Lecture">
+            <End Role="Lectures" EntitySet="Lectures" />
+            <End Role="Assignments" EntitySet="Assignments" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Category_Category" Association="Self.FK_Category_Category">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Categories1" EntitySet="Categories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Category_CategoryType" Association="Self.FK_Category_CategoryType">
+            <End Role="CategoryTypes" EntitySet="CategoryTypes" />
+            <End Role="Categories" EntitySet="Categories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Exams_Category" Association="Self.FK_Exams_Category">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Exams" EntitySet="Exams" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Lecture_Category" Association="Self.FK_Lecture_Category">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Lectures" EntitySet="Lectures" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Questions_Category" Association="Self.FK_Questions_Category">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Questions" EntitySet="Questions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Std_Reg_Category_Category" Association="Self.FK_Std_Reg_Category_Category">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Std_Reg_Category" EntitySet="Std_Reg_Category" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CategoryType_CategoryType" Association="Self.FK_CategoryType_CategoryType">
+            <End Role="CategoryTypes" EntitySet="CategoryTypes" />
+            <End Role="CategoryTypes1" EntitySet="CategoryTypes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Exam_Q_Exams" Association="Self.FK_Exam_Q_Exams">
+            <End Role="Exams" EntitySet="Exams" />
+            <End Role="Exam_Q" EntitySet="Exam_Q" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Exam_Q_Questions" Association="Self.FK_Exam_Q_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Exam_Q" EntitySet="Exam_Q" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Std_ExamFinish_Exams" Association="Self.FK_Std_ExamFinish_Exams">
+            <End Role="Exams" EntitySet="Exams" />
+            <End Role="Std_ExamFinish" EntitySet="Std_ExamFinish" />
+          </AssociationSet>
+          <AssociationSet Name="FK_std_lecture_Lecture" Association="Self.FK_std_lecture_Lecture">
+            <End Role="Lectures" EntitySet="Lectures" />
+            <End Role="std_lecture" EntitySet="std_lecture" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_About_Content_New_About" Association="Self.FK_New_About_Content_New_About">
+            <End Role="New_About" EntitySet="New_About" />
+            <End Role="New_About_Content" EntitySet="New_About_Content" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_About_New_lang" Association="Self.FK_New_About_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_About" EntitySet="New_About" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_About_New_pages" Association="Self.FK_New_About_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_About" EntitySet="New_About" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_ContactUs_New_lang" Association="Self.FK_New_ContactUs_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_ContactUs" EntitySet="New_ContactUs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_ContactUs_New_pages" Association="Self.FK_New_ContactUs_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_ContactUs" EntitySet="New_ContactUs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_FastNews_New_lang" Association="Self.FK_New_FastNews_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_FastNews" EntitySet="New_FastNews" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_FooterMenu_New_pages" Association="Self.FK_New_FooterMenu_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_FooterMenu" EntitySet="New_FooterMenu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GridPage_New_lang" Association="Self.FK_GridPage_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="NewGridPages" EntitySet="NewGridPages" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_LR_New_lang" Association="Self.FK_New_LR_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_LR" EntitySet="New_LR" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Menu_New_lang" Association="Self.FK_New_Menu_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_Menu" EntitySet="New_Menu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_news_New_lang" Association="Self.FK_New_news_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_news" EntitySet="New_news" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_page_department_New_lang" Association="Self.FK_New_page_department_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_page_department" EntitySet="New_page_department" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_page_Department_tab_New_lang" Association="Self.FK_New_page_Department_tab_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_page_Department_tab" EntitySet="New_page_Department_tab" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_Tabe_New_lang" Association="Self.FK_New_Page_Tabe_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_Page_Tabe" EntitySet="New_Page_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_V_A_Horizantal_Tabe_New_lang" Association="Self.FK_New_Page_V_A_Horizantal_Tabe_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_Page_V_A_Horizantal_Tabe" EntitySet="New_Page_V_A_Horizantal_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_Vertical_and_H_Tabe_New_lang" Association="Self.FK_New_Page_Vertical_and_H_Tabe_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_Page_Vertical_and_H_Tabe" EntitySet="New_Page_Vertical_and_H_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_pages_facality_New_lang" Association="Self.FK_New_pages_facality_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_pages_facality" EntitySet="New_pages_facality" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_pages_Text_New_lang" Association="Self.FK_New_pages_Text_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_pages_Text" EntitySet="New_pages_Text" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_pracktes_New_lang" Association="Self.FK_New_pracktes_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_pracktes" EntitySet="New_pracktes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Slider_New_lang" Association="Self.FK_New_Slider_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_Slider" EntitySet="New_Slider" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_SocialMedia_New_lang" Association="Self.FK_New_SocialMedia_New_lang">
+            <End Role="New_lang" EntitySet="New_lang" />
+            <End Role="New_SocialMedia" EntitySet="New_SocialMedia" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Menu_New_pages" Association="Self.FK_New_Menu_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_Menu" EntitySet="New_Menu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_page_department_New_Page_V_A_Horizantal_Tabe" Association="Self.FK_New_page_department_New_Page_V_A_Horizantal_Tabe">
+            <End Role="New_Page_V_A_Horizantal_Tabe" EntitySet="New_Page_V_A_Horizantal_Tabe" />
+            <End Role="New_page_department" EntitySet="New_page_department" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_page_Department_tab_New_page_department" Association="Self.FK_New_page_Department_tab_New_page_department">
+            <End Role="New_page_department" EntitySet="New_page_department" />
+            <End Role="New_page_Department_tab" EntitySet="New_page_Department_tab" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_tabe_Content_New_Page_Tabe" Association="Self.FK_New_Page_tabe_Content_New_Page_Tabe">
+            <End Role="New_Page_Tabe" EntitySet="New_Page_Tabe" />
+            <End Role="New_Page_tabe_Content" EntitySet="New_Page_tabe_Content" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_Tabe_New_pages" Association="Self.FK_New_Page_Tabe_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_Page_Tabe" EntitySet="New_Page_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_V_A_Horizantal_Tabe_New_pages_facality" Association="Self.FK_New_Page_V_A_Horizantal_Tabe_New_pages_facality">
+            <End Role="New_pages_facality" EntitySet="New_pages_facality" />
+            <End Role="New_Page_V_A_Horizantal_Tabe" EntitySet="New_Page_V_A_Horizantal_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_Page_Vertical_and_H_Tabe_New_Page_V_A_Horizantal_Tabe" Association="Self.FK_New_Page_Vertical_and_H_Tabe_New_Page_V_A_Horizantal_Tabe">
+            <End Role="New_Page_V_A_Horizantal_Tabe" EntitySet="New_Page_V_A_Horizantal_Tabe" />
+            <End Role="New_Page_Vertical_and_H_Tabe" EntitySet="New_Page_Vertical_and_H_Tabe" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GridPage_New_pages" Association="Self.FK_GridPage_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="NewGridPages" EntitySet="NewGridPages" />
+          </AssociationSet>
+          <AssociationSet Name="FK_New_pages_Text_New_pages" Association="Self.FK_New_pages_Text_New_pages">
+            <End Role="New_pages" EntitySet="New_pages" />
+            <End Role="New_pages_Text" EntitySet="New_pages_Text" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GridPage_Content_GridPage" Association="Self.FK_GridPage_Content_GridPage">
+            <End Role="NewGridPages" EntitySet="NewGridPages" />
+            <End Role="NewGridPage_Content" EntitySet="NewGridPage_Content" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Q_FillVoid_Questions" Association="Self.FK_Q_FillVoid_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Q_FillVoid" EntitySet="Q_FillVoid" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Q_Matching_Questions" Association="Self.FK_Q_Matching_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Q_Matching" EntitySet="Q_Matching" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Q_MultiChoice_Questions" Association="Self.FK_Q_MultiChoice_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Q_MultiChoice" EntitySet="Q_MultiChoice" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Q_TrueOrFolse_Questions" Association="Self.FK_Q_TrueOrFolse_Questions">
+            <End Role="Questions" EntitySet="Questions" />
+            <End Role="Q_TrueOrFolse" EntitySet="Q_TrueOrFolse" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="TabseetDBModelStoreContainer" CdmEntityContainer="TabseetDBEntities">
+          <EntitySetMapping Name="Assignment_Q">
+            <EntityTypeMapping TypeName="TabseetDBModel.Assignment_Q">
+              <MappingFragment StoreEntitySet="Assignment_Q">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Q_ID" ColumnName="Q_ID" />
+                <ScalarProperty Name="Assignment_ID" ColumnName="Assignment_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Assignments">
+            <EntityTypeMapping TypeName="TabseetDBModel.Assignment">
+              <MappingFragment StoreEntitySet="Assignments">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Lecture_ID" ColumnName="Lecture_ID" />
+                <ScalarProperty Name="Assignmet_Degry" ColumnName="Assignmet_Degry" />
+                <ScalarProperty Name="Assignmet_degry_Win" ColumnName="Assignmet_degry_Win" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Categories">
+            <EntityTypeMapping TypeName="TabseetDBModel.Category">
+              <MappingFragment StoreEntitySet="Categories">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="NameAr" ColumnName="NameAr" />
+                <ScalarProperty Name="NameEn" ColumnName="NameEn" />
+                <ScalarProperty Name="ParentCateogry_ID" ColumnName="ParentCateogry_ID" />
+                <ScalarProperty Name="IsPayed" ColumnName="IsPayed" />
+                <ScalarProperty Name="PayedValue" ColumnName="PayedValue" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="CategoryType_ID" ColumnName="CategoryType_ID" />
+                <ScalarProperty Name="DescriptionEN" ColumnName="DescriptionEN" />
+                <ScalarProperty Name="New_Page_ID" ColumnName="New_Page_ID" />
+                <ScalarProperty Name="CertificationAR" ColumnName="CertificationAR" />
+                <ScalarProperty Name="EndTime" ColumnName="EndTime" />
+                <ScalarProperty Name="CertificationEN" ColumnName="CertificationEN" />
+                <ScalarProperty Name="CanRegister" ColumnName="CanRegister" />
+                <ScalarProperty Name="Icon" ColumnName="Icon" />
+                <ScalarProperty Name="DocumentBook" ColumnName="DocumentBook" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CategoryTypes">
+            <EntityTypeMapping TypeName="TabseetDBModel.CategoryType">
+              <MappingFragment StoreEntitySet="CategoryTypes">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="NameAR" ColumnName="NameAR" />
+                <ScalarProperty Name="NameEn" ColumnName="NameEn" />
+                <ScalarProperty Name="ParentType" ColumnName="ParentType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ChatTables">
+            <EntityTypeMapping TypeName="TabseetDBModel.ChatTable">
+              <MappingFragment StoreEntitySet="ChatTables">
+                <ScalarProperty Name="int" ColumnName="int" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Category_ID" ColumnName="Category_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="date_Time" ColumnName="date_Time" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CodeGenerateds">
+            <EntityTypeMapping TypeName="TabseetDBModel.CodeGenerated">
+              <MappingFragment StoreEntitySet="CodeGenerateds">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="TimeEnd" ColumnName="TimeEnd" />
+                <ScalarProperty Name="Count" ColumnName="Count" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Exam_Q">
+            <EntityTypeMapping TypeName="TabseetDBModel.Exam_Q">
+              <MappingFragment StoreEntitySet="Exam_Q">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Q_ID" ColumnName="Q_ID" />
+                <ScalarProperty Name="Exam_ID" ColumnName="Exam_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Exams">
+            <EntityTypeMapping TypeName="TabseetDBModel.Exam">
+              <MappingFragment StoreEntitySet="Exams">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Day_Time" ColumnName="Day_Time" />
+                <ScalarProperty Name="Start_Time" ColumnName="Start_Time" />
+                <ScalarProperty Name="Duration" ColumnName="Duration" />
+                <ScalarProperty Name="Category_ID" ColumnName="Category_ID" />
+                <ScalarProperty Name="Exam_Degry" ColumnName="Exam_Degry" />
+                <ScalarProperty Name="Exam_win_Degry" ColumnName="Exam_win_Degry" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Lectures">
+            <EntityTypeMapping TypeName="TabseetDBModel.Lecture">
+              <MappingFragment StoreEntitySet="Lectures">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Lecture_Name" ColumnName="Lecture_Name" />
+                <ScalarProperty Name="Category_ID" ColumnName="Category_ID" />
+                <ScalarProperty Name="DayandTime" ColumnName="DayandTime" />
+                <ScalarProperty Name="LectureTypeOnOff" ColumnName="LectureTypeOnOff" />
+                <ScalarProperty Name="LectureLink_Host" ColumnName="LectureLink_Host" />
+                <ScalarProperty Name="DocumenFile" ColumnName="DocumenFile" />
+                <ScalarProperty Name="MediaLink" ColumnName="MediaLink" />
+                <ScalarProperty Name="Others" ColumnName="Others" />
+                <ScalarProperty Name="LectureLink_Client" ColumnName="LectureLink_Client" />
+                <ScalarProperty Name="LectureMinTime" ColumnName="LectureMinTime" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_About">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_About">
+              <MappingFragment StoreEntitySet="New_About">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="new_pages_ID" ColumnName="new_pages_ID" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Image_Cover" ColumnName="Image_Cover" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_About_Content">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_About_Content">
+              <MappingFragment StoreEntitySet="New_About_Content">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="New_About_ID" ColumnName="New_About_ID" />
+                <ScalarProperty Name="Tab_Title" ColumnName="Tab_Title" />
+                <ScalarProperty Name="Tab_Content" ColumnName="Tab_Content" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_ContactUs">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_ContactUs">
+              <MappingFragment StoreEntitySet="New_ContactUs">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="title" ColumnName="title" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="New_Page_ID" ColumnName="New_Page_ID" />
+                <ScalarProperty Name="Image_Cover" ColumnName="Image_Cover" />
+                <ScalarProperty Name="Map_Link" ColumnName="Map_Link" />
+                <ScalarProperty Name="UN_Adress" ColumnName="UN_Adress" />
+                <ScalarProperty Name="UN_PhoneNumber" ColumnName="UN_PhoneNumber" />
+                <ScalarProperty Name="UN_Email" ColumnName="UN_Email" />
+                <ScalarProperty Name="Name_word_trans" ColumnName="Name_word_trans" />
+                <ScalarProperty Name="Email_word_trans" ColumnName="Email_word_trans" />
+                <ScalarProperty Name="PhoneNumber_word_trans" ColumnName="PhoneNumber_word_trans" />
+                <ScalarProperty Name="Message_word_trans" ColumnName="Message_word_trans" />
+                <ScalarProperty Name="Send_word_trans" ColumnName="Send_word_trans" />
+                <ScalarProperty Name="Adress_word_trans" ColumnName="Adress_word_trans" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_CustomerContactUs">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_CustomerContactUs">
+              <MappingFragment StoreEntitySet="New_CustomerContactUs">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_FastNews">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_FastNews">
+              <MappingFragment StoreEntitySet="New_FastNews">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="NewsText" ColumnName="NewsText" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_FooterMenu">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_FooterMenu">
+              <MappingFragment StoreEntitySet="New_FooterMenu">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="New_page_ID" ColumnName="New_page_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_Home_Page">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_Home_Page">
+              <MappingFragment StoreEntitySet="New_Home_Page">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="phoneNumber" ColumnName="phoneNumber" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="MainVideo" ColumnName="MainVideo" />
+                <ScalarProperty Name="MainImage" ColumnName="MainImage" />
+                <ScalarProperty Name="MainText" ColumnName="MainText" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_lang">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_lang">
+              <MappingFragment StoreEntitySet="New_lang">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Direction" ColumnName="Direction" />
+                <ScalarProperty Name="DefultLang" ColumnName="DefultLang" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_LR">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_LR">
+              <MappingFragment StoreEntitySet="New_LR">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Image_cover" ColumnName="Image_cover" />
+                <ScalarProperty Name="Password_tran" ColumnName="Password_tran" />
+                <ScalarProperty Name="FirstName_tran" ColumnName="FirstName_tran" />
+                <ScalarProperty Name="LastName_tran" ColumnName="LastName_tran" />
+                <ScalarProperty Name="Place_of_birth_tran" ColumnName="Place_of_birth_tran" />
+                <ScalarProperty Name="Mobile_number_tran" ColumnName="Mobile_number_tran" />
+                <ScalarProperty Name="Email_tran" ColumnName="Email_tran" />
+                <ScalarProperty Name="Private_one" ColumnName="Private_one" />
+                <ScalarProperty Name="Private_two" ColumnName="Private_two" />
+                <ScalarProperty Name="Private_three" ColumnName="Private_three" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_Menu">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_Menu">
+              <MappingFragment StoreEntitySet="New_Menu">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="New_Page_ID" ColumnName="New_Page_ID" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_news">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_news">
+              <MappingFragment StoreEntitySet="New_news">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="DateTime" ColumnName="DateTime" />
+                <ScalarProperty Name="ShortDescription" ColumnName="ShortDescription" />
+                <ScalarProperty Name="FullDescription" ColumnName="FullDescription" />
+                <ScalarProperty Name="Cover_image" ColumnName="Cover_image" />
+                <ScalarProperty Name="Shourt_image" ColumnName="Shourt_image" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_page_department">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_page_department">
+              <MappingFragment StoreEntitySet="New_page_department">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Cover_image" ColumnName="Cover_image" />
+                <ScalarProperty Name="Shourt_image" ColumnName="Shourt_image" />
+                <ScalarProperty Name="Facility_ID" ColumnName="Facility_ID" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_page_Department_tab">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_page_Department_tab">
+              <MappingFragment StoreEntitySet="New_page_Department_tab">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Department_ID" ColumnName="Department_ID" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_Page_Tabe">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_Page_Tabe">
+              <MappingFragment StoreEntitySet="New_Page_Tabe">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="New_Page_ID" ColumnName="New_Page_ID" />
+                <ScalarProperty Name="page_H_V_tabe" ColumnName="page_H_V_tabe" />
+                <ScalarProperty Name="Image_Cover" ColumnName="Image_Cover" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Category_ID" ColumnName="Category_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_Page_tabe_Content">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_Page_tabe_Content">
+              <MappingFragment StoreEntitySet="New_Page_tabe_Content">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Page_Tabe_ID" ColumnName="Page_Tabe_ID" />
+                <ScalarProperty Name="Tabe_title" ColumnName="Tabe_title" />
+                <ScalarProperty Name="Tab_Description" ColumnName="Tab_Description" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_Page_V_A_Horizantal_Tabe">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_Page_V_A_Horizantal_Tabe">
+              <MappingFragment StoreEntitySet="New_Page_V_A_Horizantal_Tabe">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="New_page_V_A_H_ID" ColumnName="New_page_V_A_H_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_Page_Vertical_and_H_Tabe">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_Page_Vertical_and_H_Tabe">
+              <MappingFragment StoreEntitySet="New_Page_Vertical_and_H_Tabe">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="New_PageHorizantal_Tabe_ID" ColumnName="New_PageHorizantal_Tabe_ID" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_pages">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_pages">
+              <MappingFragment StoreEntitySet="New_pages">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="Page_Type" ColumnName="Page_Type" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_pages_facality">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_pages_facality">
+              <MappingFragment StoreEntitySet="New_pages_facality">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Image_Cover" ColumnName="Image_Cover" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="New_pages_ID" ColumnName="New_pages_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_pages_Text">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_pages_Text">
+              <MappingFragment StoreEntitySet="New_pages_Text">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="New_pages_ID" ColumnName="New_pages_ID" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="title" ColumnName="title" />
+                <ScalarProperty Name="Image_Cover" ColumnName="Image_Cover" />
+                <ScalarProperty Name="Text_Description" ColumnName="Text_Description" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_pracktes">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_pracktes">
+              <MappingFragment StoreEntitySet="New_pracktes">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="DateTime" ColumnName="DateTime" />
+                <ScalarProperty Name="ShortDescription" ColumnName="ShortDescription" />
+                <ScalarProperty Name="FullDescription" ColumnName="FullDescription" />
+                <ScalarProperty Name="Cover_image" ColumnName="Cover_image" />
+                <ScalarProperty Name="Shourt_image" ColumnName="Shourt_image" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_Slider">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_Slider">
+              <MappingFragment StoreEntitySet="New_Slider">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Slider_Image" ColumnName="Slider_Image" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="TextMessage" ColumnName="TextMessage" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="New_SocialMedia">
+            <EntityTypeMapping TypeName="TabseetDBModel.New_SocialMedia">
+              <MappingFragment StoreEntitySet="New_SocialMedia">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Facebook" ColumnName="Facebook" />
+                <ScalarProperty Name="Twitter" ColumnName="Twitter" />
+                <ScalarProperty Name="Instgram" ColumnName="Instgram" />
+                <ScalarProperty Name="WhatsApp" ColumnName="WhatsApp" />
+                <ScalarProperty Name="Linkedin" ColumnName="Linkedin" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="Youtube" ColumnName="Youtube" />
+                <ScalarProperty Name="Tiktok" ColumnName="Tiktok" />
+                <ScalarProperty Name="Telegram" ColumnName="Telegram" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="NewGridPage_Content">
+            <EntityTypeMapping TypeName="TabseetDBModel.NewGridPage_Content">
+              <MappingFragment StoreEntitySet="NewGridPage_Content">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Image" ColumnName="Image" />
+                <ScalarProperty Name="DocLinke" ColumnName="DocLinke" />
+                <ScalarProperty Name="GridPageID" ColumnName="GridPageID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="NewGridPages">
+            <EntityTypeMapping TypeName="TabseetDBModel.NewGridPage">
+              <MappingFragment StoreEntitySet="NewGridPages">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
+                <ScalarProperty Name="Pages_ID" ColumnName="Pages_ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Image_Cover" ColumnName="Image_Cover" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Q_FillVoid">
+            <EntityTypeMapping TypeName="TabseetDBModel.Q_FillVoid">
+              <MappingFragment StoreEntitySet="Q_FillVoid">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
+                <ScalarProperty Name="TrueValue" ColumnName="TrueValue" />
+                <ScalarProperty Name="Degry" ColumnName="Degry" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Q_Matching">
+            <EntityTypeMapping TypeName="TabseetDBModel.Q_Matching">
+              <MappingFragment StoreEntitySet="Q_Matching">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
+                <ScalarProperty Name="ChoiceText" ColumnName="ChoiceText" />
+                <ScalarProperty Name="Degry" ColumnName="Degry" />
+                <ScalarProperty Name="ChoiseTrueAnswer" ColumnName="ChoiseTrueAnswer" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Q_MultiChoice">
+            <EntityTypeMapping TypeName="TabseetDBModel.Q_MultiChoice">
+              <MappingFragment StoreEntitySet="Q_MultiChoice">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
+                <ScalarProperty Name="Choose" ColumnName="Choose" />
+                <ScalarProperty Name="Degry" ColumnName="Degry" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Q_TrueOrFolse">
+            <EntityTypeMapping TypeName="TabseetDBModel.Q_TrueOrFolse">
+              <MappingFragment StoreEntitySet="Q_TrueOrFolse">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
+                <ScalarProperty Name="TrueValue" ColumnName="TrueValue" />
+                <ScalarProperty Name="Degry" ColumnName="Degry" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Questions">
+            <EntityTypeMapping TypeName="TabseetDBModel.Question">
+              <MappingFragment StoreEntitySet="Questions">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Q_Name" ColumnName="Q_Name" />
+                <ScalarProperty Name="Q_Text" ColumnName="Q_Text" />
+                <ScalarProperty Name="Q_Description" ColumnName="Q_Description" />
+                <ScalarProperty Name="Category_ID" ColumnName="Category_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Std_ExamFinish">
+            <EntityTypeMapping TypeName="TabseetDBModel.Std_ExamFinish">
+              <MappingFragment StoreEntitySet="Std_ExamFinish">
+                <ScalarProperty Name="int" ColumnName="int" />
+                <ScalarProperty Name="Std_ID" ColumnName="Std_ID" />
+                <ScalarProperty Name="Exam_ID" ColumnName="Exam_ID" />
+                <ScalarProperty Name="std_Req_category_ID" ColumnName="std_Req_category_ID" />
+                <ScalarProperty Name="isFinishExam" ColumnName="isFinishExam" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="std_lecture">
+            <EntityTypeMapping TypeName="TabseetDBModel.std_lecture">
+              <MappingFragment StoreEntitySet="std_lecture">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Lecture_ID" ColumnName="Lecture_ID" />
+                <ScalarProperty Name="Std_ID" ColumnName="Std_ID" />
+                <ScalarProperty Name="IsFinish" ColumnName="IsFinish" />
+                <ScalarProperty Name="IsTimeEnd" ColumnName="IsTimeEnd" />
+                <ScalarProperty Name="IsAssingmetFinish" ColumnName="IsAssingmetFinish" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Std_Reg_Category">
+            <EntityTypeMapping TypeName="TabseetDBModel.Std_Reg_Category">
+              <MappingFragment StoreEntitySet="Std_Reg_Category">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Category_ID" ColumnName="Category_ID" />
+                <ScalarProperty Name="Std_ID" ColumnName="Std_ID" />
+                <ScalarProperty Name="category_Ispayed" ColumnName="category_Ispayed" />
+                <ScalarProperty Name="std_category_Ispayed" ColumnName="std_category_Ispayed" />
+                <ScalarProperty Name="std_exam_isFinish" ColumnName="std_exam_isFinish" />
+                <ScalarProperty Name="PayMent_Method" ColumnName="PayMent_Method" />
+                <ScalarProperty Name="TransactionFile" ColumnName="TransactionFile" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="PayMent_Value" ColumnName="PayMent_Value" />
+                <ScalarProperty Name="std_exam_Finish_Time" ColumnName="std_exam_Finish_Time" />
+                <ScalarProperty Name="Certificate_appreciation" ColumnName="Certificate_appreciation" />
+                <ScalarProperty Name="Serial_Number" ColumnName="Serial_Number" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="StyleTables">
+            <EntityTypeMapping TypeName="TabseetDBModel.StyleTable">
+              <MappingFragment StoreEntitySet="StyleTables">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="MinuColor" ColumnName="MinuColor" />
+                <ScalarProperty Name="BackGroundMinuColor" ColumnName="BackGroundMinuColor" />
+                <ScalarProperty Name="UpderMenuColor" ColumnName="UpderMenuColor" />
+                <ScalarProperty Name="PracticeBackgroundColor" ColumnName="PracticeBackgroundColor" />
+                <ScalarProperty Name="FooterColor" ColumnName="FooterColor" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="sysdiagrams">
+            <EntityTypeMapping TypeName="TabseetDBModel.sysdiagram">
+              <MappingFragment StoreEntitySet="sysdiagrams">
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="definition" ColumnName="definition" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserLocations">
+            <EntityTypeMapping TypeName="TabseetDBModel.UserLocation">
+              <MappingFragment StoreEntitySet="UserLocations">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="CountryName" ColumnName="CountryName" />
+                <ScalarProperty Name="Count" ColumnName="Count" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

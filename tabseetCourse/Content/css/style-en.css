@@ -1,0 +1,284 @@
+
+.fees_list li.title span,
+.AlQabas_Bold,
+body{
+    font-family: 'Montserrat', sans-serif;
+}
+.top_header .links {
+    float: right;
+    padding-right: 30px;
+    padding-left: 30px;
+    border-radius: 0px 0px 0px 22px;
+}
+.top_header:before {
+    top: 0px;
+    left: auto;
+    right: 0px;
+    border-radius: 0px 0px 0px 22px;
+}
+.social_media {
+    float: right;
+}
+.lang_list {
+    float: right;
+    padding: 0px 15px 0px 0px;
+    margin: 10px 15px 0px 0px;
+}
+.lang_list:before {
+    left: auto;
+    right: 0px;
+}
+.lang_list li a {
+    margin-left: 0px;
+    margin-right: 15px;
+}
+.navbar:before {
+    left: auto;
+    right: 0px;
+}
+.header .navbar .container{
+    direction: ltr;
+}
+.navbar-brand {
+    margin-right: 30px;
+    margin-left: 0px;
+}
+.navbar-collapse {
+    border-radius: 0px 0px 0px 27px;
+}
+.big_title {
+    text-align: left;
+}
+.big_title p {
+    float: left;
+}
+.big_title .line {
+    float: left;
+}
+.colleges li {
+    float: left;
+}
+.news .text_sec {
+    float: left;
+}
+.news .slider_sec {
+    float: right;
+}
+.news .text_sec h2 {
+    text-align: right;
+}
+.news .text_sec a {
+    left: auto;
+    right: 70px;
+}
+.news .activities_slider .slick-prev, .news .news_slider .slick-prev {
+    left: -267px;
+    right: auto;
+}
+.news .activities_slider .slick-next, .news .news_slider .slick-next {
+    right: auto;
+    left: -133px;
+}
+.news .activities_slider .slick-list .slide, .news .news_slider .slick-list .slide {
+    text-align: left;
+    direction: ltr;
+}
+.news .news_slider .slick-list .slide a.more {
+    float: left;
+}
+.news .activities_slider .slick-list .slide span.date, .news .news_slider .slick-list .slide span.date {
+    float: left;
+    right: auto;
+    left: 7%;
+    border-radius: 10px 34px 0px 0px;
+}
+.news .news_slider .slick-list .slide a.news_more:after {
+    right: auto;
+    left: 7%;
+}
+.news .text_sec {
+    padding: 45px 70px 45px 45px;
+}
+.news.activities .text_sec {
+    border-radius: 0px 0px 100px 0px;
+}
+.footer .container {
+    direction: ltr;
+    text-align: left;
+}
+.footer .email, .footer .phone,
+.footer h3 {
+    text-align: right;
+}
+.footer .social_btn {
+    float: right;
+    margin: 10px 0px 0px 5px;
+}
+.sub_footer p {
+    float: left;
+}
+.sub_footer .payment_icons {
+    float: right;
+    position: relative;
+    top: 6px;
+}
+
+.tabs_sec.sidebar_type #tabs {
+    float: left;
+}
+.tabs_sec.sidebar_type .tab-content {
+    float: right;
+    direction: ltr;
+}
+.tabs_sec.sidebar_type #tabs:before {
+    top: 0px;
+    bottom: 0px;
+    left: auto;
+    right: 0px;
+}
+.tabs_sec.sidebar_type #tabs li a {
+    margin: 0px 0px 10px 30px;
+    border-radius: 0px 0px 0px 20px;
+}
+.categories_sec li {
+    float: left;
+}
+.categories_sec li .image {
+    float: right;
+}
+.categories_sec li .text_sec {
+    float: left;
+    text-align: left;
+}
+.categories_sec li p {
+    direction: ltr;
+}
+categories_sec li .image:before {
+    left: auto;
+    right: -10px;
+}
+.contact_sec{
+    direction: rtl;
+}
+.form_section label {
+    text-align: left;
+}
+.form_section .bootstrap-select>.dropdown-toggle, .form_section .form-control {
+    text-align: left;
+}
+.address_sec li b {
+    float: left;
+    margin-left: 0px;
+    margin-right: 5px;
+}
+.address_sec li span {
+    float: left;
+}
+.tabs_sec #tabs {
+    direction: ltr;
+}
+.tabs_sec .tab-content {
+    direction: ltr;
+}
+.form_section label {
+    text-align: left;
+}
+.form_section .bootstrap-select>.dropdown-toggle, .form_section .form-control {
+    text-align: left;
+}
+.input-group-btn .btn-file {
+    left: auto;
+    right: 0px;
+}
+.file-input-label {
+    padding-left: 10px;
+    padding-right: 96px;
+    text-align: left;
+}
+.form_section .bootstrap-select .dropdown-menu {
+    text-align: left;
+}
+.form_section .bootstrap-select>.dropdown-toggle {
+    direction: ltr;
+}
+.form_section .bootstrap-select>.dropdown-toggle .filter-option {
+    text-align: left;
+}
+.registration_sec .form-group {
+    float: left;
+}
+ul.list {
+    direction: ltr;
+}
+.fees_list li span:nth-child(1) {
+    float: left;
+    padding: 12px 10px 15px 40px;
+    border-left: 0px;
+    border-right: 1px solid #e0e0e0;
+    text-align: left;
+}
+.fees_list li span:nth-child(2) {
+    float: left;
+    text-align: left;
+    border-left: 0px;
+    border-right: 1px solid #e0e0e0;
+    padding: 12px 10px 15px 40px;
+}
+.fees_list li span:nth-child(3) {
+    float: left;
+    padding: 12px 10px 15px 40px;
+    text-align: left;
+}
+.fees_list li.title span {
+    border: 0px !important;
+    position: relative;
+    top: -12px;
+}
+
+
+
+
+/*****---- Start Responsive ----*******/
+
+@media (max-width: 1200px){
+
+}
+
+
+
+
+@media (max-width: 992px){
+
+}
+
+
+
+@media (max-width: 812px){
+    .navbar-brand {
+        margin-left: 15px;
+    }
+    .navbar-light .navbar-toggler {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    .navbar-light .navbar-nav .nav-link {
+        text-align: left;
+    }
+    .top_header .links {
+        border-radius: 0px;
+    }
+    .colleges {
+        direction: ltr;
+    }
+    .tabs_sec.sidebar_type #tabs {
+        direction: ltr;
+    }
+    .tabs_sec.sidebar_type #tabs li a {
+        margin: 0px;
+        border-radius: 20px 20px 0px 0px;
+    }
+}
+
+@media (max-width: 480px){
+
+}

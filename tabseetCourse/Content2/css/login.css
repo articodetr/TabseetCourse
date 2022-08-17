@@ -1,0 +1,99 @@
+
+body{
+    font-family: 'Cairo', sans-serif;
+}
+
+.login_content{
+    float: left;
+    width: 100%;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    padding: 60px;
+    height: 100%;
+    display: block;
+}
+.login_content:before{
+    content: "";
+    float: left;
+    width: 100%;
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    background-image: url('../img/login-bg.jpg');
+    background-size: cover;
+    height: 100%;
+    transform:scaleX(-1);
+}
+.login_content:after{
+    content: "";
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+.form_sec{
+    float: right;
+    width: 400px;
+    height: auto;
+    min-height: 400px;
+    background-color: rgba(17,52,100,0.5);
+    border-radius: 25px;
+    max-height: 620px;
+    position: relative;
+    z-index: 99;
+    text-align: center;
+    padding: 30px;
+}
+
+h1{
+    font-size: 30px;
+    color: #ffffff;
+    margin-bottom: 30px;
+}
+.submit_btn{
+    width: 100%;
+    background-color: #AF8F4B;
+    border: 0px;
+    height: 42px;
+    font-size: 22px;
+    padding: 0px 0px 6px 0px;
+    border-radius: 8px;
+    -webkit-box-shadow: 0px 5px 7px -3px #000000; 
+    box-shadow: 0px 5px 7px -3px #000000;
+}
+.form-control{
+    text-align: right;
+    direction: rtl;
+    height: 42px;
+    background-color: #979DA5;
+    border-radius: 8px;
+    border: 0px;
+}
+.facebook_btn{
+    width: 100%;
+    margin: 30px 0px;
+    padding: 8px;
+    font-size: 17px;
+    color: #ffffff;
+    background-color: #5447AA;
+    border: 0px;
+    -webkit-box-shadow: 0px 5px 7px -3px #000000; 
+    box-shadow: 0px 5px 7px -3px #000000;
+}
+.forget{
+    font-size: 20px;
+    color: #ffffff;
+}
+.forget:hover{
+    color: #ffffff;
+}
+.register{
+    font-size: 20px;
+    color: #AF8F4B;
+}
+.register:hover{
+    color: #AF8F4B;
+}
