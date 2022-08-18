@@ -227,7 +227,11 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup1.cs" />
     <Compile Include="Classes\SharedCalss.cs" />
+    <Compile Include="Controllers\ControlpanelController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\NotFoundController.cs" />
+    <Compile Include="Controllers\StudentsController.cs" />
+    <Compile Include="Controllers\TeacherController.cs" />
     <Compile Include="Data\Assignment.cs">
       <DependentUpon>TabseetDB.tt</DependentUpon>
     </Compile>
@@ -9072,10 +9076,14 @@
     <Content Include="Views\Home\GridPage.cshtml" />
     <Content Include="Views\Home\HorizantalTabePagePage.cshtml" />
     <Content Include="Views\Home\VerticalTabePagePage.cshtml" />
+    <Content Include="Views\NotFound\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Uploade\Images\" />
+    <Folder Include="Views\Controlpanel\" />
+    <Folder Include="Views\Students\" />
+    <Folder Include="Views\Teacher\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
