@@ -1,0 +1,456 @@
+﻿@model tabseetCourse.Models_UI.LR_Model
+
+@{
+    Layout = null;
+}
+
+<!-- bootstrap css -->
+<link href="~/Content2/bootstrap4/bootstrap.min.css" rel="stylesheet" type="text/css" />
+
+<!-- fontawesome -->
+<!-- animate -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.css" integrity="sha512-OodagY/LAbXf1TAkypAk+8OWjR+wGA8k3H7TGH+gku7+VsOmJRCQ2pTQJoTo/bATGwTOFdypCXqMV8snRZkC+w==" crossorigin="anonymous" />
+
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400&display=swap" rel="stylesheet">
+
+
+<link href="~/Content2/css/aos.min.css" rel="stylesheet" type="text/css" />
+
+
+<!--  My Style  -->
+<link href="~/Content2/css/login.css" rel="stylesheet" type="text/css" />
+
+<!--  My Style EN  -->
+<!--  bootstrap and jquery js  -->
+<script src="~/Content2/bootstrap4/jquery-3.5.1.slim.min.js" type="text/javascript"></script>
+<script src="~/Content2/js/jquery.min.js" type="text/javascript"></script>
+<script src="~/Content2/js/jquery.min.js" type="text/javascript"></script>
+<script src="~/Content2/bootstrap4/popper.min.js" type="text/javascript"></script>
+<script src="~/Content2/bootstrap4/bootstrap.min.js" type="text/javascript"></script>
+
+
+
+<!--        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" type="text/javascript"></script>-->
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.css" rel="stylesheet" type="text/css" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" type="text/javascript"></script>
+<div class="login_content">
+    <div class="form_sec" style="width:600px">
+        <h1>إنشاء حساب</h1>
+
+        <div class="form_section">
+
+            @Html.AntiForgeryToken()
+
+
+            <h4 style="
+    color: white;">
+                معلومات شخصية
+            </h4>
+
+            <table style="width:100%">
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <label for="Country" style="
+    color: white;
+    direction: rtl;
+    float: right;
+">البلد</label>
+                            <select id="Country_ID" name="Country" class="form-control">
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <label for="FlullName" style="
+    color: white;
+    direction: rtl;
+    float: right;
+">الاسم </label>
+                            <input name="FullName" id="FullName" class="form-control" placeholder="@Model.FirstName_tran " />
+                        </div>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <label form="PhoneNumber" style="
+    color: white;
+    direction: rtl;
+    float: right;
+">رقم الهاتف</label>
+                            <input name="PhoneNumber" id="Mobile_Number" class="form-control" placeholder="@Model.Mobile_number_tran" onkeyup="isValid(this)" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <label for="Email" style="
+    color: white;
+    direction: rtl;
+    float: right;
+">البريد الإلكتروني</label>
+                            <input name="Email" id="Email" type="email" class="form-control" placeholder="@Model.Email_tran" onchange="ValidateEmail('Email')" />
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="form-group">
+                            <label for="Password" style="
+    color: white;
+    direction: rtl;
+    float: right;
+">كلمة المرور</label>
+                            <input name="Password" id="Password_ID" required class="form-control" type="password" placeholder="@Model.Password_tran" />
+                        </div>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+        <button type="submit" class="btn btn-primary submit_btn" onsubmit="" onclick="RegjesterNewStd()">تسجيل</button>
+
+
+        <button type="button" class="btn btn-primary facebook_btn">
+            <i class="fab fa-facebook"></i>
+            تسجيل دخول فيسبوك
+        </button>
+
+        <div class="form-group">
+
+            <a href="@Url.Action("LogIn","Home")" class="register">تسجيل دخول  </a>
+        </div>
+
+        @if (ViewBag.Message != null)
+        {
+            <div class="form-group">
+                <div class="alert alert-danger">
+                    <h3>
+
+                        @ViewBag.Message
+                    </h3>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script src="~/Content2/js/aos.min.js" type="text/javascript"></script>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+<script>
+    //window.fbAsyncInit = function () {
+    //    FB.init({
+    //        appId: '4292442804199894',
+    //        cookie: true,
+    //        xfbml: true,
+    //        version: 'v12.00'
+    //    });
+
+    //    FB.AppEvents.logPageView();
+    //    (function (d, s, id) {
+    //        var js, fjs = d.getElementsByTagName(s)[0];
+    //        if (d.getElementById(id)) { return; }
+    //        js = d.createElement(s); js.id = id;
+    //        js.src = "https://connect.facebook.net/en_US/sdk.js";
+    //        fjs.parentNode.insertBefore(js, fjs);
+    //    }(document, 'script', 'facebook-jssdk'));
+
+
+
+    //    FB.getLoginStatus(function (response) {
+    //        statusChangeCallback(response);
+    //    });
+    //    FB.login(function (response) {
+    //        console.log(response);
+    //    });
+
+    //};
+    //function checkLoginState() {
+    //    FB.getLoginStatus(function (response) {
+    //        statusChangeCallback(response);
+    //    });
+    //}
+    //function statusChangeCallback(response) {
+    //    console.log(response);
+    //}
+    function statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
+        console.log('statusChangeCallback');
+        console.log(response);                   // The current login status of the person.
+        if (response.status === 'connected') {   // Logged into your webpage and Facebook.
+            testAPI();
+        } else {                                 // Not logged into your webpage or we are unable to tell.
+            document.getElementById('status').innerHTML = 'Please log ' +
+                'into this webpage.';
+        }
+    }
+
+
+    function checkLoginState() {               // Called when a person is finished with the Login Button.
+        FB.getLoginStatus(function (response) {   // See the onlogin handler
+            statusChangeCallback(response);
+        });
+    }
+
+
+    window.fbAsyncInit = function () {
+        FB.init({
+            appId: '{4292442804199894}',
+            cookie: true,                     // Enable cookies to allow the server to access the session.
+            xfbml: true,                     // Parse social plugins on this webpage.
+            version: '{v12.0}'           // Use this Graph API version for this call.
+        });
+
+
+        FB.getLoginStatus(function (response) {   // Called after the JS SDK has been initialized.
+            statusChangeCallback(response);        // Returns the login status.
+        });
+    };
+
+    function testAPI() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
+        console.log('Welcome!  Fetching your information.... ');
+        FB.api('/me', function (response) {
+            console.log('Successful login for: ' + response.name);
+            document.getElementById('status').innerHTML =
+                'Thanks for logging in, ' + response.name + '!';
+        });
+    }
+
+</script>
+
+
+<script>
+    var parallax = $('.top_banar');
+    parallax.css({ 'background-position': 'center center' }); // better use CSS
+
+    $(window).scroll(function () {
+        var st = $(this).scrollTop();
+        parallax.css({ 'background-position': 'center calc(50% + ' + (st / 5) + 'px)' });
+    });
+
+</script>
+<!-- Toastr -->
+<link rel="stylesheet" href="~/Content/plugins/toastr/toastr.min.css">
+<!-- Toastr -->
+<script src="~/Content/plugins/toastr/toastr.min.js"></script>
+
+
+
+<script src="~/Scripts/CustomJavascript.js"></script>
+
+
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    var isLoading = true;
+    $(document).on('change', '.btn-file :file', function () {
+        var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [numFiles, label]);
+    });
+
+    $(document).ready(function () {
+        $('.btn-file :file').on('fileselect', function (event, numFiles, label) {
+            console.log("teste");
+            var input_label = $(this).closest('.input-group').find('.file-input-label'),
+                log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+            if (input_label.length) {
+                input_label.text(log);
+            } else {
+                if (log)
+                    alert(log);
+            }
+        });
+
+    });
+
+
+
+    function CheckboxChange() {
+
+        var value = document.getElementsByName("checkbox1");
+        var j=0
+        for (i = 0; i < value.length; i++) {
+
+            if (value[i].checked) {
+                j++;
+                if (j == 3) {
+                    document.getElementById("btn_Send").hidden = false;
+                }
+
+            } else {
+                j = 0;
+                document.getElementById("btn_Send").hidden = true;
+            }
+
+        }
+    }
+    //function LevelChange() {
+
+    //    var value = $("#Student_Kind").val();
+    //    if (value == -1) {
+    //        $("#IdentityDoc_PDF_ID").hide();
+    //        $("#Secondary_certificateDoc_PDF_ID").hide();
+    //    }
+    //    if (value == 0)
+    //    {
+    //        $("#IdentityDoc_PDF_ID").show();
+    //        $("#Secondary_certificateDoc_PDF_ID").show();
+    //    }
+    //    if (value == 1)
+    //    {
+    //        $("#IdentityDoc_PDF_ID").show();
+    //        $("#Secondary_certificateDoc_PDF_ID").show();
+    //    }
+    //    if (value == 2) {
+
+    //        $("#IdentityDoc_PDF_ID").show();
+    //        $("#Secondary_certificateDoc_PDF_ID").hide();
+    //    }
+    //    if (value == 3) {
+    //        $("#IdentityDoc_PDF_ID").hide();
+    //        $("#Secondary_certificateDoc_PDF_ID").hide();
+    //    }
+    //    if (value == 4) {
+
+    //        $("#IdentityDoc_PDF_ID").hide();
+    //        $("#Secondary_certificateDoc_PDF_ID").hide();
+    //    }
+    //}
+
+    function RegjesterNewStd() {
+        const Toast = Swal.mixin({
+            toast: true,
+
+            position: 'top-center',
+            showConfirmButton: true,
+            timer: 9999
+        });
+        var fd = new FormData();
+
+
+
+
+         fd.append('RealName', $('#FullName').val());
+         fd.append('Gender', $('#Gender').val());
+         fd.append('Email', $('#Email').val());
+         fd.append('PhoneNumber', $('#Mobile_Number').val());
+         fd.append('Password', $('#Password_ID').val());
+         fd.append('Country', $('#Country_ID').val());
+
+
+
+        // AJAX request
+        $.ajax({
+            url: '@Url.Action("RegesterNewStdView", "Home")',
+            async: true,
+            type: 'POST',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+
+
+                if (data.success == false) {
+                    alert(data.responsetext);
+                } else {
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'تهاتينا لقد أكملت التسجيل بنجاح <br> يرجى متابعة برامجنا واختيار مايناسبك منها',
+
+                        showClass: {
+                            popup: 'animate__animated animate__fadeInDown'
+                        },
+                        confirmButtonText: 'التوجه لإختيار برنامج!',
+
+
+                    }).then(function () {
+                        location.href = "@Url.Action("MoreCourse", "Home")";
+                    });
+
+                }
+            },
+            error: function (response) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'يرجى ملأ كافة المعلومات',
+
+                        showClass: {
+                            popup: 'animate__animated animate__fadeInDown'
+                        },
+
+
+
+                    }) ;
+                //alert('There is an error Please make sure to fill in all the information ');
+            },
+            complete: function (response) {
+                //alert("finish call jasion " + response);
+            }
+        });
+    }
+
+    $(document).ready(function ()
+    {
+          $.ajax(
+                {
+                    async: true,
+                    type: 'POST',
+                    url: '@Url.Action("GetCountry", "Home")',
+                    success: function (data) {
+                        var s = '<option value="-1">Select Country</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].Key + '">' + data[i].Value+ '</option>';
+                        }
+                        $("#Country_ID").html(s);
+                        //alert("country")
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+               });
+
+        @*  $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    //data: { id: Exam_id },
+
+                    url: '@Url.Action("GetAllFacility4ERP", "Default")',
+                    success: function (data) {
+
+                        var s = '';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].ID + '">' + data[i].Name+ '</option>';
+                        }
+                        $("#Facilties_ID").html(s);
+                    },
+                    error: function (response) {
+                    },
+                    complete: function (response) {
+                    }
+                  });*@
+    });
+</script>
+

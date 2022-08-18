@@ -1,0 +1,56 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.FooterPagesModel>
+
+@{
+    List<tabseetCourse.Models_UI.FooterPagesModel> l_ist = new List<tabseetCourse.Models_UI.FooterPagesModel>();
+    l_ist = Model.ToList();
+
+    //if (l_ist.Count <= 3tabseetCourse
+    //{
+    <li>
+        @for (int j = 0; j < l_ist.Count(); j++)
+        {
+            if (j == 3)
+            {
+                break;
+            }
+
+
+            @Html.ActionLink(l_ist[j].PageName, "GoPageMenu", new { PageID = l_ist[j].New_page_ID }, new { @class = "nav-link" })
+
+
+        }
+    </li>
+
+    if (l_ist.Count >= 3)
+    {
+        <li>
+            @for (int j = 3; j < l_ist.Count; j++)
+            {
+                if (j == 6)
+                {
+                    break;
+                }
+
+
+                @Html.ActionLink(l_ist[j].PageName, "GoPageMenu", new { PageID = l_ist[j].New_page_ID }, new { @class = "nav-link" })
+
+            }
+        </li>
+    }
+
+    if (l_ist.Count >= 6)
+    {
+        <li>
+            @for (int j = 6; j < l_ist.Count; j++)
+            {
+                if (j == 9)
+                {
+                    break;
+                }
+                @Html.ActionLink(l_ist[j].PageName, "GoPageMenu", new { PageID = l_ist[j].New_page_ID }, new { @class = "nav-link" })
+
+            }
+        </li>
+    }
+}
+

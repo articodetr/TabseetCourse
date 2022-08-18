@@ -1,0 +1,130 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.Page_Tabe_Model>
+
+@{
+    //ViewBag.Title = Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<link href="~/Content/bootstrap4/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="shortcut icon" href="~/Content/logo.png" type="image/x-icon">
+
+
+
+<!--  google fonts Montserrat     font-family: 'Montserrat', sans-serif;  -->
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+
+<link href="~/Content/fontawesome-free-5.15.1-web/css/fontawesome.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/fontawesome-free-5.15.1-web/css/fontawesome.min.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/fontawesome-free-5.15.1-web/css/all.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/fontawesome-free-5.15.1-web/css/brands.min.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/fontawesome-free-5.15.1-web/css/solid.css" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.css" integrity="sha512-OodagY/LAbXf1TAkypAk+8OWjR+wGA8k3H7TGH+gku7+VsOmJRCQ2pTQJoTo/bATGwTOFdypCXqMV8snRZkC+w==" crossorigin="anonymous" />
+
+
+
+
+<link href="~/Content/css/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/css/slick.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/css/slick-theme.css" rel="stylesheet" type="text/css" />
+
+<!-- Tel Input  -->
+<link href="~/Content/css/intlTelInput.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/bootstrap-select-1.13.14/dist/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
+@*<link href="~/Content/logo2.png" id="StyleShit_ID" rel="stylesheet" type="text/css" />*@
+<link href="~/Content/font-icon.css" rel="stylesheet" type="text/css" />
+@{
+    <!--  My Style  -->
+    <link href="~/Content/css/style.css" rel="stylesheet" type="text/css" />
+    if (Session["Direction_ID"] != null)
+    {
+        int value = int.Parse(Session["Direction_ID"].ToString());
+        if (value == 0)
+        {
+
+            <link href="~/Content/css/style-en.css" rel="stylesheet" type="text/css" />
+        }
+    }
+}
+<link href="~/Content/RootStyle.css" rel="stylesheet" type="text/css" />
+<div class='top_baner' style="background-image:url(../Uploade/Images/@Model.Image_Cover);">
+    <center>
+        @*  <span>@Model.Title</span>*@
+    </center>
+</div>
+<!-- Nav tabs -->
+<div class="tabs_sec sec">
+    <div class="container">
+        <ul id="tabs" class="nav nav-tabs scrollbar" role="tablist">
+            @for (int i = 0; i < Model.TabeContent.ToList().Count; i++)
+            {
+                if (i == 0)
+                {
+                    <li role="presentation"><a href="#tab_@Model.TabeContent.ToList()[i].ID" role="tab" data-toggle="tab" class="active"> @Model.TabeContent.ToList()[i].Tabe_title</a></li>
+
+                }
+                else
+                {
+
+                    <li role="presentation"><a href="#tab_@Model.TabeContent.ToList()[i].ID" role="tab" data-toggle="tab"> @Model.TabeContent.ToList()[i].Tabe_title</a></li>
+                }
+            }
+            @*<li role="presentation"><a class="active" href="#tab1" role="tab" data-toggle="tab">عن الدراسات العليا</a></li>
+                <li role="presentation"><a href="#tab2" role="tab" data-toggle="tab">شروط القبول</a></li>
+                <li role="presentation"><a href="#tab3" role="tab" data-toggle="tab">الماجستير</a></li>
+                <li role="presentation"><a href="#tab4" role="tab" data-toggle="tab">الدكتوراه</a></li>*@
+        </ul>
+
+        <div class="tab-content">
+            @for (int i = 0; i < Model.TabeContent.ToList().Count; i++)
+            {
+                if (i == 0)
+                {
+                    <div role="tabpanel" class="tab-pane fade in active" id="tab_@Model.TabeContent.ToList()[i].ID">
+                        @Html.Raw(Model.TabeContent.ToList()[i].Tab_Description)
+                    </div>
+
+                }
+                else
+                {
+                    <div role="tabpanel" class="tab-pane fade" id="tab_@Model.TabeContent.ToList()[i].ID">
+                        @Html.Raw(Model.TabeContent.ToList()[i].Tab_Description)
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+<script src="~/Content/bootstrap4/jquery-3.5.1.slim.min.js" type="text/javascript"></script>
+<script src="~/Content/js/jquery.min.js" type="text/javascript"></script>
+<script src="~/Content/bootstrap4/popper.min.js" type="text/javascript"></script>
+<script src="~/Content/bootstrap4/bootstrap.min.js" type="text/javascript"></script>
+
+<link href="~/Content/bootstrap-select-1.13.14/docs/docs/dist/js/bootstrap-select.min.js" rel="stylesheet" type="text/css" />
+<script src="~/Content/fontawesome-free-5.15.1-web/js/fontawesome.js" type="text/javascript"></script>
+<script src="~/Content/fontawesome-free-5.15.1-web/js/fontawesome.min.js" type="text/javascript"></script>
+<script src="~/Content/js/slick.min.js" type="text/javascript"></script>
+<script src="~/Content/js/swiper-bundle.min.js" type="text/javascript"></script>
+<script src="~/Scripts/CustomJavascript.js"></script>
+<script type="text/javascript" src="~/Content/newstyle/javascript/jquery-waypoints.js"></script>
+
+<script type="text/javascript" src="~/Content/newstyle/javascript/main.js"></script>
+
+<script>
+    var isLoading = true;
+    var parallax = $('.top_banar');
+    parallax.css({ 'background-position': 'center center' }); // better use CSS
+
+    $(window).scroll(function () {
+        var st = $(this).scrollTop();
+        parallax.css({ 'background-position': 'center calc(50% + ' + (st / 5) + 'px)' });
+    });
+</script>

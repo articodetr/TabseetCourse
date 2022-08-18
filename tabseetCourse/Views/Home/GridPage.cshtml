@@ -1,0 +1,286 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.GridPageModel>
+
+@{
+    //ViewBag.Title = "GridPage";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class='top_baner' style="background-image:url(../Uploade/Images/@Model.Image_Cover);background-size:cover">
+    <center>
+        @*  <span>@Model.Title</span>
+            @*<p>هذا النص هو مثال لنص يمكن أن يستبدل في نفس المساحة</p>
+                <a href="javascript:;">@Model.Title</a>*@
+    </center>
+</div>
+
+
+
+
+<div class="grid_sec">
+
+    <div class="container">
+        @if (Model.ContentBtnReg == 1)
+        {
+            <div style="direction:rtl;text-align:center">
+                <button class="btn btn-success" onclick="TackThisCourse(@Model.ID)" dir="rtl">تسجيل في الدبلوم</button>
+            </div>
+        }
+
+        <div class="row">
+            @if (Model.GirdContent != null)
+            {
+
+
+                foreach (var item in Model.GirdContent)
+                {
+
+                    <div class="col-md-4">
+                        <div class="item">
+                            <div class="image">
+                                <a href="javascript:;" onclick="DivClicked(@item.DocLinke)">
+                                    @if (item.Image == null)
+                                    {
+                                        <img src="https://cdn.europosters.eu/image/1300/zen-nature-i49609.jpg" alt="event name">
+                                    }
+                                    else
+                                    {
+                                        <img src="~/Uploade/Images/@item.Image" alt="event name">
+                                    }
+
+
+                                </a>
+                            </div>
+                            <h3>@item.Title</h3>
+                            @if (item.PayValue > 0)
+                            {
+                                <span class="date">
+                                    @item.PayValue USD
+                                </span>
+
+                            }
+                            else
+                            {
+                                <span class="date">
+                                    مجاني
+                                </span>
+                            }
+                            @if (item.Is_reg == 1)
+                            {
+                                <button href="#" onclick="TackThisCourse(@item.ID)" class="read_more">اشترك</button>
+                            }
+
+                        </div>
+                    </div>
+
+                }
+            }
+
+
+
+            @*//Html.ActionLink("اقرأ المزيد", "GoPageMenu", new { PageID = item.DocLinke }, new { class = "nav-link" })*@
+
+
+        </div>
+    </div>
+
+
+</div>
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+    var isLoading = true;
+                    function DivClicked(pageid) {
+                        window.location.href = '/Home/GoPageMenu?PageID=' + pageid;
+                    };
+
+        function TackThisCourse(Course_ID) {
+            const Toast = Swal.mixin({
+                toast: true,
+
+                position: 'top-center',
+                showConfirmButton: true,
+                timer: 9999
+            });
+                $.ajax(
+                                    {
+                        async: true,
+
+                        type: 'POST',
+                        data: { course_ID: Course_ID },
+                        url: '@Url.Action("TackThisCurse", "Home")',
+                        success: function (data) {
+                            if (data.success == true) {
+                                window.location.href = '@Url.Action("Categories", "Students")';
+                            } else {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'أنت بلغعل أخذت هذا الكورس',
+                                    showClass: {
+                                        popup: 'animate__animated animate__fadeInDown'
+                                    },
+                                    confirmButtonText: '!تمام',
+
+
+                                }).then(function () {
+                                 //   window.location.href = '/Home/Login?Coursid=' + result.responseJSON.responsetext;
+                                });
+
+
+
+                            }
+
+
+                            },
+                        error: function (result) {
+
+                                //window.location.href = '/Home/Login?Coursid=' + result.responseJSON.responsetext;
+                            },
+                        complete: function (response) {
+                                //alert("finish call jasion " + response);
+                            }
+                        });
+                }
+</script>
+
+
+<div class='top_baner' style="background-image:url(../Uploade/Images/@Model.Image_Cover);background-size:cover">
+    <center>
+        @*  <span>@Model.Title</span>
+            @*<p>هذا النص هو مثال لنص يمكن أن يستبدل في نفس المساحة</p>
+                <a href="javascript:;">@Model.Title</a>*@
+    </center>
+</div>
+
+
+
+
+<div class="grid_sec">
+
+    <div class="container">
+        @if (Model.ContentBtnReg == 1)
+        {
+            <div style="direction:rtl;text-align:center">
+                <button class="btn btn-success" onclick="TackThisCourse(@Model.ID)" dir="rtl">تسجيل في الدبلوم</button>
+            </div>
+        }
+
+        <div class="row">
+            @if (Model.GirdContent != null)
+            {
+
+
+                foreach (var item in Model.GirdContent)
+                {
+
+                    <div class="col-md-4">
+                        <div class="item">
+                            <div class="image">
+                                <a href="javascript:;" onclick="DivClicked(@item.DocLinke)">
+                                    @if (item.Image == null)
+                                    {
+                                        <img src="https://cdn.europosters.eu/image/1300/zen-nature-i49609.jpg" alt="event name">
+                                    }
+                                    else
+                                    {
+                                        <img src="~/Uploade/Images/@item.Image" alt="event name">
+                                    }
+
+
+                                </a>
+                            </div>
+                            <h3>@item.Title</h3>
+                            @if (item.PayValue > 0)
+                            {
+                                <span class="date">
+                                    @item.PayValue USD
+                                </span>
+
+                            }
+                            else
+                            {
+                                <span class="date">
+                                    مجاني
+                                </span>
+                            }
+                            @if (item.Is_reg == 1)
+                            {
+                                <button href="#" onclick="TackThisCourse(@item.ID)" class="read_more">اشترك</button>
+                            }
+
+                        </div>
+                    </div>
+
+                }
+            }
+
+
+
+            @*//Html.ActionLink("اقرأ المزيد", "GoPageMenu", new { PageID = item.DocLinke }, new { class = "nav-link" })*@
+
+
+        </div>
+    </div>
+
+
+</div>
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+    var isLoading = true;
+                    function DivClicked(pageid) {
+                        window.location.href = '/Home/GoPageMenu?PageID=' + pageid;
+                    };
+
+        function TackThisCourse(Course_ID) {
+            const Toast = Swal.mixin({
+                toast: true,
+
+                position: 'top-center',
+                showConfirmButton: true,
+                timer: 9999
+            });
+                $.ajax(
+                                    {
+                        async: true,
+
+                        type: 'POST',
+                        data: { course_ID: Course_ID },
+                        url: '@Url.Action("TackThisCurse", "Home")',
+                        success: function (data) {
+                            if (data.success == true) {
+                                window.location.href = '@Url.Action("Categories", "Students")';
+                            } else {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'أنت بلغعل أخذت هذا الكورس',
+                                    showClass: {
+                                        popup: 'animate__animated animate__fadeInDown'
+                                    },
+                                    confirmButtonText: '!تمام',
+
+
+                                }).then(function () {
+                                 //   window.location.href = '/Home/Login?Coursid=' + result.responseJSON.responsetext;
+                                });
+
+
+
+                            }
+
+
+                            },
+                        error: function (result) {
+
+                                //window.location.href = '/Home/Login?Coursid=' + result.responseJSON.responsetext;
+                            },
+                        complete: function (response) {
+                                //alert("finish call jasion " + response);
+                            }
+                        });
+                }
+</script>
+

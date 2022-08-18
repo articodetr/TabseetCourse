@@ -3,8 +3,8 @@
 @foreach (var item in Model)
 {
     <div class="swiper-slide">
-
-        <div class="slide-inner slide-bg-image" style="background-image:url(../Uploade/Images/@item.Image);background-size:cover">
+        <div class="slide-inner slide-bg-image" data-background="https://images.unsplash.com/photo-1578934191836-ff5f608c2228?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1349&q=80");background-size:cover">
+            @*<div class="slide-inner slide-bg-image" style="background-image:url(../Uploade/Images/@item.Image);background-size:cover">*@
             <div class="container">
                 <div data-swiper-parallax="300" class="slide-title">
                     <h2>
@@ -12,8 +12,8 @@
                     </h2>
                 </div>
                 @*<div data-swiper-parallax="400" class="slide-text">
-                        <p>اصبح اكثر تميزا معنا</p>
-                    </div>*@
+                    <p>اصبح اكثر تميزا معنا</p>
+                </div>*@
                 <div class="clearfix"></div>
                 <div data-swiper-parallax="500" class="slide-btns">
                     <a href="/Home/RegesterNewStdView" class="theme-btn-s2">اشترك الآن</a>

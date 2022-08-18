@@ -9052,7 +9052,6 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_AdminLayout.cshtml" />
     <Content Include="Views\Shared\_LayoutStudent.cshtml" />
@@ -9062,9 +9061,21 @@
     <Content Include="Views\Home\IniNews.cshtml" />
     <Content Include="Views\Home\AllNews.cshtml" />
     <Content Include="Views\Home\MoreCourse.cshtml" />
+    <Content Include="Views\Home\AllTeacher.cshtml" />
+    <Content Include="Views\Home\GetMenu.cshtml" />
+    <Content Include="Views\Home\LogIn.cshtml" />
+    <Content Include="Views\Home\RegesterNewStdView.cshtml" />
+    <Content Include="Views\Home\aboutPage.cshtml" />
+    <Content Include="Views\Home\ContactUsPage.cshtml" />
+    <Content Include="Views\Home\ForgotPassword.cshtml" />
+    <Content Include="Views\Home\GetFooterPage.cshtml" />
+    <Content Include="Views\Home\GridPage.cshtml" />
+    <Content Include="Views\Home\HorizantalTabePagePage.cshtml" />
+    <Content Include="Views\Home\VerticalTabePagePage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Uploade\Images\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

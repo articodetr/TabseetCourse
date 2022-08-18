@@ -1,0 +1,151 @@
+﻿
+@{
+    ViewBag.Title = "LogIn";
+    Layout = null;
+}
+
+
+@*bootstrap css*@
+<link href="~/Content2/bootstrap4/bootstrap.min.css" rel="stylesheet" type="text/css" />
+@*fontawesome
+    animate*@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.css" integrity="sha512-OodagY/LAbXf1TAkypAk+8OWjR+wGA8k3H7TGH+gku7+VsOmJRCQ2pTQJoTo/bATGwTOFdypCXqMV8snRZkC+w==" crossorigin="anonymous" />
+@*Google Fonts*@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400&display=swap" rel="stylesheet">
+
+
+<link href="~/Content2/css/aos.min.css" rel="stylesheet" type="text/css" />
+@*My Style*@
+<link href="~/Content2/css/login.css" rel="stylesheet" type="text/css" />
+@*My Style EN
+    bootstrap and jquery js*@
+<script src="~/Content2/bootstrap4/jquery-3.5.1.slim.min.js" type="text/javascript"></script>
+<script src="~/Content2/js/jquery.min.js" type="text/javascript"></script>
+<script src="~/Content2/js/jquery.min.js" type="text/javascript"></script>
+<script src="~/Content2/bootstrap4/popper.min.js" type="text/javascript"></script>
+<script src="~/Content2/bootstrap4/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" type="text/javascript"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.css" rel="stylesheet" type="text/css" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" type="text/javascript"></script>
+
+<div class="login_content">
+    <div class="form_sec">
+        <h1>تـســجـيـل الـدخـول</h1>
+
+        @using (Html.BeginForm("LogIn", "Home"))
+        {
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label style="
+    color: white;
+    direction: rtl;
+    float: right;
+">البريد الإلكتروني</label>
+                <input type="email" class="form-control" id="Email" name="Email" placeholder="البريد الالكتروني" required />
+            </div>
+            <div class="form-group">
+                <label style="
+    color: white;
+    direction: rtl;
+    float: right;
+">كلمة المرور</label>
+                <input type="password" class="form-control" id="Password" name="Password" placeholder="كلمة المرور" required />
+            </div>
+            <button type="submit" class="btn btn-primary submit_btn">دخـــــول</button>
+        }
+
+
+        <button type="button" class="btn btn-primary facebook_btn">
+            <i class="fab fa-facebook"></i>
+            تسجيل دخول فيسبوك
+        </button>
+
+        <div class="form-group">
+            <a href="@Url.Action("ForgotPassword","Home")" class="forget">نسيت كلمة المرور؟</a>
+
+        </div>
+
+        <div class="form-group">
+
+            <a href="@Url.Action("RegesterNewStdView","Home")" class="register">إنشاء حساب  </a>
+        </div>
+        @if (ViewBag.Message != null)
+        {
+            <div class="form-group">
+                <div class="alert alert-danger">
+                    <h3>
+
+                        @ViewBag.Message
+                    </h3>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script src="~/Content2/js/aos.min.js" type="text/javascript"></script>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+<script>
+
+        function statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
+            console.log('statusChangeCallback');
+            console.log(response);                   // The current login status of the person.
+            if (response.status === 'connected') {   // Logged into your webpage and Facebook.
+                testAPI();
+            } else {                                 // Not logged into your webpage or we are unable to tell.
+                document.getElementById('status').innerHTML = 'Please log ' +
+                    'into this webpage.';
+            }
+        }
+
+
+        function checkLoginState() {               // Called when a person is finished with the Login Button.
+            FB.getLoginStatus(function (response) {   // See the onlogin handler
+                statusChangeCallback(response);
+            });
+        }
+
+
+        window.fbAsyncInit = function () {
+            FB.init({
+                appId: '{4292442804199894}',
+                cookie: true,                     // Enable cookies to allow the server to access the session.
+                xfbml: true,                     // Parse social plugins on this webpage.
+                version: '{v12.0}'           // Use this Graph API version for this call.
+            });
+
+
+            FB.getLoginStatus(function (response) {   // Called after the JS SDK has been initialized.
+                statusChangeCallback(response);        // Returns the login status.
+            });
+        };
+
+        function testAPI() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
+            console.log('Welcome!  Fetching your information.... ');
+            FB.api('/me', function (response) {
+                console.log('Successful login for: ' + response.name);
+                document.getElementById('status').innerHTML =
+                    'Thanks for logging in, ' + response.name + '!';
+            });
+        }
+
+</script>
+
+
+<script>
+        var parallax = $('.top_banar');
+        parallax.css({ 'background-position': 'center center' }); // better use CSS
+
+        $(window).scroll(function () {
+            var st = $(this).scrollTop();
+            parallax.css({ 'background-position': 'center calc(50% + ' + (st / 5) + 'px)' });
+        });
+
+</script>

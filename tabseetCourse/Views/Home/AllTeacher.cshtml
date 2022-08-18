@@ -1,0 +1,69 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.GridPageModel>
+
+@{
+    ViewBag.Title = "AllTeacher";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class='top_baner' style="background-image:url(../Uploade/Images/@Model.Image_Cover) ;">
+    <center>
+        @*   <span>@Model.Title</span>
+            @*<p>هذا النص هو مثال لنص يمكن أن يستبدل في نفس المساحة</p>
+                <a href="javascript:;">@Model.Title</a>*@
+    </center>
+</div>
+
+
+
+
+<div class="grid_sec">
+
+    <div class="container">
+
+        <div class="row">
+            @if (Model.GirdContent != null)
+            {
+
+
+                foreach (var item in Model.GirdContent)
+                {<div class="col-md-4">
+                        <div class="item">
+                            <div class="image">
+                                @if (item.Image != null)
+                                {
+                                    <a href="@Url.Action("GoPageMenu", new { PageID = item.DocLinke })"><img src="~/Uploade/Images/@item.Image" alt="event name"></a>
+
+                                }
+                                else
+                                {
+                                    <a href="javascript:;"><img src="https://cdn.europosters.eu/image/1300/zen-nature-i49609.jpg" alt="event name"></a>
+                                }
+                            </div>
+                            <h3>@item.Title</h3>
+                            <span class="date">
+                                @item.Description
+                            </span>
+                        </div>
+                    </div>
+                }
+            }
+
+
+
+            @*//Html.ActionLink("اقرأ المزيد", "GoPageMenu", new { PageID = item.DocLinke }, new { class = "nav-link" })*@
+
+
+        </div>
+    </div>
+
+
+</div>
+<script>
+
+    var isLoading = true;
+    function DivClicked(pageid) {
+        window.location.href = '/Home/GoPageMenu?PageID=' + pageid;
+    };
+
+
+</script>
