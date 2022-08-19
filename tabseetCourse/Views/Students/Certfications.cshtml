@@ -1,0 +1,135 @@
+﻿@model IEnumerable<tabseetCourse.Models.Std_Reg_CategoryModel>
+
+@{
+    ViewBag.Title = "Certfications";
+    Layout = "~/Views/Shared/_LayoutStudent.cshtml";
+}
+
+<!-- Start Slider -->
+<div class="sec_content padding_menu cours_details">
+    <div class="container">
+
+
+        <div class="col-md-12 float-left">
+            <div class="text_sec content">
+                <h2>شهاداتي</h2>
+
+
+                <ul class="content_list" style="direction:rtl">
+                    @{
+                        if (Model.Count() > 0)
+                        {
+
+
+                            int index = 0;
+                            foreach (var item in Model)
+                            {
+                                index++;
+                                <li>
+                                    <b class="">@index</b>
+                                    <p title="@item.CategoryName">@item.CategoryName</p>
+
+                                    <div class="action_sec">
+                                        @*@Url.Action("Certficationsstd", "Students", new { Categores_ID = item.Category_ID })*@
+                                        @if (item.certificate != null)
+                                        {
+                                            <a class="print_btn" onclick="GetDocmntation(@item.Category_ID,1)" href="#" title="Print">
+                                                الشهادة
+                                            </a>
+                                        }
+                                        @if (item.certificate_leave != null)
+                                        {
+                                            <a class="print_btn" onclick="GetDocmntation(@item.Category_ID,2)" href="#" title="Print">
+                                                الإجازة
+                                            </a>
+                                        }
+
+                                        @*<a download href="getExam(@item.Exam_ID)" title="download">
+                                                <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 613.9 632.3" style="enable-background:new 0 0 613.9 632.3;" xml:space="preserve"><g><path d="M289.4,485.4c4.7,4.7,10.9,7.2,17.5,7.2c6.6,0,12.8-2.6,17.5-7.2L527.8,282c4.7-4.7,7.2-10.9,7.2-17.5s-2.6-12.8-7.2-17.5c-9.3-9.3-25.6-9.3-34.9,0L331.6,408.3V24.7c0-13.6-11.1-24.7-24.7-24.7s-24.7,11.1-24.7,24.7v383.6L120.9,247c-9.4-9.3-25.6-9.3-34.9,0c-4.7,4.7-7.2,10.9-7.2,17.5s2.6,12.8,7.2,17.5L289.4,485.4z" /><path d="M589.1,439c-13.6,0-24.7,11.1-24.7,24.7v103.8c0,8.5-6.7,15.4-15,15.4h-485c-8.3,0-15-6.9-15-15.4V463.7c0-13.6-11.1-24.7-24.7-24.7S0,450.1,0,463.7v116.2c0,28.9,23.5,52.4,52.4,52.4h509.1c28.9,0,52.4-23.5,52.4-52.4V463.7C613.8,450.1,602.7,439,589.1,439z" /></g></svg>
+                                            </a>*@
+                                    </div>
+
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li>
+
+
+                                <div class="action_sec" style="direction:rtl" dir="rtl">
+                                    لا يوجد شهادات خاصة بك
+
+                                </div>
+
+                            </li>
+                        }
+                    }
+
+
+
+
+                </ul>
+
+
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- End Slider -->
+<script>
+    var isLoading = true;
+    function GetDocmntation(categoryID,certficatinOrLeve) {
+             @*$.ajax(
+                 {
+                     async: true,
+                     type: 'Post',
+                     //dataType: 'JSON',
+                     //contentType: 'application/json; charset=utf=8',
+                     data: { Categores_ID: categoryID },
+                url: '@Url.Action("Certficationsstd", "Students")',
+                success: function (data) {
+
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+
+                }
+            });*@
+
+            window.location.href = "/Students/Certficationsstd?Categores_ID=" + categoryID + "&type=" + certficatinOrLeve;
+
+
+    }
+
+
+    var isLoading = false;
+    $(document).ready(function () {
+        $(".menu_top").addClass("fixed");
+        //var category_ID = $("#Category_ID").val();
+
+
+    });
+
+
+
+
+
+    function assingLectureInfo(ID, LectureLink_Client, LectureAssingment, LectureMinTime, Others, DocumenFile, MediaLink) {
+        $("#Video_ID").attr("src", LectureLink_Client);
+
+        $("#assingm_ID").val(LectureAssingment);
+        $("#Lecture_ID").val(ID);
+        $("#Lec_mini_Time").val(LectureMinTime);
+        btnStartLecture();
+    }
+
+
+</script> 

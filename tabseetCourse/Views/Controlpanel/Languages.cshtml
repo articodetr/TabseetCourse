@@ -1,0 +1,241 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.Lang_Model>
+
+@{
+    ViewBag.Title = "Languages";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<div class="main-content">
+    <div class="page-title">
+        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+        {
+            <div> Languages</div>
+        }
+        else
+        {
+            <label>اللغات</label>
+        }
+
+    </div>
+    <table class="table">
+        <tr>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Name</label>
+                }
+                else
+                {
+                    <label>الإسم</label>
+                }
+            </th>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Direction</label>
+                }
+                else
+                {
+                    <label>الإتجاه</label>
+                }
+            </th>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Default Languages</label>
+                }
+                else
+                {
+                    <label>اللغة الافتراضية</label>
+                }
+            </th>
+
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DirectionName)
+                </td>
+                <td>
+                    @{
+                        if (item.DefultLang != 0)
+                        {
+                            <input type="radio" checked="checked" name="RadioDefualChecked" />
+                        }
+                        else
+                        {
+                            <input type="radio" name="RadioDefualChecked" onchange="radioChange(@item.ID)" />
+                        }
+                    }
+
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <button type="button" class="btn btn-danger" onclick="DeleteItem(@item.ID)">Delete </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-danger" onclick="DeleteItem(@item.ID)">حذف </button>
+                    }
+
+                </td>
+            </tr>
+        }
+
+        <tr hidden="hidden" id="CreateNew">
+            <td>
+                @*<label for="Item Name">Item name</label>*@
+                <input type="text" placeholder="Item Name" id="TxtItemName" />
+            </td>
+            <td>
+                <select id="CB_ID">
+                    <option value="0">Left</option>
+                    <option value="1">Right</option>
+                </select>
+            </td>
+            <td>
+                <input type="radio" id="DefualtLang" />
+            </td>
+            <td>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <button type="button" class="btn btn-primary" onclick="Save()">Save</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-primary" onclick="Save()">حفظ</button>
+                }
+
+                @*<button type="button" class="btn btn-primary" onclick="Cleare()">Cleare</button>*@
+            </td>
+        </tr>
+    </table>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="row">
+                <div class="col-xs-12 m-b">
+                    <div class="demo-button">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <button type="button" class="btn btn-primary" onclick="Create()">Add Language</button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-primary" onclick="Create()">إضافة لغة</button>
+                        }
+
+                        @*<button type="button" class="btn btn-success" onclick="Save()">Save</button>*@
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+        function Create() {
+        $("#CreateNew").show();
+        }
+
+        function Save() {
+
+            //$("#CB_ID").val();
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+
+                    data: { langName: $("#TxtItemName").val(), Deriction: $("#CB_ID").val() },
+
+                    url: '@Url.Action("Languages", "UIUXadminPanel")',
+                    success: function (result) {
+
+                        location.reload(true);
+                        //window.location.reload();
+                    },
+                    error: function (response) {
+
+                        alert("There is a problem Can't Save");
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+            $("#CreateNew").hide();
+    }
+
+        function DeleteItem(itemID)
+    {
+        if (confirm("are you sure")) {
+                      $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                              data: { Page_ID: itemID },
+
+                    url: '@Url.Action("DeleteLanguage", "UIUXadminPanel")',
+                    success: function (result) {
+
+                        location.reload(true);
+
+                    },
+                    error: function (response) {
+
+                        alert("Can't delete there is information associated with it");
+                    },
+                    complete: function (response) {
+                    }
+                });
+        } else {
+            //$("#CB_ID").val();
+
+        }
+        $("#CreateNew").hide();
+    }
+
+    function radioChange(itemID)
+    {
+        //alert(itemID);
+           $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+
+                   data: { lang_ID: itemID },
+
+                    url: '@Url.Action("ChangeDefultLang", "UIUXadminPanel")',
+                    success: function (result) {
+
+                        location.reload(true);
+                        //window.location.reload();
+                    },
+                    error: function (response) {
+
+                        alert("There is a problem Can't Save");
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+    }
+</script>

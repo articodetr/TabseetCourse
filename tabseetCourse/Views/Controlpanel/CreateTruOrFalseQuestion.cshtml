@@ -1,0 +1,236 @@
+﻿
+@{
+    ViewBag.Title = "CreateTruOrFalseQuestion";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>إضافة سؤال من نمط صح او خطأ</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<div class="card">
+
+    <div class="card-body">
+        <div class="form-horizontal">
+
+
+            <div class="form-group-lg">
+                <div class="col-md-10">
+                    <label class="control-label ">إسم السؤال</label>
+                </div>
+                <div class="col-md-10">
+                    <input type="text" class="form-control" id="Q_Name" style="width:83%" />
+                </div>
+                <br />
+                <div class="col-md-10">
+                    <label class="control-label ">الفئة</label>
+                </div>
+                <div class="col-md-10">
+                    <select class="form-control select2" id="Category_ID" style="width:50%;height:50%">
+                    </select>
+                </div>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label col-md-2">صيغة السؤال</label>
+                <div class="col-md-10">
+
+                    <div id="Summner_Q_Text" class="summernote">
+                    </div>
+                    <input type="text" class="form-control" id="Q_Text" hidden="hidden" />
+                    @*@Html.ValidationMessageFor(model => model.Q_Text, "", new { @class = "text-danger" })*@
+                </div>
+
+
+            </div>
+            <!--<div class="form-group">
+            <label class="control-label col-md-2">شرح عن السؤال</label>
+
+            <div class="col-md-10">
+
+                <div id="Description" class="summernote">
+
+                </div>
+                <input type="text" class="form-control" id="Q_Description_Hiden_ID" hidden="hidden" />-->
+            @*@Html.ValidationMessageFor(model => model.Q_Description, "", new { @class = "text-danger" })*@
+            <!--</div>
+            </div>-->
+
+
+            <div class="form-group">
+
+                @*@Html.LabelFor(model => model.L_Q_TrueOrFalse.TrueValue, htmlAttributes: new { @class = "control-label col-md-2" })*@
+                <div class="col-md-10">
+                    <table>
+                        <tr>
+                            <td style="padding:10px">
+                                <div class="row">
+                                    <label>الجواب الصحيح</label>
+                                    <select id="True_Value" class="form-control" data-style="btn-primary">
+                                        <option value="-1">Select Value</option>
+                                        <option value="1">صحيح</option>
+                                        <option value="0">خطأ</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td style="padding:10px">
+                                <div class="row">
+                                    <label>درجة السؤال</label>
+
+                                    <input class="form-control" type="number" id="qDegry" />
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+
+
+                </div>
+            </div>
+
+            <div class="form-group">
+
+            </div>
+
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <button type="button" onclick="Btn_Save()" value="Create" class="btn btn-primary">حفظ</button>
+                    @*<button type="button" value="Create" class="btn btn-primary" onclick="ClickedSub()">Save</button>*@
+                </div>
+            </div>
+        </div>
+
+        <div>
+            @*  @Html.ActionLink("Back", "GetQuestions", null, new { @class = "btn btn-dark" })*@
+        </div>
+
+
+    </div>
+
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Summernote -->
+<script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        //$('#Description').summernote();
+        $('#Summner_Q_Text').summernote();
+        //$('#Description').on('summernote.change', function (we, e) {
+
+        //    var summernote = $("#Description").summernote('code');
+        //    $('#Q_Description_Hiden_ID').val(summernote);;
+        //    console.log(summernote);
+        //});
+
+        $('#Summner_Q_Text').on('summernote.change', function (we, e) {
+
+            var summernote = $("#Summner_Q_Text").summernote('code');
+            $('#Q_Text').val(summernote);
+            //console.log(summernote);
+        });
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                url: '@Url.Action("GetAllCategories", "Controlpanel")',
+                success: function (data) {
+                    s = '';
+                    for (var i = 0; i < data.length; i++) {
+                        s += "<option value=" + data[i].ID + ">" + data[i].NameAr + "</option>";
+                    }
+                    $('#Category_ID').html(s);
+                    $('.select2').select2()
+                },
+                error: function (response) {
+
+                    //alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                }
+            });
+
+    });
+
+    function PageLoaded() {
+        $('#Description').summernote('code', $("#Q_Description_Hiden_ID").val());
+        $('#Q_Text').summernote('code', $("#Q_Text_Hiden_ID").val());
+    }
+
+    function Btn_Save()
+    {
+        const swalWithBootstrapButtons = Swal.mixin({});
+        var fd = new FormData();
+
+        var q_Name = $("#Q_Name").val();
+        var q_Text = $("#Q_Text").val();
+        var qDegry = $("#qDegry").val();
+        var CategoryID = $("#Category_ID").val();
+        console.log("CategoryID" + CategoryID);
+        var True_Value = $("#True_Value").val();
+        var Q_TrueOrFalse = {};
+        Q_TrueOrFalse.TrueValue = True_Value;
+        Q_TrueOrFalse.Degry = qDegry;
+
+        fd.Category_ID = CategoryID;
+        fd.Q_Name= q_Name;
+        fd.Q_Text= q_Text;
+        fd.Q_TrueOrFalse= Q_TrueOrFalse;
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                data: JSON.stringify(fd),
+                url: '@Url.Action("CreateTruOrFalseQuestion", "Controlpanel")',
+                success: function (result) {
+                    //alert("Question add");
+
+                   swalWithBootstrapButtons.fire(
+                        'تم الحفظ!',
+                        'تم اضافة السؤال بنجاح.',
+                        'success'
+                   ).then(function () {
+                        $("#Q_Name").val("");
+                       $("#Q_Text").val("");
+                       $("#qDegry").val("");
+                       $("#Summner_Q_Text").summernote('code','');
+
+                       $("#True_Value").val(-1);
+                   })
+                },
+                error: function (response) {
+                    swalWithBootstrapButtons.fire(
+                        'Filed',
+                        response.responseText + ' :)',
+                        'error'
+                    )
+                    //alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                }
+            }
+        );
+
+    }
+</script>

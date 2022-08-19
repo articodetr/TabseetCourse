@@ -1,0 +1,521 @@
+﻿
+@{
+    ViewBag.Title = "ViewAssingment";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<!-- Theme style -->
+<link rel="stylesheet" href="~/Content/dist/css/adminlte.min.css">
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <label> عرض الوظيفة</label>
+                <h1>@ViewBag.categoryName / @ViewBag.Lecture</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<div class="card">
+
+    <!-- /.card-header -->
+    <div class="card-body">
+        <input type="text" value="@ViewBag.categorieID" hidden="hidden" id="CategoryID" />
+        <input type="text" value="@ViewBag.categoryName" hidden="hidden" id="CategoryName" />
+        <input type="text" value="@ViewBag.Lecture_ID" hidden="hidden" id="Lecture_ID" />
+        <input type="text" value="@ViewBag.AssignmentID" hidden="hidden" id="AssignmentID" />
+        <div class="form-group">
+            <label class="control-label col-md-2">إسم الوظيفة</label>
+            @*@Html.LabelFor("اسم الوظيفة", htmlAttributes: new { @class = "control-label col-md-2" })*@
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="Assingment_Name" onkeyup="validation()" />
+                @*@Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })*@
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">الوصف</label>
+            @*@Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })*@
+            <div class="col-md-10">
+                <input type="text" class="summernote" id="summernote_ID" />
+                <input type="text" class="form-control" id="Assingment_Text" onchange="validation()" hidden="hidden" />
+                @*@Html.EditorFor(model => model.Description, new { htmlAttributes = new { @id = "summernote_ID", @class = "summernote" } })*@
+
+            </div>
+        </div>
+
+        <div class="form-group" hidden="hidden">
+
+
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="Lecture_ID" />
+                @*@Html.EditorFor(model => model.Lecture_ID, new { htmlAttributes = new { @class = "form-control", @id = "Lecture_ID" } })*@
+
+            </div>
+        </div>
+        <div class="form-group">
+
+            <div class="table-responsive">
+                <table>
+
+
+                    <tbody>
+                        <tr>
+
+                            <td>
+                            </td>
+                            <td>
+                                <label>درجة علامة الوظيفة</label>
+                            </td>
+                            <td>
+                                <label>درجة نجاح الوظيفة</label>
+                            </td>
+                        </tr>
+                        <tr>
+
+                            <td>
+                                <input type="button" value="إضافة اسئلة" id="addNew" data-toggle="modal" data-target="#modal-lg" class="btn btn-success float-left">
+                            </td>
+                            <td>
+
+                                <input id="AssingmentDegry_ID" type="text" class="form-control" onchange="validation()" disabled="disabled" />
+                            </td>
+                            <td>
+
+                                <input id="Assingment_Win_Degry_ID" type="number" min="1" max="100" step="1" onchange="WinChangeDegry()" class="form-control" />
+                            </td>
+                        </tr>
+                    </tbody>
+
+
+                </table>
+
+            </div>
+            <div class="form-group">
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered" id="Table_Options">
+                    </table>
+
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <input type="button" value="حفظ التعديلات" id="btnSave" onclick="SaveBtn()" class="btn btn-primary float-left" style="padding-block:10px">
+            <input type="button" value="رجوع للخلف" onclick="backtoLecture()" class="btn btn-default float-none" style="padding-block: 10px">
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+
+    <div class="container">
+        @*<h2>Modal Example</h2>*@
+        <!-- Trigger the modal with a button -->
+        <!-- Modal -->
+        <div class="modal fade" id="modal-lg" role="dialog">
+            <div class="modal-dialog modal-xl">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">إضافة اسئلة</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table id="example1" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th> </th>
+                                    @*<th>ID</th>*@
+                                    <th>النمط</th>
+
+                                    <th>إسم السؤال</th>
+
+
+
+                                </tr>
+                            </thead>
+                            <tbody id="tableContent_ID">
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    @*<th>ID</th>*@
+                                    <th>النمط</th>
+
+                                    <th>إسم السؤال</th>
+
+
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        @*<button type="button" class="btn btn-danger" data-dismiss="modal">
+                                Close
+                            </button>*@
+
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn_AddQuestion">إضافة</button><br /><br />
+                        @* <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="AddOption()">Add Option</button>*@
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+@*<script src="~/Content/plugins/jquery/jquery.min.js"></script>*@
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="~/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<!-- AdminLTE App -->
+<script src="~/Content/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/Content/dist/js/demo.js"></script>
+
+<!-- Summernote -->
+<script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+<script src="~/Scripts/CustomJavascript.js"></script>
+<script type="text/javascript">
+
+        $(document).ready(function () {
+            document.getElementById("btnSave").disabled = true;
+            $('#summernote_ID').summernote();
+            $('#summernote_ID').on('summernote.change', function (we, e) {
+
+                var summernote = $("#summernote_ID").summernote('code');
+                $('#Assingment_Text').val(summernote);
+                //console.log(summernote);
+            });
+            GetQuesiont();
+            GetAssingmentByID();
+
+        });
+        function GetAssingmentByID() {
+            var value=$('#AssignmentID').val();
+            $("div.spanner").addClass("show");
+            $("div.overlay").addClass("show");
+               $.ajax(
+                {
+                    async: true,
+                    type: 'POST',
+                       data: { Assingment_ID: value },
+
+                    url: '@Url.Action("GetAssignmentByID", "Controlpanel")',
+                       success: function (data) {
+                           $("div.spanner").removeClass("show");
+                           $("div.overlay").removeClass("show");
+                           $("div.spanner").addClass("hide");
+
+                           $("div.overlay").addClass("hide");
+                           $("#summernote_ID").summernote('code', data.Description);
+                           $('#Assingment_Name').val(data.Name);
+
+                        var degry = 0;
+                        var count = 0;
+                        var output = '<tr><td></td><td>اسم السؤال</td><td>نوع السؤال</td><td>الدرجة</td><td></td></tr >';
+                           for (var i = 0; i < data.L_Assignment_Q.length; i++) {
+                            count = i + 1;
+                            output += '<tr id="row_' + count + '">';
+                               output += '<td>' + count + ' <input type="hidden" name="hidden_option" id="option' + count + '" class="option" value="' + data.L_Assignment_Q[i].QM.ID + '" /></td>';
+                               output += '<td>' + data.L_Assignment_Q[i].QM.Q_Name + ' <input type="hidden"  id="option' + count + '" class="option" value="' + data.L_Assignment_Q[i].QM.Q_Name + '" /></td>';
+                               if (data.L_Assignment_Q[i].QM.Type == 1) {
+                                   output += '<td>صح او خطأ</td>';
+
+                               } else if (data.L_Assignment_Q[i].QM.Type == 2) {
+                                   output += '<td>خيار من متعدد</td>';
+                               } else {
+                                   output += '<td>وصل</td>';
+                               }
+                               output += '<td>' + data.L_Assignment_Q[i].QM.Q_Degry + ' <input type="hidden" name="hidden_degry" id="degry' + count + '" value="' + data.L_Assignment_Q[i].QM.Q_Degry + '" /></td>';
+                            //output += '<td><button type="button" name="view_details" class="btn btn-warning btn-xs view_details" id="' + count + '">View</button></td>';
+                               output += '<td>    <button name="remove_details" onclick="RemoveOption(' + count + ',' + data.L_Assignment_Q[i].QM.Q_Degry + ')" class="btn btn-danger" id="' + count + '">' +
+                                '<i class="fas fa-trash">' +
+                                '</i> حذف </button>';
+                            output += '</tr>';
+
+                               var Convertdegry = parseInt(data.L_Assignment_Q[i].QM.Q_Degry);
+
+                            degry = degry + Convertdegry;
+                               $('#AssingmentDegry_ID').val(degry);
+
+                           }
+                            $('#Assingment_Win_Degry_ID').val(data.Assignmet_degry_Win);
+                        $('#Table_Options').html(output);
+
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response.responseText);
+                    },
+                    complete: function (response) {
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                        $("div.spanner").addClass("hide");
+
+                        $("div.overlay").addClass("hide");
+                    }
+                });
+        }
+
+        function GetQuesiont() {
+
+            var cat_ID = $('#CategoryID').val();;
+            $.ajax(
+                {
+                    async: true,
+                    type: 'POST',
+                    data: { type: 0, category_ID: cat_ID },
+                      url: '@Url.Action("GetAllQuesinBank", "Controlpanel")',
+                    success: function (data) {
+                        var s = '';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<tr>' +
+                                '<td> <input type="checkbox" name="question" value="' + data[i].ID + '" /></td>';
+                            //'<td>' + data[i].ID + '</td>';
+                            if (data[i].Type == 1) {
+                                s += '<td>صح او خطأ</td>';
+
+                            } else if (data[i].Type == 2) {
+                                s += '<td>خيار من متعدد</td>';
+                            } else {
+                                s += '<td>وصل</td>';
+                            }
+                            s += '<td>' + data[i].Q_Name + '</td>' +
+                                '</tr>';
+                        }
+                        $("#tableContent_ID").html(s);
+
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response.responseText);
+                    },
+                    complete: function (response) {
+                        $('#example1').DataTable({
+                            "paging": true,
+                            "lengthChange": true,
+                            "searching": true,
+                            "ordering": true,
+                            "info": true,
+                            "autoWidth": false,
+                            "responsive": true,
+
+                        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                    }
+                });
+        }
+    function SaveBtn() {
+        $("div.spanner").addClass("show");
+        $("div.overlay").addClass("show");
+            const swalWithBootstrapButtons = Swal.mixin({});
+            var fd = new FormData();
+            var ID = $('#AssignmentID').val();
+            var Name = $("#Assingment_Name").val();
+            var Description = $("#Assingment_Text").val();
+
+            var Lecture_ID = $("#Lecture_ID").val();
+
+            var Assingment_Win_Degry = $('#Assingment_Win_Degry_ID').val();
+            var assingDegry = $('#AssingmentDegry_ID').val();
+
+
+            var L_Q = new Array();
+
+            var option = document.getElementsByName("hidden_option");
+
+
+
+            for (var i = 0; i < option.length; i++) {
+                var MultiQ = {};
+                //MultiQ.Assignment_ID = option[i].value;
+                MultiQ.Q_ID = option[i].value;
+                L_Q.push(MultiQ);
+            }
+
+            fd.ID = ID;
+            fd.Name = Name;
+            fd.Description = Description;
+            fd.Lecture_ID = Lecture_ID;
+            fd.Assignmet_Degry = assingDegry;
+            fd.Assignmet_degry_Win = Assingment_Win_Degry;
+
+            fd.L_Assignment_Q = L_Q;
+
+            $.ajax({
+                async: true,
+
+                type: 'POST',
+                dataType: 'html',
+                contentType: 'application/json; charset=utf=8',
+                data: JSON.stringify(fd),
+
+                url: '@Url.Action("UpdateAssingQuestionToAssignment", "Controlpanel")',
+
+
+                success: function (result) {
+                    $("div.spanner").removeClass("show");
+                    $("div.overlay").removeClass("show");
+                    $("div.spanner").addClass("hide");
+
+                    $("div.overlay").addClass("hide");
+                    swalWithBootstrapButtons.fire(
+                        'تم الحفظ!',
+                        'تم اضافة الوظيفة بنجاح.',
+                        'success'
+                    ).then(function () {
+                        var CategoryID = $("#CategoryID").val();
+                        var CategoryName = $("#CategoryName").val();
+
+                        window.location.href = '@Url.Action("LecturesByCategory", "Controlpanel")?Category_ID=' + CategoryID+'&categoryName=' + CategoryName;
+                        //window.location.href = '@Url.Action("AddAssignment", "Controlpanel")?Lecture_ID=' + lectur_ID + '&categoryName=' + lectureName_ID;
+                    });
+
+                },
+                error: function (response) {
+                    swalWithBootstrapButtons.fire(
+                        'Filed',
+                        response.responseText + ' :)',
+                        'error'
+                    )
+                },
+                complete: function (response) {
+                    $("div.spanner").removeClass("show");
+                    $("div.overlay").removeClass("show");
+                    $("div.spanner").addClass("hide");
+
+                    $("div.overlay").addClass("hide");
+                }
+            }
+            );
+        }
+        function backtoLecture() {
+                 var CategoryID = $("#CategoryID").val();
+                        var CategoryName = $("#CategoryName").val();
+
+            window.location.href = '@Url.Action("LecturesByCategory", "Controlpanel")?Category_ID=' + CategoryID+'&categoryName=' + CategoryName;
+        }
+        $('#btn_AddQuestion').click(function () {
+            var value = getSelectedCheckboxValues('question');
+
+            $.ajax(
+                {
+                    async: true,
+                    type: 'POST',
+                    data: { L_Q: value },
+
+                    url: '@Url.Action("GetQuestionListByID", "Controlpanel")',
+                    success: function (data) {
+                        var degry = 0;
+                        var count = 0;
+                        var output = '<tr><td></td><td>اسم السؤال</td><td>نوع السؤال</td><td>الدرجة</td><td></td></tr >';
+                        for (var i = 0; i < data.length; i++) {
+                            count = i + 1;
+                            output += '<tr id="row_' + count + '">';
+                            output += '<td>' + count + ' <input type="hidden" name="hidden_option" id="option' + count + '" class="option" value="' + data[i].ID + '" /></td>';
+                            output += '<td>' + data[i].Q_Name + ' <input type="hidden"  id="option' + count + '" class="option" value="' + data[i].Q_Name + '" /></td>';
+                            if (data[i].Type == 1) {
+                                output += '<td>صح او خطأ</td>';
+
+                            } else if (data[i].Type == 2) {
+                                output += '<td>خيار من متعدد</td>';
+                            } else {
+                                output += '<td>وصل</td>';
+                            }
+                            output += '<td>' + data[i].Q_Degry + ' <input type="hidden" name="hidden_degry" id="degry' + count + '" value="' + data[i].Q_Degry + '" /></td>';
+                            //output += '<td><button type="button" name="view_details" class="btn btn-warning btn-xs view_details" id="' + count + '">View</button></td>';
+                            output += '<td>    <button name="remove_details" onclick="RemoveOption(' + count + ',' + data[i].Q_Degry + ')" class="btn btn-danger" id="' + count + '">' +
+                                '<i class="fas fa-trash">' +
+                                '</i> حذف </button>';
+                            output += '</tr>';
+
+                            var Convertdegry = parseInt(data[i].Q_Degry);
+
+                            degry = degry + Convertdegry;
+                            $('#AssingmentDegry_ID').val(degry);
+                        }
+                        $('#Table_Options').html(output);
+                        validation();
+                        WinChangeDegry();
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response.responseText);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        });
+        function RemoveOption(row_id,Q_Degry) {
+            //var row_id = $(this).attr("id");
+
+            if (confirm("هل متاكد من حذف هذا الإختيار؟")) {
+                $('#row_' + row_id + '').remove();
+                var degry = $('#AssingmentDegry_ID').val();
+                var value = degry - Q_Degry;
+                $('#AssingmentDegry_ID').val(value);
+                validation();
+            }
+        }
+    function WinChangeDegry() {
+        validation();
+            var Assingment_Win_Degry = $('#Assingment_Win_Degry_ID').val();
+            var assingDegry = $('#AssingmentDegry_ID').val();
+
+            let value = parseInt(Assingment_Win_Degry);
+            let value3 = parseInt(assingDegry);
+            if (value > value3) {
+                $('#Assingment_Win_Degry_ID').val(value3);
+                alert("درجة النجاح اكبر من علامة الوظيفة");
+            }
+            if (value <= 0) {
+                $('#Assingment_Win_Degry_ID').val(value3 / 2);
+                alert("يجب تعديل درجة النجاح");
+            }
+    }
+    function validation() {
+        var Assingment_Name = $('#Assingment_Name').val();
+        var summernote = $("#Assingment_Text").val();
+        var AssingmentDegry_ID = $("#AssingmentDegry_ID").val();
+        var Assingment_Win_Degry_ID = $("#Assingment_Win_Degry_ID").val();
+
+
+        if (Assingment_Name != "" && summernote != "" && AssingmentDegry_ID != "" && Assingment_Win_Degry_ID != "") {
+            document.getElementById("btnSave").disabled = false;
+        } else
+            document.getElementById("btnSave").disabled = true;
+
+    }
+</script>

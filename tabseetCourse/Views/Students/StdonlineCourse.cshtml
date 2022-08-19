@@ -1,0 +1,139 @@
+﻿@model IEnumerable<tabseetCourse.Models.LectureModel>
+
+@{
+    ViewBag.Title = "StdonlineCourse";
+    Layout = "~/Views/Shared/_LayoutStudent.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.css" integrity="sha512-OodagY/LAbXf1TAkypAk+8OWjR+wGA8k3H7TGH+gku7+VsOmJRCQ2pTQJoTo/bATGwTOFdypCXqMV8snRZkC+w==" crossorigin="anonymous" />
+<input type="text" value="@ViewBag.CategoryID" hidden="hidden" id="CategoryID" />
+<input type="text" hidden="hidden" id="Lecture_ID" />
+<input type="text" hidden="hidden" id="Lec_mini_Time" />
+<input type="text" hidden="hidden" id="assingm_ID" />
+<!-- Start Slider -->
+<!-- Start Slider -->
+<div class="sec_content padding_menu cours_details">
+    <div class="container">
+
+        <div class="col-md-4 float-right">
+
+            <div class="text_sec">
+                <img class="cours_image" alt="course Name" src="~/Content2/img/pr-2.jpg">
+                <h1>@ViewBag.LectureName</h1>
+
+                <p>عدد المحاضرات</p>
+                <span class="number">@Model.Count()</span>
+
+                <div class="w_text">
+                    <p>
+                        @*شرح مختصر عن البرنامج التعليمي*@
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="col-md-8 float-left">
+            <div class="text_sec content">
+                <h2>المحاضرات المباشرة</h2>
+
+
+                <ul class="content_list" id="LectureStd">
+
+                    @{ bool lectureEnable = true;
+                        int index = 0;
+                        foreach (var item in Model)
+                        {
+                            if (item.Is_Lecture_End == false)
+                            {
+
+
+                                index++;
+
+                                <li>
+                                    <b class="">@index</b>
+                                    <p title="@item.Lecture_Name">@item.Lecture_Name </p>
+                                    <div class="form-group">
+                                        <label for="completed">ملفات مساعدة</label>
+                                        <a href="#"
+                                           onclick="window.open('https://isaacademy.org/Uploade/Images/@item.DocumenFile', '_blank');">اضغط هنا</a>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="costs">الفئة</label>
+                                        <label for="completed">@item.CategoresName</label>
+
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="costs">بدأ</label>
+                                        <a href="@item.LectureLink_Client" target="_blank">
+
+                                            <i class="fas fa-play-circle"></i>
+
+                                        </a>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="costs">التوقيت</label>
+
+                                        <label>@item.DayandTime</label>
+
+
+
+                                    </div>
+
+                                </li>
+                            }
+
+                        }
+                    }
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Slider -->
+<!-- Cours Modal -->
+@*////////////////////////*@
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- /.content -->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- AdminLTE for demo purposes -->
+<!-- Page specific script -->
+<script>
+    var isLoading = false;
+    $(document).ready(function () {
+        $(".menu_top").addClass("fixed");
+        //var category_ID = $("#Category_ID").val();
+
+
+    });
+
+
+
+
+
+    function assingLectureInfo(ID, LectureLink_Client, LectureAssingment, LectureMinTime, Others, DocumenFile, MediaLink)
+    {
+        $("#Video_ID").attr("src", LectureLink_Client);
+
+        $("#assingm_ID").val(LectureAssingment);
+        $("#Lecture_ID").val(ID);
+        $("#Lec_mini_Time").val(LectureMinTime);
+        btnStartLecture();
+    }
+
+
+</script>
+
+
+
+
+
+
+
+

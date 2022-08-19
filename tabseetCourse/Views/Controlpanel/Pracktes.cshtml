@@ -1,0 +1,230 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.PracktesModel>
+
+@{
+    ViewBag.Title = "Pracktes";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content">
+    <div class="page-title">
+        <div class="sub-title"> Pracktes Page</div>
+    </div>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Add Pracktes</button>
+
+    <p>
+
+    </p>
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Lang_name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateTime)
+            </th>
+
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Lang_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateTime)
+                </td>
+                <td>
+                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" onclick="EditeBtn(@item.ID)">Edit </button>
+                    @*@Html.ActionLink("Edite", "Edite", new { id = item.ID }, new { @class = "btn btn-info" })*@
+                    <button type="button" class="btn btn-danger" onclick="DeleteBtn(@item.ID)">Delete </button>
+                    @*@Html.ActionLink("Delete", "DeleteNews", new { New_ID = item.ID }, new { @class = "btn btn-danger" })*@
+                </td>
+            </tr>
+        }
+
+    </table>
+
+    <div class="container">
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Add Pracktes</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        @using (Html.BeginForm("Pracktes", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            <div class="form-group m-b">
+                                @*<label for="Lang_ID">Languages</label>*@
+                                <select class="form-control search-input" id="Lang_ID" name="Lang_ID">
+                                </select>
+                            </div>
+                            <div class="form-group m-b hidden">
+                                @*<label for="Title_ID">Title</label>*@
+                                <input type="text" class="form-control" id="ID" name="ID" placeholder="ID" />
+                            </div>
+                            <div class="form-group m-b">
+                                @*<label for="Title_ID">Title</label>*@
+                                <input type="text" class="form-control" id="Title" name="Title" placeholder="Pracktes Title" />
+                            </div>
+                            <div class="form-group m-b">
+                                <label for="DateTime">History</label>
+                                <span class="input-group-addon">
+                                    <input type='date' class="form-control" id="DateTime" name="DateTime" />
+                                </span>
+                            </div>
+
+                            <div class="form-group m-b">
+                                <label for="FullDescription">Full Description</label>
+                                <textarea class="form-control" id="FullDescription" name="FullDescription" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group m-b">
+                                <label for="ShortDescription">Short Description</label>
+                                <textarea class="form-control" id="ShortDescription" name="ShortDescription" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group m-b">
+                                <label for="CoverImage">Cover Image</label>
+                                <input type="file" accept="image/png, image/jpeg" class="form-control" id="CoverImage" name="CoverImage" rows="3" />
+                            </div>
+
+                            <div class="form-group m-b">
+                                <label for="FullDescription">Icon Image</label>
+                                <input type="file" accept="image/png, image/jpeg" class="form-control" id="ShourtImage" name="ShourtImage" rows="3" />
+                            </div>
+
+                            <div class="modal-footer">
+                                <input type="submit" value="Save" class="btn btn-primary" />
+                            </div>
+                        }
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="~/Content/static/app/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
+
+
+</div>
+
+<script type="text/javascript">
+
+    $('.form-validation').validate();
+
+    $(document).ready(function () {
+
+
+              $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    //data: { id: Exam_id },
+
+                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        var s = '<option value="-1">Select Languages</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                        }
+                        $("#Lang_ID").html(s);
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                  });
+
+
+
+    });
+
+    function DeleteBtn(Exam_id)
+    {
+        if (confirm("Are you sure to delete the exam?")) {
+
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { PR_ID: Exam_id },
+                    url: '@Url.Action("DeletePracktes", "UIUXadminPanel")',
+                    success: function (data) {
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        }
+    }
+
+    function AddNews() {
+        $("#ID").val("0");
+        $("#Title").val("");
+        //$("#Lang_ID").val("");
+        $("#DateTime").val("");
+        $("#FullDescription").val("");
+        $("#ShortDescription").val("");
+    }
+    function EditeBtn(Exam_id) {
+        $.ajax(
+            {
+                async: true,
+
+                type: 'GET',
+                //dataType: 'JSON',
+                //contentType: 'application/json; charset=utf=8',
+                data: { PR_ID: Exam_id },
+
+                url: '@Url.Action("EditPracktes", "UIUXadminPanel")',
+                success: function (data) {
+                    //alert(data.Title);
+                    //var result = JSON.stringify(data);
+                    $("#ID").val(data.ID);
+                    $("#Title").val(data.Title);
+                    $("#Lang_ID").val(data.Lang_ID);
+                    $("#DateTime").val(data.DateTime);
+                    $("#FullDescription").val(data.FullDescription);
+                    $("#ShortDescription").val(data.ShortDescription);
+                },
+                error: function (response) {
+                    alert("the problem is " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+</script>
+

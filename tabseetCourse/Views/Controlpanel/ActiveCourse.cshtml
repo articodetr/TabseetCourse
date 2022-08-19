@@ -1,0 +1,237 @@
+﻿@model IEnumerable<tabseetCourse.Models.Std_Reg_CategoryModel>
+
+@{
+    ViewBag.Title = "ActiveCourse";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var viewModel = (tabseetCourse.Models.UserModel)ViewBag._UsermodelModel;
+}
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<!-- Theme style -->
+<link rel="stylesheet" href="~/Content/dist/css/adminlte.min.css">
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Select2 -->
+<link rel="stylesheet" href="~/Content/plugins/select2/css/select2.min.css">
+<link rel="stylesheet" href="~/Content/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1> تفعيل طلبات الدفع</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<div class="card">
+    <div class="card-header">
+        @*@if (viewModel != null && viewModel.L_role.Count > 0)
+            {
+                foreach (var item in viewModel.L_role)
+                {
+                    if (item.RoleName == "Admin" || item.RoleName == "PaymentView")
+                    {
+                        <input type="button" value="اضافة فئة جديد" id="addNew" data-toggle="modal" data-target="#modal-lg" class="btn btn-success float-left">
+                    }
+                }
+            }*@
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <table id="example1" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>اسم الدورة</th>
+                    <th>اسم الطالب</th>
+                    <th>قيمة الدفع</th>
+                    <th>طريقة الدفع</th>
+                    <th>إشعار</th>
+                    <th> </th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ID</td>
+                        <td>@item.CategoryName</td>
+                        <td>@item.Student_Name</td>
+                        <td>@item.PayMent_Value</td>
+                        @if (item.PayMent_Method == 2)
+                        {
+                            <td> حوالة بنكية</td>
+                            <td><a href="~/Uploade/Images/@item.TransactionFile" target="_blank">اشعار الدفع</a></td>
+                        }
+                        else if (item.PayMent_Method == 3)
+                        {
+                            <td>الدفع لاحقا</td>
+                            <td> </td>
+                        }
+                        else if (item.PayMent_Method == 4)
+                        {
+                            <td> منحة</td>
+                            <td><label>@item.Code</label></td>
+                        }
+                        else
+                        {
+                            <td> لم يتم الدفع</td>
+                            <td><label></label></td>
+                        }
+
+                        <td>
+                            <div class="btn-group">
+                                @if (viewModel != null && viewModel.L_role.Count > 0)
+                                {
+                                    foreach (var item2 in viewModel.L_role)
+                                    {
+                                        if (item2.RoleName == "Admin" || item2.RoleName == "PaymentActive")
+                                        {
+                                            <button class="btn btn-primary" onclick="location.href='@Url.Action("ActiveStudenCourse", "ControlPanel", new { Reg_ID = item.ID })'">
+                                                <i class="nav-icon fas fa-book">
+                                                </i>
+                                                تفعيل
+                                            </button>
+                                        }
+                                    }
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>ID</th>
+                    <th>اسم الدورة</th>
+                    <th>اسم الطالب</th>
+                    <th>قيمة الدفع</th>
+                    <th>طريقة الدفع</th>
+                    <th>إشعار</th>
+                    <th> </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+
+<!-- /.card -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="~/Content/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="~/Content/plugins/select2/js/select2.full.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="~/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+
+<script src="~/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="~/Content/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+<!-- AdminLTE App -->
+<script src="~/Content/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/Content/dist/js/demo.js"></script>
+
+<!-- Page specific script -->
+<script>
+    $(document).ready(function () {
+        //Initialize Select2 Elements
+
+    });
+
+    $(function () {
+        $('#example1').DataTable({
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": true,
+            "responsive": true,
+            "buttons": ["copy", /*"csv",*/ "excel", /*"pdf",*/ "print", "colvis"]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+    });
+
+
+
+    $('#btnSave').click(function () {
+        validationSaveForm();
+        var fd = new FormData();
+
+        var NameAR_ID = $("#NameAR_ID").val();
+        var NameEN_ID = $("#NameEN_ID").val();
+        var Type_ID = $("#Type_ID").val();
+        var IsPayed_ID = $("#IsPayed_ID").val();
+        var PayedValue_ID = $("#PayedValue_ID").val();
+        var Categories_ID = $("#Categories_ID").val();
+
+        fd.NameAR = NameAR_ID;
+        fd.NameEN = NameEN_ID;
+        fd.CategoryType_ID = Type_ID;
+        fd.IsPayed = IsPayed_ID;
+        fd.PayedValue = PayedValue_ID;
+        fd.ParentCateogry_ID = Categories_ID;
+        var dataJson = JSON.stringify(fd);
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                data: dataJson,
+                url: '@Url.Action("CreateCategories", "Controlpanel")',
+                success: function (data) {
+                    window.location.reload();
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+
+
+    function validationSaveForm() {
+        var first = $("#NameAR_ID").val();
+        var value = true;
+        if (first == "") {
+
+            $("#reqNameAR_ID").html("* الاسم مطلوب");
+
+            value= false;
+        }
+        //if (x) {
+
+        //}
+    }
+</script>

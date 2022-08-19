@@ -1,0 +1,194 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.FooterPagesModel>
+
+@{
+    ViewBag.Title = "FooterPages";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content">
+    <div class="page-title">
+        <div class="sub-title"> Footer pages</div>
+    </div>
+    <table class="table">
+        <tr>
+            <th class="hidden">
+                @Html.DisplayNameFor(model => model.New_page_ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PageName)
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="hidden">
+                    @Html.DisplayFor(modelItem => item.New_page_ID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PageName)
+                </td>
+                <td>
+
+                    <button type="button" class="btn btn-danger" onclick="DeleteItem(@item.ID)">Delete </button>
+                </td>
+            </tr>
+        }
+
+        <tr hidden="hidden" id="CreateNew">
+
+            <td>
+                <select id="Page_ID">
+                    <option value="-1">Select Pages</option>
+                    @*<option value="1">About Us</option>
+                        <option value="2">Contact US</option>
+                        <option value="3">Horizontal tape</option>
+                        <option value="4">vertical tape</option>
+                        <option value="5">Page Text</option>*@
+                </select>
+            </td>
+
+
+            <td>
+                <button type="button" class="btn btn-primary" onclick="Save()">Save</button>
+                @*<button type="button" class="btn btn-primary" onclick="Cleare()">Cleare</button>*@
+            </td>
+        </tr>
+    </table>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="row">
+                <div class="col-xs-12 m-b">
+                    <div class="demo-button">
+                        <button type="button" class="btn btn-primary" onclick="Create()">Add Footer Menu</button>
+                        @*<button type="button" class="btn btn-success" onclick="Save()">Save</button>*@
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+        function Create() {
+            $("#CreateNew").show();
+
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    //data: { id: Exam_id },
+
+                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        var s;
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                        }
+                        $("#Language_ID").html(s);
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+
+               $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+
+                    url: '@Url.Action("GetAllPages", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        var s;
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                        }
+                        $("#Page_ID").html(s);
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                })
+
+
+        }
+
+        function Save() {
+
+            //$("#CB_ID").val();
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { fpm: $("#Page_ID").val()},
+
+                    url: '@Url.Action("FooterPage", "UIUXadminPanel")',
+                    success: function (result) {
+
+                        location.reload(true);
+                        //window.location.reload();
+                    },
+                    error: function (response) {
+
+                        alert("the problem is " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+            $("#CreateNew").hide();
+        }
+
+    function DeleteItem(itemID)
+    {
+        if (confirm("are you sure")) {
+                      $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                              data: { Footer_ID: itemID },
+
+                    url: '@Url.Action("DeleteFooter", "UIUXadminPanel")',
+                    success: function (result) {
+
+                        location.reload(true);
+
+                    },
+                    error: function (response) {
+
+                        alert("the problem is " + response);
+                    },
+                    complete: function (response) {
+                    }
+                });
+        } else {
+            //$("#CB_ID").val();
+
+        }
+        $("#CreateNew").hide();
+    }
+
+
+</script>

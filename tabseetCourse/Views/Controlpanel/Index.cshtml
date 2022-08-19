@@ -1,0 +1,302 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<div class="container-fluid">
+    <div class="row" style="padding-top:10px">
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box">
+                <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cog"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">اصدار الشهاداة</span>
+                    <span class="info-box-number">
+                        @ViewBag.Certfication
+                        @*<small>%</small>*@
+                    </span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-up"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">المسجلين في الدورات المجانية</span>
+                    <span class="info-box-number">@ViewBag.FreeCategory</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+        <!-- fix for small devices only -->
+        <div class="clearfix hidden-md-up"></div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">المسجلين في الدورات المدفوعة</span>
+                    <span class="info-box-number">@ViewBag.PayedCategory</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">عدد الطلاب الكامل</span>
+                    <span class="info-box-number">@ViewBag.StudentCount</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+    </div>
+
+    <div class="row" style="padding:10px">
+        <div class="card card-success" style="margin:5px; width:48%">
+            <div class="card-header">
+                <h3 class="card-title">نسبة الشماركة في الدورات المدفوعة والمجانية</h3>
+
+                <div class="card-tools;">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="card-body ">
+                <div class="chart">
+                    <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+            </div>
+            <!-- /.card-body -->
+        </div>
+        <div class="card card-danger" style="margin:5px; width:48%">
+            <div class="card-header">
+                <h3 class="card-title">الدورات الاكثر تسجيل </h3>
+
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+            <!-- /.card-body -->
+        </div>
+    </div>
+
+
+    <div id="regions_div" style="width: 100%; height: 500px;"></div>
+</div>
+
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+
+<!-- jQuery -->
+@*<script src="~/Content/plugins/jquery/jquery.min.js"></script>*@
+<!-- Bootstrap -->
+@*<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>*@
+
+
+<!-- OPTIONAL SCRIPTS -->
+<script src="~/Content/plugins/chart.js/Chart.js"></script>
+<!-- AdminLTE -->
+@*<script src="~/Content/dist/js/adminlte.js"></script>
+    <script src="~/Content/dist/js/demo.js"></script>*@
+@*<script src="~/Content/dist/js/pages/dashboard3.js"></script>*@
+<script>
+    $(function () {
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                url: '@Url.Action("userlocation", "Controlpanel")',
+                success: function (data) {
+                    var valus = [
+                        ['Country', 'Popularity'],
+                        ['Syria', 200],
+                        ['Turkey', 1000],
+                        ['egypt', 500],
+                        ['Yemen', 300]
+
+                    ];
+
+                    //for (var i = 0; i < data.length; i++) {
+                    //    valus.push(data[i].Country, data[i].count);
+                    //}
+                    //for (var i = 0; i < valus.length; i++) {
+                    //    console.log(valus[i]);
+                    //}
+                    google.charts.load('current', {
+                        'packages': ['geochart'],
+                    });
+                    google.charts.setOnLoadCallback(drawRegionsMap);
+
+                    function drawRegionsMap() {
+                        var data = google.visualization.arrayToDataTable(valus);
+
+                        var options = {};
+
+                        var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+
+                        chart.draw(data, options);
+                    }
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+
+
+
+        /* ChartJS
+         * -------
+         * Here we will create a few charts using ChartJS
+         */
+
+        //--------------
+        //- AREA CHART -
+        //--------------
+
+        // Get context with jQuery - using jQuery's .get() method.
+
+
+        var areaChartData = {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [
+                {
+                    label: 'Digital Goods',
+                    backgroundColor: 'rgba(60,141,188,0.9)',
+                    borderColor: 'rgba(60,141,188,0.8)',
+                    pointRadius: false,
+                    pointColor: '#3b8bba',
+                    pointStrokeColor: 'rgba(60,141,188,1)',
+                    pointHighlightFill: '#fff',
+                    pointHighlightStroke: 'rgba(60,141,188,1)',
+                    data: [28, 48, 40, 19, 86, 27, 90]
+                },
+                {
+                    label: 'Electronics',
+                    backgroundColor: 'rgba(210, 214, 222, 1)',
+                    borderColor: 'rgba(210, 214, 222, 1)',
+                    pointRadius: false,
+                    pointColor: 'rgba(210, 214, 222, 1)',
+                    pointStrokeColor: '#c1c7d1',
+                    pointHighlightFill: '#fff',
+                    pointHighlightStroke: 'rgba(220,220,220,1)',
+                    data: [65, 59, 80, 81, 56, 55, 40]
+                },
+            ]
+        }
+
+        var barChartCanvas = $('#barChart').get(0).getContext('2d')
+        var barChartData = jQuery.extend(true, {}, areaChartData)
+        var temp0 = areaChartData.datasets[0]
+        var temp1 = areaChartData.datasets[1]
+        barChartData.datasets[0] = temp1
+        barChartData.datasets[1] = temp0
+
+        var barChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            datasetFill: false
+        }
+
+        var barChart = new Chart(barChartCanvas, {
+            type: 'bar',
+            data: barChartData,
+            options: barChartOptions
+        });
+
+
+        var labels = ['category1', 'category2', 'category3', 'category4', 'category5', 'category6'];
+
+
+
+        var data1 = [700, 500, 400, 600, 300, 100];
+        var backgroundColor1 = ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de'];
+
+        var donutData1 = {
+            labels: [
+                'Chrome',
+                'IE',
+                'FireFox',
+                'Safari',
+                'Opera',
+                'Navigator',
+            ],
+            datasets: [
+                {
+                    data: [700, 500, 400, 600, 300, 100],
+                    backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de'],
+                }
+            ]
+        }
+        console.log(donutData1);
+        var donutData = [];
+
+        for (var i = 0; i < labels.length; i++) {
+            donutData = {
+                labels: [labels[i]],
+                datasets: [
+                    {
+                        data: [data1[i] ],
+                        backgroundColor: [backgroundColor1[i]],
+                    }
+                ]
+            }
+
+            }
+
+
+        console.log(donutData);
+        var donutOptions = {
+            maintainAspectRatio: false,
+            responsive: true,
+        }
+
+        var pieChartCanvas = $('#pieChart').get(0).getContext('2d')
+        var pieData = donutData;
+        var pieOptions = {
+            maintainAspectRatio: false,
+            responsive: true,
+        }
+        //Create pie or douhnut chart
+        // You can switch between pie and douhnut using the method below.
+            var pieChart = new Chart(pieChartCanvas, {
+                type: 'pie',
+                data: pieData,
+                options: pieOptions
+            })
+    });
+</script>

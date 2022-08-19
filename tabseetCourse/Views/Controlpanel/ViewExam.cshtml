@@ -1,0 +1,492 @@
+﻿
+@{
+    ViewBag.Title = "ViewExam";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<!-- Theme style -->
+<link rel="stylesheet" href="~/Content/dist/css/adminlte.min.css">
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <label>تعديل إمتحان</label>
+                <h1>@ViewBag.CategoresName </h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<div class="card">
+
+    <!-- /.card-header -->
+    <div class="card-body">
+        <input type="text" value="@ViewBag.Exam_ID" hidden="hidden" id="Exam_ID" />
+        <input type="text" value="@ViewBag.Categores_ID" hidden="hidden" id="categoresID" />
+        <div class="form-group">
+            <label class="control-label col-md-2">إسم الامتحان</label>
+            @*@Html.LabelFor("اسم الوظيفة", htmlAttributes: new { @class = "control-label col-md-2" })*@
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="Exam_Name" onchange="validation()" />
+                @*@Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })*@
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">شرح</label>
+            @*@Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })*@
+            <div class="col-md-10">
+                <input type="text" class="summernote" id="summernote_ID" />
+                <input type="text" class="form-control" id="Exam_Text" hidden="hidden" onchange="validation()" />
+                @*@Html.EditorFor(model => model.Description, new { htmlAttributes = new { @id = "summernote_ID", @class = "summernote" } })*@
+
+            </div>
+        </div>
+
+
+
+        <div class="form-group">
+
+            <div class="table-responsive">
+                <table>
+
+                    <tbody>
+                        <tr>
+
+                            <td>
+                            </td>
+                            <td>
+                                <label class="control-label">درجة علامة الوظيفة</label>
+
+
+                            </td>
+                            <td>
+                                <label class="control-label">درجة النجاح</label>
+                            </td>
+                            <td>
+                                <label class="control-label">مدة الامتحان</label>
+                            </td>
+                        </tr>
+                        <tr>
+
+                            <td>
+                                <input type="button" value="إضافة اسئلة" id="addNew" data-toggle="modal" data-target="#modal-lg" class="btn btn-success float-left">
+                            </td>
+                            <td>
+
+                                <input id="ExamDegry_ID" type="text" class="form-control " onchange="validation()" disabled="disabled" />
+                            </td>
+                            <td>
+                                <input type="number" step="1" min="1" max="100" class="form-control" onchange="WinChangeDegry()" id="examDegryWin" />
+                            </td>
+
+                            <td>
+                                <input type="number" step="0.25" min="0.25" max="3" onchange="validation()" class="form-control" id="examDuration" />
+                            </td>
+                        </tr>
+                    </tbody>
+
+
+                </table>
+            </div>
+            <div class="form-group">
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered" id="Table_Options">
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <input type="button" value="حفظ التعديلات" onclick="SaveBtn()" id="btnSave" class="btn btn-primary float-left" style="padding-block:10px">
+
+            <input type="button" value="رجوع للخلف" onclick="BackToCategory()" class="btn btn-default float-none" style="padding-block:10px" />
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+
+    <div class="container">
+        @*<h2>Modal Example</h2>*@
+        <!-- Trigger the modal with a button -->
+        <!-- Modal -->
+        <div class="modal fade" id="modal-lg" role="dialog">
+            <div class="modal-dialog modal-xl">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">إضافة اسئلة</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table id="example1" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th> </th>
+                                    @*<th>ID</th>*@
+                                    <th>النمط</th>
+
+                                    <th>إسم السؤال</th>
+
+
+
+                                </tr>
+                            </thead>
+                            <tbody id="tableContent_ID">
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    @*<th>ID</th>*@
+                                    <th>النمط</th>
+
+                                    <th>إسم السؤال</th>
+
+
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        @*<button type="button" class="btn btn-danger" data-dismiss="modal">
+                                Close
+                            </button>*@
+
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn_AddQuestion">إضافة</button><br /><br />
+                        @* <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="AddOption()">Add Option</button>*@
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="~/Content/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="~/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<!-- AdminLTE App -->
+<script src="~/Content/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/Content/dist/js/demo.js"></script>
+
+<!-- Summernote -->
+<script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+<script src="~/Scripts/CustomJavascript.js"></script>
+<script type="text/javascript">
+
+        $(document).ready(function () {
+            document.getElementById("btnSave").disabled = true;
+            $('#summernote_ID').summernote();
+            $('#summernote_ID').on('summernote.change', function (we, e) {
+
+                var summernote = $("#summernote_ID").summernote('code');
+                $('#Exam_Text').val(summernote);;
+                //console.log(summernote);
+            });
+            GetQuesiont();
+            GetExamsByID();
+        });
+
+        function GetExamsByID() {
+        var value = $('#Exam_ID').val();
+
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { Exam_ID: value },
+
+                url: '@Url.Action("GetExamByID", "Controlpanel")',
+                success: function (data) {
+                    $("#summernote_ID").summernote('code', data.Description);
+                    $('#Exam_Name').val(data.Name);
+                    $('#examDuration').val(data.Duration);
+                    $('#examDegryWin').val(data.Exam_win_Degry);
+
+                    var degry = 0;
+                    var count = 0;
+                    var output = '<tr><td></td><td>اسم السؤال</td><td>نوع السؤال</td><td>الدرجة</td><td></td></tr >';
+                    for (var i = 0; i < data.Exam_Q.length; i++) {
+                        count = i + 1;
+                        output += '<tr id="row_' + count + '">';
+                        output += '<td>' + count + ' <input type="hidden" name="hidden_option" id="option' + count + '" class="option" value="' + data.Exam_Q[i].QM.ID + '" /></td>';
+                        output += '<td>' + data.Exam_Q[i].QM.Q_Name + ' <input type="hidden"  id="option' + count + '" class="option" value="' + data.Exam_Q[i].QM.Q_Name + '" /></td>';
+                        if (data.Exam_Q[i].QM.Type == 1) {
+                            output += '<td>صح او خطأ</td>';
+
+                        } else if (data.Exam_Q[i].QM.Type == 2) {
+                            output += '<td>خيار من متعدد</td>';
+                        } else {
+                            output += '<td>وصل</td>';
+                        }
+                        output += '<td>' + data.Exam_Q[i].QM.Q_Degry + ' <input type="hidden" name="hidden_degry" id="degry' + count + '" value="' + data.Exam_Q[i].QM.Q_Degry + '" /></td>';
+                        //output += '<td><button type="button" name="view_details" class="btn btn-warning btn-xs view_details" id="' + count + '">View</button></td>';
+                        output += '<td>    <button name="remove_details" onclick="RemoveOption(' + count + ',' + data.Exam_Q[i].QM.Q_Degry + ')" class="btn btn-danger" id="' + count + '">' +
+                            '<i class="fas fa-trash">' +
+                            '</i> حذف </button>';
+                        output += '</tr>';
+
+                        var Convertdegry = parseInt(data.Exam_Q[i].QM.Q_Degry);
+
+                        degry = degry + Convertdegry;
+                        $('#ExamDegry_ID').val(degry);
+                    }
+                    $('#Table_Options').html(output);
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+        function GetQuesiont() {
+            var cat_ID = $('#categoresID').val();;
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { type: 0, category_ID: cat_ID },
+                url: '@Url.Action("GetAllQuesinBank", "Controlpanel")',
+                success: function (data) {
+                    var s = '';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<tr>' +
+                            '<td> <input type="checkbox" name="question" value="' + data[i].ID + '" /></td>';
+                            //'<td>' + data[i].ID + '</td>';
+                        if (data[i].Type == 1) {
+                            s += '<td>صح او خطأ</td>';
+
+                        } else if (data[i].Type == 2) {
+                            s += '<td>خيار من متعدد</td>';
+                        } else {
+                            s += '<td>وصل</td>';
+                        }
+                        s += '<td>' + data[i].Q_Name + '</td>' +
+                            '</tr>';
+                    }
+                    $("#tableContent_ID").html(s);
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    $('#example1').DataTable({
+                        "paging": true,
+                        "lengthChange": true,
+                        "searching": true,
+                        "ordering": true,
+                        "info": true,
+                        "autoWidth": false,
+                        "responsive": true,
+
+                    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                }
+            });
+    }
+
+        function SaveBtn() {
+            const swalWithBootstrapButtons = Swal.mixin({});
+            var fd = new FormData();
+            var value = $('#Exam_ID').val();
+            var Name = $("#Exam_Name").val();
+            var Description = $("#Exam_Text").val();
+
+            var Categories_ID = $("#categoresID").val();
+            var examDuration = $("#examDuration").val();
+            var Exam_Degry = $("#ExamDegry_ID").val();
+            var examDegryWin = $("#examDegryWin").val();
+
+
+            var L_Q = new Array();
+
+            var option = document.getElementsByName("hidden_option");
+
+
+
+            for (var i = 0; i < option.length; i++) {
+                var MultiQ = {};
+                //MultiQ.Assignment_ID = option[i].value;
+                MultiQ.Q_ID = option[i].value;
+                L_Q.push(MultiQ);
+
+            }
+
+
+
+            fd.ID = value;
+            fd.Name = Name;
+            fd.Description = Description;
+            fd.Category_ID = Categories_ID;
+            fd.Duration = examDuration;
+            fd.Exam_Degry = Exam_Degry;
+            fd.Exam_win_Degry = examDegryWin;
+            fd.Exam_Q = L_Q;
+
+
+            $.ajax({
+                async: true,
+
+                type: 'POST',
+                dataType: 'html',
+                contentType: 'application/json; charset=utf=8',
+                data: JSON.stringify(fd),
+
+                url: '@Url.Action("EditExams", "Controlpanel")',
+
+
+                success: function (result) {
+                    swalWithBootstrapButtons.fire(
+                        'تم الحفظ!',
+                        'تم اضافة الامتحان بنجاح.',
+                        'success'
+                    ).then(function () {
+                        window.location.href = '@Url.Action("Categories", "ControlPanel")';
+                    });
+                },
+                error: function (response) {
+                    swalWithBootstrapButtons.fire(
+                        'Filed',
+                        response.responseText + ' :)',
+                        'error'
+                    )
+                },
+                complete: function (response) {
+                }
+            }
+            );
+    }
+    function BackToCategory() {
+
+        window.location.href = '@Url.Action("Categories", "ControlPanel")';
+    }
+        $('#btn_AddQuestion').click(function () {
+            var value = getSelectedCheckboxValues('question');
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { L_Q: value },
+
+                url: '@Url.Action("GetQuestionListByID", "Controlpanel")',
+                success: function (data) {
+                    var degry = 0;
+                    var count = 0;
+                    var output = '<tr><td></td><td>اسم السؤال</td><td>نوع السؤال</td><td>الدرجة</td><td></td></tr >';
+                    for (var i = 0; i < data.length; i++) {
+                        count = i+1;
+                        output += '<tr id="row_' + count + '">';
+                        output += '<td>' + count + ' <input type="hidden" name="hidden_option" id="option' + count + '" class="option" value="' + data[i].ID+ '" /></td>';
+                        output += '<td>' + data[i].Q_Name + ' <input type="hidden"  id="option' + count + '" class="option" value="' + data[i].Q_Name + '" /></td>';
+                        if (data[i].Type == 1) {
+                            output += '<td>صح او خطأ</td>';
+
+                        } else {
+                            output += '<td>خيار من متعدد</td>';
+                        }
+                        output += '<td>' + data[i].Q_Degry + ' <input type="hidden" name="hidden_degry" id="degry' + count + '" value="' + data[i].Q_Degry + '" /></td>';
+                        //output += '<td><button type="button" name="view_details" class="btn btn-warning btn-xs view_details" id="' + count + '">View</button></td>';
+                        output += '<td>    <button name="remove_details" onclick="RemoveOption(' + count + ',' + data[i].Q_Degry+')" class="btn btn-danger" id="' + count + '">' +
+                            '<i class="fas fa-trash">' +
+                            '</i> حذف </button>';
+                        output += '</tr>';
+
+                        var Convertdegry = parseInt(data[i].Q_Degry);
+
+                        degry = degry + Convertdegry;
+                        $('#ExamDegry_ID').val(degry);
+                    }
+                    $('#Table_Options').html(output);
+                    validation();
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+        });
+
+        function RemoveOption(row_id, Q_Degry) {
+            //var row_id = $(this).attr("id");
+
+            if (confirm("هل متاكد من حذف هذا الإختيار؟")) {
+                $('#row_' + row_id + '').remove();
+                var degry = $('#ExamDegry_ID').val();
+                var value = degry - Q_Degry;
+                $('#ExamDegry_ID').val(value);
+                validation();
+            }
+        }
+    function WinChangeDegry() {
+        var examDegryWin = $("#examDegryWin").val();
+        var Exam_Degry = $("#ExamDegry_ID").val();
+
+        let value = parseInt(examDegryWin);
+        let value3 = parseInt(Exam_Degry);
+        if (value > value3) {
+            $('#examDegryWin').val(value3);
+            alert("درجة النجاح اكبر من علامة الوظيفة");
+        }
+        if (value <= 0) {
+            $('#examDegryWin').val(value3 / 2);
+            alert("يجب تعديل درجة النجاح");
+        }
+        validation();
+    }
+    function validation() {
+        var Assingment_Name = $('#Exam_Name').val();
+        var summernote = $("#Exam_Text").val();
+        var AssingmentDegry_ID = parseInt($("#ExamDegry_ID").val());
+        var Assingment_Win_Degry_ID = parseInt($("#examDegryWin").val());
+        var examDuration = $("#examDuration").val();
+        console.log("degry" + AssingmentDegry_ID);
+        console.log("win" + Assingment_Win_Degry_ID);
+
+        if (Assingment_Name != "" && summernote != "" && AssingmentDegry_ID != 0 && Assingment_Win_Degry_ID > 0 && Assingment_Win_Degry_ID <= AssingmentDegry_ID && examDuration > 0) {
+            document.getElementById("btnSave").disabled = false;
+        } else {
+            document.getElementById("btnSave").disabled = true;
+        }
+
+    }
+</script>

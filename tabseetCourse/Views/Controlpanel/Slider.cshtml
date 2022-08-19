@@ -1,0 +1,164 @@
+﻿@model tabseetCourse.Models_UI.SliderModel
+
+@{
+    ViewBag.Title = "Slider";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<div class="main-content">
+    <div class="page-title">
+
+        <div class="sub-title"> Slider</div>
+    </div>
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Image)
+            </th>
+            <th>
+                <label>نص</label>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Lang_ID)
+            </th>
+
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <img src="~/Uploade/Images/@item.Image" width="150" />
+                    @*@Html.DisplayFor(modelItem => item.Image)*@
+                </td>
+                <td>
+                    <label>@item.TextMessage</label>
+                </td>
+                <td>
+                    <label>@item.Lang_Name</label>
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <button type="button" class="btn btn-danger" onclick="DeleteSlider(@item.ID)">Delete </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-danger" onclick="DeleteSlider(@item.ID)">حذف </button>
+                    }
+
+                    @*@Html.ActionLink("Delete", "DeleteSlider", "UIUXadminPanel", new { SID = item.ID }, new { @class = "btn btn-danger" })*@
+                </td>
+            </tr>
+        }
+
+    </table>
+    @using (Html.BeginForm("Slider", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+
+        <table>
+            <tr>
+                <td>
+                    <div class="form-group">
+                        <input type="file" accept="image/png, image/jpeg" name="Image_File" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <input type="text" name="TextMessage" id="TextMessage" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <div class="col-md-10">
+                            <select id="Lang_ID" name="Lang_ID" onchange="onchangeLang()">
+                            </select>
+                        </div>
+                    </div>
+                </td>
+                <td>
+
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                            {
+                                <input type="submit" value="Create" class="btn btn-primary" />
+                            }
+                            else
+                            {
+                                <input type="submit" value="حفظ" class="btn btn-primary" />
+                            }
+
+                        </div>
+                    </div>
+
+                </td>
+            </tr>
+            <tr>
+            </tr>
+        </table>
+    }
+</div>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+<script src="~/Content/static/app/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+         $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+                //dataType: 'JSON',
+                //contentType: 'application/json; charset=utf=8',
+                //data: { id: Exam_id },
+
+                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                success: function (data) {
+
+                    var s = '<option value="-1">Select Language</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                    }
+                    $("#Lang_ID").html(s);
+                },
+                error: function (response) {
+                    alert("there is a problem in supject " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+
+    function DeleteSlider(PageID)
+    {
+        if (confirm("Are you sure to delete Slider Image?")) {
+
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { SID: PageID },
+
+                    url: '@Url.Action("DeleteSlider", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response.error);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        }
+    }
+</script>

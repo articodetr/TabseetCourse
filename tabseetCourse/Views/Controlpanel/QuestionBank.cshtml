@@ -1,0 +1,566 @@
+﻿
+@{
+    ViewBag.Title = "QuestionBank";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var viewModel = (tabseetCourse.Models.UserModel)ViewBag._UsermodelModel;
+}
+
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<!-- Theme style -->
+<link rel="stylesheet" href="~/Content/dist/css/adminlte.min.css">
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>الأسئلة</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<div class="card">
+    <div class="card-header">
+        @if (viewModel != null && viewModel.L_role.Count > 0)
+        {
+            foreach (var item in viewModel.L_role)
+            {
+                if (item.RoleName == "Admin" || item.RoleName == "QuestionBankView")
+                {
+                    <div>
+                        <input type="button" value="إضافة سؤال" id="addNew" data-toggle="modal" data-target="#modal-lg" class="btn btn-success float-left" />
+                    </div>
+                    <div>
+                        <input type="button" value="Upload Excel File" data-toggle="modal" data-target="#modal-Excel" class="btn btn-info float-left" />
+                    </div>
+                }
+                if (item.RoleName == "Admin" || item.RoleName == "QuestionBankEdit")
+                {
+                    <input type="hidden" value="QuestionBankEdit" id="QuestionBankEdit" />
+                }
+                if (item.RoleName == "Admin" || item.RoleName == "QuestionBankDelete")
+                {
+                    <input type="hidden" value="QuestionBankDelete" id="QuestionBankDelete" />
+                }
+            }
+        }
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <input type="text" value="@ViewBag.CategoryID" hidden="hidden" id="CategoryID" />
+        <table id="example1" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>النمط</th>
+                    <th>الفئة</th>
+                    <th>إسم السؤال</th>
+
+
+                    <th> </th>
+
+                </tr>
+            </thead>
+            <tbody id="tableContent_ID">
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>ID</th>
+                    <th>النمط</th>
+                    <th>الفئة</th>
+                    <th>إسم السؤال</th>
+
+
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+<div class="modal fade" id="modal-Excel" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">إضافة السؤال</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-active">
+                    <tr>
+                        <td>
+                            <label>نمط السؤال</label>
+                        </td>
+
+                    </tr>
+                    <tr>
+
+                        <td>
+                            <select id="Q_Type1" data-placeholder="Your Favorite Football Team" class="chosen" style="width: 100%;">
+                                <option value="1">صح او خطأ</option>
+                                <option value="2">خيار من متعدد</option>
+                                @*<option value="3">وصل بين الخيارات</option>*@
+                            </select>
+                        </td>
+
+                    </tr>
+                </table>
+                <div>
+                    <label>Excel File</label>
+                    <input type="file" id="EUploadFile" class="form-control" />
+                    <input type="button" onclick="UploadExcel()" class="btn btn-primary" value="Upload" />
+
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">الغاء</button>
+
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+@*<h2>Modal Example</h2>*@
+<!-- Trigger the modal with a button -->
+<!-- Modal -->
+<div class="modal fade" id="modal-lg" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">إضافة السؤال</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-active">
+                    <tr>
+                        <td>
+                            <label>نمط السؤال</label>
+                        </td>
+
+                    </tr>
+                    <tr>
+
+                        <td>
+                            <select id="Q_Type" data-placeholder="Your Favorite Football Team" class="chosen" style="width: 100%;">
+                                <option value="1">صح او خطأ</option>
+                                <option value="2">خيار من متعدد</option>
+                                <option value="3">وصل بين الخيارات</option>
+                            </select>
+                        </td>
+
+                    </tr>
+                </table>
+
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">الغاء</button>
+                <button type="button" class="btn btn-primary" onclick="GoToSutapleQuestionType()" id="btnChose">إختيار</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<!-- /.card -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="~/Content/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="~/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<!-- AdminLTE App -->
+<script src="~/Content/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/Content/dist/js/demo.js"></script>
+
+<!-- Page specific script -->
+<script>
+    $(function () {
+
+
+    });
+    $(document).ready(function () {
+        GetQuesiont();
+    });
+
+    function GetQuesiont() {
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { type:0},
+                url: '@Url.Action("GetAllQuesinBank", "Controlpanel")',
+                success: function (data) {
+                    var s = '';
+                    for (var i = 0; i < data.length; i++) {
+
+                        s += '<tr>' +
+                            '<td>' + data[i].ID + '</td>';
+                        if (data[i].Type == 1) {
+                            s += '<td>صح او خطأ</td>';
+
+                        } else if (data[i].Type == 2) {
+                            s += '<td>خيار من متعدد</td>';
+                        } else if (data[i].Type == 3) {
+                            s += '<td>وصل بين الخيارات</td>';
+                        }
+                        s += '<td>' + data[i].Category_Name+ '</td>' +
+                            '<td>' + data[i].Q_Name + '</td>';
+                            //'<td>' + data[i].Q_Text + '</td>';
+
+
+
+                        s += '<td>' +
+                            '<div class="btn-group">';
+                        var QuestionBankEdit = $("#QuestionBankEdit").val();
+                        if (QuestionBankEdit != null) {
+                            s +=  '<button class="btn btn-info  float-sm-left" onclick="GetQuestionByID(' + data[i].ID + ')" data-toggle="modal" data-target="#EditModal">' +
+                                '<i class="fas fa-edit">' +
+                                '</i>' +
+                                'تعديل' +
+                                '</button>';
+                        }
+                        var QuestionBankDelete = $("#QuestionBankDelete").val();
+                        if (QuestionBankDelete != null) {
+                            s += '<button class="btn btn-danger  float-sm-right" onclick = "btnDelete(' + data[i].ID + ')" >' +
+                                '<i class="fas fa-trash">' +
+                                '</i>' +
+                                'حذف' +
+                                '</button>';
+                        }
+
+                        s +=  '</div>' +
+                             '</td>' +
+                             '</tr>';
+                    }
+                    $("#tableContent_ID").html(s);
+                    $('#example1').DataTable({
+                        "paging": true,
+                        "lengthChange": true,
+                        "searching": true,
+                        "ordering": true,
+                        "info": true,
+                        "autoWidth": true,
+                        "responsive": true,
+                        "buttons": ["copy", /*"csv",*/ "excel", /*"pdf",*/ "print", "colvis"]
+                    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+    function GoToSutapleQuestionType() {
+
+        var Q_type = $("#Q_Type").val();
+        console.log(Q_type);
+        if (Q_type == 1) {
+            var url = '@Url.Action("CreateTruOrFalseQuestion")';
+            window.location.href = url;
+        }
+        if (Q_type == 2) {
+            var url = '@Url.Action("CreateMultiChoiseQusetion")';
+            window.location.href = url;
+
+        }
+         if (Q_type == 3) {
+            var url = '@Url.Action("CreateMatchingChoiseQuestion")';
+            window.location.href = url;
+
+        }
+    }
+
+    $('#btnSave').click(function () {
+        validationSaveForm();
+        var fd = new FormData();
+
+        var Lecture_Name = $("#LectureName_ID").val();
+        var Category_ID = $("#CategoryID").val();
+        var LectureTypeOnOff = $("#LectureType_ID").val();
+        var LectureLink = $("#LictureLink_ID").val();
+        var MediaLink = $("#otherLink_ID").val();
+        var Description = $("#Description_ID").val();
+
+        var DayandTime = null;
+        if (LectureTypeOnOff == 1) {
+            DayandTime = $("#DateTime_ID").val();
+        }
+        var PC_File = $('#UploadFile_ID')[0].files[0];
+
+        fd.append('Lecture_Name', Lecture_Name);
+        fd.append('Category_ID', Category_ID);
+        fd.append('DayandTime', DayandTime);
+        fd.append('LectureLink', LectureLink);
+        fd.append('LectureTypeOnOff', LectureTypeOnOff);
+        fd.append('MediaLink', MediaLink);
+        fd.append('Others', Description);
+        fd.append('DocumentFileUpload', PC_File);
+        //var dataJson = JSON.stringify(fd);
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: fd,
+                contentType: false,
+                processData: false,
+
+                url: '@Url.Action("CreateLectuer", "Controlpanel")',
+                success: function (data) {
+                    window.location.reload();
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+    $('#btnUpdate').click(function () {
+        validationSaveForm();
+        var fd = new FormData();
+
+        var EditID = $("#EditID").val();
+        var ENameAR_ID = $("#ENameAR_ID").val();
+        var ENameEN_ID = $("#ENameEN_ID").val();
+        var EType_ID = $("#EType_ID").val();
+        var ECategories_ID = $("#ECategories_ID").val();
+        var EIsPayed_ID = $("#EIsPayed_ID").val();
+        var EPayedValue_ID = $("#EPayedValue_ID").val();
+        fd.ID = EditID;
+        fd.NameAR = ENameAR_ID;
+        fd.NameEN = ENameEN_ID;
+        fd.CategoryType_ID = EType_ID;
+        fd.IsPayed = EIsPayed_ID;
+        fd.PayedValue = EPayedValue_ID;
+        fd.ParentCateogry_ID = ECategories_ID;
+        var dataJson = JSON.stringify(fd);
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                data: dataJson,
+                url: '@Url.Action("EditeCategories", "Controlpanel")',
+                success: function (data) {
+                    GetQuesiont();
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+    function GetQuestionByID(Q_ID) {
+
+
+        window.location.href = '/ControlPanel/GoToEditSutableQuestion?ID=' + Q_ID;
+
+    }
+    function btnDelete(ID) {
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            });
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to delete this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete it!',
+            cancelButtonText: 'Cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax(
+                    {
+                        async: true,
+                        type: 'POST',
+                        //dataType: 'JSON',
+                        //contentType: 'application/json; charset=utf=8',
+                        data: { Q_ID: ID },
+                        url: '@Url.Action("DeletQuestion", "Controlpanel")',
+                        success: function (data) {
+                            swalWithBootstrapButtons.fire(
+                                'Deleted!',
+                                'Your file has been deleted.',
+                                'success'
+                            ).then(function () {
+                                window.location.reload();
+                                //GetQuesiont();
+                            })
+
+                        },
+                        error: function (response) {
+                            swalWithBootstrapButtons.fire(
+                                'Filed',
+                                response.responseText+' :)',
+                                'error'
+                            )
+                        },
+                        complete: function (response) {
+                            //alert("finish call jasion " + response);
+                        }
+                    });
+
+            } else if (
+                /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+            ) {
+                swalWithBootstrapButtons.fire(
+                    'Cancelled',
+                    'Your  file is safe :)',
+                    'error'
+                )
+            }
+        })
+
+    }
+    function TypeChange(Type_ID) {
+
+        if (Type_ID == 1) {
+            $("#DivTime_ID").show();
+            $("#DivGenerate_ID").show();
+            $("#LectureDIV_ID").hide();
+        }
+        else {
+            $("#DivTime_ID").hide();
+            $("#DivGenerate_ID").hide();
+            $("#LectureDIV_ID").show();
+        }
+    }
+    function TypeChangeEdit(Type_ID) {
+        if (Type_ID == 1) {
+            $("#EDivTime_ID").show();
+            $("#EDivGenerate_ID").show();
+            $("#ELectureDIV_ID").hide();
+        }
+        else {
+            $("#EDivTime_ID").hide();
+            $("#EDivGenerate_ID").hide();
+            $("#ELectureDIV_ID").show();
+        }
+    }
+    function FileType(FileType) {
+        if (FileType == 1) {
+            //$("#Categories_ID").disabled = true;
+
+            $("#UploadFileDiv_ID").show();
+            $("#LinkDIV_ID").hide();
+
+
+
+        }
+        else {
+            $("#UploadFileDiv_ID").hide();
+            $("#LinkDIV_ID").show();
+
+        }
+    }
+    function validationSaveForm() {
+        var first = $("#NameAR_ID").val();
+        var value = true;
+        if (first == "") {
+
+            $("#reqNameAR_ID").html("* الاسم مطلوب");
+
+            value= false;
+        }
+        //if (x) {
+
+        //}
+    }
+
+    function UploadExcel() {
+        var type = $('#Q_Type1').val();
+        var PCImage_ID = $('#EUploadFile')[0].files[0];
+        var fd = new FormData();
+        fd.append("file", PCImage_ID);
+        if (type == 1) {
+
+
+            $.ajax(
+                {
+                    async: true,
+                    type: 'POST',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    url: '@Url.Action("ReadQuesionFromExcelTrueOrFalse", "Controlpanel")',
+                    success: function (data) {
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response.responseText);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        } else if (type==2) {
+              $.ajax(
+                {
+                    async: true,
+                    type: 'POST',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    url: '@Url.Action("ReadQuesionFromExcelMultiChoise", "Controlpanel")',
+                    success: function (data) {
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response.responseText);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        }
+    }
+</script>

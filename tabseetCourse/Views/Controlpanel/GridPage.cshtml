@@ -1,0 +1,268 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.GridPageModel>
+
+@{
+    ViewBag.Title = "GridPage";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<div class="main-content">
+    <div class="page-title">
+        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+        {
+            <div class="title"> Grid Pages</div>
+        }
+        else
+        {
+            <div class="title"> صفحة شبكية</div>
+        }
+
+    </div>
+    <table class="table">
+        <tr>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <div class="title"> Page Languages</div>
+                }
+                else
+                {
+                    <div class="title"> لغة الصفحة</div>
+                }
+
+            </th>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <div class="title"> Title</div>
+                }
+                else
+                {
+                    <div class="title"> عنوان الصفحة</div>
+                }
+            </th>
+            <th>
+                @*@Html.DisplayNameFor(model => model.Image_Cover)*@
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                @*<td>
+                        @Html.DisplayFor(modelItem => item.new_pages_ID)
+                    </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.Lang_Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @*<img src="@item.Image_Cover" width="100" />*@
+                    @*@Html.DisplayFor(modelItem => item.Image_Cover)*@
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        @Html.ActionLink("Add Content", "AddContentGridPageModel", new { PageID = item.ID }, new { @class = "btn btn-primary" })
+                        <button type="button" class="btn btn-info" onclick="EditItem(@item.ID)">Edit </button>
+                        <button type="button" class="btn btn-danger" onclick="DeleteAboutUsPage(@item.ID)">Delete </button>
+                    }
+                    else
+                    {
+                        @Html.ActionLink("اضافة محتوى", "AddContentGridPageModel", new { PageID = item.ID }, new { @class = "btn btn-primary" })
+                        <button type="button" class="btn btn-info" onclick="EditItem(@item.ID)">تعديل </button>
+                        <button type="button" class="btn btn-danger" onclick="DeleteAboutUsPage(@item.ID)">حذف </button>
+                    }
+
+                </td>
+            </tr>
+        }
+        @using (Html.BeginForm("GridPage", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <tr hidden="hidden" id="CreateNew">
+                <td class="hidden">
+                    @*<input type="text"  id="new_pages_ID" name="new_pages_ID" value="@item.new_pages_ID" />*@
+                </td>
+                <td>
+                    <select id="Lang_ID" name="Lang_ID">
+                    </select>
+                </td>
+                <td>
+                    <input type="text" placeholder="Item Name" id="Title" name="Title" />
+                </td>
+
+                <td>
+                    <div class="form-group m-b">
+                        @*<label for="CoverImage">Cover Image</label>*@
+                        <input type="file" accept="image/png, image/jpeg" class="form-control" id="CoverImage" name="Image_CoverFile" rows="3" />
+                    </div>
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary">حفظ</button>
+                    }
+
+                </td>
+
+            </tr>
+
+
+        }
+        @using (Html.BeginForm("GridPage", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <tr hidden="hidden" id="EditPage">
+                <td class="hidden">
+                    <input type="text" id="ID2" name="ID" />
+                </td>
+                <td>
+                    @*<select id="Lang_ID" name="Lang_ID">
+                        </select>*@
+                </td>
+                <td>
+                    <input type="text" placeholder="Item Name" id="Title2" name="Title" />
+                </td>
+
+                <td>
+                    <div class="form-group m-b">
+                        @*<label for="CoverImage">Cover Image</label>*@
+                        <input type="file" accept="image/png, image/jpeg" class="form-control" id="CoverImage" name="Image_CoverFile" rows="3" />
+                    </div>
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary">تعديل</button>
+                    }
+
+                </td>
+
+            </tr>
+
+
+        }
+
+    </table>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="row">
+                <div class="col-xs-12 m-b">
+                    <div class="demo-button">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <button type="button" class="btn btn-primary" onclick="Create()">Add</button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-primary" onclick="Create()">إضافة</button>
+                        }
+                        @*<button type="button" class="btn btn-success" onclick="Save()">Save</button>*@
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="~/Content/static/app/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
+
+
+</div>
+
+<script type="text/javascript">
+    $('.form-validation').validate();
+    function Create() {
+                  $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    //data: { id: Exam_id },
+
+                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        var s = '<option value="-1">Select Languages</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                        }
+                        $("#Lang_ID").html(s);
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                  });
+            $("#CreateNew").show();
+
+    }
+
+    function DeleteAboutUsPage(PageID)
+    {
+        if (confirm("Are you sure to delete Grid ?")) {
+
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { id: PageID },
+
+                    url: '@Url.Action("DeleteGridPageModelPage", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response.error);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        }
+    }
+
+    function EditItem(ID)
+    {
+          $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { ID: ID },
+                url: '@Url.Action("GetGridPageModelByID", "UIUXadminPanel")',
+                success: function (data) {
+
+                    $("#Title2").val(data.Title);
+                    $("#ID2").val(data.ID);
+                },
+                error: function (response) {
+                    alert("there is a problem in Faclity data " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+        $("#EditPage").show();
+    }
+</script>

@@ -1,0 +1,413 @@
+﻿@model IEnumerable<tabseetCourse.Models.CategoryTypeModel>
+
+@{
+    ViewBag.Title = "CategoriesType";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>انماط الفئات</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section class="content">
+
+    <div class="card">
+        <div class="card-header">
+            @*<h3 class="card-title">Projects</h3>*@
+            <input type="button" value="اضافة نمط جديد" id="addNew" data-toggle="modal" data-target="#exampleModal" class="btn btn-success float-left">
+            <div class="card-tools">
+                @*<label>Tages</label>*@
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="container-fluid">
+                <!-- Small boxes (Stat box) -->
+                <div class="row">
+                    @foreach (var item in Model)
+                    {
+                        <div class="col-lg-3 col-6">
+                            <!-- small card -->
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3>@item.NameAR </h3>
+
+                                    <p>@item.NameEN</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="ion ion-stats-bars"></i>
+                                </div>
+                                <div class="small-box-footer">
+
+                                    @*<button type="button" class="btn btn-primary float-sm-left" data-toggle="modal" id="Btnaddinfo" onclick="SetMainCategoryID(@item.ID)" data-target="#AddInfoModal">
+                                            <i class="fas fa-plus">
+                                            </i> Add Info
+                                        </button>*@
+
+                                    <button class="btn btn-info  float-sm-left" onclick="GetCategoryByID(@item.ID)" data-toggle="modal" data-target="#EditModal">
+                                        <i class="fas fa-edit">
+                                        </i>
+                                        Edite
+                                    </button>
+
+
+
+                                    <button class="btn btn-danger  float-sm-right" onclick="btnDelete(@item.ID)">
+                                        <i class="fas fa-trash">
+                                        </i>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@*Save Model*@
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">نمط جديد</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table style="width: 100%">
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>اسم الفئة</label>
+                                        <input type="text" id="NameAR_ID" onkeyup="Valadiation()" class="text" style="width:100%" placeholder="اسم الفئة" />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+
+                    </tr>
+                    <tr>
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>Type Name</label>
+                                        <input type="text" id="NameEN_ID" class="text" style="width:100%" placeholder="Type Name" />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>تابعة</label>
+                                        <select id="parentCategory" class="form-control">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnSave">حفظ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Update Model*@
+<div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">تعديل</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table style="width: 100%">
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>اسم الفئة</label>
+                                        <input type="text" id="EditNameAR_ID" class="text" onkeyup="ValadiationEdite()" style="width:100%" placeholder="اسم الفئة" />
+                                        <input type="text" id="EditID" hidden="hidden" />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+
+                    </tr>
+                    <tr>
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>Type Name</label>
+                                        <input type="text" id="EditNameEN_ID" onkeyup="ValadiationEdite()" class="text" style="width:100%" placeholder="Type Name" />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>تابعة</label>
+                                        <select id="EparentCategory" class="form-control">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnUpdate">تعديل</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(function () {
+        document.getElementById("btnSave").disabled = true;
+        document.getElementById("btnUpdate").disabled = true;
+
+
+           $.ajax(
+            {
+                async: true,
+                type: 'POST',
+
+                url: '@Url.Action("GetAllCategoryType", "Controlpanel")',
+                success: function (data) {
+                    var s = '<option value=0> Select Type </option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].NameAR + '</option>';
+                    }
+                    $("#parentCategory").html(s);
+                    $("#EparentCategory").html(s);
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+    function Valadiation() {
+        var value = $("#NameAR_ID").val();
+        if (value != "") {
+            document.getElementById("btnSave").disabled = false;
+        } else {
+            document.getElementById("btnSave").disabled = true;
+        }
+
+    }
+    function ValadiationEdite() {
+        var value = $("#EditNameAR_ID").val();
+        var Evalue = $("#EditNameEN_ID").val();
+        if (value != "" || Evalue != null) {
+            document.getElementById("btnUpdate").disabled = false;
+        } else {
+            document.getElementById("btnUpdate").disabled = true;
+        }
+
+    }
+      $('#btnSave').click(function () {
+        var fd = new FormData();
+
+          var NameAR_ID = $("#NameAR_ID").val();
+          var NameEN_ID = $("#NameEN_ID").val();
+          var parent =  $("#parentCategory").val();
+
+
+
+          fd.NameAR = NameAR_ID;
+          fd.NameEN = NameEN_ID;
+          fd.ParentID = parent;
+        var dataJson = JSON.stringify(fd);
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                data: dataJson,
+                url: '@Url.Action("CreateCategoriesType", "Controlpanel")',
+                success: function (data) {
+                    window.location.reload();
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+      });
+    $('#btnUpdate').click(function ()
+    {
+        var fd = new FormData();
+        var NameAR_ID = $("#EditNameAR_ID").val();
+        var NameEN_ID = $("#EditNameEN_ID").val();
+        var parent = $("#EparentCategory").val();
+        var ID = $("#EditID").val();
+        fd.NameAR = NameAR_ID;
+        fd.NameEN = NameEN_ID;
+        fd.ParentID = parent;
+        fd.ID = ID;
+        var dataJson = JSON.stringify(fd);
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                data: dataJson,
+                url: '@Url.Action("EditeCategoriesType", "Controlpanel")',
+                success: function (data) {
+                    window.location.reload();
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+    function GetCategoryByID(ID)
+    {
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                //dataType: 'JSON',
+                //contentType: 'application/json; charset=utf=8',
+                data: { ctmid: ID },
+                url: '@Url.Action("GetCategoriesTypeByID", "Controlpanel")',
+                success: function (data) {
+                    $("#EditNameAR_ID").val(data.NameAR);
+                    $("#EditNameEN_ID").val(data.NameEN);
+                    $("#EditID").val(data.ID);
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+    function btnDelete(ID) {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false
+        })
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to delete this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete it!',
+            cancelButtonText: 'Cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax(
+                    {
+                        async: true,
+                        type: 'POST',
+                        //dataType: 'JSON',
+                        //contentType: 'application/json; charset=utf=8',
+                        data: { cattID: ID },
+                        url: '@Url.Action("DeleteCategoriesType", "Controlpanel")',
+                        success: function (data) {
+                            swalWithBootstrapButtons.fire(
+                                'Deleted!',
+                                'Your file has been deleted.',
+                                'success'
+                            ).then(function () { window.location.reload(); })
+
+                        },
+                        error: function (response) {
+                            alert("the problem is " + response.responseText);
+                        },
+                        complete: function (response) {
+                            //alert("finish call jasion " + response);
+                        }
+                    });
+
+            } else {
+                /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+                {
+                    swalWithBootstrapButtons.fire(
+                        'Cancelled',
+                        'Your  file is safe :)',
+                        'error'
+                    )
+                }
+            }
+        })
+
+    }
+
+
+
+</script>
+
+

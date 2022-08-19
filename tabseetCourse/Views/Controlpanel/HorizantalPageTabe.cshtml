@@ -1,0 +1,298 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.Page_Tabe_Model>
+
+@{
+    ViewBag.Title = "HorizantalPageTabe";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css" />
+<!-- Ionicons -->
+<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+<!-- Tempusdominus Bbootstrap 4 -->
+<link rel="stylesheet" href="~/Content/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" />
+<!-- iCheck -->
+<link rel="stylesheet" href="~/Content/plugins/icheck-bootstrap/icheck-bootstrap.min.css" />
+<!-- overlayScrollbars -->
+<link rel="stylesheet" href="~/Content/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+
+<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Summernote -->
+<script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+
+<!-- jQuery UI 1.11.4 -->
+<script src="~/Content/plugins/jquery-ui/jquery-ui.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<div class="main-content">
+    <div class="page-title">
+        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+        {
+            <div class="title"> Horizantal Tabe Page</div>
+        }
+        else
+        {
+            <label class="title">صفحة تابات افقية</label>
+        }
+
+    </div>
+    <table class="table">
+        <tr>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <div class="sub-title"> Page Languages</div>
+                }
+                else
+                {
+                    <label class="sub-title">لغة الصفحة</label>
+                }
+
+            </th>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <div class="sub-title"> Page Title </div>
+                }
+                else
+                {
+                    <label class="sub-title">عنوان الصفحة</label>
+                }
+            </th>
+
+            <th class="hidden">
+                @Html.DisplayNameFor(model => model.New_Page_ID)
+            </th>
+            <th class="hidden">
+                @Html.DisplayNameFor(model => model.page_H_V_tabe)
+            </th>
+            <th class="hidden">
+                @Html.DisplayNameFor(model => model.Image_Cover)
+            </th>
+
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Lang_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+
+                <td class="hidden">
+                    @Html.DisplayFor(modelItem => item.New_Page_ID)
+                </td>
+                <td class="hidden">
+                    @Html.DisplayFor(modelItem => item.page_H_V_tabe)
+                </td>
+                <td class="hidden">
+                    @Html.DisplayFor(modelItem => item.Image_Cover)
+                </td>
+
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        @Html.ActionLink("Add Tabe", "AddTaHorizantalPageTabe", new { PageID = item.ID }, new { @class = "btn btn-primary" })
+                        @*<button type="button" class="btn btn-primary" onclick="AddTabe(@item.ID)" >Add Tabe</button>*@
+                        <button type="button" class="btn btn-info" onclick="EditItem(@item.ID)">Edit </button>
+
+                        <button type="button" class="btn btn-danger" onclick="DeleteItem(@item.ID)">Delete </button>
+                    }
+                    else
+                    {
+                        @Html.ActionLink("إضافة تبويب", "AddTaHorizantalPageTabe", new { PageID = item.ID }, new { @class = "btn btn-primary" })
+                        @*<button type="button" class="btn btn-primary" onclick="AddTabe(@item.ID)" >Add Tabe</button>*@
+                        <button type="button" class="btn btn-info" onclick="EditItem(@item.ID)">تعديل </button>
+
+                        <button type="button" class="btn btn-danger" onclick="DeleteItem(@item.ID)">حذف </button>
+                    }
+
+                </td>
+            </tr>
+        }
+
+        @using (Html.BeginForm("HorizantalPageTabe", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <tr hidden="hidden" id="CreateNew">
+                <td class="hidden">
+                    @*<input type="text"  id="new_pages_ID" name="new_pages_ID" value="@item.new_pages_ID" />*@
+                </td>
+                <td>
+                    <select id="Lang_ID" name="Lang_ID">
+                    </select>
+                </td>
+                <td>
+                    <input type="text" placeholder="Item Name" id="Title" name="Title" />
+                </td>
+                <td>
+                    <div class="form-group m-b">
+                        @*<label for="CoverImage">Cover Image</label>*@
+                        <input type="file" accept="image/png, image/jpeg" class="form-control" id="CoverImage" name="CoverImage" rows="3" />
+                    </div>
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary">حفظ</button>
+                    }
+
+                </td>
+            </tr>
+        }
+
+        @using (Html.BeginForm("HorizantalPageTabe", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <tr hidden="hidden" id="EditePage">
+                <td>
+                    <input type="text" id="new_pages_ID" name="ID" class="hidden" />
+                </td>
+
+                <td>
+                    <input type="text" placeholder="Item Name" id="Title2" name="Title" />
+                </td>
+                <td>
+                    <div class="form-group m-b">
+                        @*<label for="CoverImage">Cover Image</label>*@
+                        <input type="file" accept="image/png, image/jpeg" class="form-control" id="CoverImage" name="CoverImage" rows="3" />
+                    </div>
+                </td>
+                <td>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </td>
+            </tr>
+        }
+
+    </table>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="row">
+                <div class="col-xs-12 m-b">
+                    <div class="demo-button">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <button type="button" class="btn btn-primary" onclick="Create()">Add</button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-primary" onclick="Create()">إضافة</button>
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="~/Content/static/app/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
+
+
+</div>
+
+<script type="text/javascript">
+
+    function Create() {
+                  $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+
+                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        var s = '<option value="-1">Select Languages</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                        }
+                        $("#Lang_ID").html(s);
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                  });
+            $("#CreateNew").show();
+
+    }
+
+    function DeleteItem(Item_ID)
+    {
+        if (confirm("Are you sure?")) {
+
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { id: Item_ID },
+
+                    url: '@Url.Action("DeleteHorizantalPageTabe", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        }
+    }
+
+    function EditItem(ID) {
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+                //dataType: 'JSON',
+                //contentType: 'application/json; charset=utf=8',
+                data: { id: ID },
+
+                url: '@Url.Action("GetHorizantalPageTabe", "UIUXadminPanel")',
+                success: function (data) {
+
+                    $("#new_pages_ID").val(data.ID);
+                    $("#Title2").val(data.Title);
+
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+        $("#EditePage").show();
+    }
+</script>
+

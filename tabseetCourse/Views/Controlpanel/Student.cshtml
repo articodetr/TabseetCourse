@@ -1,0 +1,533 @@
+﻿@model IEnumerable<tabseetCourse.Data.MyIdentityUser>
+
+@{
+    ViewBag.Title = "Student";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var viewModel = (tabseetCourse.Models.UserModel)ViewBag._UsermodelModel;
+}
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<!-- Theme style -->
+<link rel="stylesheet" href="~/Content/dist/css/adminlte.min.css">
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Select2 -->
+<link rel="stylesheet" href="~/Content/plugins/select2/css/select2.min.css">
+<link rel="stylesheet" href="~/Content/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1> الطلاب</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<div class="card">
+    <div class="card-header">
+        @if (viewModel != null && viewModel.L_role.Count > 0)
+        {
+            foreach (var item in viewModel.L_role)
+            {
+                if (item.RoleName == "Admin" || item.RoleName == "UsersStudentView")
+                {
+                    <input type="button" value="اضافة طالب جديد" id="addNew" data-toggle="modal" data-target="#modal-lg" class="btn btn-success float-left">
+                }
+            }
+        }
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <table id="example1" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>الإسم بلكامل</th>
+                    <th>الإيميل</th>
+                    <th>كلمة المرور</th>
+
+                    <th>رقم الهاتف</th>
+                    <th>مفعل</th>
+
+                    <th> </th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>*</td>
+                        <td>@item.FirstName</td>
+                        <td>@item.Email</td>
+                        <td>@item.Password</td>
+                        <td>@item.PhoneNumber</td>
+                        <td>
+                            @if (item.IsActive == 1)
+                            {
+
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" checked="checked" onchange="OnchangeActivate('@item.Id')" id="@item.Id">
+
+                                    <label class="custom-control-label" for="@item.Id"></label>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" onchange="OnchangeActivate('@item.Id')" id="@item.Id">
+                                    <label class="custom-control-label" for="@item.Id"></label>
+                                </div>
+                            }
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                @if (viewModel != null && viewModel.L_role.Count > 0)
+                                {
+                                    foreach (var item2 in viewModel.L_role)
+                                    {
+                                        if (item2.RoleName == "Admin" || item2.RoleName == "UsersStudentEdit")
+                                        {
+                                            <button class="btn btn-info" onclick="GetStdByID('@item.Id')" data-toggle="modal" data-target="#EditModal">
+                                                <i class="fas fa-edit">
+                                                </i>
+                                                تعديل
+                                            </button>
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                <button class="btn btn-primary" onclick="location.href='@Url.Action("LecturesByCategory", "Controlpanel", new { Category_ID = item.Id })'">
+                                    <i class="nav-icon fas fa-book">
+                                    </i>
+                                    الدورات
+                                </button>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                }
+
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>ID</th>
+                    <th>الإسم بلكامل</th>
+                    <th>الإيميل</th>
+                    <th>كلمة المرور</th>
+
+                    <th>رقم الهاتف</th>
+                    <th>مفعل</th>
+
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">إضافة طالب</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>الإسم بلكامل</label>
+                                        <input type="text" id="FullName" class="form-control" style="width:100%" placeholder="الإسم بلكامل" required />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>رقم الهاتف</label>
+                                        <input type="text" id="PhoneNumber" class="form-control" style="width:100%" placeholder="رقم الهاتف" required />
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>البريد الإلكتروني</label>
+
+                                        <input type="text" id="Email" class="form-control" style="width:100%" placeholder="البريد الإلكتروني" required />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group" id="categoryDiv_ID">
+                                        <label>كلمة المرور</label>
+                                        <input type="text" id="Password_ID" class="form-control" style="width:100%" placeholder="كلمة المرور" required />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                </table>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">الغاء</button>
+                <button type="button" class="btn btn-primary" id="btnSave">حفظ</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="EditModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">معلومات الطالب</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>الإسم بلكامل</label>
+                                        <input type="text" id="EFullName" class="form-control" style="width:100%" placeholder="الإسم بلكامل" required />
+                                        <input type="text" id="EID" class="form-control" hidden="hidden" />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>رقم الهاتف</label>
+                                        <input type="text" id="EPhoneNumber" class="form-control" style="width:100%" placeholder="رقم الهاتف" required />
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>البريد الإلكتروني</label>
+
+                                        <input type="text" id="EEmail" class="form-control" style="width:100%" placeholder="البريد الإلكتروني" required />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>كلمة المرور</label>
+                                        <input type="text" id="EPassword_ID" class="form-control" style="width:100%" placeholder="كلمة المرور" required />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                </table>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">الغاء</button>
+                <button type="button" class="btn btn-primary" id="UpdateStd">حفظ</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.card -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="~/Content/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="~/Content/plugins/select2/js/select2.full.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="~/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+
+<script src="~/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="~/Content/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+<!-- AdminLTE App -->
+<script src="~/Content/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/Content/dist/js/demo.js"></script>
+
+<!-- Page specific script -->
+<script>
+    $(document).ready(function () {
+        //Initialize Select2 Elements
+        $('.select2').select2()
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+
+                url: '@Url.Action("GetAllCategoryType", "Controlpanel")',
+                success: function (data) {
+                    var s = '<option> Select Type </option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].NameAR + '</option>';
+                    }
+                    $("#Type_ID").html(s);
+                    $("#EType_ID").html(s);
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+    $(function () {
+        $('#example1').DataTable({
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": true,
+            "responsive": true,
+            "buttons": ["copy", /*"csv",*/ "excel", /*"pdf",*/ "print", "colvis"]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+    });
+
+
+
+    $('#btnSave').click(function () {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false
+        })
+        var fd = new FormData();
+
+        var RealName = $("#FullName").val();
+        var PhoneNumber = $("#PhoneNumber").val();
+        var Type_ID = $("#Email").val();
+        var Password = $("#Password_ID").val();
+
+
+        fd.RealName = RealName;
+        fd.PhoneNumber = PhoneNumber;
+        fd.Email = Type_ID;
+        fd.Password = Password;
+        var dataJson = JSON.stringify(fd);
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                data: dataJson,
+                url: '@Url.Action("AddNewStd", "Controlpanel")',
+                success: function (data) {
+                    swalWithBootstrapButtons.fire(
+                        'success!',
+                        'New Student added.',
+                        'success'
+                    ).then(function () { window.location.reload(); })
+                },
+                error: function (response) {
+
+                        swalWithBootstrapButtons.fire(
+                            'Error',
+                            'Can not add new studend:)',
+                            'error'
+                        )
+
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+    $('#UpdateStd').click(function () {
+        validationSaveForm();
+       const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false
+        })
+        var fd = new FormData();
+        var id = $("#EID").val();
+        var FullName = $("#EFullName").val();
+        var PhoneNumber = $("#EPhoneNumber").val();
+        var Email = $("#EEmail").val();
+        var Password = $("#EPassword_ID").val();
+
+        fd.ID = id;
+        fd.RealName = FullName;
+        fd.PhoneNumber = PhoneNumber;
+        fd.Email = Email;
+        fd.Password = Password;
+        var dataJson = JSON.stringify(fd);
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                data: dataJson,
+                url: '@Url.Action("UpdateStd", "Controlpanel")',
+                success: function (data) {
+                    swalWithBootstrapButtons.fire(
+                        'success!',
+                        'Update Student .',
+                        'success'
+                    ).then(function () { window.location.reload(); })
+                },
+                error: function (response) {
+
+                        swalWithBootstrapButtons.fire(
+                            'Error',
+                            'Can not update studend:)',
+                            'error'
+                        ).then(function () { window.location.reload(); })
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+    function GetStdByID(stdID) {
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { ID: stdID },
+                url: '@Url.Action("GetStdByID", "Controlpanel")',
+                success: function (data) {
+                    $("#EID").val(data.Id);
+                    $("#EFullName").val(data.FirstName);
+                    $("#EPhoneNumber").val(data.PhoneNumber);
+                    $("#EEmail").val(data.Email);
+                    $("#EPassword_ID").val(data.Password);
+                },
+
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+
+
+    function OnchangeActivate(stdId) {
+        var text = document.getElementById(stdId);
+        console.log(text);
+        var active = text.checked;
+        var isactive = 1;
+        if (active == true) {
+            var isactive = 1;
+        } else
+            var isactive = 0;
+       $.ajax(
+            {
+                async: true,
+               type: 'POST',
+               data: { ID: stdId, IsActive: isactive },
+                url: '@Url.Action("UpdateStdActivate", "Controlpanel")',
+                success: function (data) {
+                    window.location.reload();
+                },
+
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+    function validationSaveForm() {
+        var first = $("#NameAR_ID").val();
+        var value = true;
+        if (first == "") {
+
+            $("#reqNameAR_ID").html("* الاسم مطلوب");
+
+            value= false;
+        }
+        //if (x) {
+
+        //}
+    }
+</script>
+

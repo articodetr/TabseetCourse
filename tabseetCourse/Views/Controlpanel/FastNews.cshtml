@@ -1,0 +1,354 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.New_FastNewsModel>
+
+@{
+    ViewBag.Title = "FastNews";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<body onload="Getlang()">
+    <div class="main-content">
+        <div class="page-title">
+            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+            {
+                <div class="sub-title"> News Page</div>
+            }
+            else
+            {
+                <div class="sub-title"> خبر جديد</div>
+            }
+
+        </div>
+        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+        {
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Add News</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">إضافة خبر</button>
+        }
+
+
+
+
+        <table class="table">
+            <tr>
+
+                <th>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <label>Language Name</label>
+                    }
+                    else
+                    {
+                        <label>اللغة</label>
+                    }
+
+                </th>
+                <th>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <label>News Content</label>
+                    }
+                    else
+                    {
+                        <label>نصف الخبر</label>
+                    }
+
+                </th>
+                <th></th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    @*<td>
+                            @Html.DisplayFor(modelItem => item.Lang_ID)
+                        </td>*@
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Lang_Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NewsText)
+                    </td>
+                    <td>
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <button onclick="GetFastNews(@item.ID)" class="btn btn-primary" data-toggle="modal" data-target="#EditeModel">Edit</button>
+                            <button onclick="deleteFastNews(@item.ID)" class="btn btn-danger">Delete</button>
+                        }
+                        else
+                        {
+                            <button onclick="GetFastNews(@item.ID)" class="btn btn-primary" data-toggle="modal" data-target="#EditeModel">تعديل</button>
+                            <button onclick="deleteFastNews(@item.ID)" class="btn btn-danger">حذف</button>
+                        }
+
+                    </td>
+                </tr>
+            }
+
+        </table>
+    </div>
+    <div class="container">
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <h4 class="modal-title">Add News</h4>
+                        }
+                        else
+                        {
+                            <h4 class="modal-title">إضافة خبر</h4>
+                        }
+
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" id="News_ID" />
+
+                        <div class="form-group m-b">
+                            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                            {
+                                <label for="Lang_ID">Languages</label>
+                            }
+                            else
+                            {
+                                <label for="Lang_ID">اللغات</label>
+                            }
+
+                            <select id="Lang_ID">
+                            </select>
+                        </div>
+                        <div class="form-group m-b">
+                            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                            {
+                                <label for="Tab_Description1">News</label>
+                            }
+                            else
+                            {
+                                <label for="Tab_Description1">الاخبار</label>
+                            }
+
+
+                            <textarea id="Tab_Description1" name="Tab_Description" class="form-control"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                            {
+                                <input value="Save" class="btn btn-primary" onclick="SaveNews()" />
+                            }
+                            else
+                            {
+                                <input value="حفظ" class="btn btn-primary" onclick="SaveNews()" />
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <div class="modal fade" id="EditeModel" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <h4 class="modal-title">Edit News</h4>
+                        }
+                        else
+                        {
+                            <h4 class="modal-title">تعديل الخبر</h4>
+                        }
+
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" id="News_ID2" />
+
+                        <div class="form-group m-b">
+                            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                            {
+                                <label for="Lang_ID2">Languages</label>
+                            }
+                            else
+                            {
+                                <label for="Lang_ID2">اللغات</label>
+                            }
+
+                            <select id="Lang_ID2">
+                            </select>
+                        </div>
+                        <div class="form-group m-b">
+                            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                            {
+                                <label for="Tab_Description2">News</label>
+                            }
+                            else
+                            {
+                                <label for="Tab_Description2">نص الخبر</label>
+                            }
+
+
+                            <textarea id="Tab_Description2" name="Tab_Description" class="form-control"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                            {
+                                <input value="Save" class="btn btn-info" onclick="UpdateFastNews()" />
+                            }
+                            else
+                            {
+                                <input value="حفظ" class="btn btn-info" onclick="UpdateFastNews()" />
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+<script>
+        function Getlang() {
+                  $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    //data: { id: Exam_id },
+
+                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        var s = '<option value="-1">Select Languages</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                        }
+                        $("#Lang_ID").html(s);
+                        $("#Lang_ID2").html(s);
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                  });
+    }
+
+    function SaveNews() {
+        var Messages = $('#Tab_Description1').val();
+        var Lang = $('#Lang_ID').val();
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+                data: { Lang_ID: Lang, message: Messages },
+
+                url: '@Url.Action("SaveFastNews", "UIUXadminPanel")',
+                success: function (data) {
+                    window.location.reload();
+                },
+                error: function (response) {
+                    alert("there is a problem in supject " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+    function GetFastNews(Id) {
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+                data: { ID: Id },
+                url: '@Url.Action("GetFastNews", "UIUXadminPanel")',
+                success: function (data) {
+                    $("#News_ID2").val(data.ID);
+                    $("#Lang_ID2").val(data.Lang_ID);
+                    $("#Tab_Description2").val(data.NewsText);
+                },
+                error: function (response) {
+                    alert("there is a problem in supject " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+    function UpdateFastNews() {
+        var id=$("#News_ID2").val();
+       var lang= $("#Lang_ID2").val();
+        var description = $("#Tab_Description2").val();
+
+            $.ajax(
+                {
+                    async: true,
+                    type: 'POST',
+                    data: { ID: id, Lang_ID: lang, message: description },
+
+                    url: '@Url.Action("EditFastNews", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        window.location.reload();
+
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+
+    }
+
+    function deleteFastNews(ID) {
+        confirm("are you sure")
+        {
+
+            $.ajax(
+                {
+                    async: true,
+                    type: 'POST',
+                    data: { id: ID },
+
+                    url: '@Url.Action("DeleteFastNews", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        window.location.reload();
+
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        }
+    }
+
+</script>

@@ -1,0 +1,337 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.ContactUsModel>
+
+@{
+    ViewBag.Title = "ContactUsPage";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<body onload="Loadelanguage()">
+    <div class="main-content">
+        <div class="page-title">
+            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+            {
+                <div class="title"> Contact Us</div>
+
+            }
+            else
+            {
+                <div class="title"> صفحة اتصل بنا</div>
+            }
+
+        </div>
+        @using (Html.BeginForm("ContactUsPage", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                <hr />
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>Languages</label>
+
+                        }
+                        else
+                        {
+                            <label>لغة الصفحة</label>
+                        }
+
+                        <select id="Lang_ID" name="Lang_ID" onchange="onchangeLang()">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group ">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>Title</label>
+
+                        }
+                        else
+                        {
+                            <label>العنوان</label>
+                        }
+                        <input type="text" name="title" id="title_ID" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group hidden">
+                    <div class="col-md-10">
+                        <input type="text" name="New_page_ID" id="New_page_ID" class="form-control" />
+                        <input type="text" name="ID" id="ID" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>Image Cover</label>
+
+                        }
+                        else
+                        {
+                            <label>صورة الغلاف</label>
+                        }
+
+                        <input type="file" accept="image/png, image/jpeg" id="ImageCover" name="ImageCover" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>Map Linke</label>
+                        }
+                        else
+                        {
+                            <label>رابط الخريطة</label>
+                        }
+
+                        <input type="text" name="Map_Link" id="Map_Link" class="form-control" />
+                    </div>
+                </div>
+
+                @*<div class="form-group">
+                        <div class="col-md-10">
+                            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                            {
+                                <label>Unvirsity Adress</label>
+                            }
+                            else
+                            {
+                                <label>عنوان الاكاديمية</label>
+                            }
+
+
+                            <input type="text" name="UN_Adress" id="UN_Adress" class="form-control" />
+                        </div>
+                    </div>*@
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>Phone Number</label>
+                        }
+                        else
+                        {
+                            <label>رقم الهاتف</label>
+                        }
+
+                        <input type="number" name="UN_PhoneNumber" id="UN_PhoneNumber" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>Email</label>
+                        }
+                        else
+                        {
+                            <label>الإيميل</label>
+                        }
+
+                        <input type="email" name="UN_Email" id="UN_Email" class="form-control" />
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>email word translate</label>
+                        }
+                        else
+                        {
+                            <label>ترجمة كلمة البريد الإلكتروني</label>
+                        }
+
+                        <input type="text" name="Email_word_trans" id="Email_word_trans" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>Message word translate</label>
+                        }
+                        else
+                        {
+                            <label>ترجمة كلمة رسالة</label>
+                        }
+
+                        <input type="text" name="Message_word_trans" id="Message_word_trans" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>Name word translate</label>
+                        }
+                        else
+                        {
+                            <label>ترجمة كلمة الإسم</label>
+                        }
+
+                        <input type="text" name="Name_word_trans" id="Name_word_trans" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>PhoneNumber word translate</label>
+                        }
+                        else
+                        {
+                            <label>ترجمة كلمة رقم الهاتف</label>
+                        }
+
+                        <input type="text" name="PhoneNumber_word_trans" id="PhoneNumber_word_trans" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>Send word translate</label>
+                        }
+                        else
+                        {
+                            <label>ترجمة كلمة إرسال</label>
+                        }
+
+                        <input type="text" name="Send_word_trans" id="Send_word_trans" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label>Adress word translate</label>
+                        }
+                        else
+                        {
+                            <label>ترجمة كلمة عنوان</label>
+                        }
+
+                        <input type="text" name="Adress_word_trans" id="Adress_word_trans" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <input type="submit" value="Save" class="btn btn-primary" />
+                        }
+                        else
+                        {
+                            <input type="submit" value="حفظ" class="btn btn-primary" />
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+        }
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-success">
+                <h3>
+                    @ViewBag.Message
+
+                </h3>
+            </div>
+        }
+        @if (ViewBag.error != null)
+        {
+            <div class="alert alert-danger">
+                <h3>
+                    @ViewBag.error
+
+                </h3>
+            </div>
+        }
+    </div>
+
+
+</body>
+<script type="text/javascript">
+     function onchangeLang()
+    {
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { LangID: $("#Lang_ID").val() },
+                    url: '@Url.Action("GetContactUsByLang", "UIUXadminPanel")',
+                    success: function (data) {
+                        $('#ID').val(data.ID);
+                        $('#title_ID').val(data.title);
+                        //$('#Lang_ID').val(data.Lang_ID);
+                        $('#New_Page_ID').val(data.New_Page_ID);
+                        $('#Image_Cover').val(data.Image_Cover);
+                        $('#Map_Link').val(data.Map_Link);
+                        $('#UN_Adrss').val(data.UN_Adrss);
+                        //$('#UN_Adress').val(data.UN_Adress);
+                        $('#UN_PhoneNumber').val(data.UN_PhoneNumber);
+                        $('#UN_Email').val(data.UN_Email);
+
+                        $('#Send_word_trans').val(data.Send_word_trans);
+                        $('#Email_word_trans').val(data.Email_word_trans);
+                        $('#Message_word_trans').val(data.Message_word_trans);
+                        $('#Name_word_trans').val(data.Name_word_trans);
+                        $('#PhoneNumber_word_trans').val(data.PhoneNumber_word_trans);
+                        $('#Adress_word_trans').val(data.PhoneNumber_word_trans);
+                    },
+                    error: function (response) {
+
+                        alert("There is a problem Can't Load Data" + response.error);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+    };
+
+    function Loadelanguage() {
+
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+
+                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                success: function (data) {
+
+                    var s = '<option value="-1">Select Language</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                    }
+                    $("#Lang_ID").html(s);
+                },
+                error: function (response) {
+                    alert("there is a problem in supject " + response);
+                },
+                complete: function (response) {
+                }
+            });
+    }
+</script>

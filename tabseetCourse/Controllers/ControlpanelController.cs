@@ -3440,7 +3440,7 @@ namespace tabseetCourse.Controllers
         #region UI_UX
         #region categories
         [HttpGet]
-        public ActionResult categories()
+        public ActionResult categoriesUIUX()
         {
             List<CategoryModel> L_ctm = new List<CategoryModel>();
             try

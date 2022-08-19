@@ -1,0 +1,854 @@
+﻿
+@{
+    ViewBag.Title = "Users";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Theme style -->
+<link rel="stylesheet" href="~/Content/dist/css/adminlte.min.css">
+@*<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>*@
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>المستخدمين</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<div class="card">
+    <div class="card-header">
+        <input type="button" value="إضافة مستخدم" onclick="EraseData()" id="addNew" data-toggle="modal" data-target="#modal-lg" class="btn btn-success float-left">
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <input type="text" value="@ViewBag.CategoryID" hidden="hidden" id="CategoryID" />
+        <table id="example1" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th> </th>
+                    <th>الإسم الكامل</th>
+                    <th>بريد الإلكتروني</th>
+                    <th>رقم الهاتف</th>
+                    <th>الادوار</th>
+                    <th>كلمة المرور</th>
+
+
+                    <th> </th>
+
+                </tr>
+            </thead>
+            <tbody id="tableContent_ID">
+                @*@foreach (var item in Model)
+                    {*@
+
+
+                @*}*@
+
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th> </th>
+                    <th>الإسم الكامل</th>
+                    <th>بريد الإلكتروني</th>
+                    <th>رقم الهاتف</th>
+                    <th>الادوار</th>
+                    <th>كلمة المرور</th>
+
+
+                    <th> </th>
+
+
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+
+
+
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">معلومات المستخدم </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>الإسم بلكامل</label>
+                                        <input type="text" id="FullName_ID" class="form-control" style="width:100%" placeholder="الإسم بلكامل" required />
+                                        <input type="text" id="EID" class="form-control" hidden="hidden" />
+                                        <span id="reqFirstName_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>رقم الهاتف</label>
+                                        <input type="text" id="PhoneNumber_ID" class="form-control" style="width:100%" required />
+                                        <span id="reqLastName_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>بريد الكتروني</label>
+                                        <input type="email" id="Email_ID" class="form-control" style="width:100%" placeholder="youremail@demo.com" required />
+                                        <span id="reqLastName_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>كلمة المرور</label>
+                                        <input type="password" class="form-control" id="Password_ID" />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="form-group">
+                                <select class="form-control" onchange="changeRole(this.value)" id="selectedRole_ID">
+                                    <option value="Admin">مدير</option>
+                                    <option value="User">مستخدم</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" id="RoeleTable">
+                            <div class="form-group">
+                                <table class="table table-bordered table-hover">
+                                    @*<thead>
+                                            <tr>
+                                                <th>  </th>
+                                                <th> اضافة</th>
+                                                <th>حذف</th>
+                                                <th>تعديل</th>
+                                            </tr>
+                                        </thead>*@
+                                    <tbody>
+                                        <tr>
+
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    @*<input type="checkbox" name="rolecheckbox" class="custom-control-input" value="Categories" id="R_C">*@
+                                                    <label>الفئات</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="CategoriesView" id="CategoriesView">
+                                                    <label class="custom-control-label" for="CategoriesView">اضافة</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="CategoriesDelete" id="CategoriesDelete">
+                                                    <label class="custom-control-label" for="CategoriesDelete">حذف</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="CategoriesEdit" id="CategoriesEdit">
+                                                    <label class="custom-control-label" for="CategoriesEdit">تعديل</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td>
+                                                <div class="custom-control custom-switch">
+
+                                                    <label>المحاضرات</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="LectureView" id="LectureView">
+                                                    <label class="custom-control-label" for="LectureView">اضافة</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="LectureDelete" id="LectureDelete">
+                                                    <label class="custom-control-label" for="LectureDelete">حذف</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="LectureEdit" id="LectureEdit">
+                                                    <label class="custom-control-label" for="LectureEdit">تعديل</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <label>بنك الاسئلة</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="QuestionBankView" id="QuestionBankView">
+                                                    <label class="custom-control-label" for="QuestionBankView">اضافة</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="QuestionBankDelete" id="QuestionBankDelete">
+                                                    <label class="custom-control-label" for="QuestionBankDelete">حذف</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="QuestionBankEdit" id="QuestionBankEdit">
+                                                    <label class="custom-control-label" for="QuestionBankEdit">تعديل</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <label>الوظائف</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="AssingmentView" id="AssingmentView">
+                                                    <label class="custom-control-label" for="AssingmentView">اضافة</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="AssingmentDelete" id="AssingmentDelete">
+                                                    <label class="custom-control-label" for="AssingmentDelete">حذف</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="AssingmentEdit" id="AssingmentEdit">
+                                                    <label class="custom-control-label" for="AssingmentEdit">تعديل</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td>
+
+                                                <div class="custom-control custom-switch">
+
+                                                    <label>الإمتحانات</label>
+                                                </div>
+
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="ExamView" id="ExamView">
+                                                    <label class="custom-control-label" for="ExamView">اضافة</label>
+                                                </div>
+
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="ExamDelet" id="ExamDelet">
+                                                    <label class="custom-control-label" for="ExamDelet">حذف</label>
+                                                </div>
+
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="ExamEdit" id="ExamEdit">
+                                                    <label class="custom-control-label" for="ExamEdit">تعديل</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td>
+
+                                                <div class="custom-control custom-switch">
+
+                                                    <label>الطلاب</label>
+                                                </div>
+
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="UsersStudentView" id="UsersStudentView">
+                                                    <label class="custom-control-label" for="UsersStudentView">اضافة</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="UsersStudentDelete" id="UsersStudentDelete">
+                                                    <label class="custom-control-label" for="UsersStudentDelete">حذف</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="UsersStudentEdit" id="UsersStudentEdit">
+                                                    <label class="custom-control-label" for="UsersStudentEdit">تعديل</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <label>المعلمون</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="UsersTeachersView" id="UsersTeachersView">
+                                                    <label class="custom-control-label" for="UsersTeachersView">اضافة</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="UsersTeachersDelete" id="UsersTeachersDelete">
+                                                    <label class="custom-control-label" for="UsersTeachersDelete">حذف</label>
+                                                </div>
+                                            </td>
+                                            <td>
+
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="UsersTeachersEdit" id="UsersTeachersEdit">
+                                                    <label class="custom-control-label" for="UsersTeachersEdit">تعديل</label>
+                                                </div>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td>
+
+
+                                                <div class="custom-control custom-switch">
+                                                    <label>الدفعات</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="PaymentView" id="PaymentView">
+                                                    <label class="custom-control-label" for="PaymentView">اضافة</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                            </td>
+                                            <td>
+                                                <div class="form-group">
+
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="PaymentActive" id="PaymentActive">
+                                                        <label class="custom-control-label" for="PaymentActive">تفعيل</label>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td>
+
+                                                <div class="custom-control custom-switch">
+                                                    <label>المحادثات</label>
+                                                </div>
+
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="Chat" id="Chat">
+                                                    <label class="custom-control-label" for="Chat">تفعيل</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                            </td>
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td>
+
+                                                <div class="custom-control custom-switch">
+                                                    <label>المنح</label>
+                                                </div>
+
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" name="rolecheckbox" class="custom-control-input" value="CodeGenerate" id="CodeGenerate">
+                                                    <label class="custom-control-label" for="CodeGenerate">تفعيل</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                            </td>
+                                            <td>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">الغاء</button>
+                <button type="button" class="btn btn-primary" id="btnSave">حفظ</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<!-- /.card -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+@*<script src="~/Content/plugins/jquery/jquery.min.js"></script>*@
+<!-- Bootstrap 4 -->
+@*<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>*@
+<!-- DataTables  & Plugins -->
+@*<script src="~/Content/plugins/datatables/jquery.dataTables.min.js"></script>*@
+@*<script src="~/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>*@
+@*<script src="~/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>*@
+@*<script src="~/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>*@
+@*<script src="~/Content/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>*@
+@*<script src="~/Content/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>*@
+<script src="~/Content/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/plugins/pdfmake/vfs_fonts.js"></script>
+@*<script src="~/Content/plugins/datatables-buttons/js/buttons.html5.min.js"></script>*@
+@*<script src="~/Content/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="~/Content/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>*@
+<!-- AdminLTE App -->
+<script src="~/Content/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+@*<script src="~/Content/dist/js/demo.js"></script>*@
+<script src="~/Scripts/CustomJavascript.js"></script>
+<!-- Page specific script -->
+<script>
+    $(function () {
+
+        $("#RoeleTable").hide();
+        $('.select2').select2();
+        getAllUsers();
+        EraseData();
+    });
+
+    function getAllUsers() {
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                url: '@Url.Action("GetUsers", "Controlpanel")',
+                success: function (data) {
+                    var s = '';
+                    for (var i = 0; i < data.length; i++) {
+
+                        s += '<tr>' +
+
+                            '<td>#</td>' +
+                            '<td>' + data[i].RealName + '</td>' +
+                            '<td>' + data[i].Email + '</td>' +
+                            '<td>' + data[i].PhoneNumber + '</td><td>';
+                        for (var j = 0; j < data[i].L_role.length; j++) {
+                           s+= data[i].L_role[j].RoleName+'<br>'
+
+                        }
+
+                        s += '</td><td>' + data[i].Password + '</td>' +
+                             '<td>' +
+                             '<div class="btn-group">' +
+                            '<button class="btn btn-info" onclick="GetUserByID(' + "'" + data[i].ID + "'" + ')" data-toggle="modal" data-target="#modal-lg">' +
+                             '<i class="fas fa-edit">' +
+                             '</i>تعديل</button>'+
+                            '<button class="btn btn-danger" onclick="btnDelete(' + "'" + data[i].ID + "'" + ')">'+
+                             '<i class="fas fa-trash">' +
+                             '</i>حذف</button>' +
+                             '</div></td></tr>';
+                    }
+                    $("#tableContent_ID").html(s);
+
+                },
+                error: function (response) {
+
+                },
+                complete: function (response) {
+                    $('#example1').DataTable({
+                        "paging": true,
+                        "lengthChange": true,
+                        "searching": true,
+                        "ordering": true,
+                        "info": true,
+                        "autoWidth": true,
+                        "responsive": true,
+                        "buttons": ["copy", /*"csv",*/ "excel", /*"pdf",*/ "print", "colvis"]
+                    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                }
+            });
+    }
+
+    function EraseData() {
+        $("#CodeGenerate").prop("checked", false);
+        $("#Chat").prop("checked", false);
+        $("#PaymentActive").prop("checked", false);
+        $("#PaymentView").prop("checked", false);
+        $("#UsersTeachersEdit").prop("checked", false);
+        $("#UsersTeachersView").prop("checked", false);
+        $("#UsersTeachersDelete").prop("checked", false);
+        $("#UsersStudentView").prop("checked", false);
+        $("#UsersStudentDelete").prop("checked", false);
+        $("#UsersStudentEdit").prop("checked", false);
+        $("#ExamEdit").prop("checked", false);
+        $("#ExamDelet").prop("checked", false);
+        $("#ExamView").prop("checked", false);
+        $("#AssingmentEdit").prop("checked", false);
+        $("#AssingmentDelete").prop("checked", false);
+        $("#AssingmentView").prop("checked", false);
+        $("#QuestionBankEdit").prop("checked", false);
+        $("#QuestionBankDelete").prop("checked", false);
+        $("#QuestionBankView").prop("checked", false);
+        $("#LectureEdit").prop("checked", false);
+        $("#LectureDelete").prop("checked", false);
+        $("#LectureView").prop("checked", false);
+        $("#CategoriesEdit").prop("checked", false);
+        $("#CategoriesDelete").prop("checked", false);
+        $("#CategoriesView").prop("checked", false);
+
+
+        $("#selectedRole_ID").val("Admin");
+        $("#RoeleTable").hide();
+        $("#EID").val(null);
+        $("#FullName_ID").val("");
+        $("#PhoneNumber_ID").val("");
+
+        $("#Email_ID").val("");
+        $("#Password_ID").val("");
+    }
+
+    $('#btnSave').click(function () {
+        const swalWithBootstrapButtons = Swal.mixin({});
+        var fd = new FormData();
+        var ID = $("#EID").val();
+        var Fullname = $("#FullName_ID").val();
+        var PhoneNumber_ID = $("#PhoneNumber_ID").val();
+        var Email_ID = $("#Email_ID").val();
+        var Password = $("#Password_ID").val();
+        var selectedRole_ID = $("#selectedRole_ID").val();
+        var L_role = new Array();
+        if (selectedRole_ID == "Admin") {
+            var Role = {};
+            Role.RoleName = "Admin";
+            L_role.push(Role);
+        } else {
+            arryRole = getSelectedCheckboxValues('rolecheckbox');
+            for (var i = 0; i < arryRole.length; i++) {
+
+                var Role = {};
+                Role.RoleName = arryRole[i];
+                console.log(Role.RoleName);
+                L_role.push(Role);
+
+            }
+        }
+
+
+        //var PC_File = $('#customFile')[0].files[0];
+        fd.ID = ID;
+        fd.RealName= Fullname;
+        fd.Email=Email_ID;
+        fd.PhoneNumber=PhoneNumber_ID;
+        fd.Password= Password;
+        //fd.Image_File = PC_File;
+        fd.L_role = L_role;
+
+        var dataJson = JSON.stringify(fd);
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                data: dataJson,
+                url: '@Url.Action("CreateUser", "Controlpanel")',
+                success: function (data) {
+                    swalWithBootstrapButtons.fire(
+                        'تم الحفظ!',
+                        'تم اضافة المدرس بنجاح.',
+                        'success'
+                    ).then(function () {
+                        EraseData();
+                        window.location.reload();
+
+                    });
+                },
+                error: function (response) {
+                    swalWithBootstrapButtons.fire(
+                        'Filed',
+                        response.responseText + ' :)',
+                        'error'
+                    )
+                },
+                complete: function (response) {
+                }
+            });
+    });
+
+
+
+    function GetUserByID(ID) {
+        //EraseData();
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { UserID: ID },
+                url: '@Url.Action("GetUserByID", "Controlpanel")',
+                success: function (data) {
+                    //EraseData();
+                    $("#EID").val(data.ID);
+                    $("#FullName_ID").val(data.RealName);
+                    $("#PhoneNumber_ID").val(data.PhoneNumber);
+
+                    $("#Email_ID").val(data.Email);
+                    $("#Password_ID").val(data.Password);
+                    arryRole = getSelectedCheckboxValues('rolecheckbox');
+                    for (var i = 0; i < arryRole.length; i++) {
+
+                        $("#" + arryRole[i] ).prop("checked", false);
+                    }
+                    for (var i = 0; i < data.L_role.length; i++) {
+                        if (data.L_role[i].RoleName != "Admin") {
+                            $("#selectedRole_ID").val("User");
+                            $("#RoeleTable").show();
+                            $("#" + data.L_role[i].RoleName).prop("checked", true);
+                            //console.log(data.L_role[i].RoleName);
+                        }
+                        else {
+                            $("#selectedRole_ID").val("Admin");
+                            $("#RoeleTable").hide();
+
+                        }
+                    }
+
+
+
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+    function btnDelete(ID) {
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            });
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to delete this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete it!',
+            cancelButtonText: 'Cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax(
+                    {
+                        async: true,
+                        type: 'POST',
+                        //dataType: 'JSON',
+                        //contentType: 'application/json; charset=utf=8',
+                        data: { ID: ID },
+                        url: '@Url.Action("DeleteUsers", "Controlpanel")',
+                        success: function (data) {
+                            swalWithBootstrapButtons.fire(
+                                'Deleted!',
+                                'Your file has been deleted.',
+                                'success'
+                            ).then(function () { window.location.reload() })
+
+                        },
+                        error: function (response) {
+                            swalWithBootstrapButtons.fire(
+                                'Filed',
+                                response.responseText+' :)',
+                                'error'
+                            )
+                        },
+                        complete: function (response) {
+                            //alert("finish call jasion " + response);
+                        }
+                    });
+
+            } else if (
+                /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+            ) {
+                swalWithBootstrapButtons.fire(
+                    'Cancelled',
+                    'Your  file is safe :)',
+                    'error'
+                )
+            }
+        })
+
+    }
+
+
+    function validationSaveForm() {
+        var first = $("#FirstName_ID").val();
+        var value = true;
+        if (first == "") {
+
+            $("#reqFirstName_ID").html("* الاسم مطلوب");
+
+            value= false;
+        }
+        //if (x) {
+
+        //}
+    }
+
+    function SendEmail(Email) {
+        console.log("testsendemail");
+              const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            });
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to delete this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete it!',
+            cancelButtonText: 'Cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax(
+                    {
+                        async: true,
+                        type: 'POST',
+                        //dataType: 'JSON',
+                        //contentType: 'application/json; charset=utf=8',
+                        data: { Email: "khaled.idress321@gmail.com", supject: "testemail", message:"testsupject"},
+                        url: '@Url.Action("sendEmail", "Controlpanel")',
+                        success: function (data) {
+                            swalWithBootstrapButtons.fire(
+                                'Deleted!',
+                                'Your file has been deleted.',
+                                'success'
+                            ).then(function () { GetQuesiont(); })
+
+                        },
+                        error: function (response) {
+                            swalWithBootstrapButtons.fire(
+                                'Filed',
+                                response.responseText+' :)',
+                                'error'
+                            )
+                        },
+                        complete: function (response) {
+                            //alert("finish call jasion " + response);
+                        }
+                    });
+
+            } else if (
+                /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+            ) {
+                swalWithBootstrapButtons.fire(
+                    'Cancelled',
+                    'Your  file is safe :)',
+                    'error'
+                )
+            }
+        })
+    }
+
+    function changeRole(value) {
+        if (value == "Admin") {
+            $("#RoeleTable").hide();
+
+        }
+        else {
+            $("#RoeleTable").show();
+
+        }
+
+
+    }
+</script>
+

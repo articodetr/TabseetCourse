@@ -1,0 +1,346 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.NewsModel>
+
+@{
+    ViewBag.Title = "News";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
+<div class="main-content">
+    <div class="page-title">
+        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+        {
+
+
+            <div class="sub-title"> News Page</div>
+        }
+        else
+        {
+            <div class="sub-title">صفحة جديدة </div>
+
+        }
+    </div>
+    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+    {
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick="AddNews()">Add News</button>
+    }
+    else
+    {
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick="AddNews()">إضافة خبر</button>
+    }
+    <p>
+
+    </p>
+
+    <table class="table">
+        <tr>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Title</label>
+                }
+                else
+                {
+                    <label>العنوان</label>
+                }
+            </th>
+
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Language Name</label>
+                }
+                else
+                {
+                    <label>اللغة</label>
+                }
+            </th>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Date Time</label>
+                }
+                else
+                {
+                    <label>الوقت</label>
+                }
+
+            </th>
+
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Lang_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateTime)
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" onclick="EditeBtn(@item.ID)">Edit </button>
+                        <button type="button" class="btn btn-danger" onclick="DeleteBtn(@item.ID)">Delete </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" onclick="EditeBtn(@item.ID)">تعديل </button>
+                        <button type="button" class="btn btn-danger" onclick="DeleteBtn(@item.ID)">حذف </button>
+                    }
+
+                </td>
+            </tr>
+        }
+
+    </table>
+
+    <div class="container">
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog" style="width:80%">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <h4 class="modal-title">Add News</h4>
+                        }
+                        else
+                        {
+                            <h4 class="modal-title">إضافة خبر</h4>
+                        }
+
+                    </div>
+
+                    <div class="modal-body">
+                        @using (Html.BeginForm("News", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            <div class="form-group m-b">
+                                @*<label for="Lang_ID">Languages</label>*@
+                                <select class="form-control search-input" id="Lang_ID" name="Lang_ID">
+                                </select>
+                            </div>
+                            <div class="form-group m-b hidden">
+                                @*<label for="Title_ID">Title</label>*@
+                                <input type="text" class="form-control" id="ID" name="ID" placeholder="ID" />
+                            </div>
+                            <div class="form-group m-b">
+                                @*<label for="Title_ID">Title</label>*@
+                                <input type="text" class="form-control" id="Title" name="Title" placeholder="News Title" />
+                            </div>
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="DateTime">History</label>
+                                }
+                                else
+                                {
+                                    <label for="DateTime">التاريخ</label>
+                                }
+
+                                <span class="input-group-addon">
+                                    <input type='date' class="form-control" id="DateTime" name="DateTime" />
+                                </span>
+                            </div>
+
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="FullDescription">Full Description</label>
+                                }
+                                else
+                                {
+                                    <label for="FullDescription">وصف كامل</label>
+                                }
+                                <textarea id="summernote" name="editordata"></textarea>
+                                <textarea class="form-control hidden" id="FullDescription" name="FullDescription"></textarea>
+                                @*<textarea  id="FullDescription" name="FullDescription" rows="3"></textarea>*@
+                            </div>
+
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="ShortDescription">Short Description</label>
+                                }
+                                else
+                                {
+                                    <label for="ShortDescription">وصف مختصر</label>
+                                }
+
+                                <textarea class="form-control" id="ShortDescription" name="ShortDescription" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="CoverImage">Cover Image</label>
+                                }
+                                else
+                                {
+                                    <label for="CoverImage">صورة الكفر</label>
+                                }
+
+                                <input type="file" accept="image/png, image/jpeg" class="form-control" id="CoverImage" name="CoverImage" rows="3" />
+                            </div>
+
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="FullDescription">Icon </label>
+                                }
+                                else
+                                {
+                                    <label for="FullDescription">ايقونة</label>
+                                }
+
+                                <input type="file" accept="image/png, image/jpeg" class="form-control" id="ShourtImage" name="ShourtImage" rows="3" />
+                            </div>
+
+                            <div class="modal-footer">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <input type="submit" value="Save" class="btn btn-primary" />
+                                }
+                                else
+                                {
+                                    <input type="submit" value="حفظ" class="btn btn-primary" />
+                                }
+
+                            </div>
+                        }
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summernote -->
+    <script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="~/Content/static/app/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
+
+
+</div>
+
+<script type="text/javascript">
+
+    $('.form-validation').validate();
+
+    $(document).ready(function () {
+
+        $('#summernote').summernote();
+
+
+        $('#summernote').on('summernote.change', function (we, e) {
+            var summernote = $("#summernote").summernote('code');
+            $('#FullDescription').val(summernote);
+        });
+
+
+              $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    //data: { id: Exam_id },
+
+                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        var s = '<option value="-1">Select Languages</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                        }
+                        $("#Lang_ID").html(s);
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                  });
+
+
+
+    });
+
+    function DeleteBtn(Exam_id)
+    {
+        if (confirm("Are you sure to delete ?")) {
+
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { News_ID: Exam_id },
+                    url: '@Url.Action("DeleteNews", "UIUXadminPanel")',
+                    success: function (data) {
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        }
+    }
+
+    function AddNews() {
+        $("#ID").val("0");
+        $("#Title").val("");
+        //$("#Lang_ID").val("");
+        $("#DateTime").val("");
+        $("#FullDescription").val("");
+        $("#ShortDescription").val("");
+    }
+    function EditeBtn(Exam_id)
+    {
+        $.ajax(
+                {
+                    async: true,
+
+                    type: 'GET',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                data: { News_ID: Exam_id },
+
+                    url: '@Url.Action("EditNews", "UIUXadminPanel")',
+                    success: function (data) {
+                        //alert(data.Title);
+                        //var result = JSON.stringify(data);
+                        $("#ID").val(data.ID);
+                        $("#Title").val(data.Title);
+                        $("#Lang_ID").val(data.Lang_ID);
+                        $("#DateTime").val(data.DateTime);
+                        $("#FullDescription").val(data.FullDescription);
+                        $("#ShortDescription").val(data.ShortDescription);
+                        $("#summernote").summernote('code', data.FullDescription);
+
+
+                },
+                    error: function (response) {
+                        alert("the problem is " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+    }
+
+</script>

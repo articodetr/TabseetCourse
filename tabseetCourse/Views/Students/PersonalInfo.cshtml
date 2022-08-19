@@ -1,0 +1,222 @@
+﻿@model tabseetCourse.Models.UserModel
+
+@{
+    ViewBag.Title = "PersonalInfo";
+    Layout = "~/Views/Shared/_LayoutStudent.cshtml";
+}
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<input type="hidden" id="STD_ID" value="@Model.ID" />
+
+
+<!-- Start index Content -->
+
+<div class='top_baner profile_page'>
+
+</div>
+
+<!-- End index Content -->
+<!-- Start Slider -->
+<div class="sec profile_sec">
+    <div class="container">
+        <div class="content">
+            <div class="col-md-2 float-right">
+
+                <div class="small-12 medium-2 large-2 columns">
+                    <div class="circle">
+                        <!-- User Profile Image -->
+                        @if (Model.Per_Photo != null && Model.Per_Photo.Length > 0)
+                        {
+                            <img class="profile-pic" src="~/Uploade/Images/@Model.Per_Photo" id="output">
+                        }
+                        else
+                        {
+                            <img class="profile-pic" src="~/Content2/img/profile.jpg">
+                        }
+                        <!-- Default Image -->
+                        <!-- <i class="fa fa-user fa-5x"></i> -->
+                    </div>
+                    <div class="p-image">
+                        <i class="fa fa-camera upload-button"></i>
+                        <input class="file-upload" type="file" id="UploadPhoto" value="رفع صورة جديدة" accept="image/*" onchange="loadFile(event)" />
+                    </div>
+                </div>
+
+                <h2 class="profil_name">@Model.RealName</h2>
+
+            </div>
+            <div class="col-md-10 float-left">
+                <form class="profile_form">
+
+                    <div class="col-md-6 float-right">
+                        <div class="form-group">
+                            <label for="RealName">الاسم الكامل</label>
+                            <input type="text" class="form-control" placeholder="الاسم الكامل" value="@Model.RealName" id="RealName" required />
+                        </div>
+                    </div>
+                    <!--  col-md-6   -->
+
+                    <div class="col-md-6 float-right">
+                        <div class="form-group">
+                            <label for="Education_ID">التخصص</label>
+                            <input type="text" class="form-control" placeholder="التخصص" value="@Model.Education" id="Education_ID" required />
+                        </div>
+                    </div>
+                    <div class="col-md-6 float-right">
+                        <div class="form-group">
+                            <label for="activity_ID">العمر</label>
+                            <input type="text" class="form-control" id="activity_ID" value="@Model.Experience" placeholder="العمر" required />
+                        </div>
+
+                    </div>
+                    <div class="col-md-6 float-right">
+
+                        <div class="form-group">
+                            <label for="PhoneNumber">رقم الجوال</label>
+                            <input type="tel" class="form-control" id="PhoneNumber" value="@Model.PhoneNumber" placeholder="رقم الجوال" required />
+                        </div>
+                    </div>
+                    <!--  col-md-6   -->
+
+                    <div class="col-md-6 float-right">
+
+                        <div class="form-group">
+                            <label for="Email">البريد الالكتروني</label>
+                            <input type="email" class="form-control" id="Email" value="@Model.Email" placeholder="البريد الالكتروني" required />
+                        </div>
+
+                    </div>
+                    <!--  col-md-6   -->
+                    <!--  col-md-6   -->
+
+
+                    <div class="col-md-6 float-right">
+
+                        <div class="form-group">
+                            <label for="password">كلمة المرور</label>
+                            <input type="password" class="form-control" id="Password_ID" value="@Model.Password" placeholder="كلمة المرور" required />
+                        </div>
+                    </div>
+                    <!--  col-md-6   -->
+                    <!--  col-md-6   -->
+
+
+                    <button type="button" class="btn btn-primary" onclick="BtnSaveInFo()">تأكيد</button>
+                    <a class="btn btn-light">إلغاء</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Slider -->
+<!-- Start Footer -->
+<!-- End Footer -->
+
+<script src="~/Content/plugins/jquery/jquery.min.js"></script>
+
+
+<script>
+
+    var isLoading = false;
+
+    $(document).ready(function () {
+
+        $(".menu_top").addClass("fixed");
+
+
+        var readURL = function (input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('.profile-pic').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+
+        $(".file-upload").on('change', function () {
+            readURL(this);
+        });
+
+        $(".upload-button").on('click', function () {
+            $(".file-upload").click();
+        });
+    });
+
+
+
+
+
+    var loadFile = function (event) {
+        var output = document.getElementById('output');
+        output.src = URL.createObjectURL(event.target.files[0]);
+        output.onload = function () {
+            URL.revokeObjectURL(output.src) // free memory
+        }
+    };
+
+     function BtnSaveInFo() {
+         const swalWithBootstrapButtons = Swal.mixin({
+             customClass: {
+                 confirmButton: 'btn btn-success',
+                 cancelButton: 'btn btn-danger'
+             },
+             buttonsStyling: false
+         });
+         var fd = new FormData();
+
+         var STD_ID = $('#STD_ID').val();
+         var Education = $('#Education_ID').val();
+         var Experience = $('#activity_ID').val();
+        var RealName = $('#RealName').val();
+        var Email = $('#Email').val();
+        var PhoneNumber = $('#PhoneNumber').val();
+
+        var Password = $('#Password_ID').val();
+         var PCImage_IDEN = $('#UploadPhoto')[0].files[0];
+         fd.append("ID", STD_ID);
+         fd.append("Education", Education);
+         fd.append("Experience", Experience);
+         fd.append("RealName", RealName);
+         fd.append("Email", Email);
+         fd.append("PhoneNumber", PhoneNumber);
+
+         fd.append("Password", Password);
+         fd.append("PersionImageFile", PCImage_IDEN);
+
+        $.ajax({
+            async: true,
+            type: 'POST',
+            data: fd,
+            contentType: false,
+            processData: false,
+
+                url: '@Url.Action("SaveInfo", "Students")',
+
+
+                success: function (result) {
+                    swalWithBootstrapButtons.fire(
+                        'تم الحفظ!',
+                        'تم تعديل معلومات الطالب.',
+                        'success'
+                    ).then(function () {
+
+                        window.location.href = "@Url.Action("Categories","Students")";
+                    });
+
+                },
+                error: function (response) {
+                    swalWithBootstrapButtons.fire(
+                        'Filed',
+                        response.responseText + ' :)',
+                        'error'
+                    )
+                },
+                complete: function (response) {
+                }
+            });
+    }
+</script>

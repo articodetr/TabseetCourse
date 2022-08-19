@@ -1,0 +1,209 @@
+﻿
+@{
+    ViewBag.Title = "socialmedia";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<body onload="Loadelanguage()">
+    <div class="main-content">
+        <div class="page-title">
+            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+            {
+                <div class="sub-title"> Social Media</div>
+            }
+            else
+            {
+                <div class="sub-title"> وسائل التواصل الاجتماعي</div>
+            }
+
+        </div>
+        @using (Html.BeginForm("socialmedia", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                <hr />
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label for="Lang_id" class="control-label">Language</label>
+                        }
+                        else
+                        {
+                            <label for="Lang_id" class="control-label">اللغات</label>
+                        }
+
+                        <select id="Lang_id" name="Lang_id" onchange="onchangeLang()">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group hidden">
+                    <div class="col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <label for="HomePage_ID" class="control-label">Language</label>
+                        }
+                        else
+                        {
+                            <label for="HomePage_ID" class="control-label">اللغة</label>
+                        }
+
+                        <input type="text" id="HomePage_ID" name="ID" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+
+                        <label for="WhatsApp" class="control-label">WhatsApp</label>
+
+
+
+                        <input type="text" name="WhatsApp" id="WhatsApp" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+
+                        <label for="Facebook" class="control-label">Facebook</label>
+                        <input type="text" name="Facebook" id="Facebook" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+                        <label for="Instgram" class="control-label">Instgram</label>
+                        <input type="text" name="Instgram" id="Instgram" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+                        <label for="Twitter" class="control-label">Twitter</label>
+                        <input type="text" name="Twitter" id="Twitter" class="form-control" />
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+
+                    <div class="col-md-10">
+                        <label for="Tiktok" class="control-label">Tiktok</label>
+                        <input type="text" name="Tiktok" id="Tiktok" class="form-control" />
+
+                    </div>
+                </div>
+                <div class="form-group">
+
+                    <div class="col-md-10">
+                        <label for="Youtube" class="control-label">Youtube</label>
+                        <input type="text" name="Youtube" id="Youtube" class="form-control" />
+
+                    </div>
+                </div>
+                <div class="form-group">
+
+                    <div class="col-md-10">
+                        <label for="Telegram" class="control-label">Telegram</label>
+                        <input type="text" name="Telegram" id="Telegram" class="form-control" />
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Save Or Update" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+
+        }
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-success">
+                <h3>
+                    @ViewBag.Message
+
+                </h3>
+            </div>
+        }
+        @if (ViewBag.error != null)
+        {
+            <div class="alert alert-danger">
+                <h3>
+                    @ViewBag.error
+
+                </h3>
+            </div>
+        }
+    </div>
+
+
+</body>
+<script type="text/javascript">
+     function onchangeLang()
+    {
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { LangID: $("#Lang_id").val() },
+                    url: '@Url.Action("GetsocialmediaByLang", "UIUXadminPanel")',
+                    success: function (data) {
+                        //alert(data.WhatsApp);
+                        $('#HomePage_ID').val(data.ID);
+                        //$('#Linkedin').val(data.Linkedin);
+                        $('#Twitter').val(data.Twitter);
+                        $('#Instgram').val(data.Instgram);
+                        $('#Facebook').val(data.Facebook);
+                        $('#WhatsApp').val(data.WhatsApp);
+                        $('#Telegram').val(data.Telegram);
+                        $('#Youtube').val(data.Youtube);
+                        $('#Tiktok').val(data.Tiktok);
+
+
+                    },
+                    error: function (response) {
+
+                        alert("There is a problem Can't Load Data__" + response.error);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+    };
+
+    function Loadelanguage() {
+
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+                //dataType: 'JSON',
+                //contentType: 'application/json; charset=utf=8',
+                //data: { id: Exam_id },
+
+                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                success: function (data) {
+
+                    var s = '<option value="-1">Select Language</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                    }
+                    $("#Lang_id").html(s);
+                },
+                error: function (response) {
+                    alert("there is a problem in supject " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+</script>
+

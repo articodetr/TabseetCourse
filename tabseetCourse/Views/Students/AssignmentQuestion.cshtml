@@ -1,0 +1,350 @@
+﻿
+@{
+    ViewBag.Title = "AssignmentQuestion";
+    Layout = "~/Views/Shared/_LayoutStudent.cshtml";
+}
+   var CategoryID = ViewBag.categoryAssID;
+    var CategoryName = ViewBag.categoryAssName;
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="~/Content2/bootstrap4/bootstrap.min.js" type="text/javascript"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<input type="text" value="@ViewBag.assingID" hidden="hidden" id="Assingment_ID" />
+<input type="text" hidden="hidden" id="Submet_ID" />
+<!-- Start Slider -->
+<div class="sec_content padding_menu cours_details">
+    <div class="container">
+
+
+        <div class="col-md-12 float-left">
+
+            <div class="sec" id="QuestionBody_ID">
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- End Slider -->
+<!-- Start Footer -->
+<!-- End Footer -->
+
+
+
+
+
+
+
+<script>
+
+
+    var isLoading = false;
+    $(document).ready(function () {
+
+        $(".menu_top").addClass("fixed");
+
+
+        $(function () {
+            $('.tabs-nav a').click(function () {
+
+                // Check for active
+                $('.tabs-nav li').removeClass('active');
+                $(this).parent().addClass('active');
+
+                // Display active tab
+                var currentTab = $(this).attr('href');
+                $('.tabs-content div.tab_cont').hide();
+                $(currentTab).show();
+
+                return false;
+            });
+        });
+
+    });
+
+
+</script>
+
+<div class="modal fade" id="modal-success" style="text-align:right" dir="rtl">
+    <div class="modal-dialog">
+        <div class="modal-content bg-success">
+            <div class="modal-header">
+                <h4 class="modal-title">نتيجة الوظيفة</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>درجة الوظيفة</label><br />
+                <a id="SAss_degry"></a><br />
+                <label>درجة الطالب</label><br />
+                <a id="SAss_Windegry"></a>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-outline-light" onclick="btnOkAssingment(@CategoryID,'@CategoryName')" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="modal-danger" style="text-align:right" dir="rtl">
+    <div class="modal-dialog">
+        <div class="modal-content bg-danger">
+            <div class="modal-header">
+                <h4 class="modal-title">نتيجة الوظيفة</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>نرجو اعادة الوظيفة</label><br />
+                <label>درجة الوظيفة</label><br />
+                <a id="EAss_degry"></a><br />
+                <label>درجة الطالب</label><br />
+                <a id="EAss_Windegry"></a>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-outline-light" onclick="btnCancelAssingment()" data-dismiss="modal">OK</button>
+                @*<button type="button" class="btn btn-outline-light">Save changes</button>*@
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<script src="~/Content/plugins/jquery-ui/jquery-ui.min.js"></script>
+
+<script src="~/Scripts/CustomJavascript.js"></script>
+<script>
+    $(document).ready(function () {
+        var assingID = $('#Assingment_ID').val();
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { A_Q: assingID},
+                url: '@Url.Action("GetAssignmentQuestion", "Students")',
+                success: function (data) {
+                    $("#Submet_ID").val(data.length);
+                    var s = '';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<div class="border" id="Div_ID_'+i+'">' +
+                            '<div class="question bg-white p-3 border-bottom " style="background-color:#113464;/* float: left; */text-align: start;direction: rtl;">' +
+                            '<div class="d-flex flex-row justify-content-between align-items-center mcq">' +
+                            '<input type="text" id="Q_ID_' + i +'" hidden="hidden"/>'+
+                            '<h4>' + data[i].Q_Name + '</h4><span style="direction:ltr;">(' + (i + 1) + ' of ' + data.length + ')</span>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="question bg-white p-3 border-bottom">' +
+                            '<div class="d-flex flex-row align-items-center question-title" style="direction:rtl;">' +
+                            '<h3 class="text-danger"></h3>' +
+                            '<h5 class="mt-1 ml-2">' + data[i].Q_Text + '</h5>' +
+                            '</div>';
+
+                        if (data[i].Type==3) {
+                            s += '<div class="ans ml-2" style="direction:rtl;display:flex;">' +
+                                '<table>';
+                            for (var j = 0; j < data[i].Q_MatchingChoise.length; j++) {
+                                s += '<tr><td>' +
+                                    '<input type="hidden" name="CorrectAnswer" id="CorrectAnswer_' + data[i].Q_MatchingChoise[j].ID + '" />' +
+                                    '<input type="hidden" id="degryMart_' + data[i].Q_MatchingChoise[j].ID + '" value="' + data[i].Q_MatchingChoise[j].Degry +'" />' +
+                                    '<input type="text" value="' + data[i].Q_MatchingChoise[j].ChoiceText + '" disabled id="ChoiceText_' + data[i].Q_MatchingChoise[j].ID + '" class="form-control" />' +
+                                    '</td>' +
+                                    '<td>' +
+                                    '<select id="ChoiseTrueAnswer_' + data[i].Q_MatchingChoise[j].ID + '" onchange="CheackIfAnswerTrue(this.value,' + data[i].Q_MatchingChoise[j].ID + ')"  class="form-control">';
+                                s += '<option value="-1">اختر الجواب الصحيح</option>';
+                                var rand = createArrayOfNumbers(0, data[i].Q_MatchingChoise.length-1);
+
+                                for (var k = 0; k < data[i].Q_MatchingChoise.length; k++) {
+                                    var number = GenerateRundomNumberBetweenRange(rand);
+
+                                    s += '<option value="' + data[i].Q_MatchingChoise[number].ID + '">' + data[i].Q_MatchingChoise[number].ChoiseTrueAnswer + '</option>';
+                                }
+
+
+                                s += '</select>' +
+                                    '</td>' +
+                                    '</tr>';
+
+                            }
+                            s += '</table>';
+
+
+                            s +=   '</div>';
+                        }
+                        if (data[i].Type == 2) {
+                            for (var j = 0; j < data[i].Q_MultiChoice.length; j++) {
+                                s += '<div class="ans ml-2" style="direction:rtl;display:flex;">' +
+                                    '<label class="radio">' +
+                                    '<input type="radio" name="QA_' + i + '" value="' + data[i].Q_MultiChoice[j].Degry + '"> <span>' + data[i].Q_MultiChoice[j].Choose + '</span>' +
+                                    '</label>' +
+                                    '</div>';
+                            }
+                        }
+                        if (data[i].Type==1)
+                        {
+                            if (data[i].Q_TrueOrFalse.TrueValue == 1) {
+                                s += '<div class="ans ml-2" style="direction:rtl;display:flex;">' +
+                                    '<label class="radio">' +
+                                    '<input type="radio" name="QA_' + i + '" value="' + data[i].Q_TrueOrFalse.Degry + '"> <span>صح</span>' +
+                                    '</label>' +
+                                    '</div>' +
+                                    '<div class="ans ml-2" style="direction:rtl;display:flex;">' +
+                                    '<label class="radio">' +
+                                    '<input type="radio" name="QA_' + i + '" value="0"> <span>خطأ</span>' +
+                                    '</label>' +
+                                    '</div>';
+                            }
+                            else {
+                                s += '<div class="ans ml-2" style="direction:rtl;display:flex;">' +
+                                    '<label class="radio">' +
+                                    '<input type="radio" name="QA_' + i + '" value="' + data[i].Q_TrueOrFalse.Degry + '"> <span>خطأ</span>' +
+                                    '</label>' +
+                                    '</div>' +
+                                    '<div class="ans ml-2" style="direction:rtl;display:flex;">' +
+                                    '<label class="radio">' +
+                                    '<input type="radio" name="QA_' + i + '" value="0"> <span>صح</span>' +
+                                    '</label>' +
+                                    '</div>';
+                            }
+                        }
+
+
+                        s += '</div>' +
+                            '<div class="d-flex flex-row justify-content-between align-items-center p-3 bg-white" style="direction:rtl;display:flex";>';
+                        if (i == 0) {
+                            s += '<button class="btn btn-primary d-flex align-items-center btn-danger" disabled="disabled" id="Btnback" onclick="Back_Question(' + (i - 1) + ')" type="button">' +
+                                '<i class="fa fa-angle-right mt-1 mr-1"></i>&nbsp;&nbsp;السابق&nbsp;&nbsp;</button>';
+                        } else {
+                            s += '<button class="btn btn-primary d-flex align-items-center btn-danger" id="Btnback" onclick="Back_Question(' + (i - 1) + ')" type="button">' +
+                                '<i class="fa fa-angle-right mt-1 mr-1"></i>&nbsp;&nbsp;السابق&nbsp;&nbsp;</button>';
+                        }
+                        if (i == data.length-1) {
+                            s += '<button class="btn btn-primary d-flex align-items-center btn-danger"   id="BtnNext" onclick="EndAssingnment()" type="button">&nbsp;&nbsp;انهاء&nbsp;&nbsp;<i class="fa fa-angle-left ml-2"></i>' +
+                                '</button>';
+                        } else {
+                            s += '<button class="btn btn-primary border-success align-items-center btn-success" id="BtnNext" onclick="Next_Question(' + (i + 1) +')" type="button">&nbsp;&nbsp;التالي&nbsp;&nbsp;<i class="fa fa-angle-left ml-2"></i>' +
+                                '</button>'
+                        }
+                            s += '</div></div>';
+                    }
+                    s += `  <header class="tabs-nav">
+
+        </header>`;
+                    $("#QuestionBody_ID").html(s);
+
+                    $("#Btnback").attr("disabled", true);
+                    $("#Div_ID_0").show();
+                    for (var i = 1; i < data.length; i++) {
+                        $("#Div_ID_" + i).hide();
+
+                    }
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+
+                }
+            });
+
+    });
+    function CheackIfAnswerTrue(selectedvalue, id) {
+        console.log( selectedvalue);
+        if (selectedvalue == id) {
+            var degry = $("#degryMart_" + id).val();
+            $("#CorrectAnswer_" + id).val(degry);
+
+        } else
+            $("#CorrectAnswer_" + id).val(0);
+    }
+    function Next_Question(index) {
+        $("#Div_ID_" + index).show();
+        $("#Div_ID_" + (index - 1)).hide();
+    }
+
+    function Back_Question(index) {
+        $("#Div_ID_" + (index+1)).hide();
+        $("#Div_ID_" + index).show();
+    }
+
+    function EndAssingnment() {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false
+        });
+
+        swalWithBootstrapButtons.fire({
+            title: 'تحذير؟',
+            text: "هل أنت متأكد من الإنهاء ؟",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم',
+            cancelButtonText: 'إلغاء',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var assingID = $('#Assingment_ID').val();
+                var Length = $("#Submet_ID").val();
+
+                var selectedGender = new Array();
+
+                for (var i = 0; i < Length; i++) {
+                    var genders = document.getElementsByName('QA_' + i);
+                    for (var j = 0; j < genders.length; j++) {
+                        if (genders[j].checked) {
+                            selectedGender.push(genders[j].value);
+                        }
+                    }
+                }
+                var correctmatching = document.getElementsByName('CorrectAnswer');
+                for (var i = 0; i < correctmatching.length; i++) {
+
+                    selectedGender.push(correctmatching[i].value);
+
+                }
+
+                $.ajax({
+                    async: true,
+                    type: 'POST',
+                    data: { L_Degry: selectedGender, ass_ID: assingID },
+                    url: '@Url.Action("SubmetQuestion", "Students")',
+                    success: function (result) {
+                        if (result.success == true) {
+
+                            $("#SAss_degry").html(result.Assdegry);
+                            $("#SAss_Windegry").html(result.stdDegry)
+
+                            $("#modal-success").modal()
+                        } else {
+                            $("#EAss_degry").html(result.Assdegry);
+                            $("#EAss_Windegry").html(result.stdDegry)
+                            $("#modal-danger").modal();
+                        }
+
+
+                    },
+                    error: function (response) {
+
+                    },
+                    complete: function (response) {
+                    }
+
+                });
+            }});
+    }
+    function btnOkAssingment(catid, lecName) {
+        window.location.href ='@Url.Action("LecturesStd", "Students", new { cat_ID = CategoryID, lectureName = CategoryName })';
+        // '/Students/LecturesStd?cat_ID =' + catid + '&' + 'lectureName =' + lecName;
+        //window.location.href = '/Home/GoPageMenu?PageID=' + pageid;
+    }
+        function btnCancelAssingment() {
+            window.location.reload(true);
+        }
+</script>

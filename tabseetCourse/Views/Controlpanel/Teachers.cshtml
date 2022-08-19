@@ -1,0 +1,677 @@
+﻿
+@{
+    ViewBag.Title = "Teachers";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var viewModel = (tabseetCourse.Models.UserModel)ViewBag._UsermodelModel;
+}
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Theme style -->
+<link rel="stylesheet" href="~/Content/dist/css/adminlte.min.css">
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>المعلمون</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<div class="card">
+    <div class="card-header">
+        @if (viewModel != null && viewModel.L_role.Count > 0)
+        {
+            foreach (var item in viewModel.L_role)
+            {
+                if (item.RoleName == "Admin" || item.RoleName == "UsersTeachersView")
+                {
+                    <input type="button" value="إضافة معلم" id="addNew" data-toggle="modal" data-target="#modal-lg" class="btn btn-success float-left">
+                }
+            }
+        }
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body pb-0">
+        <div class="row" id="PersionInfo">
+
+
+
+        </div>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">إضافة مدرس</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>الإسم بلكامل</label>
+                                        <input type="text" id="FullName_ID" class="form-control" style="width:100%" placeholder="الإسم بلكامل" required />
+                                        <span id="reqFirstName_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>رقم الهاتف</label>
+                                        <input type="text" id="PhoneNumber_ID" class="form-control" style="width:100%" required />
+                                        <span id="reqLastName_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>بريد الكتروني</label>
+                                        <input type="email" id="Email_ID" class="form-control" style="width:100%" placeholder="youremail@demo.com" required />
+                                        <span id="reqLastName_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>كلمة المرور</label>
+                                        <input type="password" class="form-control" id="Password_ID" />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label>مواد التي يدرسها</label>
+                                    <div class="form-group" id="categoryDiv_ID">
+
+                                        <select id="Categories_ID" class="select2" multiple="multiple" required>
+                                        </select>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="form-group">
+                                <!-- <label for="customFile">Custom File</label> -->
+                                @*<div class="custom-file">
+                                        <input type="file" class="form-control" id="customFile" accept="image/png, image/gif, image/jpeg">
+
+                                    </div>*@
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">الغاء</button>
+                <button type="button" class="btn btn-primary" id="btnSave">حفظ</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<div class="modal fade" id="Editmodal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">إضافة مدرس</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>الإسم الكامل</label>
+                                        <input type="text" hidden="hidden" class="form-control" id="EID" />
+                                        <input type="text" id="EFullName_ID" class="form-control" style="width:100%" placeholder="الإسم بلكامل" required />
+                                        <span id="reqFirstName_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>رقم الهاتف</label>
+                                        <input type="text" id="EPhoneNumber_ID" class="form-control" style="width:100%" required />
+                                        <span id="reqLastName_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>بريد الكتروني</label>
+                                        <input type="email" id="EEmail_ID" class="form-control" style="width:100%" placeholder="youremail@demo.com" required />
+                                        <span id="reqLastName_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>كلمة المرور</label>
+                                        <input type="password" class="form-control" id="EPassword_ID" />
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label>مواد التي يدرسها</label>
+                                    <div class="form-group" id="categoryDiv_ID">
+
+                                        <select id="ECategories_ID" class="select2" multiple="multiple" required>
+                                        </select>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="form-group">
+                                <!-- <label for="customFile">Custom File</label> -->
+                                @*<div class="custom-file">
+                                        <input type="file" class="form-control" id="EcustomFile" accept="image/png, image/gif, image/jpeg">
+
+                                    </div>*@
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">الغاء</button>
+                <button type="button" class="btn btn-primary" id="btnUpdate">حفظ</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<!-- /.card -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="~/Content/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="~/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<!-- AdminLTE App -->
+<script src="~/Content/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/Content/dist/js/demo.js"></script>
+
+<!-- Page specific script -->
+<script>
+    $(function () {
+
+        $('.select2').select2();
+        getCategores();
+        getAllTeachers();
+
+    });
+
+    function getCategores() {
+          $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                url: '@Url.Action("GetAllCategories", "Controlpanel")',
+                success: function (data) {
+                    var s = '';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value=' + data[i].ID + '>' + data[i].NameAr + '</>';
+                    }
+                    $("#Categories_ID").html(s);
+                    $("#ECategories_ID").html(s);
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+    function getAllTeachers() {
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                url: '@Url.Action("GetTeachers", "Controlpanel")',
+                success: function (data) {
+                    var s = '';
+                    for (var i = 0; i < data.length; i++) {
+
+                        s += '<div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column" style="text-align:right">' +
+                            '<div class="card bg-light d-flex flex-fill" >' +
+                            '<div class="card-header text-muted border-bottom-0"></div>' +
+                            '<div class="card-body pt-0">' +
+                            '<div class="row">' +
+                            '<div class="col-7">' +
+                            '<h2 class="lead"><b>' + data[i].FirstName + '</b></h2> ' +
+                            '<p class="text-muted text-sm"><b>يدرس : </b> ' + data[i].Categories_ID + '</p>' +
+                            '<ul class="ml-4 mb-0 fa-ul text-muted">' +
+                            '<li class="small" dir="rtl">' + data[i].Email + ' <span class="fa-li" style = "text-align:right; float:right" dir = "rtl" ><i class="fas fa-envelope"></i></i></span></li >' +
+                            '<li class="small" dir="rtl"> الهاتف :' + data[i].PhoneNumber + '<span class="fa-li" style="text-align:right; float:right" dir="rtl"><i class="fas fa-lg fa-phone" style="text-align:right; float:right" dir="rtl"></i></span></li>' +
+                            '</ul>' +
+                            '</div>' +
+                            '<div class="col-5 text-center">';
+                        if (data[i].PersionImage == null) {
+
+                            s += '<img src="/Content/persion.png" alt="user-avatar" style="width:100px">';
+
+                            } else {
+                            s += '<img src="/Uploade/Images/' + data[i].PersionImage + '" alt="user-avatar" class="img-circle img-fluid">';
+                                }
+                        s += '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="card-footer">' +
+                            '<div class="text-right">' +
+                            '<a href="#" onclick="SendEmail(' + "'" + data[i].Email +"'" +')" class="btn btn-sm bg-teal">' +
+                            '<i class="fas fa-comments">إرسال بريد</i>' +
+                            '</a>' +
+                            '<a href="#" onclick="GetTeacherData(' + "'" + data[i].Id + "'" + ')" data-toggle="modal" data-target="#Editmodal-lg" class="btn btn-sm btn-primary">' +
+                            '<i class="fas fa-user"></i> تعديل المعلومات </a>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div > ' +
+                            '</div>';
+                    }
+                    $("#PersionInfo").html(s);
+
+                },
+                error: function (response) {
+
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+
+
+    $('#btnSave').click(function () {
+        const swalWithBootstrapButtons = Swal.mixin({});
+        var fd = new FormData();
+
+        var Fullname = $("#FullName_ID").val();
+        var email = $("#Email_ID").val();
+        var phoneNumver = $("#PhoneNumber_ID").val();
+        var Password = $("#Password_ID").val();
+
+
+        var Categories_ID = $('#Categories_ID').select2("data");
+        var category = '';
+        for (var i = 0; i < Categories_ID.length; i++) {
+            category += Categories_ID[i].id + "/" + Categories_ID[i].text + ",";
+        }
+        //var PC_File = $('#customFile')[0].files[0];
+
+        fd.append('FullName', Fullname);
+        fd.append('Email', email);
+        fd.append('PhoneNumber', phoneNumver);
+        fd.append('Password', Password);
+        fd.append('Categores_ID', category);
+        //fd.append('Image_File', PC_File);
+
+        //var dataJson = JSON.stringify(fd);
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: fd,
+                contentType: false,
+                processData: false,
+
+                url: '@Url.Action("SaveTeachers", "Controlpanel")',
+                success: function (data) {
+                    swalWithBootstrapButtons.fire(
+                        'تم الحفظ!',
+                        'تم اضافة المدرس بنجاح.',
+                        'success'
+                    ).then(function () {
+
+                        window.location.reload();
+
+                    });
+                },
+                error: function (response) {
+                    swalWithBootstrapButtons.fire(
+                        'Filed',
+                        response.responseText + ' :)',
+                        'error'
+                    )
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+    $('#btnUpdate').click(function () {
+        const swalWithBootstrapButtons = Swal.mixin({});
+
+        var fd = new FormData();
+        var ID = $("#EID").val();
+        var Fullname = $("#EFullName_ID").val();
+        var email = $("#EEmail_ID").val();
+        var phoneNumver = $("#EPhoneNumber_ID").val();
+        var Password = $("#EPassword_ID").val();
+
+
+        var Categories_ID = $('#ECategories_ID').select2("data");
+        var category = '';
+        for (var i = 0; i < Categories_ID.length; i++) {
+            category += Categories_ID[i].id + "/" + Categories_ID[i].text + ",";
+        }
+        //var PC_File = $('#EcustomFile')[0].files[0];
+        fd.append("ID", ID);
+        fd.append('FullName', Fullname);
+        fd.append('Email', email);
+        fd.append('PhoneNumber', phoneNumver);
+        fd.append('Password', Password);
+        fd.append('Categores_ID', category);
+        //fd.append('Image_File', PC_File);
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: fd,
+                contentType: false,
+                processData: false,
+                url: '@Url.Action("UpdateTeachers", "Controlpanel")',
+                success: function (data) {
+                    swalWithBootstrapButtons.fire(
+                        'تم الحفظ!',
+                        'تم اضافة المدرس بنجاح.',
+                        'success'
+                    ).then(function () {
+
+                        window.location.reload();
+
+                    });
+                },
+                error: function (response) {
+                    swalWithBootstrapButtons.fire(
+                        'Filed',
+                        response.responseText + ' :)',
+                        'error'
+                    )
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+    function GetTeacherData(ID) {
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { Teacher_ID: ID },
+                url: '@Url.Action("GetTeacherByID", "Controlpanel")',
+                success: function (data) {
+
+                    $("#EID").val(data.Id);
+                    $("#EFullName_ID").val(data.FirstName);
+                    $("#EPhoneNumber_ID").val(data.PhoneNumber);
+
+                    $("#EEmail_ID").val(data.Email);
+                    $("#EPassword_ID").val(data.Password);
+                    var category = data.Categories_ID;
+                    const myArr = category.split(",");;
+                    var L_MuCh = new Array();
+                    for (var i = 0; i < myArr.length; i++) {
+                        const categories = myArr[i];
+                        L_MuCh.push(categories[0]);
+                    }
+
+                    $("#ECategories_ID").val(L_MuCh).change();
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+    function btnDelete(ID) {
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            });
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to delete this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete it!',
+            cancelButtonText: 'Cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax(
+                    {
+                        async: true,
+                        type: 'POST',
+                        //dataType: 'JSON',
+                        //contentType: 'application/json; charset=utf=8',
+                        data: { Q_ID: ID },
+                        url: '@Url.Action("DeletQuestion", "Controlpanel")',
+                        success: function (data) {
+                            swalWithBootstrapButtons.fire(
+                                'Deleted!',
+                                'Your file has been deleted.',
+                                'success'
+                            ).then(function () { GetQuesiont(); })
+
+                        },
+                        error: function (response) {
+                            swalWithBootstrapButtons.fire(
+                                'Filed',
+                                response.responseText+' :)',
+                                'error'
+                            )
+                        },
+                        complete: function (response) {
+                            //alert("finish call jasion " + response);
+                        }
+                    });
+
+            } else if (
+                /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+            ) {
+                swalWithBootstrapButtons.fire(
+                    'Cancelled',
+                    'Your  file is safe :)',
+                    'error'
+                )
+            }
+        })
+
+    }
+
+
+    function validationSaveForm() {
+        var first = $("#FirstName_ID").val();
+        var value = true;
+        if (first == "") {
+
+            $("#reqFirstName_ID").html("* الاسم مطلوب");
+
+            value= false;
+        }
+        //if (x) {
+
+        //}
+    }
+
+    function SendEmail(Email) {
+        console.log("testsendemail");
+              const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            });
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to delete this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete it!',
+            cancelButtonText: 'Cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax(
+                    {
+                        async: true,
+                        type: 'POST',
+                        //dataType: 'JSON',
+                        //contentType: 'application/json; charset=utf=8',
+                        data: { Email: "khaled.idress321@gmail.com", supject: "testemail", message:"testsupject"},
+                        url: '@Url.Action("sendEmail", "Controlpanel")',
+                        success: function (data) {
+                            swalWithBootstrapButtons.fire(
+                                'Deleted!',
+                                'Your file has been deleted.',
+                                'success'
+                            ).then(function () { GetQuesiont(); })
+
+                        },
+                        error: function (response) {
+                            swalWithBootstrapButtons.fire(
+                                'Filed',
+                                response.responseText+' :)',
+                                'error'
+                            )
+                        },
+                        complete: function (response) {
+                            //alert("finish call jasion " + response);
+                        }
+                    });
+
+            } else if (
+                /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+            ) {
+                swalWithBootstrapButtons.fire(
+                    'Cancelled',
+                    'Your  file is safe :)',
+                    'error'
+                )
+            }
+        })
+    }
+</script>
+

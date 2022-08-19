@@ -1,0 +1,388 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.GridpageContentModel>
+
+@{
+    ViewBag.Title = "AddContentGridPageModel";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<div class="main-content">
+    <div class="page-title">
+        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+        {
+            <div class="sub-title"> Grid Pages Content</div>
+        }
+        else
+        {
+            <div class="sub-title"> محتوى صفحة الشبكية</div>
+        }
+
+    </div>
+    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+    {
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Add Content</button>
+    }
+    else
+    {
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">إضافة محتوى</button>
+    }
+
+    <table class="table">
+        <tr>
+            @*<th>
+                    @Html.DisplayNameFor(model => model.GridPageID)
+                </th>*@
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Title</label>
+                }
+                else
+                {
+                    <label>العنوان</label>
+                }
+            </th>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Discription</label>
+                }
+                else
+                {
+                    <label>وصف</label>
+                }
+            </th>
+            <th>
+
+            </th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>
+
+                    <label>@item.Title</label>
+
+                </td>
+                <td>
+                    @Html.Raw(item.Description)
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <button type="button" class="btn btn-info" onclick="EditeBtn(@item.ID)" data-toggle="modal" data-target="#myModalEdite">Edite</button>
+                        <button type="button" class="btn btn-danger" onclick="DeleteBtn(@item.ID)">Delete </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-info" onclick="EditeBtn(@item.ID)" data-toggle="modal" data-target="#myModalEdite">تعديل</button>
+                        <button type="button" class="btn btn-danger" onclick="DeleteBtn(@item.ID)">حذف </button>
+                    }
+
+
+                </td>
+            </tr>
+        }
+
+    </table>
+
+    <div class="container">
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog" style="width:80%">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <h4 class="modal-title">Add Content</h4>
+                        }
+                        else
+                        {
+                            <h4 class="modal-title">إضافة محتوى</h4>
+                        }
+
+                    </div>
+
+                    <div class="modal-body">
+                        @using (Html.BeginForm("AddContentGridPageModel", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="Title_ID">Title</label>
+                                }
+                                else
+                                {
+                                    <label for="Title_ID">العنوان</label>
+                                }
+                                <input type="hidden" name="GridPageID" value="@TempData["GridPageID"]" />
+                                <input type="text" class="form-control" id="Tab_Title" name="Title" placeholder=" Title" />
+                            </div>
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="Tab_Content">Description</label>
+                                }
+                                else
+                                {
+                                    <label for="Tab_Content">وصف صغير</label>
+                                }
+
+                                <textarea id="Tab_Content" class="form-control" name="Description"></textarea>
+                            </div>
+
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="Image">Icon</label>
+                                }
+                                else
+                                {
+                                    <label for="Image">ايقونة</label>
+                                }
+
+                                <input type="file" class="form-control" id="Image" name="ImageFile" placeholder="Image" />
+                            </div>
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="DocLinke">Page Linke</label>
+                                }
+                                else
+                                {
+                                    <label for="DocLinke">ربط بصفحة</label>
+                                }
+                                <select class="form-control" name="DocLinke" id="DocLinke">
+                                </select>
+                                @*<input type="text" class="form-control" id="DocLinke" name="DocLinke" placeholder="Document Linke" />*@
+                            </div>
+                            <div class="modal-footer">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <input type="submit" value="Save" class="btn btn-primary" />
+                                }
+                                else
+                                {
+                                    <input type="submit" value="حفظ" class="btn btn-primary" />
+                                }
+
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="modal fade" id="myModalEdite" role="dialog">
+            <div class="modal-dialog" style="width:80%">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <h4 class="modal-title">Edite Tabe</h4>
+                        }
+                        else
+                        {
+                            <h4 class="modal-title">تعديل التبويب</h4>
+                        }
+
+                    </div>
+
+                    <div class="modal-body">
+                        @using (Html.BeginForm("AddContentGridPageModel", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            <div hidden="hidden">
+                                <input type="text" id="ID2" name="ID" />
+                            </div>
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="Tab_Title2">Title</label>
+                                }
+                                else
+                                {
+                                    <label for="Tab_Title2">العنوان</label>
+                                }
+                                <input type="hidden" name="GridPageID" value="@TempData["GridPageID"]" />
+                                <input type="text" class="form-control" id="Tab_Title2" name="Title" placeholder=" Title" />
+                            </div>
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="Description">Description</label>
+                                }
+                                else
+                                {
+                                    <label for="Description">وصف صغير</label>
+                                }
+                                <textarea class="form-control" id="Description2" name="Description"></textarea>
+                            </div>
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="Image">Icon</label>
+                                }
+                                else
+                                {
+                                    <label for="Image">ايقونة</label>
+                                }
+
+                                <input type="file" class="form-control" id="Image" name="ImageFile" placeholder="Image" />
+                            </div>
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="DocLinke">Page Linke</label>
+                                }
+                                else
+                                {
+                                    <label for="DocLinke">ربط بصفحة</label>
+                                }
+                                <select class="form-control" name="DocLinke" id="DocLinke2">
+                                </select>
+                                @*<input type="text" class="form-control" id="" name="DocLinke" placeholder="Document Linke" />*@
+                            </div>
+                            <div class="modal-footer">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <input type="submit" value="Update" class="btn btn-primary" />
+                                }
+                                else
+                                {
+                                    <input type="submit" value="تعديل" class="btn btn-primary" />
+                                }
+
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="~/Content/static/app/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
+
+
+</div>
+
+<script type="text/javascript">
+    $('.form-validation').validate();
+
+    $(document).ready(function () {
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+
+                url: '@Url.Action("GetAllPages", "UIUXadminPanel")',
+                success: function (data) {
+
+                    var s;
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                    }
+                    $("#DocLinke").html(s);
+                    $("#DocLinke2").html(s);
+
+                },
+                error: function (response) {
+                    alert("there is a problem in supject " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+
+    });
+    function Create() {
+                  $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+
+                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        var s = '<option value="-1">Select Languages</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                        }
+                        $("#Lang_ID").html(s);
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                  });
+        $("#CreateNew").show();
+    }
+
+
+    function DeleteBtn(id)
+    {
+        if (confirm("Are you sure to delete?")) {
+
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { ID: id },
+
+                    url: '@Url.Action("DeleteGridPageModelContent", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        }
+    }
+
+    function EditeBtn(ID) {
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+                //dataType: 'JSON',
+                //contentType: 'application/json; charset=utf=8',
+                data: { ID: ID },
+
+                url: '@Url.Action("GetContentForGridPageModelByID", "UIUXadminPanel")',
+                success: function (data) {
+
+                    $("#ID2").val(data.ID);
+                    $("#Tab_Title2").val(data.Title);
+                    $("#Description2").val(data.Description);
+                    $("#DocLinke2").val(data.DocLinke);
+
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+</script>

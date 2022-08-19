@@ -1,0 +1,221 @@
+﻿@model tabseetCourse.Models_UI.LR_Model
+
+@{
+    ViewBag.Title = "LincesReg";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<body onload="Loadelanguage()">
+    <div class="main-content">
+        <div class="page-title">
+            <div class="sub-title"> Linces Regestration </div>
+        </div>
+        @using (Html.BeginForm("LincesReg", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+
+                <hr />
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <table class="form-group">
+                    <tr class="form-row">
+                        <td>
+                            <div class="form-group">
+                                <label class="control-label col-md-3">Select Language</label>
+                                <div class="col-md-10">
+                                    <select id="Lang_ID" name="Lang_ID" onchange="onchangeLang()">
+                                    </select>
+                                    @Html.ValidationMessageFor(model => model.Lang_ID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group hidden">
+                                @Html.LabelFor(model => model.ID, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.ID, new { htmlAttributes = new { @class = "form-control", @id = "ID" } })
+                                    @Html.ValidationMessageFor(model => model.ID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="form-row">
+                        <td>
+                            <div class="form-group">
+                                <label class="control-label col-md-offset-3">Title</label>
+                                <div class="col-md-10">
+                                    <input type="text" name="Title" id="Title" class="form-control" />
+                                    @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <label class="control-label col-md-3">Image Cover</label>
+                                <div class="col-md-10">
+                                    <input type="file" name="Imagecover" accept="image/png, image/jpeg" id="Imagecover" />
+                                    @Html.ValidationMessageFor(model => model.Imagecover, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="form-row">
+                        <td>
+                            <div class="form-group">
+                                <label class="control-label col-md-offset-3">Password</label>
+                                <div class="col-md-10">
+                                    <input type="text" name="Password_tran" id="Password_tran" class="form-control" />
+                                    @Html.ValidationMessageFor(model => model.Password_tran, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <label class="control-label col-md-offset-3">First Name translation</label>
+                                <div class="col-md-10">
+                                    <input type="text" name="FirstName_tran" id="FirstName_tran" class="form-control" />
+                                    @Html.ValidationMessageFor(model => model.FirstName_tran, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr class="form-row">
+                        <td>
+                            <div class="form-group">
+                                <label class="control-label col-md-offset-3">Last Name translation</label>
+                                <div class="col-md-10">
+                                    <input type="text" name="LastName_tran" id="LastName_tran" class="form-control" />
+                                    @Html.ValidationMessageFor(model => model.LastName_tran, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <label class="control-label col-md-offset-3">Country</label>
+                                <div class="col-md-10">
+                                    <input type="text" name="Country_tran" id="Country_ID" class="form-control" />
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr class="form-row">
+
+                        <td>
+                            <div class="form-group">
+                                <label class="control-label col-md-offset-3">Mobile Number translation</label>
+                                <div class="col-md-10">
+                                    <input type="text" name="Mobile_number_tran" id="Mobile_number_tran" class="form-control" />
+                                    @Html.ValidationMessageFor(model => model.Mobile_number_tran, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </td>
+
+
+
+
+                        <td>
+                            <div class="form-group">
+                                <label class="control-label col-md-offset-3">Email translation</label>
+                                <div class="col-md-10">
+                                    <input type="text" name="Email_tran" id="Email_tran" class="form-control" />
+                                    @Html.ValidationMessageFor(model => model.Email_tran, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+
+
+                </table>
+                <div class="form-group">
+                    <div class="col-md-offset-0 col-md-10">
+                        <input type="submit" value="Save Or Update" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        }
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-success">
+                <h3>
+                    @ViewBag.Message
+
+                </h3>
+            </div>
+        }
+        @if (ViewBag.error != null)
+        {
+            <div class="alert alert-danger">
+                <h3>
+                    @ViewBag.error
+
+                </h3>
+            </div>
+        }
+    </div>
+</body>
+<script type="text/javascript">
+     function onchangeLang()
+    {
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    data: { LangID: $("#Lang_ID").val() },
+                    url: '@Url.Action("GetLincesRegByLang", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        $('#ID').val(data.ID);
+                        $('#Passport_tran').val(data.Passport_tran);
+                        $('#Title').val(data.Title);
+                        $('#FirstName_tran').val(data.FirstName_tran);
+                        $('#LastName_tran').val(data.LastName_tran);
+                        $('#Country_ID').val(data.Country_tran);
+                        $('#Password_tran').val(data.Password_tran);
+                        $('#Mobile_number_tran').val(data.Mobile_number_tran);
+                        $('#Email_tran').val(data.Email_tran);
+
+                    },
+                    error: function (response) {
+
+                        alert("There is a problem Can't Load Data" + response.error);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+    };
+
+    function Loadelanguage() {
+
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+                //dataType: 'JSON',
+                //contentType: 'application/json; charset=utf=8',
+                //data: { id: Exam_id },
+
+                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                success: function (data) {
+
+                    var s = '<option value="-1">Select Language</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                    }
+                    $("#Lang_ID").html(s);
+                },
+                error: function (response) {
+                    //alert("there is a problem in supject " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+</script>

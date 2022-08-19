@@ -110,7 +110,7 @@ namespace tabseetCourse.Controllers
         #region Categories
 
         [HttpGet]
-        public ActionResult Categories()
+        public ActionResult CategoriesStd()
         {
 
             List<Std_Reg_CategoryModel> L_ctm = new List<Std_Reg_CategoryModel>();

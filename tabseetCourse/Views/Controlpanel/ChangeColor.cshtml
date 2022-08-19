@@ -1,0 +1,163 @@
+﻿@model tabseetCourse.Models_UI.StyleColorModel
+
+@{
+    ViewBag.Title = "ChangeColor";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<div class="main-content">
+    <div class="page-title">
+        <div class="sub-title"> </div>
+    </div>
+    <table class="table">
+        <tr>
+
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+
+
+                    <label class="text-black">Upper Menu Color</label>
+                }
+                else
+                {
+                    <label class="text-black">لون القائمة العلوية</label>
+                }
+            </th>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+
+
+                    <label class="text-black"> Back Ground Minu Color</label>
+                }
+                else
+                {
+                    <label class="text-black">لون خلفية القوائم</label>
+                }
+
+            </th>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+
+
+                    <label class="text-black">Minu Color</label>
+                }
+                else
+                {
+                    <label class="text-black">لون  القوائم</label>
+                }
+
+            </th>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label class="text-black"> News Background Color</label>
+                }
+                else
+                {
+                    <label class="text-black">لون  خلفية الاخبار</label>
+                }
+
+            </th>
+
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label class="text-black">Footer Color</label>
+                }
+                else
+                {
+                    <label class="text-black">لون القوائم السفلية</label>
+                }
+
+            </th>
+            <th></th>
+        </tr>
+
+
+        <tr>
+            <td>
+                <input type="color" class="form-control" id="UM_ID" value="@Model.UpderMenuColor" />
+            </td>
+            <td>
+                <input type="color" class="form-control" id="BGMC_ID" value="@Model.BackGroundMinuColor" />
+            </td>
+            <td>
+                <input type="color" class="form-control" id="MinuColor_ID" value="@Model.MinuColor" />
+            </td>
+            <td>
+                <input type="color" class="form-control" id="NewsBackground_ID" value="@Model.PracticeBackgroundColor" />
+            </td>
+            <td>
+                <input type="color" class="form-control" id="FooterColor_ID" value="@Model.FooterColor" />
+            </td>
+        </tr>
+
+
+
+
+    </table>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="row">
+                <div class="col-xs-12 m-b">
+                    <div class="demo-button">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <button type="button" class="btn btn-primary" onclick="Create()">Save</button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-primary" onclick="Create()">حفظ</button>
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+
+
+</div>
+
+<script type="text/javascript">
+
+    function Create() {
+        var UM = $("#UM_ID").val();
+        var BGMC = $("#BGMC_ID").val();
+        var MinuColor = $("#MinuColor_ID").val();
+        var NewsBackground = $("#NewsBackground_ID").val();
+        var FooterColor = $("#FooterColor_ID").val();
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+                data: { UM_ID: UM, BGMC_ID: BGMC, MinuColor_ID: MinuColor, NewsBackground_ID: NewsBackground, FooterColor_ID: FooterColor },
+                url: '@Url.Action("UpdateStyle", "UIUXadminPanel")',
+                success: function (data) {
+                    alert("Update Color Change");
+
+                },
+                error: function (response) {
+                    alert("there is a problem in supject " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+
+</script>
+
+
+

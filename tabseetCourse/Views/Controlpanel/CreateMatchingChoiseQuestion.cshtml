@@ -1,0 +1,292 @@
+﻿
+@{
+    ViewBag.Title = "CreateMatchingChoiseQuestion";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>وصل بين الخيارات</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<div class="card">
+
+    <div class="card-body">
+
+
+
+
+        <div class="form-horizontal">
+
+            <hr />
+            <div class="form-group">
+                <label class="control-label col-md-2">إسم السؤال</label>
+                <div class="col-md-10">
+                    <input type="text" class="form-control" id="Q_Name" />
+
+                </div>
+                <br />
+                <div class="col-md-10">
+                    <label class="control-label ">الفئة</label>
+                </div>
+                <div class="col-md-10">
+                    <select class="form-control select2" id="Category_ID" style="width:50%;height:50%">
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-2">صيغة السؤال</label>
+                <div class="col-md-10">
+                    <div id="Summner_Q_Text" class="summernote">
+
+                    </div>
+                    <input type="text" class="form-control" id="Q_Text" hidden="hidden" />
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
+                <div class="col-md-10">
+                    <table>
+                        <tr>
+                            <td style="padding:10px">
+                            </td>
+                            <td style="padding:10px">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">إضافة خيارات</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-2">الإختيارات</label>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered" id="Table_Options">
+
+                        <tr>
+                            <td>إختيار</td>
+                            <td>قيمة الصحيحة</td>
+                            <td>درجة</td>
+                            <td></td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <div class="col-md-offset-2 col-md-10">
+                    <button type="button" onclick="Btn_Save()" value="Create" class="btn btn-primary">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    @*<h2>Modal Example</h2>*@
+    <!-- Trigger the modal with a button -->
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">إضافة خيار جديد</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="Form_ID" role="form" class="form-validation">
+                        <div class="form-group">
+                            <label for="Option_ID">الإختيار</label>
+                            <input type="text" class="form-control" id="Option_ID" rows="3" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Option_ID">القيمة الصحيحة</label>
+                            <input type="text" class="form-control" id="Option2_ID" rows="3" />
+                        </div>
+
+                        <div class="form-group m-b">
+                            <label>درجة السؤال</label>
+                            <input type="number" id="Degry_ID" class="form-control" name="number" placeholder="Required | Degree" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="irow">Add Option</button><br /><br />
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Summernote -->
+<script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+
+
+
+<script type="text/javascript">
+    var count = 0;
+    $('#irow').click(function () {
+
+        var degry = $('#Degry_ID').val();
+        var option = $('#Option_ID').val();
+        var option2 = $('#Option2_ID').val();
+        if (degry != '' && option != '') {
+            count = count + 1;
+            output = '<tr id="row_' + count + '">';
+            output += '<td>' + option + ' <input type="hidden" name="FirstChoise" id="First' + count + '" class="option" value="' + option + '" /></td>';
+            output += '<td>' + option2 + ' <input type="hidden" name="TrueValue" id="option2' + count + '" class="option2" value="' + option2 + '" /></td>';
+            output += '<td>' + degry + ' <input type="hidden" name="hidden_degry" id="degry' + count + '" value="' + degry + '" /></td>';
+            output += '<td><button type="button" name="remove_details" onclick="RemoveOption(' + count + ')" class="btn btn-danger" id="' + count + '">' +
+                '<i class="fas fa-trash">' +
+                '</i> حذف </button></td></tr>';
+            $('#Table_Options').append(output);
+        }
+
+    });
+    $(document).ready(function () {
+        $('#Summner_Q_Text').summernote();
+
+        $('#Summner_Q_Text').on('summernote.change', function (we, e) {
+
+            var summernote = $("#Summner_Q_Text").summernote('code');
+            $('#Q_Text').val(summernote);;
+            //console.log(summernote);
+        });
+        $(document).on('click', '.remove_details', function () {
+            var row_id = $(this).attr("id");
+            if (confirm("هل متاكد من حذف هذا الإختيار؟")) {
+                $('#row_' + row_id + '').remove();
+
+            } else {
+                return false;
+            }
+
+        });
+             $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                url: '@Url.Action("GetAllCategories", "Controlpanel")',
+                success: function (data) {
+                    s = '';
+                    for (var i = 0; i < data.length; i++) {
+                        s += "<option value=" + data[i].ID + ">" + data[i].NameAr + "</option>";
+                    }
+                    $('#Category_ID').html(s);
+                },
+                error: function (response) {
+                },
+                complete: function (response) {
+                }
+            });
+    });
+
+
+
+    function Btn_Save() {
+        const swalWithBootstrapButtons = Swal.mixin({});
+        var fd = new FormData();
+        var L_MuCh = new Array();
+
+        var FirstChoise = document.getElementsByName("FirstChoise");
+        var TrueValue = document.getElementsByName("TrueValue");
+        var Degry = document.getElementsByName("hidden_degry");
+
+        for (var i = 0; i < FirstChoise.length; i++) {
+            var MultiQ = {};
+            MultiQ.ChoiceText = FirstChoise[i].value;
+            MultiQ.Degry = Degry[i].value;
+            MultiQ.ChoiseTrueAnswer = TrueValue[i].value;
+            L_MuCh.push(MultiQ);
+
+        }
+
+
+        var q_Name = $("#Q_Name").val();
+        var q_Text = $("#Q_Text").val();
+        var CategoryID = $("#Category_ID").val();
+        fd.Q_Name = q_Name;
+        fd.Q_Text = q_Text;
+        fd.Category_ID = CategoryID;
+
+        fd.Q_MatchingChoise = L_MuCh;
+
+        $.ajax({
+            async: true,
+
+            type: 'POST',
+            dataType: 'html',
+            contentType: 'application/json; charset=utf=8',
+            data: JSON.stringify(fd),
+
+            url: '@Url.Action("CreateMatchingChoiseQuestion", "Controlpanel")',
+
+
+            success: function (result) {
+                swalWithBootstrapButtons.fire(
+                    'تم الحفظ!',
+                    'تم اضافة السؤال بنجاح.',
+                    'success'
+                ).then(function () {
+                    $("#Q_Name").val("");
+                    $("#Q_Text").val("");
+                    $("#Summner_Q_Text").summernote('code', '');
+                    var s = '';
+                    s += '<tr><td> الإختيارات</td><td>الدرجة</td><td></td></tr>';
+                    $('#Table_Options').html(s);
+                })
+
+            },
+            error: function (response) {
+                swalWithBootstrapButtons.fire(
+                    'Filed',
+                    response.responseText + ' :)',
+                    'error'
+                )
+            },
+            complete: function (response) {
+            }
+        }
+        );
+    }
+        function RemoveOption(row_id) {
+            console.log(row_id);
+            if (confirm("هل متاكد من حذف هذا الإختيار؟")) {
+                $('#row_' + row_id + '').remove();
+            }
+        }
+
+</script>

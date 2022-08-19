@@ -1,0 +1,325 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.Page_Tabe_Content_Model>
+
+@{
+    ViewBag.Title = "AddTaHorizantalPageTabe";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css" />
+<!-- Ionicons -->
+<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+<!-- Tempusdominus Bbootstrap 4 -->
+<link rel="stylesheet" href="~/Content/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" />
+<!-- iCheck -->
+<link rel="stylesheet" href="~/Content/plugins/icheck-bootstrap/icheck-bootstrap.min.css" />
+<!-- overlayScrollbars -->
+<link rel="stylesheet" href="~/Content/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+
+<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
+<div class="main-content">
+    <div class="page-title">
+        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+        {
+            <div class="sub-title"> Horizantal Page Tabe</div>
+        }
+        else
+        {
+            <h4 class="modal-title">صفحة تبويب افقي</h4>
+        }
+
+    </div>
+    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+    {
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Add Tabe</button>
+    }
+    else
+    {
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">إضافة تبويب</button>
+    }
+
+    <table class="table">
+        <tr>
+
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Tab Title</label>
+                }
+                else
+                {
+                    <label>عنوان التبويب</label>
+                }
+            </th>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Tab Description</label>
+                }
+                else
+                {
+                    <label>وصف التبويب</label>
+                }
+
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>
+
+                    <label>@item.Tabe_title</label>
+
+
+
+                </td>
+                <td>
+                    @Html.Raw(item.Tab_Description)
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <button type="button" class="btn btn-info" onclick="EditeBtn(@item.ID)" data-toggle="modal" data-target="#myModalEdite">Edit</button>
+                        <button type="button" class="btn btn-danger" onclick="DeleteBtn(@item.ID)">Delete </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-info" onclick="EditeBtn(@item.ID)" data-toggle="modal" data-target="#myModalEdite">تعديل</button>
+                        <button type="button" class="btn btn-danger" onclick="DeleteBtn(@item.ID)">حذف </button>
+                    }
+
+
+                </td>
+            </tr>
+        }
+
+    </table>
+
+    <div class="container">
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog" style="width:80%">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <h4 class="modal-title">Add Tabe</h4>
+                        }
+                        else
+                        {
+                            <h4 class="modal-title">تبويب جديد</h4>
+                        }
+
+                    </div>
+
+                    <div class="modal-body">
+                        @using (Html.BeginForm("AddTaHorizantalPageTabe", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="Title_ID">Tab Title</label>
+                                    <input type="text" class="form-control" id="Tabe_title" name="Tabe_title" placeholder="Tab Title" />
+                                }
+                                else
+                                {
+                                    <label for="Title_ID">عنوان التبويب</label>
+                                    <input type="text" class="form-control" id="Tabe_title" name="Tabe_title" placeholder="عنوان التبويب" />
+                                }
+
+                            </div>
+                            <div class="form-group m-b">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <label for="DateTime">Content</label>
+                                    <textarea id="summernote" name="editordata"></textarea>
+                                    <textarea id="Tab_Description1" name="Tab_Description" class="hidden"></textarea>
+                                }
+                                else
+                                {
+                                    <label for="DateTime">المحتوى</label>
+                                    <textarea id="summernote" name="editordata"></textarea>
+                                    <textarea id="Tab_Description1" name="Tab_Description" class="hidden"></textarea>
+                                }
+
+                            </div>
+                            <div class="modal-footer">
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <input type="submit" value="Save" class="btn btn-primary" />
+                                }
+                                else
+                                {
+                                    <input type="submit" value="حفظ" class="btn btn-primary" />
+                                }
+
+                            </div>
+                        }
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="modal fade" id="myModalEdite" role="dialog">
+            <div class="modal-dialog" style="width:80%">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Edite Tabe</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        @using (Html.BeginForm("AddTaHorizantalPageTabe", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            <div hidden="hidden">
+                                <input type="text" id="ID2" name="ID" />
+                            </div>
+                            <div class="form-group m-b">
+                                @*<label for="Title_ID">Title</label>*@
+                                <input type="text" class="form-control" id="Tab_Title2" name="Tabe_title" placeholder="Tab Title" />
+                            </div>
+                            <div class="form-group m-b">
+                                <label for="DateTime">Content</label>
+                                <textarea id="summernoteEdite" name="editordata"></textarea>
+                                <textarea id="Tab_Content2" name="Tab_Description" class="hidden"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" value="Update" class="btn btn-primary" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="~/Content/static/app/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
+
+
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Summernote -->
+<script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+
+<!-- jQuery UI 1.11.4 -->
+<script src="~/Content/plugins/jquery-ui/jquery-ui.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<script type="text/javascript">
+
+    function Create() {
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+
+                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                success: function (data) {
+
+                    var s = '<option value="-1">Select Languages</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                    }
+                    $("#Lang_ID").html(s);
+                },
+                error: function (response) {
+                    alert("there is a problem in supject " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+        $("#CreateNew").show();
+        //$('#summernote').summernote();
+    }
+
+    $(document).ready(function () {
+        $('#summernote').summernote();
+        $('#summernoteEdite').summernote();
+
+        $('#summernote').on('summernote.change', function (we, e) {
+            var summernote = $("#summernote").summernote('code');
+            $('#Tab_Description1').val(summernote);
+        });
+
+        $('#summernoteEdite').on('summernote.change', function (we, e) {
+            var summernote2 = $("#summernoteEdite").summernote('code');
+            $('#Tab_Content2').val(summernote2);
+        });
+    });
+
+    function DeleteBtn(Exam_id)
+    {
+        if (confirm("Are you sure to delete ?")) {
+
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { id: Exam_id },
+
+                    url: '@Url.Action("DeleteTabeHorizantalPageTabe", "UIUXadminPanel")',
+                    success: function (data) {
+
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        }
+    }
+
+    function EditeBtn(id) {
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+                data: { ID: id },
+
+                url: '@Url.Action("GettabHorizantalpageTabe", "UIUXadminPanel")',
+                success: function (data) {
+                    $("#ID2").val(data.ID);
+                    $("#Tab_Title2").val(data.Tabe_title);
+                    $("#Tab_Content2").val(data.Tab_Description);
+
+                    $("#summernoteEdite").summernote('code', data.Tab_Description);
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+</script>
+

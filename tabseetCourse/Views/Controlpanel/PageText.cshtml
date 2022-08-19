@@ -1,0 +1,233 @@
+﻿
+@{
+    ViewBag.Title = "PageText";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css" />
+<!-- Ionicons -->
+<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+<!-- Tempusdominus Bbootstrap 4 -->
+<link rel="stylesheet" href="~/Content/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" />
+<!-- iCheck -->
+<link rel="stylesheet" href="~/Content/plugins/icheck-bootstrap/icheck-bootstrap.min.css" />
+<!-- overlayScrollbars -->
+<link rel="stylesheet" href="~/Content/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+
+<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Summernote -->
+<script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+
+<!-- jQuery UI 1.11.4 -->
+<script src="~/Content/plugins/jquery-ui/jquery-ui.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<body onload="Loadelanguage()">
+    <div class="main-content">
+        <div class="page-title">
+            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+            {
+                <div class="title"> Page Text </div>
+            }
+            else
+            {
+                <div class="title"> صفحة نصية </div>
+            }
+
+        </div>
+        @using (Html.BeginForm("PageText", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                <div class="form-group">
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <label class="control-label col-md-2">Languages</label>
+                    }
+                    else
+                    {
+                        <label class="control-label col-md-2">لغة الصفحة</label>
+                    }
+
+                    <div class="col-md-10">
+                        <select id="Lang_ID" name="Lang_ID" onchange="onchangeLang()">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group ">
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <label class="control-label col-md-2">Title</label>
+                    }
+                    else
+                    {
+                        <label class="control-label col-md-2">العنوان</label>
+                    }
+
+                    <div class="col-md-10">
+
+                        <input type="text" name="title" id="title_ID" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group hidden">
+                    <div class="col-md-10">
+                        <input type="text" name="New_pages_ID" id="New_pages_ID" class="form-control" />
+                        <input type="text" name="ID" id="ID" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <label class="control-label col-md-2">Image Cover</label>
+                    }
+                    else
+                    {
+                        <label class="control-label col-md-2">غلاف الصفحة</label>
+                    }
+
+
+                    <div class="col-md-10">
+                        <input type="file" accept="image/png, image/jpeg" id="ImageCover" name="ImageCover" />
+                        <input type="text" id="Image_Cover" name="Image_Cover" class="hidden" />
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <label class="control-label col-md-2">Description</label>
+                    }
+                    else
+                    {
+                        <label class="control-label col-md-2">نص الصفحة</label>
+                    }
+
+
+                    <div class="col-md-10">
+                        <div name="summernote" id="summernote" class="summernote"></div>
+                        <textarea name="Text_Description" id="Text_Description" class=" hidden"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <input type="submit" value="Save Or Update" class="btn btn-primary" />
+                        }
+                        else
+                        {
+                            <input type="submit" value="حفظ" class="btn btn-primary" />
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+        }
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-success">
+                <h3>
+                    @ViewBag.Message
+
+                </h3>
+            </div>
+        }
+        @if (ViewBag.error != null)
+        {
+            <div class="alert alert-danger">
+                <h3>
+                    @ViewBag.error
+
+                </h3>
+            </div>
+        }
+    </div>
+
+</body>
+
+<script type="text/javascript">
+     function onchangeLang()
+    {
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { Lang_ID: $("#Lang_ID").val() },
+                    url: '@Url.Action("GetPageTextPyID", "UIUXadminPanel")',
+                    success: function (data) {
+                        $('#ID').val(data.ID);
+                        $('#title_ID').val(data.title);
+                        $('#New_pages_ID').val(data.New_pages_ID);
+                        $('#Text_Description').val(data.Text_Description);
+                        $('#summernote').summernote('code', $("#Text_Description").val());
+                        $('#Image_Cover').val(data.Image_Cover);
+
+                    },
+                    error: function (response) {
+
+                        alert("There is a problem Can't Load Data" + response.error);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+    };
+
+    function Loadelanguage() {
+
+        $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+
+                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                success: function (data) {
+
+                    var s = '<option value="-1">Select Language</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                    }
+                    $("#Lang_ID").html(s);
+                },
+                error: function (response) {
+                    alert("there is a problem in supject " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+
+    $(document).ready(function () {
+        $('#summernote').summernote();
+
+        $('#summernote').on('summernote.change', function (we, e) {
+
+            var summernote = $("#summernote").summernote('code');
+            $('#Text_Description').val(summernote);
+            //console.log(summernote);
+
+        });
+    });
+</script>

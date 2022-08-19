@@ -1,0 +1,370 @@
+﻿@model IEnumerable<tabseetCourse.Models.CodeGeneratedModel>
+
+@{
+    ViewBag.Title = "CodeGenerated";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1> كود المنح</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<div class="card">
+    <div class="card-header">
+        <input type="button" value="اضافة " id="addNew" data-toggle="modal" data-target="#modal-lg" class="btn btn-success float-left">
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <table id="example1" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>مسندة إلى</th>
+                    <th>الكود</th>
+                    <th>العدد مسموح</th>
+                    <th>تاريخ الإنتهاء</th>
+
+                    <th> </th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ID</td>
+                        <td>@item.UserName</td>
+                        <td>@item.Code</td>
+                        <td>@item.Count</td>
+                        <td>@item.TimeEnd</td>
+
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-primary" onclick="Assinginfo(@item.ID)" data-toggle="modal" data-target="#Editmodal-lg">
+                                    <i class="fas fa-edit"></i>
+                                    تعديل
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>ID</th>
+                    <th>مسندة إلى</th>
+                    <th>الكود</th>
+                    <th>العدد مسموح</th>
+                    <th>تاريخ الإنتهاء</th>
+                    <th> </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="width:60%">
+            <div class="modal-header">
+                <h4 class="modal-title">إضافة كود منحة</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+            </div>
+            <div class="modal-body">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                <label>إسم المسند إلية</label><label style="color:darkred">*</label><br />
+                                <input type="text" id="UserName" onkeyup="validation()" class="form-control" />
+                                <input type="text" id="Code" disabled class="form-control" onchange="GenerateCoude()" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <label>توليد كود منحة</label><br />
+                                <input type="button" id="GenerateCoude" value="كود جديد" class="btn btn-primary" onclick="GenerateCoude()" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                <label>عدد الطلاب المسموح بهم</label>
+                                <input type="number" id="Count" class="form-control" onkeyup="validation()" />
+
+
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+
+                                <label>وقت انتهاء الكود</label>
+                                <input type="date" class="form-control" id="TimeEnd" onkeyup="validation()" />
+
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+
+
+
+
+            </div>
+
+            <div class="modal-footer">
+                <input type="button" class="btn btn-success" id="btnSave" value="حفظ" />
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<div class="modal fade" id="Editmodal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="width:60%">
+            <div class="modal-header">
+                <h4 class="modal-title">إضافة كود منحة</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+            </div>
+            <div class="modal-body">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                <label>إسم المسند إلية</label><label style="color:darkred">*</label><br />
+                                <input type="text" id="EUserName" onkeyup="validationUpdate()" class="form-control" />
+                                <input type="text" id="ECode" disabled class="form-control" onchange="GenerateCoude()" />
+                                <input type="hidden" id="EID" class="form-control" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <label>توليد كود منحة</label><br />
+                                <input type="button" id="EGenerateCoude" value="كود جديد" class="btn btn-primary" onclick="EGenerateCoude()" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                <label>عدد الطلاب المسموح بهم</label>
+                                <input type="number" id="ECount" class="form-control" onkeyup="validationUpdate()" />
+
+
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+
+                                <label>وقت انتهاء الكود</label>
+                                <input type="date" class="form-control" id="ETimeEnd" onkeyup="validationUpdate()" />
+
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <input type="button" class="btn btn-success" id="btnUpdate" value="حفظ" />
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+
+    $(function () {
+        document.getElementById("btnSave").disabled = true;
+        document.getElementById("btnUpdate").disabled = true;
+
+        $('#example1').DataTable({
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": true,
+            "responsive": true,
+            "buttons": ["copy", "excel",   "colvis"]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+    });
+
+
+
+    $('#btnSave').click(function () {
+        validation();
+        var fd = new FormData();
+
+        var Code = $("#Code").val();
+        var UserName = $("#UserName").val();
+        var Count = $("#Count").val();
+        var TimeEnd = $("#TimeEnd").val();
+
+        fd.UserName = UserName;
+        fd.Code = Code;
+        fd.Count = Count;
+        fd.TimeEnd = TimeEnd;
+        var dataJson = JSON.stringify(fd);
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                data: dataJson,
+                url: '@Url.Action("SaveCodeGenerated", "Controlpanel")',
+                success: function (data) {
+                    window.location.reload();
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+    $('#btnUpdate').click(function () {
+        validation();
+        var fd = new FormData();
+        var ID = $("#EID").val();
+        var Code = $("#ECode").val();
+        var UserName = $("#EUserName").val();
+        var Count = $("#ECount").val();
+        var TimeEnd = $("#ETimeEnd").val();
+        fd.ID = ID;
+        fd.UserName = UserName;
+        fd.Code = Code;
+        fd.Count = Count;
+        fd.TimeEnd = TimeEnd;
+        var dataJson = JSON.stringify(fd);
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                data: dataJson,
+                url: '@Url.Action("UpdateGeneratedCode", "Controlpanel")',
+                success: function (data) {
+                    window.location.reload();
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+    function GenerateCoude() {
+            $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                url: '@Url.Action("GenerateCode", "Controlpanel")',
+                    success: function (data) {
+                        $("#Code").val(data.response);
+                        validation();
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+                });
+    }
+       function EGenerateCoude() {
+            $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf=8',
+                url: '@Url.Action("GenerateCode", "Controlpanel")',
+                    success: function (data) {
+                        $("#ECode").val(data.response);
+                        validation();
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+                });
+    }
+    function Assinginfo(Id) {
+             $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                     data: {ID:Id},
+                url: '@Url.Action("GetGeneratedCodeByID", "Controlpanel")',
+                     success: function (data) {
+                         $("#EID").val(data.ID);
+                         $("#ECode").val(data.Code);
+                         $("#EUserName").val(data.UserName);
+                         $("#ECount").val(data.Count);
+                         $("#ETimeEnd").val(data.TimeEnd);
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+    function validation() {
+        var UserName = $("#UserName").val();
+        var Code = $("#Code").val();
+        if (UserName != "" && Code != "") {
+            document.getElementById("btnSave").disabled = false;
+        } else {
+            document.getElementById("btnSave").disabled = true;
+        }
+    }
+    function validationUpdate() {
+        var UserName = $("#EUserName").val();
+        var Code = $("#ECode").val();
+        if (UserName != "" && Code != "") {
+            document.getElementById("btnUpdate").disabled = false;
+        } else {
+            document.getElementById("btnUpdate").disabled = true;
+        }
+    }
+
+</script>

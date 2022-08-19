@@ -1,0 +1,1164 @@
+﻿@model IEnumerable<tabseetCourse.Models.CategoryModel>
+
+@{
+    //ViewBag.Title = "categoriesUIUX";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var viewModel = (tabseetCourse.Models.UserModel)ViewBag._UsermodelModel;
+}
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<!-- Theme style -->
+<link rel="stylesheet" href="~/Content/dist/css/adminlte.min.css">
+@*<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>*@
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+
+
+
+    .spanner {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        background: #2a2a2a55;
+        width: 100%;
+        display: block;
+        text-align: center;
+        height: 300px;
+        color: #FFF;
+        transform: translateY(-50%);
+        z-index: 1000;
+        visibility: hidden;
+    }
+
+    .overlay {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        visibility: hidden;
+    }
+
+    .loader,
+    .loader:before,
+    .loader:after {
+        border-radius: 50%;
+        width: 2.5em;
+        height: 2.5em;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+        -webkit-animation: load7 1.8s infinite ease-in-out;
+        animation: load7 1.8s infinite ease-in-out;
+    }
+
+    .loader {
+        color: #ffffff;
+        font-size: 10px;
+        margin: 400px auto;
+        position: relative;
+        text-indent: -9999em;
+        -webkit-transform: translateZ(0);
+        -ms-transform: translateZ(0);
+        transform: translateZ(0);
+        -webkit-animation-delay: -0.16s;
+        animation-delay: -0.16s;
+    }
+
+        .loader:before,
+        .loader:after {
+            content: '';
+            position: absolute;
+            top: 0;
+        }
+
+        .loader:before {
+            left: -3.5em;
+            -webkit-animation-delay: -0.32s;
+            animation-delay: -0.32s;
+        }
+
+        .loader:after {
+            left: 3.5em;
+        }
+
+    @@-webkit-keyframes load7 {
+        0%,
+        80%,
+        100% {
+            box-shadow: 0 2.5em 0 -1.3em;
+        }
+
+        40% {
+            box-shadow: 0 2.5em 0 0;
+        }
+    }
+
+    @@keyframes load7 {
+        0%,
+        80%,
+        100% {
+            box-shadow: 0 2.5em 0 -1.3em;
+        }
+
+        40% {
+            box-shadow: 0 2.5em 0 0;
+        }
+    }
+
+    .show {
+        visibility: visible;
+    }
+
+    .spanner, .overlay {
+        opacity: 0;
+        -webkit-transition: all 0.3s;
+        -moz-transition: all 0.3s;
+        transition: all 0.3s;
+    }
+
+        .spanner.show, .overlay.show {
+            opacity: 1;
+            z-index: 999999;
+            height: 100%;
+        }
+</style>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1> الفئات</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<div class="card">
+    <div class="card-header">
+        @if (viewModel != null && viewModel.L_role.Count > 0)
+        {
+            foreach (var item in viewModel.L_role)
+            {
+                if (item.RoleName == "Admin" || item.RoleName == "CategoriesView")
+                {
+                    <input type="button" value="اضافة فئة جديد" id="addNew" data-toggle="modal" data-target="#modal-lg" class="btn btn-success float-left">
+                    break;
+                }
+            }
+        }
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <table id="example1" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>الاسم</th>
+                    <th>Name</th>
+                    <th>الفئة</th>
+                    <th>تابعة ل</th>
+                    <th>مدفوعة</th>
+                    <th>قيمة الدفعة</th>
+                    <th>متاح للتسجيل</th>
+
+                    <th> </th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ID</td>
+                        <td>@item.NameAr</td>
+                        <td>@item.NameEn</td>
+                        <td>@item.CategoryTypeName</td>
+                        <td>@item.ParentCategoryName</td>
+
+
+                        @if (item.IsPayed == 0)
+                        {
+                            <td>
+                                مجانية
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                مدفوعة
+                            </td>
+                        }
+                        <td>@item.PayedValue</td>
+
+                        @if (item.CanRegister == 1)
+                        {
+                            <td>
+                                نعم
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                لا
+                            </td>
+                        }
+                        <td>
+                            <div class="btn-group">
+                                @if (viewModel != null && viewModel.L_role.Count > 0)
+                                {
+                                    foreach (var item2 in viewModel.L_role)
+                                    {
+                                        if (item2.RoleName == "Admin" || item2.RoleName == "CategoriesEdit")
+                                        {
+                                            <button class="btn btn-info" onclick="GetCategoryByID(@item.ID)" data-toggle="modal" data-target="#EditModal">
+                                                <i class="fas fa-edit">
+                                                </i>
+                                                تعديل
+                                            </button>
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                @if (viewModel != null && viewModel.L_role.Count > 0)
+                                {
+                                    foreach (var item2 in viewModel.L_role)
+                                    {
+                                        if (item2.RoleName == "Admin" || item2.RoleName == "CategoriesDelete")
+                                        {
+                                            <button class="btn btn-danger" onclick="btnDelete(@item.ID)">
+                                                <i class="fas fa-trash">
+                                                </i>
+                                                حذف
+                                            </button>
+                                            break;
+                                        }
+                                    }
+                                }
+                                @if (viewModel != null && viewModel.L_role.Count > 0)
+                                {
+                                    foreach (var item2 in viewModel.L_role)
+                                    {
+                                        if (item2.RoleName == "Admin" || item2.RoleName == "LectureView" || item2.RoleName == "LectureDelete" || item2.RoleName == "LectureEdit")
+                                        {
+                                            <button class="btn btn-primary" onclick="location.href='@Url.Action("LecturesByCategory", "Controlpanel",new {Category_ID= item.ID , categoryName= item.NameAr })'">
+                                                <i class="nav-icon fas fa-book">
+                                                </i>
+                                                المحاضرات
+                                            </button>
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                @if (item.exam_Name == null)
+                                {
+                                    if (viewModel != null && viewModel.L_role.Count > 0)
+                                    {
+                                        foreach (var item2 in viewModel.L_role)
+                                        {
+                                            if (item2.RoleName == "Admin" || item2.RoleName == "ExamView")
+                                            {
+                                                <button class="btn  btn-warning" onclick="location.href='@Url.Action("Exams", "Controlpanel", new { Category_ID = item.ID, categoryName = item.NameAr })'">
+
+                                                    <i class="nav-icon fas fa-file"></i>
+                                                    إضافة امتحان
+
+                                                </button>
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (viewModel != null && viewModel.L_role.Count > 0)
+                                    {
+                                        foreach (var item2 in viewModel.L_role)
+                                        {
+                                            if (item2.RoleName == "Admin" || item2.RoleName == "ExamEdit")
+                                            {
+                                                <button class="btn btn-default" onclick="location.href='@Url.Action("ViewExam", "Controlpanel", new { Category_ID = item.ID })'">
+
+                                                    <i class="nav-icon fas fa-file"></i>
+                                                    تعديل الامتحان
+
+                                                </button>
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+
+
+                            </div>
+                        </td>
+                    </tr>
+
+                }
+
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>ID</th>
+                    <th>الاسم</th>
+                    <th>Name</th>
+                    <th>الفئة</th>
+                    <th>تابعة ل</th>
+                    <th>مدفوعة</th>
+                    <th>قيمة الدفعة</th>
+                    <th>متاح للتسجيل</th>
+
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">إضافة فئة</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>اسم الفئة</label><label style="color:red">*</label>
+                                        <input type="text" id="NameAR_ID" class="form-control" onkeyup="validationAdd()" style="width:100%" placeholder="اسم الفئة" required />
+                                        <span id="reqNameAR_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" id="NameEN_ID" class="form-control" style="width:100%" placeholder="Name" required />
+                                        <span id="reqNameEN_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>نوع الفئة</label><label style="color:red">*</label>
+                                        <select id="Type_ID" class="form-control" onchange="TypeChange(this.value)" required>
+                                        </select>
+                                        <span id="reqType_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group" id="categoryDiv_ID">
+                                        <label>الفئة التابعة لها</label>
+                                        <select id="Categories_ID" class="form-control" required>
+                                        </select>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>متاحة للتسجيل</label><label style="color:red; text-align:center;">*</label>
+                                        <input type="checkbox" id="CanRegister" class="form-control" style="color:red" required checked="checked" />
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group" id="TimeEndDiv">
+                                        <label>انتهاء وقت التسجيل</label>
+                                        <input type="date" id="timeEnd" onchange="validationAdd()" class="form-control" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group" id="IsPayedDIV">
+                                        <label>هل مدفوعة</label><label style="color:red">*</label>
+                                        <input type="checkbox" id="IsPayed_ID" class="form-control" required checked="checked" />
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group" id="PayedValueDIV_ID">
+                                        <label>قيمة الدفع</label><label style="color:red">*</label>
+                                        <input type="text" id="PayedValue_ID" value="0" onkeyup="validationAdd()" class="form-control" style="width:100%" required />
+
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label> الشهادة </label><label style="color:red">*</label>
+                                        <input type="file" id="UploadFile" name="FileImagePost" class="form-control" onchange="validationAdd()" style="width:100%" required accept="image/png, image/jpeg" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label> الإجازة</label>
+                                        <input type="file" id="UploadFileEN" name="FileImagePostEN" class="form-control" onchange="validationAdd()" style="width:100%" required accept="image/png, image/jpeg" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>ايقونة</label><label style="color:red">*</label>
+                                        <input type="file" id="UploadIconFile" name="FileIConPost" class="form-control" onchange="validationAdd()" style="width:100%" required accept="image/png, image/jpeg" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>محتوى</label>
+                                        <input type="file" id="UploadFilePost" name="UploadFilePost" class="form-control" onchange="validationAdd()" style="width:100%" required accept="image/jpeg,image/gif,image/png,application/pdf,image/x-eps" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="row" style="width:100%">
+                                <div class="form-group" style="width:100%">
+                                    <label>شرح بسيط</label>
+                                    <textarea style="width: 100%; direction: rtl;" id="discription_ID" class="form-control"></textarea>
+                                </div>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">الغاء</button>
+                <button type="button" class="btn btn-primary" id="btnSave">حفظ</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="EditModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">تحرير فئة</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>اسم الفئة</label><label style="color:red">*</label>
+                                        <input type="text" id="ENameAR_ID" class="text" onkeyup="validationEdit()" style="width:100%" placeholder="اسم الفئة" required />
+                                        <input type="text" id="EditID" hidden="hidden" />
+                                        @*<span id="reqNameAR_ID" style="color:red"></span>*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" id="ENameEN_ID" class="text" style="width:100%" placeholder="Name" required />
+                                        @*<span id="reqNameEN_ID" style="color:red"></span>*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>نوع الفئة</label><label style="color:red">*</label>
+                                        <select id="EType_ID" class="form-control" onkeyup="validationEdit()" onchange="TypeChange(this.value)" required>
+                                        </select>
+                                        <span id="reqType_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12" id="EcategoryDiv_ID">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>الفئة التابعة لها</label>
+                                        <select id="ECategories_ID" class="form-control" required>
+                                        </select>
+                                        <span id="reqCategory_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>متاحة للتسجيل</label><label style="color:red; text-align:center;">*</label>
+                                        <input type="checkbox" id="ECanRegister" class="form-control" style="color:red" required checked="checked" />
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group" id="ETimeEndDiv">
+                                        <label>انتهاء وقت الدورة</label>
+                                        <input type="date" id="EtimeEnd" onchange="validationEdit()" class="form-control" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group" id="EIsPayedDIV_ID">
+                                        <label>هل مدفوعة</label><label style="color:red">*</label>
+                                        <input type="checkbox" id="EIsPayed_ID" class="form-control" required />
+                                        <span id="reqNameEN_ID" style="color:red"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group" id="EPayedValueDIV_ID">
+                                        <label>قيمة الدفع</label>
+                                        <input type="text" id="EPayedValue_ID" value="0" class="form-control" style="width:100%" required />
+                                        <span id="reqCategory_ID" style="color:red"></span>
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>الشهادة</label><label style="color:red">*</label>
+                                        <input type="file" id="EUploadFile" name="FileImagePost" onchange="validationEdit()" class="form-control" style="width:100%" required accept="image/png, image/jpeg" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>الإجازة</label>
+                                        <input type="file" id="EUploadFileEN" name="FileImagePost" onchange="validationEdit()" class="form-control" style="width:100%" required accept="image/png, image/jpeg" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>ايقونة</label><label style="color:red">*</label>
+                                        <input type="file" id="EUploadIconFile" name="FileIConPost" class="form-control" onchange="validationAdd()" style="width:100%" required accept="image/png, image/jpeg" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>محتوى</label>
+                                        <input type="file" id="EUploadFilePost" name="EUploadFilePost" class="form-control" onchange="validationAdd()" style="width:100%" required accept="image/jpeg,image/gif,image/png,application/pdf,image/x-eps" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="row" style="width:100%">
+                                <div class="form-group" style="width:100%">
+                                    <label>شرح بسيط</label>
+                                    <textarea style="width: 100%; direction: rtl;" id="Ediscription_ID" class="form-control"></textarea>
+                                </div>
+
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">الغاء</button>
+                <button type="button" class="btn btn-primary" id="btnUpdate">تعديل</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<!-- /.card -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+@*<script src="~/Content/plugins/jquery/jquery.min.js"></script>*@
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="~/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+
+<script src="~/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="~/Content/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+<!-- AdminLTE App -->
+<script src="~/Content/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/Content/dist/js/demo.js"></script>
+
+<!-- Page specific script -->
+<script>
+    $(document).ready(function () {
+        document.getElementById("btnSave").disabled = true;
+        document.getElementById("btnUpdate").disabled = true;
+
+
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+
+                url: '@Url.Action("GetAllCategoryType", "Controlpanel")',
+                success: function (data) {
+                    var s = '<option value=0> Select Type </option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].NameAR + '</option>';
+                    }
+                    $("#Type_ID").html(s);
+                    $("#EType_ID").html(s);
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+    function validationAdd() {
+        var NameAR_ID = $("#NameAR_ID").val();
+        var UploadFile = $("#UploadFile").val();
+        var Type_ID = $("#Type_ID").val();
+        if (NameAR_ID != "" && UploadFile != "" && Type_ID!=0) {
+            document.getElementById("btnSave").disabled = false;
+        } else
+            document.getElementById("btnSave").disabled = true;
+    }
+
+    function validationEdit() {
+        var NameAR_ID = $("#ENameAR_ID").val();
+        //var UploadFile = $("#EUploadFile").val();
+        var Type_ID = $("#EType_ID").val();
+        console.log("Type_ID" + Type_ID);
+        console.log("NameAR_ID;" + NameAR_ID);
+        if (NameAR_ID != ""   && Type_ID != 0) {
+            document.getElementById("btnUpdate").disabled = false;
+        } else
+            document.getElementById("btnUpdate").disabled = true;
+    }
+
+    $(function () {
+        $('#example1').DataTable({
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": true,
+            "responsive": true,
+            "buttons": ["copy", /*"csv",*/ "excel",   "colvis"]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+    });
+
+    const checkbox = document.getElementById('IsPayed_ID');
+
+    checkbox.addEventListener('change', (event) => {
+        if (event.currentTarget.checked) {
+            $("#PayedValueDIV_ID").show();
+            $("#IsPayed_ID").val(1);
+        } else {
+            $("#PayedValueDIV_ID").hide();
+            $("#IsPayed_ID").val(0);
+        }
+    });
+    const Echeckbox = document.getElementById('EIsPayed_ID');
+    Echeckbox.addEventListener('change', (event) => {
+        if (event.currentTarget.checked) {
+            $("#EPayedValueDIV_ID").show();
+            $("#EIsPayed_ID").val(1);
+        } else {
+            $("#EPayedValueDIV_ID").hide();
+            $("#EIsPayed_ID").val(0);
+        }
+    });
+
+    $('#btnSave').click(function () {
+
+        validationAdd();
+        var fd = new FormData();
+
+        var NameAR_ID = $("#NameAR_ID").val();
+        var NameEN_ID = $("#NameEN_ID").val();
+        var Type_ID = $("#Type_ID").val();
+        var timeEnd = $("#timeEnd").val();
+        var discription_ID = $("#discription_ID").val();
+
+        var ispayed = document.getElementById('IsPayed_ID').checked;
+        var IsPayed_ID = 0;
+        if (ispayed == true) {
+             IsPayed_ID = 1;
+        } else {
+             IsPayed_ID = 0;
+        }
+        var CanRegister = document.getElementById('CanRegister').checked;
+        var CanRegister_ID = 1;
+        if (CanRegister == false) {
+            CanRegister_ID = 0;
+        } else {
+            CanRegister_ID = 1;
+        }
+
+
+        var PayedValue_ID = $("#PayedValue_ID").val();
+        var Categories_ID = $("#Categories_ID").val();
+        var PCImage_ID = $('#UploadFile')[0].files[0];
+        var PCImage_IDEN = $('#UploadFileEN')[0].files[0];
+
+        var UploadIconFile = $('#UploadIconFile')[0].files[0];
+        var UploadFilePost = $('#UploadFilePost')[0].files[0];
+
+        fd.append("NameAR",NameAR_ID);
+        fd.append("NameEN", NameEN_ID);
+        fd.append("CategoryType_ID",Type_ID);
+        fd.append("IsPayed",IsPayed_ID);
+        fd.append("PayedValue",PayedValue_ID);
+        fd.append("ParentCateogry_ID",Categories_ID);
+        fd.append("FileImagePost", PCImage_ID);
+        fd.append("FileImagePost_EN", PCImage_IDEN);
+        fd.append("timeEnd", timeEnd);
+        fd.append("CanRegister", CanRegister_ID);
+
+        fd.append("UploadIcon", UploadIconFile);
+        fd.append("UploadDocumentBook", UploadFilePost);
+        fd.append("Description", discription_ID);
+        //var dataJson = JSON.stringify(fd);
+        $("div.spanner").addClass("show");
+        $("div.overlay").addClass("show");
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: fd,
+                contentType: false,
+                processData: false,
+                url: '@Url.Action("CreateCategories", "Controlpanel")',
+                success: function (data) {
+                    $("div.spanner").addClass("hide");
+                    $("div.overlay").addClass("hide");
+                    window.location.reload();
+                },
+                error: function (response) {
+
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    $("div.spanner").addClass("hide");
+                    $("div.overlay").addClass("hide");
+                }
+            });
+    });
+    $('#btnUpdate').click(function () {
+        validationAdd();
+        var fd = new FormData();
+
+        var EditID = $("#EditID").val();
+        var ENameAR_ID = $("#ENameAR_ID").val();
+        var ENameEN_ID = $("#ENameEN_ID").val();
+        var EType_ID = $("#EType_ID").val();
+        var ECategories_ID = $("#ECategories_ID").val();
+        var timeEnd = $("#EtimeEnd").val();
+        var ispayed = document.getElementById('EIsPayed_ID').checked;
+        if (ispayed == true) {
+            var EIsPayed_ID = 1;
+        } else {
+            var EIsPayed_ID = 0;
+        }
+        var CanRegister = document.getElementById('ECanRegister').checked;
+        var CanRegister_ID = 1;
+        if (CanRegister == false) {
+            CanRegister_ID = 0;
+        } else {
+            CanRegister_ID = 1;
+        }
+        var EPayedValue_ID = $("#EPayedValue_ID").val();
+
+        var PCImage_ID = $('#EUploadFile')[0].files[0];
+        var PCImage_IDEN = $('#EUploadFileEN')[0].files[0];
+        var UploadIconFile = $('#EUploadIconFile')[0].files[0];
+        var UploadFilePost = $('#EUploadFilePost')[0].files[0];
+        var discription_ID = $("#Ediscription_ID").val();
+        fd.append("ID",EditID);
+        fd.append("NameAR", ENameAR_ID);
+        fd.append("NameEN", ENameEN_ID);
+        fd.append("CategoryType_ID", EType_ID);
+        fd.append("IsPayed", EIsPayed_ID);
+        fd.append("PayedValue", EPayedValue_ID);
+        fd.append("ParentCateogry_ID", ECategories_ID);
+        fd.append("FileImagePost", PCImage_ID);
+        fd.append("FileImagePost_EN", PCImage_IDEN);
+        fd.append("timeEnd", timeEnd);
+        fd.append("CanRegister", CanRegister_ID);
+        fd.append("UploadIcon", UploadIconFile);
+        fd.append("UploadDocumentBook", UploadFilePost);
+        fd.append("Description", discription_ID);
+        $("div.spanner").addClass("show");
+        $("div.overlay").addClass("show");
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: fd,
+                contentType: false,
+                processData: false,
+                url: '@Url.Action("EditeCategories", "Controlpanel")',
+                success: function (data) {
+                    $("div.spanner").addClass("hide");
+                    $("div.overlay").addClass("hide");
+                    window.location.reload();
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    $("div.spanner").addClass("hide");
+                    $("div.overlay").addClass("hide");
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+    function GetCategoryByID(categoryID) {
+
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { catID: categoryID },
+                url: '@Url.Action("EditCategorie", "Controlpanel")',
+                success: function (data) {
+                    TypeChange(data.CategoryType_ID);
+                    $("#EditID").val(data.ID);
+                    $("#ENameAR_ID").val(data.NameAr);
+                    $("#ENameEN_ID").val(data.NameEn);
+                    $("#Ediscription_ID").val(data.Description);
+
+                    if (data.IsPayed == 1) {
+                        $("#EIsPayed_ID").val(1);
+                        $("#EPayedValueDIV_ID").show();
+                        $("#EIsPayed_ID").val(1);
+                        $("#EIsPayed_ID").prop("checked", true);
+
+                    } else {
+                        $("#EIsPayed_ID").val(0);
+                        $("#EPayedValueDIV_ID").show();
+                        $("#EIsPayed_ID").val(0);
+                        $("#EIsPayed_ID").prop("checked", false);
+
+                    }
+                    if (data.CanRegister == 1) {
+
+                        $("#ECanRegister").prop("checked", true);
+                    } else {
+                        $("#ECanRegister").prop("checked", false);
+                    }
+                    $("#EtimeEnd").val(data.timeEnd);
+                    $("#EType_ID").val(data.CategoryType_ID);
+                    $("#ECategories_ID").val(data.ParentCateogry_ID);
+
+                    $("#EPayedValue_ID").val(data.PayedValue);
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+    function btnDelete(ID) {
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            });
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to delete this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete it!',
+            cancelButtonText: 'Cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax(
+                    {
+                        async: true,
+                        type: 'POST',
+                        //dataType: 'JSON',
+                        //contentType: 'application/json; charset=utf=8',
+                        data: { Categories_ID: ID },
+                        url: '@Url.Action("DeleteCategories", "Controlpanel")',
+                        success: function (data) {
+                            swalWithBootstrapButtons.fire(
+                                'Deleted!',
+                                'Your file has been deleted.',
+                                'success'
+                            ).then(function () { window.location.reload(); })
+
+                        },
+                        error: function (response) {
+                            swalWithBootstrapButtons.fire(
+                                'Filed',
+                                response.responseText+' :)',
+                                'error'
+                            )
+                        },
+                        complete: function (response) {
+                            //alert("finish call jasion " + response);
+                        }
+                    });
+
+            } else if (
+                /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+            ) {
+                swalWithBootstrapButtons.fire(
+                    'Cancelled',
+                    'Your  file is safe :)',
+                    'error'
+                )
+            }
+        })
+
+    }
+
+    function TypeChange(Type_ID) {
+        validationAdd();
+
+
+            $.ajax(
+                {
+                    async: true,
+                    type: 'POST',
+                    data: { type: Type_ID },
+                    url: '@Url.Action("GetCategoriesByType", "Controlpanel")',
+                    success: function (data) {
+                        if (data.length > 0) {
+                            var s = '<option> Select Type </option>';
+                            for (var i = 0; i < data.length; i++) {
+                                s += '<option value="' + data[i].ID + '">' + data[i].NameAr + '</option>';
+                            }
+                            $("#Categories_ID").html(s);
+                            $("#ECategories_ID").html(s);
+                            $("#categoryDiv_ID").show();
+                            $("#EcategoryDiv_ID").show();
+                        } else {
+                            $("#categoryDiv_ID").hide();
+                            $("#EcategoryDiv_ID").hide();
+                            $("#Categories_ID").html("");
+                            $("#ECategories_ID").html("");
+                        }
+
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response.responseText);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+
+    }
+
+
+    const canRegcheck = document.getElementById('CanRegister');
+    canRegcheck.addEventListener('change', (event) => {
+        if (event.currentTarget.checked) {
+            $('#TimeEndDiv').show();
+            $('#IsPayedDIV').show();
+            $('#PayedValueDIV_ID').show();
+        } else {
+            $('#TimeEndDiv').hide();
+            $('#IsPayedDIV').hide();
+            $('#PayedValueDIV_ID').hide();
+        }
+    });
+
+    const EcanRegcheck = document.getElementById('ECanRegister');
+    EcanRegcheck.addEventListener('change', (event) => {
+        if (event.currentTarget.checked) {
+            $('#ETimeEndDiv').show();
+            $('#EIsPayedDIV_ID').show();
+            $('#EPayedValueDIV_ID').show();
+        } else {
+            $('#ETimeEndDiv').hide();
+            $('#EIsPayedDIV_ID').hide();
+            $('#EPayedValueDIV_ID').hide();
+        }
+    });
+
+
+
+</script>
