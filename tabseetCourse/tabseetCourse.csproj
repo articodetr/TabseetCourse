@@ -9128,11 +9128,27 @@
     <Content Include="Views\Students\AssignmentQuestion.cshtml" />
     <Content Include="Views\Students\Exams.cshtml" />
     <Content Include="Views\Students\Certfications.cshtml" />
+    <Content Include="Views\Teacher\TeacherCourse.cshtml" />
+    <Content Include="Views\Teacher\TeacherCoursestd.cshtml" />
+    <Content Include="Views\Teacher\LecturesByCategoryStudend.cshtml" />
+    <Content Include="Views\Teacher\StdonlineCourse.cshtml" />
+    <Content Include="Views\Teacher\AddAssignment.cshtml" />
+    <Content Include="Views\Teacher\ViewAssingment.cshtml" />
+    <Content Include="Views\Teacher\ExamsTeacher.cshtml" />
+    <Content Include="Views\Teacher\ViewExamTeacher.cshtml" />
+    <Content Include="Views\Teacher\QuestionBankTeacher.cshtml" />
+    <Content Include="Views\Teacher\CreateTruOrFalseQuestion.cshtml" />
+    <Content Include="Views\Teacher\CreateMultiChoiseQusetion.cshtml" />
+    <Content Include="Views\Teacher\GoToEditSutableQuestion.cshtml" />
+    <Content Include="Views\Teacher\EditTrueOrFalse.cshtml" />
+    <Content Include="Views\Teacher\EditMultyChoise.cshtml" />
+    <Content Include="Views\Teacher\CreateMatchingChoiseQuestionTeacher.cshtml" />
+    <Content Include="Views\Teacher\EditeMatchingTeacher.cshtml" />
+    <Content Include="Views\Teacher\TecPersonalInfo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Uploade\Images\" />
-    <Folder Include="Views\Teacher\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

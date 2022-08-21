@@ -1,0 +1,295 @@
+﻿
+@{
+    ViewBag.Title = "TecPersonalInfo";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<input type="hidden" id="STD_ID" value="@Model.ID" />
+<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>معلومات المدرس</h1>
+            </div>
+            @*<div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">User Profile</li>
+                    </ol>
+                </div>*@
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+
+                <!-- Profile Image -->
+                <div class="card card-primary card-outline">
+                    <div class="card-body box-profile">
+                        <div class="text-center">
+                            <img class="profile-user-img img-fluid img-circle" id="output"
+                                 src="~/Uploade/Images/@Model.Per_Photo" ;
+                                 alt="User profile picture">
+                        </div>
+
+                        <h3 class="profile-username text-center">@Model.RealName</h3>
+
+                        @*<p class="text-muted text-center">Software Engineer</p>*@
+
+                        @*<ul class="list-group list-group-unbordered mb-3">
+                                <li class="list-group-item">
+                                    <b>Followers</b> <a class="float-right">1,322</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>Following</b> <a class="float-right">543</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>Friends</b> <a class="float-right">13,287</a>
+                                </li>
+                            </ul>
+
+                            <a href="#" class="btn btn-primary btn-block"><b>Follow</b></a>*@
+                    </div>
+
+                    <!-- /.card-body -->
+                </div>
+                <div class="form-group row">
+                    <div class="offset-sm-2 col-sm-10">
+                        <input type="file" class="btn btn-info" id="UploadPhoto" value="رفع صورة جديدة" accept="image/*" onchange="loadFile(event)" />
+                    </div>
+                </div>
+                <!-- /.card -->
+                <!-- About Me Box -->
+                <!--<div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">About Me</h3>
+                </div>-->
+                <!-- /.card-header -->
+                <!--<div class="card-body">
+                    <strong><i class="fas fa-book mr-1"></i> Education</strong>
+
+                    <p class="text-muted">
+                        B.S. in Computer Science from the University of Tennessee at Knoxville
+                    </p>
+
+                    <hr>
+
+                    <strong><i class="fas fa-map-marker-alt mr-1"></i> Location</strong>
+
+                    <p class="text-muted">Malibu, California</p>
+
+                    <hr>
+
+                    <strong><i class="fas fa-pencil-alt mr-1"></i> Skills</strong>
+
+                    <p class="text-muted">
+                        <span class="tag tag-danger">UI Design</span>
+                        <span class="tag tag-success">Coding</span>
+                        <span class="tag tag-info">Javascript</span>
+                        <span class="tag tag-warning">PHP</span>
+                        <span class="tag tag-primary">Node.js</span>
+                    </p>
+
+                    <hr>
+
+                    <strong><i class="far fa-file-alt mr-1"></i> Notes</strong>
+
+                    <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam fermentum enim neque.</p>
+                </div>-->
+                <!-- /.card-body -->
+                <!--</div>-->
+                <!-- /.card -->
+            </div>
+            <!-- /.col -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header p-2">
+                        <ul class="nav nav-pills">
+                            <li class="nav-item"><a class="nav-link active" href="#InFo" data-toggle="tab">معلومات</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#Education" data-toggle="tab">التخصص</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#activity" data-toggle="tab">الخبرات أو المهارات</a></li>
+                        </ul>
+                    </div><!-- /.card-header -->
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <div class="tab-pane" id="activity">
+                                <input type="text" class="summernote" id="activity_ID" />
+                                <input type="text" hidden class="form-control" id="Activity_hidden" value="@Model.Experience" />
+                                <!-- /.post -->
+                            </div>
+                            <!-- /.tab-pane -->
+                            <div class="tab-pane" id="Education">
+                                <!-- The timeline -->
+                                <input type="text" class="summernote" id="Education_ID" />
+                                <input type="text" hidden class="form-control" id="Education_hidden" value="@Model.Education" />
+                            </div>
+                            <!-- /.tab-pane -->
+
+                            <div class="tab-pane active" id="InFo">
+                                <form class="form-horizontal">
+                                    <div class="form-group row">
+                                        <label for="RealName" class="col-sm-2 col-form-label">الإسم بلكامل</label>
+                                        <div class="col-sm-10">
+                                            <input type="email" class="form-control" id="RealName" value="@Model.RealName" placeholder="الإسم بلكامل">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="Email" class="col-sm-2 col-form-label">البريد الإلكتروني</label>
+                                        <div class="col-sm-10">
+                                            <input type="email" class="form-control" id="Email" value="@Model.Email" placeholder="البريد الإلكتروني">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="PhoneNumber" class="col-sm-2 col-form-label">رقم الهاتف</label>
+                                        <div class="col-sm-10">
+                                            <input type="number" class="form-control" id="PhoneNumber" value="@Model.PhoneNumber" placeholder="رقم الهاتف" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="Location" class="col-sm-2 col-form-label">مكان الإقامة</label>
+                                        <div class="col-sm-10">
+                                            <textarea class="form-control" id="Location" value="@Model.Location" placeholder="مكان الإقامة">@Model.Location</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="Location" class="col-sm-2 col-form-label">كلمة المرور</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="Password_ID" value="@Model.Password" placeholder="كلمة المرور" />
+                                        </div>
+                                    </div>
+                                    @*<div class="form-group row">
+                                            <div class="offset-sm-2 col-sm-10">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox"> I agree to the <a href="#">terms and conditions</a>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>*@
+
+                                </form>
+                            </div>
+                            <!-- /.tab-pane -->
+                        </div>
+                        <!-- /.tab-content -->
+                    </div><!-- /.card-body -->
+                    <div class="form-group row">
+                        <div class="offset-sm-2 col-sm-10">
+                            <button type="button" class="btn btn-danger" onclick="BtnSaveInFo()">حفظ</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+<script src="~/Content/plugins/jquery/jquery.min.js"></script>
+<script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#Education_ID').summernote();
+        $('#activity_ID').summernote();
+        $('#Education_ID').on('summernote.change', function (we, e) {
+
+            var summernote = $("#Education_ID").summernote('code');
+
+            $('#Education_hidden').val(summernote);;
+            //console.log(summernote);
+        });
+        $('#activity_ID').on('summernote.change', function (we, e) {
+
+            var summernote = $("#activity_ID").summernote('code');
+
+            $('#Activity_hidden').val(summernote);;
+            //console.log(summernote);
+        });
+        var value = $('#Education_hidden').val();
+        var value1 = $('#Activity_hidden').val();
+
+        $("#Education_ID").summernote('code', value);
+        $("#activity_ID").summernote('code', value1);
+    });
+
+
+    var loadFile = function (event) {
+        var output = document.getElementById('output');
+        output.src = URL.createObjectURL(event.target.files[0]);
+        output.onload = function () {
+            URL.revokeObjectURL(output.src) // free memory
+        }
+    };
+
+     function BtnSaveInFo() {
+         const swalWithBootstrapButtons = Swal.mixin({
+             customClass: {
+                 confirmButton: 'btn btn-success',
+                 cancelButton: 'btn btn-danger'
+             },
+             buttonsStyling: false
+         });
+         var fd = new FormData();
+
+         var STD_ID = $('#STD_ID').val();
+        var Education = $('#Education_hidden').val();
+        var Experience = $('#Activity_hidden').val();
+        var RealName = $('#RealName').val();
+        var Email = $('#Email').val();
+        var PhoneNumber = $('#PhoneNumber').val();
+        var Location = $('#Location').val();
+        var Password = $('#Password_ID').val();
+         var PCImage_IDEN = $('#UploadPhoto')[0].files[0];
+         fd.append("ID", STD_ID);
+         fd.append("Education", Education);
+         fd.append("Experience", Experience);
+         fd.append("RealName", RealName);
+         fd.append("Email", Email);
+         fd.append("PhoneNumber", PhoneNumber);
+         fd.append("Location", Location);
+         fd.append("Password", Password);
+         fd.append("PersionImageFile", PCImage_IDEN);
+
+        $.ajax({
+            async: true,
+            type: 'POST',
+            data: fd,
+            contentType: false,
+            processData: false,
+
+                url: '@Url.Action("SaveInfo", "Teacher")',
+
+
+                success: function (result) {
+                    swalWithBootstrapButtons.fire(
+                        'تم الحفظ!',
+                        'تم تعديل معلومات الطالب.',
+                        'success'
+                    ).then(function () {
+
+
+                    });
+
+                },
+                error: function (response) {
+                    swalWithBootstrapButtons.fire(
+                        'Filed',
+                        response.responseText + ' :)',
+                        'error'
+                    )
+                },
+                complete: function (response) {
+                }
+            });
+    }
+</script>
+

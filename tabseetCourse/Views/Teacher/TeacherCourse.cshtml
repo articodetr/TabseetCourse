@@ -1,0 +1,139 @@
+﻿@model IEnumerable<tabseetCourse.Models.CategoryModel>
+
+@{
+    ViewBag.Title = "TeacherCourse";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1> الفئات</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<div class="card">
+    <div class="card-header">
+
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <table id="example1" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>الاسم</th>
+
+
+
+                    <th> </th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ID</td>
+                        <td>@item.NameAr</td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-info" onclick="window.location.href='@Url.Action("TeacherCoursestd", "Teacher", new { ID = @item.ID })'">
+                                    <i class="fas fa-edit">
+                                    </i>
+                                    الطلاب
+                                </button>
+                                <button class="btn btn-primary" onclick="location.href='@Url.Action("LecturesByCategoryStudend", "Teacher",new {Cat_ID= item.ID , categoryName= item.NameAr })'">
+                                    <i class="nav-icon fas fa-book">
+                                    </i>
+                                    المحاضرات
+                                </button>
+                                @if (item.exam_Name == null)
+                                {
+                                    <button class="btn  btn-warning" onclick="location.href='@Url.Action("ExamsTeacher", "Teacher", new { Category_ID = item.ID, categoryName = item.NameAr })'">
+
+                                        <i class="nav-icon fas fa-file"></i>
+                                        إضافة امتحان
+
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-default" onclick="location.href='@Url.Action("ViewExamTeacher", "Teacher", new { Category_ID = item.ID})'">
+
+                                        <i class="nav-icon fas fa-file"></i>
+                                        تعديل الإمتحان
+
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+
+                }
+
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>ID</th>
+                    <th>الاسم</th>
+
+
+
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+<!-- /.card -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="~/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+
+<script src="~/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
+<!-- Page specific script -->
+<script>
+
+    $(function () {
+        $('#example1').DataTable({
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": true,
+            "responsive": true,
+            "buttons": ["copy", /*"csv",*/ "excel", "pdf", "print", "colvis"]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+    });
+</script>
