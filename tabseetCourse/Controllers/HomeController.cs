@@ -1303,7 +1303,7 @@ namespace tabseetCourse.Controllers
                     if (value != null && value.Count > 0)
                     {
                         Response.StatusCode = (int)HttpStatusCode.OK;
-                        return Json(new { success = false, response = "انت بلفعل اخذت هذا الكورس" }, JsonRequestBehavior.AllowGet);
+                        return Json(new { success = false, response = "أنت بالفعل أخذت هذا الكورس" }, JsonRequestBehavior.AllowGet);
                     }
                     var category = dbEntity.Categories.Where(e => e.ID == course_ID || e.ParentCateogry_ID == course_ID).ToList();
                     foreach (var item in category)
