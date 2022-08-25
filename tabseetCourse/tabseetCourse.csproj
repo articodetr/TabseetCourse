@@ -456,6 +456,7 @@
     <Content Include="Content2\img\pr-1.jpg" />
     <Content Include="Content2\img\pr-2.jpg" />
     <Content Include="Content2\img\profile.jpg" />
+    <Content Include="Content2\img\Tbset logo with text2.png" />
     <Content Include="Content2\js\aos.js" />
     <Content Include="Content2\js\aos.min.js" />
     <Content Include="Content2\js\bootstrap-datepicker.min.js" />

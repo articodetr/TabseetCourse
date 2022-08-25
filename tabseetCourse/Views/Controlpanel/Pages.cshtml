@@ -4,144 +4,199 @@
     ViewBag.Title = "Pages";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-
+ 
+ 
 <div class="main-content">
     <div class="page-title">
         @if (Session["Language"] != null && Session["Language"].ToString() == "1")
         {
-            <div> Languages</div>
+            <div class="title"> Pages</div>
         }
         else
         {
-            <label>اللغات</label>
+            <div class="title"> صفحات</div>
         }
 
     </div>
-    <table class="table">
-        <tr>
-            <th>
-                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
-                {
-                    <label>Name</label>
-                }
-                else
-                {
-                    <label>الإسم</label>
-                }
-            </th>
-            <th>
-                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
-                {
-                    <label>Direction</label>
-                }
-                else
-                {
-                    <label>الإتجاه</label>
-                }
-            </th>
-            <th>
-                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
-                {
-                    <label>Default Languages</label>
-                }
-                else
-                {
-                    <label>اللغة الافتراضية</label>
-                }
-            </th>
+    <div class="card-body">
+        <table id="example1" class="table table-bordered table-hover">
 
-            <th></th>
-        </tr>
-
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DirectionName)
-                </td>
-                <td>
-                    @{
-                        if (item.DefultLang != 0)
+            <thead>
+                <tr>
+                    <th>
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
                         {
-                            <input type="radio" checked="checked" name="RadioDefualChecked" />
+                            <label>Page Name</label>
                         }
                         else
                         {
-                            <input type="radio" name="RadioDefualChecked" onchange="radioChange(@item.ID)" />
+                            <label>إسم الصفحة</label>
                         }
+                    </th>
+                    <th>
+                        <label>نوع الصفحة</label>
+                    </th>
+                    <th></th>
+                </tr>
+
+
+            </thead>
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.ActionLink(item.name, "GoPage", "Controlpanel", new { PageID = item.ID }, new { @class = "btn btn-info" })
+                            @*@Html.DisplayFor(modelItem => item.name)*@
+                        </td>
+                        <td>
+
+                            @if (item.Page_Type == 1)
+                            {
+                                <label>عن الاكاديمية</label>
+                            }
+                            else
+                    if (item.Page_Type == 2)
+                            {
+                                <label>تواصل معنا</label>
+                            }
+                            @if (item.Page_Type == 3)
+                            {
+                                <label>صفحة تابات افقية</label>
+                            }
+                            else
+                  if (item.Page_Type == 4)
+                            {
+                                <label>صفحة تابات عامودية</label>
+                            }
+                            @if (item.Page_Type == 5)
+                            {
+                                <label>صفحة نصية</label>
+                            }
+                            else
+                            if (item.Page_Type == 7)
+                            {
+                                <label>صفحة مربعات</label>
+                            }
+                        </td>
+                        @if (item.Page_Type != 8 && item.ID != 60 && item.ID != 57 && item.ID != 56)
+                        {
+
+                            <td>
+                                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                                {
+                                    <button type="button" class="btn btn-danger" onclick="DeleteItem(@item.ID)">Delete </button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-danger" onclick="DeleteItem(@item.ID)">حذف </button>
+                                }
+
+
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+
+                    </tr>
+                }
+            </tbody>
+            <tr   id="CreateNew" style="display:none">
+                <td>
+                    @*<label for="Item Name">Item name</label>*@
+                    <input type="text" placeholder="Item Name" id="TxtItemName" />
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <select id="CB_ID">
+                            <option value="-1">Select Options</option>
+                            <option value="1">About Us</option>
+                            <option value="2">Contact US</option>
+                            <option value="3">Horizontal tape</option>
+                            <option value="4">vertical tape</option>
+                            <option value="5">Page Text</option>
+                            <option value="7">Grid Page</option>
+
+                        </select>
+                    }
+                    else
+                    {
+                        <select id="CB_ID">
+                            <option value="-1">نوع الصفحة</option>
+                            <option value="1">عن الاكاديمية</option>
+                            <option value="2">تواصل معنا</option>
+                            <option value="3">صفحة تابات افقية</option>
+                            <option value="4">صفحة تابات عامودية</option>
+                            <option value="5">صفحة نصية</option>
+                            <option value="7">صفحة مربعات</option>
+
+                        </select>
                     }
 
                 </td>
                 <td>
                     @if (Session["Language"] != null && Session["Language"].ToString() == "1")
                     {
-                        <button type="button" class="btn btn-danger" onclick="DeleteItem(@item.ID)">Delete </button>
+                        <button type="button" class="btn btn-primary" onclick="Save()">Save</button>
                     }
                     else
                     {
-                        <button type="button" class="btn btn-danger" onclick="DeleteItem(@item.ID)">حذف </button>
+                        <button type="button" class="btn btn-primary" onclick="Save()">حفظ</button>
                     }
 
                 </td>
             </tr>
-        }
+        </table>
 
-        <tr hidden="hidden" id="CreateNew">
-            <td>
-                @*<label for="Item Name">Item name</label>*@
-                <input type="text" placeholder="Item Name" id="TxtItemName" />
-            </td>
-            <td>
-                <select id="CB_ID">
-                    <option value="0">Left</option>
-                    <option value="1">Right</option>
-                </select>
-            </td>
-            <td>
-                <input type="radio" id="DefualtLang" />
-            </td>
-            <td>
-                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
-                {
-                    <button type="button" class="btn btn-primary" onclick="Save()">Save</button>
-                }
-                else
-                {
-                    <button type="button" class="btn btn-primary" onclick="Save()">حفظ</button>
-                }
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-xs-12 m-b">
+                        <div class="demo-button">
+                            @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                            {
+                                <button type="button" class="btn btn-primary" onclick="Create()">Add Page</button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-primary" onclick="Create()">إضافة صفحة</button>
+                            }
 
-                @*<button type="button" class="btn btn-primary" onclick="Cleare()">Cleare</button>*@
-            </td>
-        </tr>
-    </table>
+                            @*<button type="button" class="btn btn-success" onclick="Save()">Save</button>*@
+                        </div>
 
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="row">
-                <div class="col-xs-12 m-b">
-                    <div class="demo-button">
-                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
-                        {
-                            <button type="button" class="btn btn-primary" onclick="Create()">Add Language</button>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn btn-primary" onclick="Create()">إضافة لغة</button>
-                        }
-
-                        @*<button type="button" class="btn btn-success" onclick="Save()">Save</button>*@
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script type="text/javascript">
+<!-- /.card -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="~/Content/plugins/jquery/jquery.min.js"></script>
+ 
+<script>
+    //$(document).ready(function () {
+    //    $.noConflict();
+    //    //Initialize Select2 Elements
+    //    $('#example1').DataTable({
+    //        "paging": true,
+    //        "lengthChange": true,
+    //        "searching": true,
+    //        "ordering": true,
+    //        "info": true,
+    //        "autoWidth": true,
+    //        "responsive": true,
+    //        "buttons": ["copy", /*"csv",*/ "excel", /*"pdf",*/ "print", "colvis"]
+    //    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    //});
+
 
         function Create() {
         $("#CreateNew").show();
@@ -157,10 +212,9 @@
                     type: 'POST',
                     //dataType: 'JSON',
                     //contentType: 'application/json; charset=utf=8',
+                    data: { pagesName: $("#TxtItemName").val(), pageType: $("#CB_ID").val() },
 
-                    data: { langName: $("#TxtItemName").val(), Deriction: $("#CB_ID").val() },
-
-                    url: '@Url.Action("Languages", "UIUXadminPanel")',
+                    url: '@Url.Action("Pages", "Controlpanel")',
                     success: function (result) {
 
                         location.reload(true);
@@ -168,16 +222,16 @@
                     },
                     error: function (response) {
 
-                        alert("There is a problem Can't Save");
+                        alert("the problem is " + response);
                     },
                     complete: function (response) {
                         //alert("finish call jasion " + response);
                     }
                 });
             $("#CreateNew").hide();
-    }
+        }
 
-        function DeleteItem(itemID)
+    function DeleteItem(itemID)
     {
         if (confirm("are you sure")) {
                       $.ajax(
@@ -189,7 +243,7 @@
                     //contentType: 'application/json; charset=utf=8',
                               data: { Page_ID: itemID },
 
-                    url: '@Url.Action("DeleteLanguage", "UIUXadminPanel")',
+                    url: '@Url.Action("DeletePage", "Controlpanel")',
                     success: function (result) {
 
                         location.reload(true);
@@ -197,7 +251,7 @@
                     },
                     error: function (response) {
 
-                        alert("Can't delete there is information associated with it");
+                        alert("the problem is " + response);
                     },
                     complete: function (response) {
                     }
@@ -209,32 +263,5 @@
         $("#CreateNew").hide();
     }
 
-    function radioChange(itemID)
-    {
-        //alert(itemID);
-           $.ajax(
-                {
-                    async: true,
 
-                    type: 'POST',
-                    //dataType: 'JSON',
-                    //contentType: 'application/json; charset=utf=8',
-
-                   data: { lang_ID: itemID },
-
-                    url: '@Url.Action("ChangeDefultLang", "UIUXadminPanel")',
-                    success: function (result) {
-
-                        location.reload(true);
-                        //window.location.reload();
-                    },
-                    error: function (response) {
-
-                        alert("There is a problem Can't Save");
-                    },
-                    complete: function (response) {
-                        //alert("finish call jasion " + response);
-                    }
-                });
-    }
 </script>

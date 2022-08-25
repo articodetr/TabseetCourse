@@ -86,7 +86,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     //data: { id: Exam_id },
 
-                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                     success: function (data) {
 
                         var s;
@@ -109,7 +109,7 @@
 
                     type: 'POST',
 
-                    url: '@Url.Action("GetAllPages", "UIUXadminPanel")',
+                    url: '@Url.Action("GetAllPages", "Controlpanel")',
                     success: function (data) {
 
                         var s;
@@ -141,7 +141,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     data: { fpm: $("#Page_ID").val()},
 
-                    url: '@Url.Action("FooterPage", "UIUXadminPanel")',
+                    url: '@Url.Action("FooterPage", "Controlpanel")',
                     success: function (result) {
 
                         location.reload(true);
@@ -170,7 +170,7 @@
                     //contentType: 'application/json; charset=utf=8',
                               data: { Footer_ID: itemID },
 
-                    url: '@Url.Action("DeleteFooter", "UIUXadminPanel")',
+                    url: '@Url.Action("DeleteFooter", "Controlpanel")',
                     success: function (result) {
 
                         location.reload(true);

@@ -20,14 +20,14 @@
             }
 
         </div>
-        @using (Html.BeginForm("ContactUsPage", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("ContactUsPage", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
 
             @Html.AntiForgeryToken()
 
             <div class="form-horizontal">
                 <hr />
-                <div class="form-group">
+                @*<div class="form-group">
                     <div class="col-md-10">
                         @if (Session["Language"] != null && Session["Language"].ToString() == "1")
                         {
@@ -42,7 +42,7 @@
                         <select id="Lang_ID" name="Lang_ID" onchange="onchangeLang()">
                         </select>
                     </div>
-                </div>
+                </div>*@
                 <div class="form-group ">
                     <div class="col-md-10">
                         @if (Session["Language"] != null && Session["Language"].ToString() == "1")
@@ -280,7 +280,7 @@
                     //dataType: 'JSON',
                     //contentType: 'application/json; charset=utf=8',
                     data: { LangID: $("#Lang_ID").val() },
-                    url: '@Url.Action("GetContactUsByLang", "UIUXadminPanel")',
+                    url: '@Url.Action("GetContactUsByLang", "Controlpanel")',
                     success: function (data) {
                         $('#ID').val(data.ID);
                         $('#title_ID').val(data.title);
@@ -318,7 +318,7 @@
 
                 type: 'POST',
 
-                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                 success: function (data) {
 
                     var s = '<option value="-1">Select Language</option>';

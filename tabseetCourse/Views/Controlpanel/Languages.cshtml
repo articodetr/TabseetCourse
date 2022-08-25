@@ -161,7 +161,7 @@
 
                     data: { langName: $("#TxtItemName").val(), Deriction: $("#CB_ID").val() },
 
-                    url: '@Url.Action("Languages", "UIUXadminPanel")',
+                    url: '@Url.Action("Languages", "Controlpanel")',
                     success: function (result) {
 
                         location.reload(true);
@@ -190,7 +190,7 @@
                     //contentType: 'application/json; charset=utf=8',
                               data: { Page_ID: itemID },
 
-                    url: '@Url.Action("DeleteLanguage", "UIUXadminPanel")',
+                    url: '@Url.Action("DeleteLanguage", "Controlpanel")',
                     success: function (result) {
 
                         location.reload(true);
@@ -223,7 +223,7 @@
 
                    data: { lang_ID: itemID },
 
-                    url: '@Url.Action("ChangeDefultLang", "UIUXadminPanel")',
+                    url: '@Url.Action("ChangeDefultLang", "Controlpanel")',
                     success: function (result) {
 
                         location.reload(true);

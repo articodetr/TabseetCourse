@@ -234,7 +234,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     //data: { id: Exam_id },
 
-                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                     success: function (data) {
 
                         var s = '<option value="-1">Select Languages</option>';
@@ -263,7 +263,7 @@
                 type: 'POST',
                 data: { Lang_ID: Lang, message: Messages },
 
-                url: '@Url.Action("SaveFastNews", "UIUXadminPanel")',
+                url: '@Url.Action("SaveFastNews", "Controlpanel")',
                 success: function (data) {
                     window.location.reload();
                 },
@@ -283,7 +283,7 @@
 
                 type: 'POST',
                 data: { ID: Id },
-                url: '@Url.Action("GetFastNews", "UIUXadminPanel")',
+                url: '@Url.Action("GetFastNews", "Controlpanel")',
                 success: function (data) {
                     $("#News_ID2").val(data.ID);
                     $("#Lang_ID2").val(data.Lang_ID);
@@ -309,7 +309,7 @@
                     type: 'POST',
                     data: { ID: id, Lang_ID: lang, message: description },
 
-                    url: '@Url.Action("EditFastNews", "UIUXadminPanel")',
+                    url: '@Url.Action("EditFastNews", "Controlpanel")',
                     success: function (data) {
 
                         window.location.reload();
@@ -335,7 +335,7 @@
                     type: 'POST',
                     data: { id: ID },
 
-                    url: '@Url.Action("DeleteFastNews", "UIUXadminPanel")',
+                    url: '@Url.Action("DeleteFastNews", "Controlpanel")',
                     success: function (data) {
 
                         window.location.reload();

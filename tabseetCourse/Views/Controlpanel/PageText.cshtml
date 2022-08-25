@@ -45,7 +45,7 @@
             }
 
         </div>
-        @using (Html.BeginForm("PageText", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("PageText", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
 
             @Html.AntiForgeryToken()
@@ -172,7 +172,7 @@
                     //dataType: 'JSON',
                     //contentType: 'application/json; charset=utf=8',
                     data: { Lang_ID: $("#Lang_ID").val() },
-                    url: '@Url.Action("GetPageTextPyID", "UIUXadminPanel")',
+                    url: '@Url.Action("GetPageTextPyID", "Controlpanel")',
                     success: function (data) {
                         $('#ID').val(data.ID);
                         $('#title_ID').val(data.title);
@@ -200,7 +200,7 @@
 
                 type: 'POST',
 
-                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                 success: function (data) {
 
                     var s = '<option value="-1">Select Language</option>';

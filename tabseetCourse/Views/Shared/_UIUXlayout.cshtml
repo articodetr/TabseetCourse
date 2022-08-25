@@ -100,77 +100,77 @@
                         </a>
                         <ul class="sub-menu">
                             @*<li>
-                                    <a href="@Url.Action("ChangeColor","UIUXadminPanel")">
+                                    <a href="@Url.Action("ChangeColor","Controlpanel")">
                                         <i class="icon-compass"></i>
                                         <span>الألوان</span>
                                     </a>
                                 </li>*@
                             <li>
-                                <a href="@Url.Action("Languages","UIUXadminPanel")">
+                                <a href="@Url.Action("Languages","Controlpanel")">
                                     <i class="icon-ban"></i>
                                     <span>اللغات</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="@Url.Action("Pages","UIUXadminPanel")">
+                                <a href="@Url.Action("Pages","Controlpanel")">
                                     <i class="icon-layers"></i>
                                     <span>الصفحات</span>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="@Url.Action("categories","UIUXadminPanel")">
+                                <a href="@Url.Action("categories","Controlpanel")">
                                     <i class="icon-bag"></i>
                                     <span>الدورات التدريبية</span>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="@Url.Action("News","UIUXadminPanel")">
+                                <a href="@Url.Action("News","Controlpanel")">
                                     <i class="icon-note"></i>
                                     <span>الأخبار و الأنشطة</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="@Url.Action("FastNews","UIUXadminPanel")">
+                                <a href="@Url.Action("FastNews","Controlpanel")">
                                     <i class="icon-note"></i>
                                     <span>الأخبار المباشرة</span>
                                 </a>
                             </li>
 
                             @*<li>
-                                    <a href="@Url.Action("socialmedia","UIUXadminPanel")">
+                                    <a href="@Url.Action("socialmedia","Controlpanel")">
                                         <i class="icon-social-dribbble"></i>
                                         <span>التواصل الاجتماعي</span>
                                     </a>
                                 </li>*@
                             <li>
-                                <a href="@Url.Action("Slider","UIUXadminPanel")">
+                                <a href="@Url.Action("Slider","Controlpanel")">
                                     <i class="icon-bag"></i>
                                     <span>سلايدر</span>
                                 </a>
                             </li>
                             @*<li>
-                                    <a href="@Url.Action("HomePage","UIUXadminPanel")">
+                                    <a href="@Url.Action("HomePage","Controlpanel")">
                                         <i class="icon-home"></i>
                                         <span>الصفحة الرئيسية</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="@Url.Action("Menu","UIUXadminPanel")">
+                                    <a href="@Url.Action("Menu","Controlpanel")">
                                         <i class="icon-arrow-up"></i>
                                         <span>القائمة</span>
                                     </a>
                                 </li>*@
                             @*<li>
-                                    <a href="@Url.Action("FooterPages","UIUXadminPanel")">
+                                    <a href="@Url.Action("FooterPages","Controlpanel")">
                                         <i class="icon-arrow-down"></i>
                                         <span>القائمة السفلية</span>
                                     </a>
                                 </li>*@
 
                             @*<li>
-                                    <a href="@Url.Action("LincesReg","UIUXadminPanel")">
+                                    <a href="@Url.Action("LincesReg","Controlpanel")">
                                         <i class="icon-bag"></i>
                                         <span>قائمة التسجيل</span>
                                     </a>
@@ -327,7 +327,7 @@
                       type: 'POST',
                       data: { lang_ID: value },
 
-                    url: '@Url.Action("SetLocalLang", "UIUXadminPanel")',
+                    url: '@Url.Action("SetLocalLang", "Controlpanel")',
                       success: function (data) {
                           window.location.reload(true);
 

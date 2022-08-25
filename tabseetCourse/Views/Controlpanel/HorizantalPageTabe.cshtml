@@ -5,34 +5,7 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-
-<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css" />
-<!-- Ionicons -->
-<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
-<!-- Tempusdominus Bbootstrap 4 -->
-<link rel="stylesheet" href="~/Content/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" />
-<!-- iCheck -->
-<link rel="stylesheet" href="~/Content/plugins/icheck-bootstrap/icheck-bootstrap.min.css" />
-<!-- overlayScrollbars -->
-<link rel="stylesheet" href="~/Content/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-
-
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-<!-- Font Awesome -->
-<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
-
-<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-<!-- Bootstrap 4 -->
-<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- Summernote -->
-<script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
-
-<!-- jQuery UI 1.11.4 -->
-<script src="~/Content/plugins/jquery-ui/jquery-ui.min.js"></script>
-<!-- Bootstrap 4 -->
-<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+ 
 <div class="main-content">
     <div class="page-title">
         @if (Session["Language"] != null && Session["Language"].ToString() == "1")
@@ -69,13 +42,13 @@
                 }
             </th>
 
-            <th class="hidden">
+            <th style="display:none">
                 @Html.DisplayNameFor(model => model.New_Page_ID)
             </th>
-            <th class="hidden">
+            <th style="display:none">
                 @Html.DisplayNameFor(model => model.page_H_V_tabe)
             </th>
-            <th class="hidden">
+            <th style="display:none">
                 @Html.DisplayNameFor(model => model.Image_Cover)
             </th>
 
@@ -92,14 +65,15 @@
                     @Html.DisplayFor(modelItem => item.Title)
                 </td>
 
-                <td class="hidden">
+                <td style="display:none" >
                     @Html.DisplayFor(modelItem => item.New_Page_ID)
                 </td>
-                <td class="hidden">
+                <td  style="display:none">
                     @Html.DisplayFor(modelItem => item.page_H_V_tabe)
                 </td>
-                <td class="hidden">
-                    @Html.DisplayFor(modelItem => item.Image_Cover)
+                <td  >
+                    <img src="~/Uploade/Images/@item.Image_Cover" width="250" height="100" />
+                    @*@Html.DisplayFor(modelItem => item.Image_Cover)*@
                 </td>
 
                 <td>
@@ -124,9 +98,9 @@
             </tr>
         }
 
-        @using (Html.BeginForm("HorizantalPageTabe", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("HorizantalPageTabe", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
-            <tr hidden="hidden" id="CreateNew">
+            <tr style="display:none" id="CreateNew">
                 <td class="hidden">
                     @*<input type="text"  id="new_pages_ID" name="new_pages_ID" value="@item.new_pages_ID" />*@
                 </td>
@@ -157,11 +131,11 @@
             </tr>
         }
 
-        @using (Html.BeginForm("HorizantalPageTabe", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("HorizantalPageTabe", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
-            <tr hidden="hidden" id="EditePage">
+            <tr style="display:none" id="EditePage">
                 <td>
-                    <input type="text" id="new_pages_ID" name="ID" class="hidden" />
+                    <input type="text" id="new_pages_ID" name="ID" style="display:none" />
                 </td>
 
                 <td>
@@ -219,10 +193,10 @@
 
                     type: 'POST',
 
-                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                     success: function (data) {
 
-                        var s = '<option value="-1">Select Languages</option>';
+                        var s = '';
                         for (var i = 0; i < data.length; i++) {
                             s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
                         }
@@ -252,7 +226,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     data: { id: Item_ID },
 
-                    url: '@Url.Action("DeleteHorizantalPageTabe", "UIUXadminPanel")',
+                    url: '@Url.Action("DeleteHorizantalPageTabe", "Controlpanel")',
                     success: function (data) {
 
                         window.location.reload();
@@ -277,7 +251,7 @@
                 //contentType: 'application/json; charset=utf=8',
                 data: { id: ID },
 
-                url: '@Url.Action("GetHorizantalPageTabe", "UIUXadminPanel")',
+                url: '@Url.Action("GetHorizantalPageTabe", "Controlpanel")',
                 success: function (data) {
 
                     $("#new_pages_ID").val(data.ID);

@@ -106,7 +106,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     //data: { id: Exam_id },
 
-                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                     success: function (data) {
 
                         var s;
@@ -132,7 +132,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     //data: { id: Exam_id },
 
-                    url: '@Url.Action("GetAllPages", "UIUXadminPanel")',
+                    url: '@Url.Action("GetAllPages", "Controlpanel")',
                     success: function (data) {
 
                         var s;
@@ -164,7 +164,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     data: { title: $("#TxtItemName").val(), PageID: $("#Page_ID").val(), LangID: $("#Language_ID").val()},
 
-                    url: '@Url.Action("Menu", "UIUXadminPanel")',
+                    url: '@Url.Action("Menu", "Controlpanel")',
                     success: function (result) {
 
                         location.reload(true);
@@ -192,7 +192,7 @@
 
                     data: { ID: itemID },
 
-                    url: '@Url.Action("DeleteMenu", "UIUXadminPanel")',
+                    url: '@Url.Action("DeleteMenu", "Controlpanel")',
                     success: function (result) {
 
                         //alert("Items was deleted " + result.result);

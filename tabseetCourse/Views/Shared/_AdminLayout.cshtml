@@ -179,14 +179,62 @@
                             {
                                 if (item.RoleName == "Admin")
                                 {
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("Index", "UIUXadminPanel")" class="nav-link">
-                                            <i class="nav-icon  fas fa-solar-panel"></i>
+                                    <li class="nav-item menu-open">
+                                        <a href="#" class="nav-link active">
+                                            <i class="nav-icon fas fa-tachometer-alt"></i>
                                             <p>
                                                 إدارة الموقع
-                                                @*<span class="right badge badge-danger">New</span>*@
+                                                <i class="right fas fa-angle-left"></i>
                                             </p>
                                         </a>
+                                        <ul class="nav nav-treeview">
+                                            <li class="nav-item">
+                                                <a href="@Url.Action("Pages", "ControlPanel")" class="nav-link">
+                                                    <i class="nav-icon  fas fa-solar-panel"></i>
+                                                    <p>
+                                                        الصفحات
+                                                        @*<span class="right badge badge-danger">New</span>*@
+                                                    </p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="@Url.Action("categoriesUIUX", "ControlPanel")" class="nav-link">
+                                                    <i class="nav-icon  fas fa-solar-panel"></i>
+                                                    <p>
+                                                        الدورات التدريبية
+                                                        @*<span class="right badge badge-danger">New</span>*@
+                                                    </p>
+                                                </a>
+                                            </li>
+                                          
+                                            <li class="nav-item">
+                                                <a href="@Url.Action("News", "ControlPanel")" class="nav-link">
+                                                    <i class="nav-icon  fas fa-solar-panel"></i>
+                                                    <p>
+                                                        الأخبار و الأنشطة
+                                                        @*<span class="right badge badge-danger">New</span>*@
+                                                    </p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="@Url.Action("FastNews", "ControlPanel")" class="nav-link">
+                                                    <i class="nav-icon  fas fa-solar-panel"></i>
+                                                    <p>
+                                                        الأخبار المباشرة
+                                                        @*<span class="right badge badge-danger">New</span>*@
+                                                    </p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="@Url.Action("Slider", "ControlPanel")" class="nav-link">
+                                                    <i class="nav-icon  fas fa-solar-panel"></i>
+                                                    <p>
+                                                        سلايدر
+                                                        @*<span class="right badge badge-danger">New</span>*@
+                                                    </p>
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>
                                     break;
                                 }

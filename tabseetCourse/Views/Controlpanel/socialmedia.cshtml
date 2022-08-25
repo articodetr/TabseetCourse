@@ -18,7 +18,7 @@
             }
 
         </div>
-        @using (Html.BeginForm("socialmedia", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("socialmedia", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
 
             @Html.AntiForgeryToken()
@@ -152,7 +152,7 @@
                     //dataType: 'JSON',
                     //contentType: 'application/json; charset=utf=8',
                     data: { LangID: $("#Lang_id").val() },
-                    url: '@Url.Action("GetsocialmediaByLang", "UIUXadminPanel")',
+                    url: '@Url.Action("GetsocialmediaByLang", "Controlpanel")',
                     success: function (data) {
                         //alert(data.WhatsApp);
                         $('#HomePage_ID').val(data.ID);
@@ -188,7 +188,7 @@
                 //contentType: 'application/json; charset=utf=8',
                 //data: { id: Exam_id },
 
-                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                 success: function (data) {
 
                     var s = '<option value="-1">Select Language</option>';

@@ -139,7 +139,7 @@
                     </div>
 
                     <div class="modal-body">
-                        @using (Html.BeginForm("AddTabeForAbout", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        @using (Html.BeginForm("AddTabeForAbout", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
                         {
                             <div class="form-group m-b">
                                 @*<label for="Title_ID">Title</label>*@
@@ -195,7 +195,7 @@
                     </div>
 
                     <div class="modal-body">
-                        @using (Html.BeginForm("AddTabeForAbout", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        @using (Html.BeginForm("AddTabeForAbout", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
                         {
                             <div hidden="hidden">
                                 <input type="text" id="ID2" name="ID" />
@@ -245,7 +245,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     //data: { id: Exam_id },
 
-                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                     success: function (data) {
 
                         var s = '<option value="-1">Select Languages</option>';
@@ -301,7 +301,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     data: { ID: id },
 
-                    url: '@Url.Action("DeleteAcoutUsTabe", "UIUXadminPanel")',
+                    url: '@Url.Action("DeleteAcoutUsTabe", "Controlpanel")',
                     success: function (data) {
 
                         window.location.reload();
@@ -326,7 +326,7 @@
                 //contentType: 'application/json; charset=utf=8',
                 data: { ID: ID },
 
-                url: '@Url.Action("GetTabeForAboutByID", "UIUXadminPanel")',
+                url: '@Url.Action("GetTabeForAboutByID", "Controlpanel")',
                 success: function (data) {
 
                     $("#ID2").val(data.ID);

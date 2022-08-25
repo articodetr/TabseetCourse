@@ -80,9 +80,9 @@
                 </td>
             </tr>
         }
-        @using (Html.BeginForm("GridPage", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("GridPage", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
-            <tr hidden="hidden" id="CreateNew">
+            <tr style="display:none" id="CreateNew">
                 <td class="hidden">
                     @*<input type="text"  id="new_pages_ID" name="new_pages_ID" value="@item.new_pages_ID" />*@
                 </td>
@@ -116,7 +116,7 @@
 
 
         }
-        @using (Html.BeginForm("GridPage", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("GridPage", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
             <tr hidden="hidden" id="EditPage">
                 <td class="hidden">
@@ -195,7 +195,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     //data: { id: Exam_id },
 
-                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                     success: function (data) {
 
                         var s = '<option value="-1">Select Languages</option>';
@@ -228,7 +228,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     data: { id: PageID },
 
-                    url: '@Url.Action("DeleteGridPageModelPage", "UIUXadminPanel")',
+                    url: '@Url.Action("DeleteGridPageModelPage", "Controlpanel")',
                     success: function (data) {
 
                         window.location.reload();
@@ -250,7 +250,7 @@
                 async: true,
                 type: 'POST',
                 data: { ID: ID },
-                url: '@Url.Action("GetGridPageModelByID", "UIUXadminPanel")',
+                url: '@Url.Action("GetGridPageModelByID", "Controlpanel")',
                 success: function (data) {
 
                     $("#Title2").val(data.Title);

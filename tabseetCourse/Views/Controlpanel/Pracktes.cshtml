@@ -64,7 +64,7 @@
                     </div>
 
                     <div class="modal-body">
-                        @using (Html.BeginForm("Pracktes", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        @using (Html.BeginForm("Pracktes", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
                         {
                             <div class="form-group m-b">
                                 @*<label for="Lang_ID">Languages</label>*@
@@ -141,7 +141,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     //data: { id: Exam_id },
 
-                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                     success: function (data) {
 
                         var s = '<option value="-1">Select Languages</option>';
@@ -174,7 +174,7 @@
                     //dataType: 'JSON',
                     //contentType: 'application/json; charset=utf=8',
                     data: { PR_ID: Exam_id },
-                    url: '@Url.Action("DeletePracktes", "UIUXadminPanel")',
+                    url: '@Url.Action("DeletePracktes", "Controlpanel")',
                     success: function (data) {
                         window.location.reload();
                     },
@@ -206,7 +206,7 @@
                 //contentType: 'application/json; charset=utf=8',
                 data: { PR_ID: Exam_id },
 
-                url: '@Url.Action("EditPracktes", "UIUXadminPanel")',
+                url: '@Url.Action("EditPracktes", "Controlpanel")',
                 success: function (data) {
                     //alert(data.Title);
                     //var result = JSON.stringify(data);

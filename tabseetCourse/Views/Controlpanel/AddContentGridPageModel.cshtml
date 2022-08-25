@@ -107,7 +107,7 @@
                     </div>
 
                     <div class="modal-body">
-                        @using (Html.BeginForm("AddContentGridPageModel", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        @using (Html.BeginForm("AddContentGridPageModel", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
                         {
                             <div class="form-group m-b">
                                 @if (Session["Language"] != null && Session["Language"].ToString() == "1")
@@ -195,7 +195,7 @@
                     </div>
 
                     <div class="modal-body">
-                        @using (Html.BeginForm("AddContentGridPageModel", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        @using (Html.BeginForm("AddContentGridPageModel", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
                         {
                             <div hidden="hidden">
                                 <input type="text" id="ID2" name="ID" />
@@ -282,7 +282,7 @@
 
                 type: 'POST',
 
-                url: '@Url.Action("GetAllPages", "UIUXadminPanel")',
+                url: '@Url.Action("GetAllPages", "Controlpanel")',
                 success: function (data) {
 
                     var s;
@@ -309,7 +309,7 @@
 
                     type: 'POST',
 
-                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                     success: function (data) {
 
                         var s = '<option value="-1">Select Languages</option>';
@@ -342,7 +342,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     data: { ID: id },
 
-                    url: '@Url.Action("DeleteGridPageModelContent", "UIUXadminPanel")',
+                    url: '@Url.Action("DeleteGridPageModelContent", "Controlpanel")',
                     success: function (data) {
 
                         window.location.reload();
@@ -367,7 +367,7 @@
                 //contentType: 'application/json; charset=utf=8',
                 data: { ID: ID },
 
-                url: '@Url.Action("GetContentForGridPageModelByID", "UIUXadminPanel")',
+                url: '@Url.Action("GetContentForGridPageModelByID", "Controlpanel")',
                 success: function (data) {
 
                     $("#ID2").val(data.ID);

@@ -5,6 +5,24 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css" />
+<!-- Ionicons -->
+<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+<!-- Tempusdominus Bbootstrap 4 -->
+<link rel="stylesheet" href="~/Content/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" />
+<!-- iCheck -->
+<link rel="stylesheet" href="~/Content/plugins/icheck-bootstrap/icheck-bootstrap.min.css" />
+<!-- overlayScrollbars -->
+<link rel="stylesheet" href="~/Content/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+
 <link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
 <div class="main-content">
     <div class="page-title">
@@ -119,7 +137,7 @@
                     </div>
 
                     <div class="modal-body">
-                        @using (Html.BeginForm("News", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        @using (Html.BeginForm("News", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
                         {
                             <div class="form-group m-b">
                                 @*<label for="Lang_ID">Languages</label>*@
@@ -223,6 +241,7 @@
     </div>
 
     <!-- Summernote -->
+
     <script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
     <script src="~/Content/static/app/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
@@ -230,6 +249,15 @@
 
 </div>
 
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Summernote -->
+<script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+
+<!-- jQuery UI 1.11.4 -->
+<script src="~/Content/plugins/jquery-ui/jquery-ui.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript">
 
     $('.form-validation').validate();
@@ -254,7 +282,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     //data: { id: Exam_id },
 
-                    url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                     success: function (data) {
 
                         var s = '<option value="-1">Select Languages</option>';
@@ -287,7 +315,7 @@
                     //dataType: 'JSON',
                     //contentType: 'application/json; charset=utf=8',
                     data: { News_ID: Exam_id },
-                    url: '@Url.Action("DeleteNews", "UIUXadminPanel")',
+                    url: '@Url.Action("DeleteNews", "Controlpanel")',
                     success: function (data) {
                         window.location.reload();
                     },
@@ -320,7 +348,7 @@
                     //contentType: 'application/json; charset=utf=8',
                 data: { News_ID: Exam_id },
 
-                    url: '@Url.Action("EditNews", "UIUXadminPanel")',
+                    url: '@Url.Action("EditNews", "Controlpanel")',
                     success: function (data) {
                         //alert(data.Title);
                         //var result = JSON.stringify(data);

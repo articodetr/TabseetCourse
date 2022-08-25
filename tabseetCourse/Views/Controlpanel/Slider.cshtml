@@ -49,13 +49,13 @@
                         <button type="button" class="btn btn-danger" onclick="DeleteSlider(@item.ID)">حذف </button>
                     }
 
-                    @*@Html.ActionLink("Delete", "DeleteSlider", "UIUXadminPanel", new { SID = item.ID }, new { @class = "btn btn-danger" })*@
+                    @*@Html.ActionLink("Delete", "DeleteSlider", "Controlpanel", new { SID = item.ID }, new { @class = "btn btn-danger" })*@
                 </td>
             </tr>
         }
 
     </table>
-    @using (Html.BeginForm("Slider", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    @using (Html.BeginForm("Slider", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
 
         <table>
@@ -115,7 +115,7 @@
                 //contentType: 'application/json; charset=utf=8',
                 //data: { id: Exam_id },
 
-                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                 success: function (data) {
 
                     var s = '<option value="-1">Select Language</option>';
@@ -147,7 +147,7 @@
                     //contentType: 'application/json; charset=utf=8',
                     data: { SID: PageID },
 
-                    url: '@Url.Action("DeleteSlider", "UIUXadminPanel")',
+                    url: '@Url.Action("DeleteSlider", "Controlpanel")',
                     success: function (data) {
 
                         window.location.reload();

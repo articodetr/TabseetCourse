@@ -10,7 +10,7 @@
         <div class="page-title">
             <div class="sub-title"> Linces Regestration </div>
         </div>
-        @using (Html.BeginForm("LincesReg", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("LincesReg", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
             @Html.AntiForgeryToken()
 
@@ -166,7 +166,7 @@
 
                     type: 'POST',
                     data: { LangID: $("#Lang_ID").val() },
-                    url: '@Url.Action("GetLincesRegByLang", "UIUXadminPanel")',
+                    url: '@Url.Action("GetLincesRegByLang", "Controlpanel")',
                     success: function (data) {
 
                         $('#ID').val(data.ID);
@@ -201,7 +201,7 @@
                 //contentType: 'application/json; charset=utf=8',
                 //data: { id: Exam_id },
 
-                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                 success: function (data) {
 
                     var s = '<option value="-1">Select Language</option>';

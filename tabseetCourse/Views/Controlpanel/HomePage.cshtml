@@ -12,7 +12,7 @@
         <div class="page-title">
             <div class="sub-title"> Home Page</div>
         </div>
-        @using (Html.BeginForm("HomePage", "UIUXadminPanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("HomePage", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
 
             @Html.AntiForgeryToken()
@@ -168,7 +168,7 @@
                     //dataType: 'JSON',
                     //contentType: 'application/json; charset=utf=8',
                     data: { LangID: $("#Lang_id").val() },
-                    url: '@Url.Action("GetHomePageByLang", "UIUXadminPanel")',
+                    url: '@Url.Action("GetHomePageByLang", "Controlpanel")',
                     success: function (data) {
                         $('#HomePage_ID').val(data.ID);
                         $('#Title_ID').val(data.title);
@@ -207,7 +207,7 @@
                 //contentType: 'application/json; charset=utf=8',
                 //data: { id: Exam_id },
 
-                url: '@Url.Action("GetAllLanguages", "UIUXadminPanel")',
+                url: '@Url.Action("GetAllLanguages", "Controlpanel")',
                 success: function (data) {
 
                     var s = '<option value="-1">Select Language</option>';
