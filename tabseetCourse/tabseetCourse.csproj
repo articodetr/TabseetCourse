@@ -9146,6 +9146,7 @@
     <Content Include="Views\Teacher\CreateMatchingChoiseQuestionTeacher.cshtml" />
     <Content Include="Views\Teacher\EditeMatchingTeacher.cshtml" />
     <Content Include="Views\Teacher\TecPersonalInfo.cshtml" />
+    <Content Include="Views\Home\ReadMoreNews.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

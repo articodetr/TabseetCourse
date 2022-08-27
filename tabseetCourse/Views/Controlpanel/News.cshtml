@@ -141,10 +141,11 @@
                         {
                             <div class="form-group m-b">
                                 @*<label for="Lang_ID">Languages</label>*@
-                                <select class="form-control search-input" id="Lang_ID" name="Lang_ID">
-                                </select>
+                                <input type="text" id="Lang_ID" name="Lang_ID" value="1" style="display:none"/>
+                                @*<select class="form-control search-input" id="Lang_ID" name="Lang_ID">
+                                </select>*@
                             </div>
-                            <div class="form-group m-b hidden">
+                            <div class="form-group m-b hidden" style="display:none">
                                 @*<label for="Title_ID">Title</label>*@
                                 <input type="text" class="form-control" id="ID" name="ID" placeholder="ID" />
                             </div>
@@ -177,7 +178,7 @@
                                     <label for="FullDescription">وصف كامل</label>
                                 }
                                 <textarea id="summernote" name="editordata"></textarea>
-                                <textarea class="form-control hidden" id="FullDescription" name="FullDescription"></textarea>
+                                <textarea class="form-control hidden" id="FullDescription" name="FullDescription" style="display:none"></textarea>
                                 @*<textarea  id="FullDescription" name="FullDescription" rows="3"></textarea>*@
                             </div>
 
@@ -191,7 +192,7 @@
                                     <label for="ShortDescription">وصف مختصر</label>
                                 }
 
-                                <textarea class="form-control" id="ShortDescription" name="ShortDescription" rows="3"></textarea>
+                                <textarea class="form-control" id="ShortDescription" name="ShortDescription"  rows="3"></textarea>
                             </div>
 
                             <div class="form-group m-b">

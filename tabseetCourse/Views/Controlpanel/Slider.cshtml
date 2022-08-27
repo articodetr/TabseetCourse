@@ -1,4 +1,4 @@
-﻿@model tabseetCourse.Models_UI.SliderModel
+﻿@model IEnumerable < tabseetCourse.Models_UI.SliderModel>
 
 @{
     ViewBag.Title = "Slider";
@@ -72,9 +72,10 @@
                 </td>
                 <td>
                     <div class="form-group">
-                        <div class="col-md-10">
-                            <select id="Lang_ID" name="Lang_ID" onchange="onchangeLang()">
-                            </select>
+                        <div class="col-md-10" style="display:none">
+                            <input type="text" value="1" id="Lang_ID" name="Lang_ID" />
+                            @*<select id="Lang_ID" name="Lang_ID" onchange="onchangeLang()">
+                            </select>*@
                         </div>
                     </div>
                 </td>
@@ -106,7 +107,7 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-         $.ajax(
+         @*$.ajax(
             {
                 async: true,
 
@@ -130,7 +131,7 @@
                 complete: function (response) {
                     //alert("finish call jasion " + response);
                 }
-            });
+            });*@
     });
 
 
