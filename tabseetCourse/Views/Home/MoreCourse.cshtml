@@ -2,10 +2,11 @@
 @{
     ViewBag.Title = "MoreCourse";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var viewmodelHomepage = (tabseetCourse.Models_UI.HomePageModel)ViewBag.HomepageViewModel;
+    //var viewmodelHomepage = (tabseetCourse.Models_UI.HomePageModel)ViewBag.HomepageViewModel;
 }
 
-<div class='top_baner' style="background-image:url(../Uploade/Images/@viewmodelHomepage.MainImage);">
+@*<div class='top_baner' style="background-image:url(../Uploade/Images/@viewmodelHomepage.MainImage);">*@
+<div class='top_baner' style="background-image: url(../Uploade/Images/159474159slider12.jpg);">
     <center>
         @* <span>@viewmodelHomepage.MainText</span>
             @*<p>هذا النص هو مثال لنص يمكن أن يستبدل في نفس المساحة</p>
@@ -21,7 +22,7 @@
     <div class="container">
 
         <form class="form-inline" dir="rtl" method="get" action="MoreCourse">
-            <input onkeyup="SerchOnClick(this.value)" onkeydown="return (event.keyCode!=13);" dir="rtl" class="form-control mr-sm-2" name="CourseName" value="@ViewData["CourseName"]" type="search" placeholder="بحث عن دبلوم او دورة" aria-label="بحث">
+            <input onkeyup="SerchOnClick(this.value)" onkeydown="return (event.keyCode!=13);" dir="rtl" class="form-control mr-sm-2" name="CourseName" value="@ViewData["CourseName"]" type="search" placeholder="بحث " aria-label="بحث">
             @*  <button dir="rtl" style="margin:5px" class="btn btn-outline-success my-2 my-sm-0" type="submit">بحث</button>*@
         </form>
 

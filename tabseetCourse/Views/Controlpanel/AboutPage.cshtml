@@ -1,0 +1,311 @@
+﻿@model IEnumerable<tabseetCourse.Models_UI.AboutModel>
+
+@{
+    ViewBag.Title = "AboutPage";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css" />
+<!-- Ionicons -->
+<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+<!-- Tempusdominus Bbootstrap 4 -->
+<link rel="stylesheet" href="~/Content/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" />
+<!-- iCheck -->
+<link rel="stylesheet" href="~/Content/plugins/icheck-bootstrap/icheck-bootstrap.min.css" />
+<!-- overlayScrollbars -->
+<link rel="stylesheet" href="~/Content/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+
+<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Summernote -->
+<script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+
+<!-- jQuery UI 1.11.4 -->
+<script src="~/Content/plugins/jquery-ui/jquery-ui.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<div class="main-content">
+    <div class="page-title">
+
+        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+        {
+            <div class="title">
+                About Pages
+            </div>
+
+        }
+        else
+        {
+            <div class="title">
+                حول الصفحة
+            </div>
+        }
+
+
+
+    </div>
+
+    <table class="table">
+        <tr>
+            @*<th>
+                    @Html.DisplayNameFor(model => model.new_pages_ID)
+                </th>*@
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Name</label>
+                }
+                else
+                {
+                    <label>الاسم</label>
+                }
+            </th>
+            <th>
+                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                {
+                    <label>Title</label>
+                }
+                else
+                {
+                    <label>العنوان</label>
+                }
+            </th>
+            <th>
+                @*@Html.DisplayNameFor(model => model.Image_Cover)*@
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                @*<td>
+                        @Html.DisplayFor(modelItem => item.new_pages_ID)
+                    </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.Lang_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @*<img src="@item.Image_Cover" width="100" />*@
+                    @*@Html.DisplayFor(modelItem => item.Image_Cover)*@
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        @Html.ActionLink("Add Tabe", "AddTabeForAbout", new { PageID = item.ID }, new { @class = "btn btn-primary" })
+                        @*<button type="button" class="btn btn-primary" onclick="AddTabe(@item.ID)" >Add Tabe</button>*@
+                        <button type="button" class="btn btn-info" onclick="EditItem(@item.ID)"> Edit </button>
+                        <button type="button" class="btn btn-danger" onclick="DeleteAboutUsPage(@item.ID)">Delete </button>
+
+                    }
+                    else
+                    {
+                        @Html.ActionLink("تبويب جديد", "AddTabeForAbout", new { PageID = item.ID }, new { @class = "btn btn-primary" })
+                        @*<button type="button" class="btn btn-primary" onclick="AddTabe(@item.ID)" >Add Tabe</button>*@
+                        <button type="button" class="btn btn-info" onclick="EditItem(@item.ID)"> تحرير </button>
+                        <button type="button" class="btn btn-danger" onclick="DeleteAboutUsPage(@item.ID)">حذف </button>
+                    }
+
+                </td>
+            </tr>
+        }
+        @using (Html.BeginForm("AboutPage", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <tr   id="CreateNew" style="display:none">
+                <td class="hidden">
+                    @*<input type="text"  id="new_pages_ID" name="new_pages_ID" value="@item.new_pages_ID" />*@
+                </td>
+                <td style="display:none">
+                    <input type="text" value="1" id="Lang_ID" name="Lang_ID" />
+                    @*<select id="Lang_ID" name="Lang_ID">
+                    </select>*@
+                </td>
+                <td>
+                    <input type="text" placeholder="Item Name" id="Title" name="Title" />
+                </td>
+
+                <td>
+                    <div class="form-group m-b">
+                        @*<label for="CoverImage">Cover Image</label>*@
+                        <input type="file" accept="image/png, image/jpeg" class="form-control" id="CoverImage" name="CoverImage" rows="3" />
+                    </div>
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary">حفظ</button>
+                    }
+
+                </td>
+
+            </tr>
+
+
+        }
+        @using (Html.BeginForm("AboutPage", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <tr style="display:none" id="EditPage">
+                <td hidden="hidden" >
+                    <input type="text" id="ID2" name="ID" />
+                </td>
+                <td>
+                    @*<select id="Lang_ID" name="Lang_ID">
+                        </select>*@
+                </td>
+                <td>
+                    <input type="text" placeholder="Item Name" id="Title2" name="Title" />
+                </td>
+
+                <td>
+                    <div class="form-group m-b">
+                        @*<label for="CoverImage">Cover Image</label>*@
+                        <input type="file" accept="image/png, image/jpeg" class="form-control" id="CoverImage" name="CoverImage" rows="3" />
+                    </div>
+                </td>
+                <td>
+                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                    {
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary">تعديل</button>
+                    }
+
+                </td>
+
+            </tr>
+
+
+        }
+
+    </table>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="row">
+                <div class="col-xs-12 m-b">
+                    <div class="demo-button">
+                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
+                        {
+                            <button type="button" class="btn btn-primary" onclick="Create()">Add</button>
+
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-primary" onclick="Create()">إضافة</button>
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="~/Content/static/app/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
+
+
+</div>
+
+<script type="text/javascript">
+    $('.form-validation').validate();
+    function Create() {
+                  @*$.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    //data: { id: Exam_id },
+
+                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
+                    success: function (data) {
+
+                        var s = '<option value="-1">Select Languages</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                        }
+                        $("#Lang_ID").html(s);
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                  });*@
+            $("#CreateNew").show();
+
+    }
+
+    function DeleteAboutUsPage(PageID)
+    {
+        if (confirm("Are you sure to delete the About us?")) {
+
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+                    //dataType: 'JSON',
+                    //contentType: 'application/json; charset=utf=8',
+                    data: { id: PageID },
+
+                    url: '@Url.Action("DeleteAboutUsPage", "Controlpanel")',
+                    success: function (data) {
+
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        alert("the problem is " + response.error);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        }
+    }
+
+    function EditItem(ID)
+    {
+          $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { ID: ID },
+                url: '@Url.Action("GetAboutUsByID", "Controlpanel")',
+                success: function (data) {
+
+                    $("#Title2").val(data.Title);
+                    $("#ID2").val(data.ID);
+                },
+                error: function (response) {
+                    alert("there is a problem in Faclity data " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+        $("#EditPage").show();
+    }
+</script>
+

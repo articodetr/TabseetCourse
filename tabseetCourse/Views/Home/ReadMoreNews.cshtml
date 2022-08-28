@@ -39,19 +39,12 @@
 <link href="~/Content/bootstrap-select-1.13.14/dist/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
 @*<link href="~/Content/logo2.png" id="StyleShit_ID" rel="stylesheet" type="text/css" />*@
 <link href="~/Content/font-icon.css" rel="stylesheet" type="text/css" />
-@{
+<link href="~/Content/css/style.css" rel="stylesheet" type="text/css" />
+ 
     <!--  My Style  -->
-    <link href="~/Content/css/style.css" rel="stylesheet" type="text/css" />
-    if (Session["Direction_ID"] != null)
-    {
-        int value = int.Parse(Session["Direction_ID"].ToString());
-        if (value == 0)
-        {
 
-            <link href="~/Content/css/style-en.css" rel="stylesheet" type="text/css" />
-        }
-    }
-}
+   
+ 
 <link href="~/Content/RootStyle.css" rel="stylesheet" type="text/css" />
 
 <div class='top_baner' style="background-image: url(../Uploade/Images/159474159slider12.jpg );">

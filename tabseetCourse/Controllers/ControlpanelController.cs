@@ -3675,7 +3675,7 @@ namespace tabseetCourse.Controllers
             var page = dbEntity.New_pages.Find(PageID);
             if (page.Page_Type == 1)
             {
-                return RedirectToAction("AboutPage", new { pageID = PageID });
+                return RedirectToAction("aboutPage", new { pageID = PageID });
             }
             if (page.Page_Type == 2)
             {

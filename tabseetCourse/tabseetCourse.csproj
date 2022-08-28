@@ -9147,6 +9147,7 @@
     <Content Include="Views\Teacher\EditeMatchingTeacher.cshtml" />
     <Content Include="Views\Teacher\TecPersonalInfo.cshtml" />
     <Content Include="Views\Home\ReadMoreNews.cshtml" />
+    <Content Include="Views\Controlpanel\AboutPage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
