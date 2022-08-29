@@ -414,7 +414,15 @@ namespace tabseetCourse.Controllers
 
                         context.New_pages.Add(pg);
                         context.SaveChanges();
+                        if (pg.Page_Type==7)
+                        {
+                            //context.page
+                        }
+                        else if (pg.Page_Type==4)
+                        {
 
+                        }
+                        
                         Category ctm = new Category();
                         ctm.NameAr = value.NameAr;
                         ctm.NameEn = value.NameEn;
@@ -3647,7 +3655,8 @@ namespace tabseetCourse.Controllers
         [HttpGet]
         public ActionResult Pages()
         {
-            var vlaue = dbEntity.New_pages.ToList();
+            var vlaue = dbEntity.New_pages.Where(e=>e.IsUiUx==1).ToList();
+
             return View(vlaue);
         }
         [HttpPost]
@@ -3656,6 +3665,7 @@ namespace tabseetCourse.Controllers
             New_pages pg = new New_pages();
             pg.name = pagesName;
             pg.Page_Type = pageType;
+            pg.IsUiUx = 1;
             dbEntity.New_pages.Add(pg);
             var result = dbEntity.SaveChanges();
             if (result > 0)

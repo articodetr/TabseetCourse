@@ -29,6 +29,7 @@ namespace tabseetCourse.Data
         public int ID { get; set; }
         public string name { get; set; }
         public int Page_Type { get; set; }
+        public Nullable<int> IsUiUx { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<New_About> New_About { get; set; }

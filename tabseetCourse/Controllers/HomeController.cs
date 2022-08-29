@@ -711,7 +711,7 @@ namespace tabseetCourse.Controllers
             am.L_aboutTabmodel = new List<AboutTabeModel>();
             try
             {
-                var result = dbEntity.New_About.Where(e => e.Lang_ID == Lang_ID && e.new_pages_ID == pageID).FirstOrDefault();
+                var result = dbEntity.New_About.Where(e =>   e.new_pages_ID == pageID).FirstOrDefault();
 
                 am.ID = result.ID;
                 am.Image_Cover = result.Image_Cover;
