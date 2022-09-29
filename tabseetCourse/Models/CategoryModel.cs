@@ -16,6 +16,7 @@ namespace tabseetCourse.Models
         public string PayedValue { get; set; }
         public string Description { get; set; }
         public int CategoryType_ID { get; set; }
+
         public string CategoryTypeName { get; set; }
  
         public int Exam_ID { get; set; }
@@ -32,6 +33,7 @@ namespace tabseetCourse.Models
         public string Icon { get; set; }
         public string DocumentBook { get; set; }
         public HttpPostedFileBase UploadIcon { get; set; }
+        public HttpPostedFileBase UploadCover { get; set; }
         public HttpPostedFileBase UploadDocumentBook { get; set; }
 
 

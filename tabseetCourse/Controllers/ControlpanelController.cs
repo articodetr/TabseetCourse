@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -154,27 +155,48 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult CreateCategoriesType(CategoryTypeModel ctm)
         {
-            try
+            using (var context = new TabseetDBEntities())
             {
-                CategoryType ct = new CategoryType();
-
-                ct.NameAR = ctm.NameAR;
-                ct.NameEn = ctm.NameEN;
-                if (ctm.ParentID != 0)
+                using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
-                    ct.ParentType = ctm.ParentID;
+                    try
+                    {
+                        CategoryType ct = new CategoryType();
+
+                        ct.NameAR = ctm.NameAR;
+                        ct.NameEn = ctm.NameEN;
+
+                        if (ctm.ParentID != 0)
+                        {
+                            ct.ParentType = ctm.ParentID;
+                        }
+                        context.CategoryTypes.Add(ct);
+                        context.SaveChanges();
+                        New_pages pg = new New_pages();
+                        pg.Page_Type = 7;
+                        
+                        pg.name = ctm.NameAR;
+                        pg.IsUiUx = 0;
+                        context.New_pages.Add(pg);
+                        context.SaveChanges();
+                        var gp = new NewGridPage();
+                        gp.Pages_ID = pg.ID;
+                        gp.Title = pg.name;
+                       
+                        context.NewGridPages.Add(gp);
+                        context.SaveChanges();
+                        dbTran.Commit();
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return Json(new { success = true, response = "" }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    catch (Exception ex)
+                    {
+                        dbTran.Rollback();
+                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        return Json(new { success = false, response = "" }, JsonRequestBehavior.AllowGet);
+                    }
                 }
-                dbEntity.CategoryTypes.Add(ct);
-                dbEntity.SaveChanges();
-
-                Response.StatusCode = (int)HttpStatusCode.OK;
-                return Json(new { success = true, response = "" }, JsonRequestBehavior.AllowGet);
-            }
-
-            catch (Exception ex)
-            {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, response = "" }, JsonRequestBehavior.AllowGet);
             }
         }
         [HttpPost]
@@ -314,13 +336,14 @@ namespace tabseetCourse.Controllers
                 if (isAuthorize == true)
                 {
                     var values = dbEntity.Categories
-                               .Select(x => new { x.ID, x.NameAr, x.NameEn, x.Category1, x.CategoryType_ID, x.CategoryType.NameAR, x.IsPayed, x.PayedValue, x.ParentCateogry_ID, examName = x.Exams.FirstOrDefault().Name, x.CanRegister }).OrderByDescending(i => i.ID);
+                               .Select(x => new { x.ID, x.NameAr, x.NameEn, x.Category1, x.CategoryType_ID,x.New_Page_ID, x.CategoryType.NameAR, x.IsPayed, x.PayedValue, x.ParentCateogry_ID, examName = x.Exams.FirstOrDefault().Name, x.CanRegister }).OrderByDescending(i => i.ID);
                     foreach (var item in values)
                     {
                         CategoryModel ctm = new CategoryModel();
                         ctm.ID = item.ID;
                         ctm.NameAr = item.NameAr;
                         ctm.NameEn = item.NameEn;
+                        ctm.New_Page_ID = item.New_Page_ID.Value;
                         ctm.exam_Name = item.examName;
                         if (item.CanRegister != null)
                         {
@@ -365,11 +388,10 @@ namespace tabseetCourse.Controllers
         {
             try
             {
-                var perant_ID = dbEntity.CategoryTypes.Where(e => e.ID == type).FirstOrDefault();
-                var value = dbEntity.Categories.Where(i => i.CategoryType_ID == perant_ID.ParentType).Select(i => new { i.ID, i.NameAr, i.CategoryType_ID }).ToList();
+                var categorytype = dbEntity.CategoryTypes.Where(e => e.ID == type).FirstOrDefault();
+                var value = dbEntity.Categories.Where(i => i.CategoryType_ID == categorytype.ID).Select(i => new { i.ID, i.NameAr, i.CategoryType_ID }).ToList();
                 if (value != null)
                 {
-
                     Response.StatusCode = (int)HttpStatusCode.OK;
                     return Json(value, JsonRequestBehavior.AllowGet);
                 }
@@ -381,7 +403,6 @@ namespace tabseetCourse.Controllers
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
             }
-
         }
         public JsonResult GetAllCategories()
         {
@@ -403,24 +424,40 @@ namespace tabseetCourse.Controllers
                         New_pages pg = new New_pages();
                         if (isroot.ParentType == null || isroot.ParentType == 0)
                         {
-                            pg.Page_Type = 7;
+                            pg.Page_Type = 4;
                         }
                         else
                         {
-                            pg.Page_Type = 4;
+                            pg.Page_Type = 7;
+                          
                         }
 
                         pg.name = value.NameAr;
-
+                        pg.IsUiUx = 0;
                         context.New_pages.Add(pg);
                         context.SaveChanges();
                         if (pg.Page_Type==7)
                         {
-                            //context.page
+                            var gp = new NewGridPage();
+                            gp.Pages_ID=pg.ID;
+                            gp.Title = pg.name;
+                            if (value.UploadCover!=null)
+                            {
+                                gp.Image_Cover = SaveImage(value.UploadCover);
+                            }
+                            context.NewGridPages.Add(gp);
+                            context.SaveChanges();
                         }
                         else if (pg.Page_Type==4)
                         {
-
+                            var pt = new New_Page_Tabe();
+                            
+                            pt.Title = pg.name;
+                            pt.New_Page_ID = pg.ID;
+                            pt.Lang_ID = 1;
+                            pt.page_H_V_tabe = 1;
+                            context.New_Page_Tabe.Add(pt);
+                            context.SaveChanges();
                         }
                         
                         Category ctm = new Category();
@@ -567,6 +604,29 @@ namespace tabseetCourse.Controllers
                     if (ctm.UploadDocumentBook != null && ctm.UploadDocumentBook.ContentLength > 0)
                     {
                         value.DocumentBook = SaveImage(ctm.UploadDocumentBook);
+                    }
+                    if (ctm.UploadCover!=null&& ctm.UploadCover.ContentLength>0)
+                    {
+                        var result = dbEntity.New_pages.Find(value.New_Page_ID);
+                        if (result!=null)
+                        {
+                            if (result.Page_Type==7)
+                            {
+                                var gp = dbEntity.NewGridPages.Find(result.ID);
+                                if (gp!=null)
+                                {
+                                    gp.Image_Cover = SaveImage(ctm.UploadCover);
+                                    dbEntity.NewGridPages.Attach(gp);
+                                    dbEntity.Entry(value).State = System.Data.Entity.EntityState.Modified;
+                                    dbEntity.SaveChanges();
+                                }
+                            }
+                            else if (result.Page_Type==4)
+                            {
+
+                            }
+                        }
+                     
                     }
 
                     value.CanRegister = ctm.CanRegister;

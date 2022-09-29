@@ -298,7 +298,22 @@
                                         }
                                     }
                                 }
-
+                                @if (item.ParentCateogry_ID != 0)//page type 7  grid page
+                                {
+                                    <a class="btn btn-u" href="">
+                                        <i class="fas fa-edit">
+                                        </i>
+                                        gridpage
+                                    </a>
+                                }
+                                else if (item.ParentCateogry_ID == 0)//page type 4 horizontal tape
+                                {
+                            <button class="btn btn-u" onclick="location.href='@Url.Action("HorizantalPageTabe", "Controlpanel", new { pageID = item.New_Page_ID,VH=1 })'">
+                                <i class="fas fa-edit">
+                                </i>
+                                محتوى
+                            </button>
+                                }
 
                             </div>
                         </td>
@@ -504,6 +519,20 @@
                     </tr>
                     <tr>
                         <td colspan="2">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>Cover</label>
+                                        <input type="file" id="UploadCover" name="UploadCover" class="form-control" style="width:100%" required accept="image/jpeg,image/gif,image/png,application/pdf,image/x-eps" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
                             <div class="row" style="width:100%">
                                 <div class="form-group" style="width:100%">
                                     <label>شرح بسيط</label>
@@ -703,6 +732,20 @@
                     </tr>
                     <tr>
                         <td colspan="2">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
+                                        <label>Cover</label>
+                                        <input type="file" id="EUploadCover" name="EUploadCover" class="form-control" style="width:100%" required accept="image/jpeg,image/gif,image/png,application/pdf,image/x-eps" />
+                                        @*<input type="text" id="Type_ID" class="text" style="width:100%" placeholder="Name" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
                             <div class="row" style="width:100%">
                                 <div class="form-group" style="width:100%">
                                     <label>شرح بسيط</label>
@@ -872,7 +915,8 @@
 
         var UploadIconFile = $('#UploadIconFile')[0].files[0];
         var UploadFilePost = $('#UploadFilePost')[0].files[0];
-
+        var UploadCover = $('#UploadCover')[0].files[0];
+        
         fd.append("NameAR",NameAR_ID);
         fd.append("NameEN", NameEN_ID);
         fd.append("CategoryType_ID",Type_ID);
@@ -885,6 +929,7 @@
         fd.append("CanRegister", CanRegister_ID);
 
         fd.append("UploadIcon", UploadIconFile);
+        fd.append("UploadCover", UploadCover);
         fd.append("UploadDocumentBook", UploadFilePost);
         fd.append("Description", discription_ID);
         //var dataJson = JSON.stringify(fd);
@@ -942,6 +987,8 @@
         var PCImage_IDEN = $('#EUploadFileEN')[0].files[0];
         var UploadIconFile = $('#EUploadIconFile')[0].files[0];
         var UploadFilePost = $('#EUploadFilePost')[0].files[0];
+        var EUploadCover = $('#EUploadCover')[0].files[0];
+        
         var discription_ID = $("#Ediscription_ID").val();
         fd.append("ID",EditID);
         fd.append("NameAR", ENameAR_ID);
@@ -955,6 +1002,7 @@
         fd.append("timeEnd", timeEnd);
         fd.append("CanRegister", CanRegister_ID);
         fd.append("UploadIcon", UploadIconFile);
+        fd.append("UploadCover", EUploadCover);
         fd.append("UploadDocumentBook", UploadFilePost);
         fd.append("Description", discription_ID);
         $("div.spanner").addClass("show");
