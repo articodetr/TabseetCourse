@@ -421,6 +421,7 @@
     <Compile Include="Models\Q_MultiChoiceModel.cs" />
     <Compile Include="Models\Q_TrueOrFolseModel.cs" />
     <Compile Include="Models\Std_Reg_CategoryModel.cs" />
+    <Compile Include="Models\StoreProduct.cs" />
     <Compile Include="Models\TetcherModel.cs" />
     <Compile Include="Models\userlocationModel.cs" />
     <Compile Include="Models\UserModel.cs" />
@@ -442,6 +443,7 @@
     <Compile Include="Models_UI\PracktesModel.cs" />
     <Compile Include="Models_UI\SliderModel.cs" />
     <Compile Include="Models_UI\SocialMediaModel.cs" />
+    <Compile Include="Models\StoreCategoryesModel.cs" />
     <Compile Include="Models_UI\StyleColorModel.cs" />
     <Compile Include="Models_UI\UICategoryModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -743,6 +745,7 @@
     <Content Include="Content\css\intlTelInput.css" />
     <Content Include="Content\css\slick-theme.css" />
     <Content Include="Content\css\slick.css" />
+    <Content Include="Content\css\store.css" />
     <Content Include="Content\css\style-en.css" />
     <Content Include="Content\css\style.css" />
     <Content Include="Content\css\swiper-bundle.min.css" />
@@ -9169,6 +9172,7 @@
     <Content Include="Views\Teacher\TecPersonalInfo.cshtml" />
     <Content Include="Views\Home\ReadMoreNews.cshtml" />
     <Content Include="Views\Controlpanel\AboutPage.cshtml" />
+    <Content Include="Views\Controlpanel\StoreCategory.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -5557,6 +5557,41 @@ namespace tabseetCourse.Controllers
         }
         #endregion
         #endregion
+
+        #region Store
+        [HttpGet]
+        public ActionResult StoreCategory()
+        {
+            var result = dbEntity.StoreCategories.ToList();
+            List<StoreCategoryesModel> Lsgm = new List<StoreCategoryesModel>();
+            foreach (var item in result)
+            {
+                StoreCategoryesModel sgm = new StoreCategoryesModel();
+                sgm.Name = item.Name;
+                Lsgm.Add(sgm);
+            }
+            return View(Lsgm);
+        }
+        [HttpPost]
+        public JsonResult StoreCategory(string catName)
+        {
+            try
+            {
+                StoreCategory sc = new StoreCategory();
+                sc.Name = catName;
+                dbEntity.StoreCategories.Add(sc);
+                dbEntity.SaveChanges();
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                return Json(new { success = false, response = "تم الإضافة" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+           
+        }
+        #endregion
     }
 
 
