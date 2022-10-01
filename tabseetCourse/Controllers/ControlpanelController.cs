@@ -177,6 +177,7 @@ namespace tabseetCourse.Controllers
                         
                         pg.name = ctm.NameAR;
                         pg.IsUiUx = 0;
+                        pg.CategoryType_ID = ct.ID;
                         context.New_pages.Add(pg);
                         context.SaveChanges();
                         var gp = new NewGridPage();
@@ -434,6 +435,7 @@ namespace tabseetCourse.Controllers
 
                         pg.name = value.NameAr;
                         pg.IsUiUx = 0;
+                        pg.CategoryType_ID = isroot.ID;
                         context.New_pages.Add(pg);
                         context.SaveChanges();
                         if (pg.Page_Type==7)
@@ -457,6 +459,15 @@ namespace tabseetCourse.Controllers
                             pt.Lang_ID = 1;
                             pt.page_H_V_tabe = 1;
                             context.New_Page_Tabe.Add(pt);
+                            context.SaveChanges();
+                            var newpage = context.New_pages.Where(e => e.CategoryType_ID == isroot.ID).FirstOrDefault();
+                            var gp = context.NewGridPages.Where(e => e.Pages_ID == newpage.ID).FirstOrDefault();
+                            var gpcontent = new NewGridPage_Content();
+                            gpcontent.Title = value.NameAr;
+                            gpcontent.GridPageID = gp.ID;
+                            gpcontent.DocLinke = gp.ID.ToString(); ;
+                            gpcontent.Description = value.Description;
+                            context.NewGridPage_Content.Add(gpcontent);
                             context.SaveChanges();
                         }
                         
@@ -3812,8 +3823,8 @@ namespace tabseetCourse.Controllers
                 var result = new GridPageModel();
                 result.ID = item.ID;
                 result.Title = item.Title;
-                result.Lang_Name = item.New_lang.Name;
-                result.Lang_ID = item.Lang_ID.Value;
+                //result.Lang_Name = item.New_lang.Name;
+                //result.Lang_ID = item.Lang_ID.Value;
                 result.Image_Cover = item.Image_Cover;
                 am.Add(result);
             }
@@ -4014,8 +4025,8 @@ namespace tabseetCourse.Controllers
                 var value = new Page_Tabe_Model();
                 value.ID = item.ID;
                 value.Image_Cover = item.Image_Cover;
-                value.Lang_ID = item.Lang_ID;
-                value.Lang_name = item.New_lang.Name;
+                //value.Lang_ID = item.Lang_ID;
+                //value.Lang_name = item.New_lang.Name;
                 value.New_Page_ID = item.New_Page_ID;
                 value.page_H_V_tabe = item.page_H_V_tabe;
                 value.Title = item.Title;
@@ -4039,7 +4050,7 @@ namespace tabseetCourse.Controllers
                     }
                     na.Title = am.Title;
                     na.New_Page_ID = PageTabeID;
-                    na.Lang_ID = am.Lang_ID;
+                    //na.Lang_ID = am.Lang_ID;
                     na.Image_Cover = am.Image_Cover;
                     na.page_H_V_tabe = VHID;
                     dbEntity.New_Page_Tabe.Add(na);
@@ -4232,7 +4243,7 @@ namespace tabseetCourse.Controllers
 
                     //nco.Image_Cover = am.Image_Cover;
                     nco.title = am.title;
-                    nco.Lang_ID = am.Lang_ID;
+                    //nco.Lang_ID = am.Lang_ID;
                     nco.Map_Link = am.Map_Link;
                     nco.UN_Adress = am.UN_Adress;
                     nco.UN_Email = am.UN_Email;
@@ -4266,7 +4277,7 @@ namespace tabseetCourse.Controllers
                         res.Image_Cover = SaveImage(am.ImageCover);
                     }
                     res.title = am.title;
-                    res.Lang_ID = am.Lang_ID;
+                    //res.Lang_ID = am.Lang_ID;
                     res.Map_Link = am.Map_Link;
                     res.UN_Adress = am.UN_Adress;
                     res.UN_Email = am.UN_Email;
@@ -4363,7 +4374,7 @@ namespace tabseetCourse.Controllers
                 if (PT.New_pages_ID == 0)
                 {
                     New_pages_Text pt = new New_pages_Text();
-                    pt.Lang_ID = PT.Lang_ID;
+                    //pt.Lang_ID = PT.Lang_ID;
                     pt.New_pages_ID = Page_Tex.Value;
                     pt.Text_Description = PT.Text_Description;
                     pt.title = PT.title;
@@ -4376,7 +4387,7 @@ namespace tabseetCourse.Controllers
                 else
                 {
                     var result = dbEntity.New_pages_Text.Where(e => e.Lang_ID == PT.Lang_ID && e.New_pages_ID == PT.New_pages_ID).FirstOrDefault();
-                    result.Lang_ID = PT.Lang_ID;
+                    //result.Lang_ID = PT.Lang_ID;
                     result.New_pages_ID = Page_Tex.Value;
                     result.Text_Description = PT.Text_Description;
                     result.title = PT.title;
@@ -4438,7 +4449,7 @@ namespace tabseetCourse.Controllers
                 result.ID = item.ID;
                 result.Title = item.Title;
                 result.Lang_name = item.New_lang.Name;
-                result.Lang_ID = item.Lang_ID;
+                //result.Lang_ID = item.Lang_ID;
                 result.new_pages_ID = item.new_pages_ID;
                 am.Add(result);
             }

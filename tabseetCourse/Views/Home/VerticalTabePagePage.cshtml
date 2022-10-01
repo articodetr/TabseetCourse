@@ -1,7 +1,7 @@
-﻿@model tabseetCourse.Models_UI.Page_Tabe_Content_Model
+﻿@model tabseetCourse.Models_UI.Page_Tabe_Model
 
 @{
-    ViewBag.Title = Model.Title;  
+    //ViewBag.Title = Model.Tabe_title;  
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <link href="~/Content/bootstrap4/bootstrap.min.css" rel="stylesheet" type="text/css" />
@@ -72,43 +72,48 @@
 <!-- Nav tabs -->
 <div class="tabs_sec sec sidebar_type">
     <div class="container">
-        <ul id="tabs" class="nav nav-tabs scrollbar" style="background-color: #113464" role="tablist">
-            @for (int i = 0; i < Model.TabeContent.ToList().Count; i++)
-            {
-                if (i == 0)
-                {
-                    <li role="presentation"><a href="#tab_@Model.TabeContent.ToList()[i].ID" role="tab" data-toggle="tab" class="active"> @Model.TabeContent.ToList()[i].Tabe_title</a></li>
+      
+            <ul id="tabs" class="nav nav-tabs scrollbar" style="background-color: #113464" role="tablist">
 
-                }
-                else
-                {
 
-                    <li role="presentation"><a href="#tab_@Model.TabeContent.ToList()[i].ID" role="tab" data-toggle="tab"> @Model.TabeContent.ToList()[i].Tabe_title</a></li>
+
+                @for (int i = 0; i < Model.TabeContent.ToList().Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        <li role="presentation"><a href="#tab_@Model.TabeContent.ToList()[i].ID" role="tab" data-toggle="tab" class="active"> @Model.TabeContent.ToList()[i].Tabe_title</a></li>
+
+                    }
+                    else
+                    {
+
+                        <li role="presentation"><a href="#tab_@Model.TabeContent.ToList()[i].ID" role="tab" data-toggle="tab"> @Model.TabeContent.ToList()[i].Tabe_title</a></li>
+                    }
                 }
-            }
-            @*<li role="presentation"><a href="#tab1" role="tab" data-toggle="tab">بوابة الهيئة التدريسية </a></li>
+                @*<li role="presentation"><a href="#tab1" role="tab" data-toggle="tab">بوابة الهيئة التدريسية </a></li>
                 <li role="presentation"><a class="active" href="#tab2" role="tab" data-toggle="tab">بوابة الطلبة</a></li>
                 <li role="presentation"><a href="#tab3" role="tab" data-toggle="tab">طلب الالتحاق</a></li>*@
-        </ul>
+            </ul>
 
-        <div class="tab-content">
-            @for (int i = 0; i < Model.TabeContent.ToList().Count; i++)
-            {
-                if (i == 0)
+            <div class="tab-content">
+                @for (int i = 0; i < Model.TabeContent.ToList().Count; i++)
                 {
-                    <div role="tabpanel" class="tab-pane fade in active" id="tab_@Model.TabeContent.ToList()[i].ID">
-                        @Html.Raw(Model.TabeContent.ToList()[i].Tab_Description)
-                    </div>
+                    if (i == 0)
+                    {
+                        <div role="tabpanel" class="tab-pane fade in active" id="tab_@Model.TabeContent.ToList()[i].ID">
+                            @Html.Raw(Model.TabeContent.ToList()[i].Tab_Description)
+                        </div>
 
+                    }
+                    else
+                    {
+                        <div role="tabpanel" class="tab-pane fade" id="tab_@Model.TabeContent.ToList()[i].ID">
+                            @Html.Raw(Model.TabeContent.ToList()[i].Tab_Description)
+                        </div>
+                    }
                 }
-                else
-                {
-                    <div role="tabpanel" class="tab-pane fade" id="tab_@Model.TabeContent.ToList()[i].ID">
-                        @Html.Raw(Model.TabeContent.ToList()[i].Tab_Description)
-                    </div>
-                }
-            }
-        </div>
+            </div>
+         
     </div>
 </div>
 @*<script>

@@ -632,62 +632,51 @@ namespace tabseetCourse.Controllers
                     Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
                     lang = Session["Lang_ID"];
                 }
-                int Lang_ID = int.Parse(lang.ToString());
-                var value = dbEntity.NewGridPages.Where(e => e.Lang_ID == Lang_ID && e.Pages_ID == pageID).FirstOrDefault();
+                var newpage = dbEntity.New_pages.Find(pageID);
+                //int Lang_ID = int.Parse(lang.ToString());
+                var value = dbEntity.NewGridPages.Where(e =>  e.Pages_ID == pageID).FirstOrDefault();
 
                 if (value != null)
                 {
                     result.GirdContent = new List<GridpageContentModel>();
-                    result.ID = value.ID;
-                    result.Lang_ID = value.Lang_ID.Value;
+                    result.ID = value.ID; 
                     result.Pages_ID = value.Pages_ID.Value;
                     result.Title = value.Title;
                     result.Image_Cover = value.Image_Cover;
-                    var cat = dbEntity.Categories.Select(e => new { e.ID, e.New_Page_ID, e.CanRegister }).Where(e => e.New_Page_ID == pageID).FirstOrDefault();
-                    if (cat != null)
-                    {
-                        result.ContentBtnReg = cat.CanRegister.Value;
-                        result.ID = cat.ID;
-                    }
-                    else
-                    {
-                        result.ContentBtnReg = 0;
-                    }
-
-                    var gridContent = dbEntity.NewGridPage_Content.Where(e => e.GridPageID == value.ID).ToList();
-                    foreach (var item1 in gridContent)
+                    
+                    var cat = dbEntity.Categories.Where(e => e.CategoryType_ID == newpage.CategoryType_ID).ToList();
+                    foreach (var item in cat)
                     {
                         var grdCont = new GridpageContentModel();
-                        int page_ID = int.Parse(item1.DocLinke.ToString());
-                        var categorypage = dbEntity.Categories.Select(e => new { e.ID, e.New_Page_ID, e.Icon, e.CanRegister, e.IsPayed, e.PayedValue }).Where(e => e.New_Page_ID == page_ID).FirstOrDefault();
-                        if (categorypage != null)
+                        if (item != null)
                         {
 
-                            grdCont.Image = categorypage.Icon;
-                            grdCont.Is_reg = categorypage.CanRegister.Value;
+                            result.ContentBtnReg = item.CanRegister.Value;
+                       
+                            grdCont.ID = item.ID;
+                            grdCont.Image = item.Icon;
+                            grdCont.Is_reg = item.CanRegister.Value;
                             int payvalue = 0;
-                            int.TryParse(categorypage.PayedValue, out payvalue);
+                            int.TryParse(item.PayedValue, out payvalue);
                             grdCont.PayValue = payvalue;
                         }
                         else
                         {
+                            result.ContentBtnReg = 0;
+
                             grdCont.Is_reg = 0;
                             grdCont.PayValue = 0;
+                            grdCont.ID = item.ID;
                         }
-                        if (categorypage != null)
-                        {
-                            grdCont.ID = categorypage.ID;
-                        }
-                        else
-                        {
-                            grdCont.ID = item1.ID;
-                        }
-                        grdCont.Description = item1.Description;
-                        grdCont.DocLinke = item1.DocLinke;
-                        grdCont.Title = item1.Title;
-                        grdCont.GridPageID = item1.GridPageID.Value;
+                        grdCont.Description = item.Description;
+                        grdCont.Title = item.NameAr;
+                        grdCont.GridPageID = item.New_Page_ID.Value;
                         result.GirdContent.Add(grdCont);
                     }
+
+               
+                     
+               
                 }
 
             }
@@ -844,7 +833,7 @@ namespace tabseetCourse.Controllers
                 Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
             }
             int Lang_ID = int.Parse(Session["Lang_ID"].ToString());
-            var LPage = dbEntity.New_Page_Tabe.Where(e => e.New_Page_ID == pageID && e.page_H_V_tabe == 2 && e.Lang_ID == Lang_ID).FirstOrDefault();
+            var LPage = dbEntity.New_Page_Tabe.Where(e => e.New_Page_ID == pageID && e.page_H_V_tabe == 1).FirstOrDefault();
             if (LPage != null)
             {
                 ptm.ID = LPage.ID;

@@ -25,6 +25,11 @@ namespace tabseetCourse.Data
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<C__MigrationHistory> C__MigrationHistory { get; set; }
+        public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
+        public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
+        public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
+        public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
         public virtual DbSet<Assignment_Q> Assignment_Q { get; set; }
         public virtual DbSet<Assignment> Assignments { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
@@ -70,5 +75,7 @@ namespace tabseetCourse.Data
         public virtual DbSet<StyleTable> StyleTables { get; set; }
         public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
         public virtual DbSet<UserLocation> UserLocations { get; set; }
+        public virtual DbSet<StoreCategory> StoreCategories { get; set; }
+        public virtual DbSet<StoreProduct> StoreProducts { get; set; }
     }
 }

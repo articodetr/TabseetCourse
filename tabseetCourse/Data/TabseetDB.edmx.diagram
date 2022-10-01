@@ -5,100 +5,111 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="c8c01036d0c346898300c1cb5c98f6e0" Name="Diagram1">
-        <EntityTypeShape EntityType="TabseetDBModel.Assignment_Q" Width="1.5" PointX="11" PointY="8.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Assignment" Width="1.5" PointX="8.75" PointY="42.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Category" Width="1.5" PointX="3.5" PointY="6.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.CategoryType" Width="1.5" PointX="1.25" PointY="8.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.ChatTable" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.CodeGenerated" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Exam_Q" Width="1.5" PointX="11" PointY="5.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Exam" Width="1.5" PointX="8.75" PointY="1.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Lecture" Width="1.5" PointX="6.5" PointY="41.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_About" Width="1.5" PointX="6" PointY="27.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_About_Content" Width="1.5" PointX="8.25" PointY="36.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_ContactUs" Width="1.5" PointX="6" PointY="22" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_CustomerContactUs" Width="1.5" PointX="0.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_FastNews" Width="1.5" PointX="3" PointY="26" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_FooterMenu" Width="1.5" PointX="6" PointY="18.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_Home_Page" Width="1.5" PointX="2.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_lang" Width="1.5" PointX="0.75" PointY="26.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_LR" Width="1.5" PointX="3" PointY="28.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_Menu" Width="1.5" PointX="6" PointY="32.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_news" Width="1.5" PointX="3" PointY="36" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_page_department" Width="1.5" PointX="3" PointY="21.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_page_Department_tab" Width="1.5" PointX="8.25" PointY="20.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_Page_Tabe" Width="1.5" PointX="9" PointY="27.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_Page_tabe_Content" Width="1.5" PointX="11.25" PointY="28.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_Page_V_A_Horizantal_Tabe" Width="1.5" PointX="5.25" PointY="38.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_Page_Vertical_and_H_Tabe" Width="1.5" PointX="10.5" PointY="35.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_pages" Width="1.5" PointX="3.75" PointY="17.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_pages_facality" Width="1.5" PointX="3" PointY="50" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_pages_Text" Width="1.5" PointX="9" PointY="23.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_pracktes" Width="1.5" PointX="3" PointY="56.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_Slider" Width="1.5" PointX="3" PointY="60" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.New_SocialMedia" Width="1.5" PointX="3" PointY="62.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.NewGridPage_Content" Width="1.5" PointX="11.25" PointY="32" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.NewGridPage" Width="1.5" PointX="9" PointY="31.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Q_FillVoid" Width="1.5" PointX="8" PointY="9.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Q_Matching" Width="1.5" PointX="8" PointY="12.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Q_MultiChoice" Width="1.5" PointX="8" PointY="15.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Q_TrueOrFolse" Width="1.5" PointX="8" PointY="6.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Question" Width="1.5" PointX="5.75" PointY="7.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Std_ExamFinish" Width="1.5" PointX="11" PointY="2.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.std_lecture" Width="1.5" PointX="8.75" PointY="46.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.Std_Reg_Category" Width="1.5" PointX="5.75" PointY="2.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.StyleTable" Width="1.5" PointX="0.75" PointY="11.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.sysdiagram" Width="1.5" PointX="10.75" PointY="11.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TabseetDBModel.UserLocation" Width="1.5" PointX="12.75" PointY="11.75" IsExpanded="true" />
-        <AssociationConnector Association="TabseetDBModel.FK_Assignment_Q_Assignment" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Assignment_Q_Questions" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Assignment_Lecture" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Category_Category" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Category_CategoryType" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Exams_Category" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Lecture_Category" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Questions_Category" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Std_Reg_Category_Category" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_CategoryType_CategoryType" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Exam_Q_Exams" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Exam_Q_Questions" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Std_ExamFinish_Exams" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_std_lecture_Lecture" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_About_Content_New_About" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_About_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_About_New_pages" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_ContactUs_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_ContactUs_New_pages" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_FastNews_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_FooterMenu_New_pages" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_GridPage_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_LR_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_Menu_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_news_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_page_department_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_page_Department_tab_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_Page_Tabe_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_Page_V_A_Horizantal_Tabe_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_Page_Vertical_and_H_Tabe_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_pages_facality_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_pages_Text_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_pracktes_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_Slider_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_SocialMedia_New_lang" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_Menu_New_pages" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_page_department_New_Page_V_A_Horizantal_Tabe" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_page_Department_tab_New_page_department" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_Page_tabe_Content_New_Page_Tabe" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_Page_Tabe_New_pages" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_Page_V_A_Horizantal_Tabe_New_pages_facality" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_Page_Vertical_and_H_Tabe_New_Page_V_A_Horizantal_Tabe" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_GridPage_New_pages" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_New_pages_Text_New_pages" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_GridPage_Content_GridPage" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Q_FillVoid_Questions" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Q_Matching_Questions" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Q_MultiChoice_Questions" ManuallyRouted="false" />
-        <AssociationConnector Association="TabseetDBModel.FK_Q_TrueOrFolse_Questions" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="TabseetDBModel.C__MigrationHistory" Width="1.5" PointX="0.75" PointY="2.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.AspNetRole" Width="1.5" PointX="12.75" PointY="16.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.AspNetUserClaim" Width="1.5" PointX="17.25" PointY="15" />
+        <EntityTypeShape EntityType="TabseetDBModel.AspNetUserLogin" Width="1.5" PointX="17.25" PointY="17.75" />
+        <EntityTypeShape EntityType="TabseetDBModel.AspNetUser" Width="1.5" PointX="15" PointY="13.875" />
+        <EntityTypeShape EntityType="TabseetDBModel.Assignment_Q" Width="1.5" PointX="13" PointY="10.25" />
+        <EntityTypeShape EntityType="TabseetDBModel.Assignment" Width="1.5" PointX="10.75" PointY="2" />
+        <EntityTypeShape EntityType="TabseetDBModel.Category" Width="1.5" PointX="5.5" PointY="8.625" />
+        <EntityTypeShape EntityType="TabseetDBModel.CategoryType" Width="1.5" PointX="3.25" PointY="10.125" />
+        <EntityTypeShape EntityType="TabseetDBModel.ChatTable" Width="1.5" PointX="2.75" PointY="2.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.CodeGenerated" Width="1.5" PointX="0.75" PointY="5.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.Exam_Q" Width="1.5" PointX="10" PointY="10.25" />
+        <EntityTypeShape EntityType="TabseetDBModel.Exam" Width="1.5" PointX="7.75" PointY="44.625" />
+        <EntityTypeShape EntityType="TabseetDBModel.Lecture" Width="1.5" PointX="8.5" PointY="0.75" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_About" Width="1.5" PointX="3" PointY="28.625" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_About_Content" Width="1.5" PointX="5.25" PointY="22" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_ContactUs" Width="1.5" PointX="9" PointY="31.75" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_CustomerContactUs" Width="1.5" PointX="2.75" PointY="5.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_FastNews" Width="1.5" PointX="3" PointY="58.25" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_FooterMenu" Width="1.5" PointX="8" PointY="54.125" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_Home_Page" Width="1.5" PointX="4.75" PointY="2.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_lang" Width="1.5" PointX="0.75" PointY="28.375" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_LR" Width="1.5" PointX="3" PointY="67" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_Menu" Width="1.5" PointX="3" PointY="24.875" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_news" Width="1.5" PointX="3" PointY="32.625" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_page_department" Width="1.5" PointX="7.5" PointY="27.875" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_page_Department_tab" Width="1.5" PointX="11.75" PointY="31.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_Page_Tabe" Width="1.5" PointX="6" PointY="35.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_Page_tabe_Content" Width="1.5" PointX="8.25" PointY="41" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_Page_V_A_Horizantal_Tabe" Width="1.5" PointX="5.25" PointY="25.125" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_Page_Vertical_and_H_Tabe" Width="1.5" PointX="10.5" PointY="28.125" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_pages" Width="1.5" PointX="5.75" PointY="17.25" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_pages_facality" Width="1.5" PointX="3" PointY="19.375" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_pages_Text" Width="1.5" PointX="8" PointY="23.625" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_pracktes" Width="1.5" PointX="3" PointY="63.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_Slider" Width="1.5" PointX="3" PointY="60.75" />
+        <EntityTypeShape EntityType="TabseetDBModel.New_SocialMedia" Width="1.5" PointX="3" PointY="46" />
+        <EntityTypeShape EntityType="TabseetDBModel.NewGridPage_Content" Width="1.5" PointX="8.25" PointY="37.75" />
+        <EntityTypeShape EntityType="TabseetDBModel.NewGridPage" Width="1.5" PointX="6" PointY="31.625" />
+        <EntityTypeShape EntityType="TabseetDBModel.Q_FillVoid" Width="1.5" PointX="10" PointY="17.25" />
+        <EntityTypeShape EntityType="TabseetDBModel.Q_Matching" Width="1.5" PointX="10" PointY="6.125" />
+        <EntityTypeShape EntityType="TabseetDBModel.Q_MultiChoice" Width="1.5" PointX="10" PointY="20" />
+        <EntityTypeShape EntityType="TabseetDBModel.Q_TrueOrFolse" Width="1.5" PointX="10" PointY="14.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.Question" Width="1.5" PointX="7.75" PointY="9.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.Std_ExamFinish" Width="1.5" PointX="10" PointY="45.25" />
+        <EntityTypeShape EntityType="TabseetDBModel.std_lecture" Width="1.5" PointX="10.75" PointY="22.875" />
+        <EntityTypeShape EntityType="TabseetDBModel.Std_Reg_Category" Width="1.5" PointX="7.75" PointY="49.375" />
+        <EntityTypeShape EntityType="TabseetDBModel.StyleTable" Width="1.5" PointX="4.75" PointY="5.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.sysdiagram" Width="1.5" PointX="6.75" PointY="5.5" />
+        <EntityTypeShape EntityType="TabseetDBModel.UserLocation" Width="1.5" PointX="0.75" PointY="13.5" />
+        <AssociationConnector Association="TabseetDBModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" />
+        <AssociationConnector Association="TabseetDBModel.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" />
+        <AssociationConnector Association="TabseetDBModel.FK_Assignment_Q_Assignment" />
+        <AssociationConnector Association="TabseetDBModel.FK_Assignment_Q_Questions" />
+        <AssociationConnector Association="TabseetDBModel.FK_Assignment_Lecture" />
+        <AssociationConnector Association="TabseetDBModel.FK_Category_Category" />
+        <AssociationConnector Association="TabseetDBModel.FK_Category_CategoryType" />
+        <AssociationConnector Association="TabseetDBModel.FK_Exams_Category" />
+        <AssociationConnector Association="TabseetDBModel.FK_Lecture_Category" />
+        <AssociationConnector Association="TabseetDBModel.FK_Questions_Category" />
+        <AssociationConnector Association="TabseetDBModel.FK_Std_Reg_Category_Category" />
+        <AssociationConnector Association="TabseetDBModel.FK_CategoryType_CategoryType" />
+        <AssociationConnector Association="TabseetDBModel.FK_Exam_Q_Exams" />
+        <AssociationConnector Association="TabseetDBModel.FK_Exam_Q_Questions" />
+        <AssociationConnector Association="TabseetDBModel.FK_Std_ExamFinish_Exams" />
+        <AssociationConnector Association="TabseetDBModel.FK_std_lecture_Lecture" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_About_Content_New_About" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_About_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_About_New_pages" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_ContactUs_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_ContactUs_New_pages" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_FastNews_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_FooterMenu_New_pages" />
+        <AssociationConnector Association="TabseetDBModel.FK_GridPage_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_LR_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_Menu_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_news_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_page_department_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_page_Department_tab_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_Page_Tabe_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_Page_V_A_Horizantal_Tabe_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_Page_Vertical_and_H_Tabe_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_pages_facality_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_pages_Text_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_pracktes_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_Slider_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_SocialMedia_New_lang" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_Menu_New_pages" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_page_department_New_Page_V_A_Horizantal_Tabe" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_page_Department_tab_New_page_department" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_Page_tabe_Content_New_Page_Tabe" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_Page_Tabe_New_pages" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_Page_V_A_Horizantal_Tabe_New_pages_facality" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_Page_Vertical_and_H_Tabe_New_Page_V_A_Horizantal_Tabe" />
+        <AssociationConnector Association="TabseetDBModel.FK_GridPage_New_pages" />
+        <AssociationConnector Association="TabseetDBModel.FK_New_pages_Text_New_pages" />
+        <AssociationConnector Association="TabseetDBModel.FK_GridPage_Content_GridPage" />
+        <AssociationConnector Association="TabseetDBModel.FK_Q_FillVoid_Questions" />
+        <AssociationConnector Association="TabseetDBModel.FK_Q_Matching_Questions" />
+        <AssociationConnector Association="TabseetDBModel.FK_Q_MultiChoice_Questions" />
+        <AssociationConnector Association="TabseetDBModel.FK_Q_TrueOrFolse_Questions" />
+        <AssociationConnector Association="TabseetDBModel.AspNetUserRoles" />
+        <EntityTypeShape EntityType="TabseetDBModel.StoreCategory" Width="1.5" PointX="12.375" PointY="6" />
+        <EntityTypeShape EntityType="TabseetDBModel.StoreProduct" Width="1.5" PointX="14.625" PointY="5.875" />
+        <AssociationConnector Association="TabseetDBModel.FK_StoreProduct_StoreCategory" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

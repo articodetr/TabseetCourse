@@ -232,6 +232,18 @@
     <Compile Include="Controllers\NotFoundController.cs" />
     <Compile Include="Controllers\StudentsController.cs" />
     <Compile Include="Controllers\TeacherController.cs" />
+    <Compile Include="Data\AspNetRole.cs">
+      <DependentUpon>TabseetDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\AspNetUser.cs">
+      <DependentUpon>TabseetDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\AspNetUserClaim.cs">
+      <DependentUpon>TabseetDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\AspNetUserLogin.cs">
+      <DependentUpon>TabseetDB.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\Assignment.cs">
       <DependentUpon>TabseetDB.tt</DependentUpon>
     </Compile>
@@ -248,6 +260,9 @@
       <DependentUpon>TabseetDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\CodeGenerated.cs">
+      <DependentUpon>TabseetDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\C__MigrationHistory.cs">
       <DependentUpon>TabseetDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Exam.cs">
@@ -356,6 +371,12 @@
       <DependentUpon>TabseetDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Std_Reg_Category.cs">
+      <DependentUpon>TabseetDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\StoreCategory.cs">
+      <DependentUpon>TabseetDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\StoreProduct.cs">
       <DependentUpon>TabseetDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\StyleTable.cs">
