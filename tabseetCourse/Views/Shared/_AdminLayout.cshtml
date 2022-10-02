@@ -171,8 +171,40 @@
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item menu-open">
+                            <a href="#" class="nav-link active">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>
+                                    إدارة المتجر
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="@Url.Action("StoreCategory", "ControlPanel")" class="nav-link">
+                                        <i class="nav-icon  fas fa-solar-panel"></i>
+                                        <p>
+                                            الفئاة
+                                            @*<span class="right badge badge-danger">New</span>*@
+                                        </p>
+                                    </a>
+                                </li>
+
+
+                                <li class="nav-item">
+                                    <a href="@Url.Action("StoreProduct", "ControlPanel")" class="nav-link">
+                                        <i class="nav-icon  fas fa-solar-panel"></i>
+                                        <p>
+                                            المنتجات
+                                            @*<span class="right badge badge-danger">New</span>*@
+                                        </p>
+                                    </a>
+                                </li>
+                              
+                            </ul>
+                        </li>
                         <!-- Add icons to the links using the .nav-icon class
-                        with font-awesome or any other icon font library -->
+    with font-awesome or any other icon font library -->
                         @if (viewModel != null && viewModel.L_role.Count > 0)
                         {
                             foreach (var item in viewModel.L_role)
@@ -197,15 +229,7 @@
                                                     </p>
                                                 </a>
                                             </li>
-                                            <!--<li class="nav-item">
-        <a href="@Url.Action("categoriesUIUX", "ControlPanel")" class="nav-link">
-            <i class="nav-icon  fas fa-solar-panel"></i>
-            <p>
-                الدورات التدريبية-->
-                                            @*<span class="right badge badge-danger">New</span>*@
-                                            <!--</p>
-        </a>
-    </li>-->
+
 
                                             <li class="nav-item">
                                                 <a href="@Url.Action("News", "ControlPanel")" class="nav-link">

@@ -17,6 +17,9 @@ namespace tabseetCourse.Data
         public int ID { get; set; }
         public string name { get; set; }
         public int Category_ID { get; set; }
+        public string Description { get; set; }
+        public Nullable<double> Price { get; set; }
+        public string Images { get; set; }
     
         public virtual StoreCategory StoreCategory { get; set; }
     }

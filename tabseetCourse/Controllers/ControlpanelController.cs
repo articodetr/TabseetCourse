@@ -174,7 +174,7 @@ namespace tabseetCourse.Controllers
                         context.SaveChanges();
                         New_pages pg = new New_pages();
                         pg.Page_Type = 7;
-                        
+
                         pg.name = ctm.NameAR;
                         pg.IsUiUx = 0;
                         pg.CategoryType_ID = ct.ID;
@@ -183,7 +183,7 @@ namespace tabseetCourse.Controllers
                         var gp = new NewGridPage();
                         gp.Pages_ID = pg.ID;
                         gp.Title = pg.name;
-                       
+
                         context.NewGridPages.Add(gp);
                         context.SaveChanges();
                         dbTran.Commit();
@@ -337,7 +337,7 @@ namespace tabseetCourse.Controllers
                 if (isAuthorize == true)
                 {
                     var values = dbEntity.Categories
-                               .Select(x => new { x.ID, x.NameAr, x.NameEn, x.Category1, x.CategoryType_ID,x.New_Page_ID, x.CategoryType.NameAR, x.IsPayed, x.PayedValue, x.ParentCateogry_ID, examName = x.Exams.FirstOrDefault().Name, x.CanRegister }).OrderByDescending(i => i.ID);
+                               .Select(x => new { x.ID, x.NameAr, x.NameEn, x.Category1, x.CategoryType_ID, x.New_Page_ID, x.CategoryType.NameAR, x.IsPayed, x.PayedValue, x.ParentCateogry_ID, examName = x.Exams.FirstOrDefault().Name, x.CanRegister }).OrderByDescending(i => i.ID);
                     foreach (var item in values)
                     {
                         CategoryModel ctm = new CategoryModel();
@@ -430,7 +430,7 @@ namespace tabseetCourse.Controllers
                         else
                         {
                             pg.Page_Type = 7;
-                          
+
                         }
 
                         pg.name = value.NameAr;
@@ -438,22 +438,22 @@ namespace tabseetCourse.Controllers
                         pg.CategoryType_ID = isroot.ID;
                         context.New_pages.Add(pg);
                         context.SaveChanges();
-                        if (pg.Page_Type==7)
+                        if (pg.Page_Type == 7)
                         {
                             var gp = new NewGridPage();
-                            gp.Pages_ID=pg.ID;
+                            gp.Pages_ID = pg.ID;
                             gp.Title = pg.name;
-                            if (value.UploadCover!=null)
+                            if (value.UploadCover != null)
                             {
                                 gp.Image_Cover = SaveImage(value.UploadCover);
                             }
                             context.NewGridPages.Add(gp);
                             context.SaveChanges();
                         }
-                        else if (pg.Page_Type==4)
+                        else if (pg.Page_Type == 4)
                         {
                             var pt = new New_Page_Tabe();
-                            
+
                             pt.Title = pg.name;
                             pt.New_Page_ID = pg.ID;
                             pt.Lang_ID = 1;
@@ -470,7 +470,7 @@ namespace tabseetCourse.Controllers
                             context.NewGridPage_Content.Add(gpcontent);
                             context.SaveChanges();
                         }
-                        
+
                         Category ctm = new Category();
                         ctm.NameAr = value.NameAr;
                         ctm.NameEn = value.NameEn;
@@ -616,15 +616,15 @@ namespace tabseetCourse.Controllers
                     {
                         value.DocumentBook = SaveImage(ctm.UploadDocumentBook);
                     }
-                    if (ctm.UploadCover!=null&& ctm.UploadCover.ContentLength>0)
+                    if (ctm.UploadCover != null && ctm.UploadCover.ContentLength > 0)
                     {
                         var result = dbEntity.New_pages.Find(value.New_Page_ID);
-                        if (result!=null)
+                        if (result != null)
                         {
-                            if (result.Page_Type==7)
+                            if (result.Page_Type == 7)
                             {
                                 var gp = dbEntity.NewGridPages.Find(result.ID);
-                                if (gp!=null)
+                                if (gp != null)
                                 {
                                     gp.Image_Cover = SaveImage(ctm.UploadCover);
                                     dbEntity.NewGridPages.Attach(gp);
@@ -632,12 +632,12 @@ namespace tabseetCourse.Controllers
                                     dbEntity.SaveChanges();
                                 }
                             }
-                            else if (result.Page_Type==4)
+                            else if (result.Page_Type == 4)
                             {
 
                             }
                         }
-                     
+
                     }
 
                     value.CanRegister = ctm.CanRegister;
@@ -3726,7 +3726,7 @@ namespace tabseetCourse.Controllers
         [HttpGet]
         public ActionResult Pages()
         {
-            var vlaue = dbEntity.New_pages.Where(e=>e.IsUiUx==1).ToList();
+            var vlaue = dbEntity.New_pages.Where(e => e.IsUiUx == 1).ToList();
 
             return View(vlaue);
         }
@@ -5559,6 +5559,7 @@ namespace tabseetCourse.Controllers
         #endregion
 
         #region Store
+        #region storeCategoryes
         [HttpGet]
         public ActionResult StoreCategory()
         {
@@ -5567,6 +5568,7 @@ namespace tabseetCourse.Controllers
             foreach (var item in result)
             {
                 StoreCategoryesModel sgm = new StoreCategoryesModel();
+                sgm.ID = item.ID;
                 sgm.Name = item.Name;
                 Lsgm.Add(sgm);
             }
@@ -5589,8 +5591,167 @@ namespace tabseetCourse.Controllers
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
             }
-           
+
         }
+        [HttpPost]
+        public async Task<JsonResult> EStoreCategory(string catName, int id)
+        {
+            try
+            {
+                var result = await dbEntity.StoreCategories.FindAsync(id);
+                if (result != null)
+                {
+                    result.Name = catName;
+                    dbEntity.StoreCategories.Attach(result);
+                    dbEntity.Entry(result).State = EntityState.Modified;
+                    dbEntity.SaveChanges();
+                }
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                return Json(new { success = false, response = "" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+        [HttpPost]
+        public JsonResult DeleteStoreCategory(int id)
+        {
+            try
+            {
+                var result = dbEntity.StoreCategories.Find(id);
+                dbEntity.StoreCategories.Remove(result);
+                dbEntity.SaveChanges();
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                return Json(new { success = false, response = "تم الحذف" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost]
+        public JsonResult GetStoreCategory(int CatID)
+        {
+            var result = dbEntity.StoreCategories.Find(CatID);
+            StoreCategoryesModel scm = new StoreCategoryesModel();
+            scm.ID = result.ID;
+            scm.Name = result.Name;
+            Response.StatusCode = (int)HttpStatusCode.OK;
+            return Json(new { success = true, response = scm }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+        #region Product
+        [HttpGet]
+        public ActionResult StoreProduct()
+        {
+            List<StoreProductModel> L_sp = new List<StoreProductModel>();
+            try
+            {
+
+                var result = dbEntity.StoreProducts.ToList();
+                foreach (var item in result)
+                {
+                    StoreProductModel sp = new StoreProductModel();
+                    sp.ID = item.ID;
+                    sp.name = item.name;
+                    sp.Category_ID = item.Category_ID;
+                    sp.categoryName = item.StoreCategory.Name;
+                    sp.Price = (float)item.Price;
+                    L_sp.Add(sp);
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return View(L_sp);
+        }
+        [HttpPost]
+        public ActionResult CreateProduct(StoreProductModel spm)
+        {
+            StoreProduct sc = new StoreProduct();
+            sc.name = spm.name;
+            sc.Category_ID = spm.Category_ID;
+            sc.Description = spm.Description;
+            sc.Price = spm.Price;
+            foreach (var item in spm.LPFB)
+            {
+                sc.Images += SaveImage(item) + ";";
+            }
+            dbEntity.StoreProducts.Add(sc);
+            dbEntity.SaveChanges();
+            return RedirectToAction("StoreProduct");
+        }
+        [HttpPost]
+        public ActionResult EditeProduct(StoreProductModel spm)
+        {
+            try
+            {
+                var pro = dbEntity.StoreProducts.Find(spm.ID);
+                if (pro != null)
+                {
+                    pro.name = spm.name;
+                    pro.Price = spm.Price;
+                    pro.Category_ID = spm.Category_ID;
+                    pro.Description = spm.Description;
+                    foreach (var item in spm.LPFB)
+                    {
+                        pro.Images += SaveImage(item) + ";";
+                    }
+                    dbEntity.StoreProducts.Attach(pro);
+                    dbEntity.Entry(pro).State = System.Data.Entity.EntityState.Modified;
+                    dbEntity.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return RedirectToAction("StoreProduct");
+        }
+
+        [HttpPost]
+        public JsonResult getProductInfo(int id)
+        {
+            var pro = dbEntity.StoreProducts.Find(id);
+            StoreProductModel spm = new StoreProductModel();
+            spm.ID = id;
+            spm.Category_ID = pro.Category_ID;
+            spm.name = pro.name;
+            spm.Price = (float)pro.Price;
+            spm.Description = pro.Description;
+            Response.StatusCode = (int)HttpStatusCode.OK;
+            return Json(new { success = false, response = spm }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult GetAllStoreCategory()
+        {
+            List<StoreCategoryesModel> L_ctm = new List<StoreCategoryesModel>();
+            try
+            {
+                var values = dbEntity.StoreCategories.ToList();
+                foreach (var item in values)
+                {
+                    StoreCategoryesModel ctm = new StoreCategoryesModel();
+                    ctm.ID = item.ID;
+                    ctm.Name = item.Name;
+
+                    L_ctm.Add(ctm);
+                }
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = "" }, JsonRequestBehavior.AllowGet);
+            }
+            Response.StatusCode = (int)HttpStatusCode.OK;
+            return Json(L_ctm, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
         #endregion
     }
 

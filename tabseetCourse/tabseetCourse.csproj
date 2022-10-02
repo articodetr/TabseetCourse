@@ -421,7 +421,7 @@
     <Compile Include="Models\Q_MultiChoiceModel.cs" />
     <Compile Include="Models\Q_TrueOrFolseModel.cs" />
     <Compile Include="Models\Std_Reg_CategoryModel.cs" />
-    <Compile Include="Models\StoreProduct.cs" />
+    <Compile Include="Models\StoreProductModel.cs" />
     <Compile Include="Models\TetcherModel.cs" />
     <Compile Include="Models\userlocationModel.cs" />
     <Compile Include="Models\UserModel.cs" />
@@ -9173,6 +9173,7 @@
     <Content Include="Views\Home\ReadMoreNews.cshtml" />
     <Content Include="Views\Controlpanel\AboutPage.cshtml" />
     <Content Include="Views\Controlpanel\StoreCategory.cshtml" />
+    <Content Include="Views\Controlpanel\StoreProduct.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

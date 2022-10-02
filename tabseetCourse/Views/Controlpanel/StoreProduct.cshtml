@@ -1,0 +1,433 @@
+﻿@model IEnumerable<tabseetCourse.Models.StoreProductModel>
+
+@{
+    ViewBag.Title = "StoreProduct";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<link rel="stylesheet" href="~/Content/plugins/summernote/summernote-bs4.css" />
+<style>
+    button:active {
+        background: olive;
+    }
+</style>
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+
+            <div class="col-sm-2">
+                @*<input type="button" onclick="GetCategory()"  class="btn btn-success float-left">*@
+                <button class="btn btn-success col fileinput-button" data-target="#exampleModal" data-toggle="modal">
+                    <i class="fas fa-plus"></i>
+                    <span>اضافة منتج</span>
+                </button>
+
+            </div>
+            <div class="col-sm-4 offset-md-5">
+
+            </div>
+        </div>
+
+    </div><!-- /.container-fluid -->
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Products</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <table id="example1" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+
+                                <th>Price</th>
+                                <th> </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.ID</td>
+                                    <td>@item.name</td>
+                                    <td>@item.categoryName</td>
+                                    <td>@item.Price</td>
+                                    <td>
+                                        <div class="btn-group">
+
+                                            <button class="btn btn-info" onclick="getProductInfo(@item.ID)" data-toggle="modal" data-target="#EditModal">
+                                                <i class="fas fa-edit">
+                                                </i>
+                                                تعديل
+                                            </button>
+
+
+
+
+                                            <button class="btn btn-danger" onclick="btnDelete(@item.ID)">
+                                                <i class="fas fa-trash">
+                                                </i>
+                                                حذف
+                                            </button>
+
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            }
+
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+
+                                <th>Price</th>
+
+                                <th> </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+            </div>
+
+            <!-- /.card -->
+        </div>
+
+
+    </div>
+</section>
+@*//exampleModal*@
+<div class="modal fade bd-example-modal-lg" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">إضافة منتج</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("CreateProduct", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <table style="width: 100%">
+
+                        <tr>
+                            <td>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Product Name</label>
+                                            <input type="text" id="name" name="name" class="form-control" style="width:100%" placeholder="Product Name" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="row">
+                                    <div class="col-sm-12">
+
+                                        <div class="form-group">
+                                            <label>Select Category</label>
+                                            <select class="form-control" id="Category_ID" name="Category_ID">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+
+
+                        <tr>
+                            <td>
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <!-- select -->
+                                        <div class="form-group">
+                                            <label>Price</label>
+                                            <input type="number" id="Price" name="Price" class="form-control" style="width:100%" placeholder="Price" />
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <!-- select -->
+                                        <div class="form-group">
+                                            <label>وصف</label>
+                                            <input type="text" id="summernote" name="summernote" style="width:100%" />
+                                            <input type="text" id="HidedDescriptionID" name="Description" class="form-control" style="width:100%;display:none" />
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <!-- select -->
+                                        <div class="form-group">
+                                            <label>Main Image</label>
+                                            <input type="file" id="LPFB" name="LPFB" class="form-control btn btn-primary" multiple style="width:100%" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-primary" value="Save" />
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-lg" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">تعديل المنتج</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+     
+                        <div class="modal-body">
+                            @using (Html.BeginForm("EditeProduct", "Controlpanel", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {
+                                <table style="width: 100%">
+
+                                    <tr>
+                                        <td>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <input type="text" id="ID" name="ID" style="display:none" />
+                                                        <label>Product Name</label>
+                                                        <input type="text" id="E_name" name="name" class="form-control" style="width:100%" placeholder="Product Name" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+
+                                                    <div class="form-group">
+                                                        <label>Select Category</label>
+                                                        <select class="form-control" id="E_Category_ID" name="Category_ID">
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+
+
+                                    <tr>
+                                        <td>
+
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <!-- select -->
+                                                    <div class="form-group">
+                                                        <label>Price</label>
+                                                        <input type="number" id="E_Price" name="Price" class="form-control" style="width:100%" placeholder="Price" />
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <!-- select -->
+                                                    <div class="form-group">
+                                                        <label>وصف</label>
+                                                        <input type="text" id="E_summernote" name="summernote" style="width:100%" />
+                                                        <input type="text" id="E_HidedDescriptionID" name="Description" class="form-control" style="width:100%;display:none" />
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <!-- select -->
+                                                    <div class="form-group">
+                                                        <label>Main Image</label>
+                                                        <input type="file" id="E_LPFB" name="LPFB" class="form-control btn btn-primary" multiple style="width:100%" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="modal-footer">
+                                    <input type="submit" class="btn btn-primary" value="Update" />
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+            <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+            <script src="~/Content/static/app/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
+            <script src="~/Content/plugins/summernote/summernote-bs4.min.js"></script>
+
+            <script>
+
+    $(function () {
+        bsCustomFileInput.init();
+
+
+        $('#summernote').summernote();
+        $('#E_summernote').summernote();
+        
+        $('#summernote').on('summernote.change', function (we, e) {
+            var summernote = $("#summernote").summernote('code');
+            $('#HidedDescriptionID').val(summernote);
+        });
+
+
+        $('#E_summernote').on('summernote.change', function (we, e) {
+            var summernote = $("#E_summernote").summernote('code');
+            $('#E_HidedDescriptionID').val(summernote);
+        });
+   
+    });
+              
+    $(document).ready(function () {
+        //Initialize Select2 Elements
+        $('.select2').select2();
+          $.ajax(
+            {
+                async: true,
+                type: 'POST',
+
+                url: '@Url.Action("GetAllStoreCategory", "Controlpanel")',
+                success: function (data) {
+                    var s = '<option value=0> Select Type </option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                    }
+                    $("#Category_ID").html(s);
+                    $("#E_Category_ID").html(s);
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    });
+
+
+
+    function getProductInfo(ID) {
+        $.ajax(
+            {
+                async: true,
+                type: 'POST',
+                data: { id: ID },
+                url: '@Url.Action("getProductInfo", "Controlpanel")',
+                success: function (data) {  
+                    $("#ID").val(data.response.ID);
+                    $("#E_Category_ID").val(data.response.Category_ID);
+                    $("#E_name").val(data.response.name);
+                    $("#E_Price").val(data.response.Price);
+                    $("#E_HidedDescriptionID").val(data.response.Description);
+                    $("#E_summernote").summernote('code', data.response.Description);
+
+                },
+                error: function (response) {
+                    alert("the problem is " + response.responseText);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
+    }
+
+    function btnDelete(ItemID) {
+        var confirmation = confirm("Are you shore");
+        if (confirmation == true) {
+            $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+
+                    data: { ID: ItemID },
+
+                    url: '@Url.Action("DeleteProduct", "AdminPanel")',
+                    success: function (data) {
+                        window.location.reload();
+
+                    },
+                    error: function (response) {
+                        //alert("the problem is " + response.responseText);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                });
+        }
+    }
+
+
+
+
+
+
+            </script>
+

@@ -564,6 +564,9 @@
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="name" Type="nvarchar(max)" />
           <Property Name="Category_ID" Type="int" Nullable="false" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="Price" Type="float" />
+          <Property Name="Images" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="StyleTables">
           <Key>
@@ -3097,6 +3100,9 @@
           <Property Name="name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Category_ID" Type="Int32" Nullable="false" />
           <NavigationProperty Name="StoreCategory" Relationship="TabseetDBModel.FK_StoreProduct_StoreCategory" FromRole="StoreProduct" ToRole="StoreCategory" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Price" Type="Double" />
+          <Property Name="Images" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_StoreProduct_StoreCategory">
           <End Type="TabseetDBModel.StoreCategory" Role="StoreCategory" Multiplicity="1" />
@@ -3748,6 +3754,9 @@
           <EntitySetMapping Name="StoreProducts">
             <EntityTypeMapping TypeName="TabseetDBModel.StoreProduct">
               <MappingFragment StoreEntitySet="StoreProduct">
+                <ScalarProperty Name="Images" ColumnName="Images" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Category_ID" ColumnName="Category_ID" />
                 <ScalarProperty Name="name" ColumnName="name" />
                 <ScalarProperty Name="ID" ColumnName="ID" />

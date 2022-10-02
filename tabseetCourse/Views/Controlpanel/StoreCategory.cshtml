@@ -219,7 +219,7 @@
         document.getElementById("btnUpdate").disabled = true;
 
 
-           $.ajax(
+           @*$.ajax(
             {
                 async: true,
                 type: 'POST',
@@ -239,7 +239,7 @@
                 complete: function (response) {
                     //alert("finish call jasion " + response);
                 }
-            });
+            });*@
     });
 
     function Valadiation() {
@@ -262,26 +262,19 @@
 
     }
       $('#btnSave').click(function () {
-        var fd = new FormData();
+     
 
           var NameAR_ID = $("#NameAR_ID").val();
-          var NameEN_ID = $("#NameEN_ID").val();
-          var parent =  $("#parentCategory").val();
-
-
-
-          fd.NameAR = NameAR_ID;
-          fd.NameEN = NameEN_ID;
-          fd.ParentID = parent;
-        var dataJson = JSON.stringify(fd);
+ 
         $.ajax(
             {
                 async: true,
                 type: 'POST',
-                dataType: 'JSON',
-                contentType: 'application/json; charset=utf=8',
-                data: dataJson,
-                url: '@Url.Action("CreateCategoriesType", "Controlpanel")',
+                //dataType: 'JSON',
+                //contentType: 'application/json; charset=utf=8',
+                data: { catName: NameAR_ID }
+,
+                url: '@Url.Action("StoreCategory", "Controlpanel")',
                 success: function (data) {
                     window.location.reload();
                 },
@@ -294,25 +287,16 @@
             });
       });
     $('#btnUpdate').click(function ()
-    {
-        var fd = new FormData();
-        var NameAR_ID = $("#EditNameAR_ID").val();
-        var NameEN_ID = $("#EditNameEN_ID").val();
-        var parent = $("#EparentCategory").val();
+    { 
+        var NameAR_ID = $("#EditNameAR_ID").val(); 
         var ID = $("#EditID").val();
-        fd.NameAR = NameAR_ID;
-        fd.NameEN = NameEN_ID;
-        fd.ParentID = parent;
-        fd.ID = ID;
-        var dataJson = JSON.stringify(fd);
+        var NameAR = NameAR_ID; 
         $.ajax(
             {
                 async: true,
-                type: 'POST',
-                dataType: 'JSON',
-                contentType: 'application/json; charset=utf=8',
-                data: dataJson,
-                url: '@Url.Action("EditeCategoriesType", "Controlpanel")',
+                type: 'POST', 
+                data: { catName: NameAR, id: ID },
+                url: '@Url.Action("EStoreCategory", "Controlpanel")',
                 success: function (data) {
                     window.location.reload();
                 },
@@ -325,20 +309,17 @@
             });
     });
     function GetCategoryByID(ID)
-    {
-
+    { 
         $.ajax(
             {
                 async: true,
-                type: 'POST',
-                //dataType: 'JSON',
-                //contentType: 'application/json; charset=utf=8',
-                data: { ctmid: ID },
-                url: '@Url.Action("GetCategoriesTypeByID", "Controlpanel")',
+                type: 'POST', 
+                data: { CatID: ID },
+                url: '@Url.Action("GetStoreCategory", "Controlpanel")',
                 success: function (data) {
-                    $("#EditNameAR_ID").val(data.NameAR);
-                    $("#EditNameEN_ID").val(data.NameEN);
-                    $("#EditID").val(data.ID);
+                    console.log(data);
+                    $("#EditNameAR_ID").val(data.response.Name); 
+                    $("#EditID").val(data.response.ID);
                 },
                 error: function (response) {
                     alert("the problem is " + response.responseText);
@@ -373,8 +354,8 @@
                         type: 'POST',
                         //dataType: 'JSON',
                         //contentType: 'application/json; charset=utf=8',
-                        data: { cattID: ID },
-                        url: '@Url.Action("DeleteCategoriesType", "Controlpanel")',
+                        data: { id: ID },
+                        url: '@Url.Action("DeleteStoreCategory", "Controlpanel")',
                         success: function (data) {
                             swalWithBootstrapButtons.fire(
                                 'Deleted!',
