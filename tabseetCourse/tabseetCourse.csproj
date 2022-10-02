@@ -743,6 +743,7 @@
     <Content Include="Content\CoustomeStyle.css" />
     <Content Include="Content\css\bootstrap-datepicker.min.css" />
     <Content Include="Content\css\intlTelInput.css" />
+    <Content Include="Content\css\owl.carousel.min.css" />
     <Content Include="Content\css\slick-theme.css" />
     <Content Include="Content\css\slick.css" />
     <Content Include="Content\css\store.css" />
@@ -2477,6 +2478,7 @@
     <Content Include="Content\js\intlTelInput.js" />
     <Content Include="Content\js\jquery-2.2.0.min.js" />
     <Content Include="Content\js\jquery.min.js" />
+    <Content Include="Content\js\owl.carousel.min.js" />
     <Content Include="Content\js\slick.min.js" />
     <Content Include="Content\js\swiper-bundle.min.js" />
     <Content Include="Content\logo2.png" />
@@ -9059,6 +9061,7 @@
       <DependentUpon>TabseetDB.edmx</DependentUpon>
     </Content>
     <None Include="Scripts\jquery-3.6.0.intellisense.js" />
+    <Content Include="Scripts\CustomJavascript.js" />
     <Content Include="Scripts\jquery-3.6.0.js" />
     <Content Include="Scripts\jquery-3.6.0.min.js" />
     <Content Include="Scripts\jquery-3.6.0.slim.js" />
@@ -9069,6 +9072,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Uploade\Images\slider.jpg" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -9174,10 +9178,11 @@
     <Content Include="Views\Controlpanel\AboutPage.cshtml" />
     <Content Include="Views\Controlpanel\StoreCategory.cshtml" />
     <Content Include="Views\Controlpanel\StoreProduct.cshtml" />
+    <Content Include="Views\Home\Store.cshtml" />
+    <Content Include="Views\Home\ProductDetiles.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Uploade\Images\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

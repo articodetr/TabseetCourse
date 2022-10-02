@@ -5728,6 +5728,21 @@ namespace tabseetCourse.Controllers
             return Json(new { success = false, response = spm }, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
+        public JsonResult DeleteStoreProduct(int id)
+        {
+            try
+            {
+                var pro = dbEntity.StoreProducts.Find(id);
+                dbEntity.StoreProducts.Remove(pro);
+                dbEntity.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+            }
+            Response.StatusCode = (int)HttpStatusCode.OK;
+            return Json(new { success = false, response = "" }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
         public JsonResult GetAllStoreCategory()
         {
             List<StoreCategoryesModel> L_ctm = new List<StoreCategoryesModel>();

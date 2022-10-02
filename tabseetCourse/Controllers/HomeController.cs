@@ -1407,6 +1407,99 @@ namespace tabseetCourse.Controllers
             }
             return View(result);
         }
+
+
+        [HttpGet]
+        public ActionResult Store(int cat_ID=0)
+        {
+            
+            List<StoreProductModel> LSP = new List<StoreProductModel>();
+            List<StoreProduct> result = new List<StoreProduct>();
+            if (cat_ID!=0)
+            {
+                  result = dbEntity.StoreProducts.Where(e => e.Category_ID == cat_ID).ToList();
+            }else
+            {
+                  result = dbEntity.StoreProducts.ToList();
+            }
+            
+            foreach (var item in result)
+            {
+                StoreProductModel model = new StoreProductModel();
+                model.ID = item.ID;
+                model.name=item.name;
+                model.Price = (float)item.Price;
+                var image= SpliteString(item.Images, ';');
+                model.Images = new List<string>();
+                model.Images.Add( image[0]);
+                LSP.Add(model);
+            }
+
+            var category = dbEntity.StoreCategories.ToList();
+            List<StoreCategoryesModel> lscm = new List<StoreCategoryesModel>();
+            foreach (var item in category)
+            {
+                StoreCategoryesModel scm = new StoreCategoryesModel();
+                scm.ID = item.ID;
+                scm.Name = item.Name;
+                scm.ProductStoreCount = item.StoreProducts.Count.ToString();
+                lscm.Add(scm);
+            }
+            ViewBag.StoreCategory = lscm;
+            return View(LSP);
+        }
+        [HttpGet]
+        public ActionResult ProductDetiles(int ProID)
+        {
+            StoreProductModel spm = new StoreProductModel();
+            try
+            {
+                var result = dbEntity.StoreProducts.Find(ProID);
+                if (result!=null)
+                {
+                    spm.ID = result.ID;
+                    spm.name = result.name;
+                    spm.categoryName = result.StoreCategory.Name;
+                    spm.Description = result.Description;
+                    spm.Price =(float) result.Price;
+                    List<string> images = SpliteString(result.Images, ';');
+                    spm.Images = new List<string>();
+                    foreach (var item in images)
+                    {
+                        spm.Images.Add(item.ToString());
+                    }
+                    var products=result.StoreCategory.StoreProducts.ToList();
+                 List<StoreProductModel> L_spm = new List<StoreProductModel>();
+                    int productcount = 0;
+                    foreach (var item in products)
+                    {
+                        if (productcount<3)
+                        {
+                            StoreProductModel pm = new StoreProductModel();
+                            pm.ID = item.ID;
+                            pm.name = item.name;
+                            pm.Price = (float)item.Price;
+                            pm.Images = new List<string>();
+                            pm.Images = SpliteString(item.Images, ';');
+                            L_spm.Add(pm);
+                            productcount++;
+                        }else
+                        {
+                            break;
+                        }
+                     
+                    }
+                    ViewBag.products= L_spm;
+                }
+                
+            }
+            catch (Exception ex)
+            {
+            }
+            return View(spm);
+        }
+      
+ 
     }
 
 }

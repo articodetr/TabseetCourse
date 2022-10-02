@@ -739,7 +739,10 @@ namespace tabseetCourse.Classes
             List<string> L_string = new List<string>();
             foreach (var word in words)
             {
-                L_string.Add(word);
+                if (word != "")
+                {
+                    L_string.Add(word);
+                }
             }
             return L_string;
         }

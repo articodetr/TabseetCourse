@@ -16,7 +16,7 @@ namespace tabseetCourse.Models
         [AllowHtml]
         public string Description { get; set; }
         public float Price { get; set; }
-        public string Images { get; set; }
+        public List<string> Images { get; set; }
         public List<HttpPostedFileBase> LPFB { get; set; }
     }
 }

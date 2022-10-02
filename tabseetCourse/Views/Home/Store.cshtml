@@ -1,0 +1,209 @@
+﻿@model IEnumerable<tabseetCourse.Models.StoreProductModel>
+
+@{
+    ViewBag.Title = "Store";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var storecategory = ((List<tabseetCourse.Models.StoreCategoryesModel>)ViewBag.StoreCategory);
+}
+<!-- bootstrap css -->
+<link href="~/Content/bootstrap4/bootstrap.min.css" rel="stylesheet" type="text/css" />
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400&display=swap" rel="stylesheet">
+
+
+
+<!--  My Style  -->
+<link href="~/Content/css/style.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/css/store.css" rel="stylesheet" type="text/css" />
+
+<!--  My Style EN  -->
+<!--  bootstrap and jquery js  -->
+<script src="~/Content/bootstrap4/jquery-3.5.1.slim.min.js" type="text/javascript"></script>
+<script src="~/Content/js/jquery.min.js" type="text/javascript"></script>
+<script src="~/Content/bootstrap4/popper.min.js" type="text/javascript"></script>
+<script src="~/Content/bootstrap4/bootstrap.min.js" type="text/javascript"></script>
+
+
+
+
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.css" rel="stylesheet" type="text/css" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" type="text/javascript"></script>
+
+<link href="~/Content/css/owl.carousel.min.css" rel="stylesheet" type="text/css" />
+
+<!-- Start index Content -->
+
+<div class='top_baner'>
+    <center>
+        <h1>هذا النص هو مثال لنص يمكن أن يستبدل في نفس المساحة</h1>
+        <p>هذا النص هو مثال لنص يمكن أن يستبدل في نفس المساحة</p>
+    </center>
+</div>
+
+<!-- End index Content -->
+
+
+<div class="grid_sec">
+
+    <div class="container">
+
+        <div class="filter_btn"><i class="fa fa-filter" aria-hidden="true"></i></div>
+
+        <div class="wrapper">
+            <div class="main">
+                <div class="row">
+                    @{
+                        foreach (var item in Model)
+                        {
+                            <div class="col-md-6 col-sm-12 col-xs-12">
+                                <div class="item">
+                                    <div class="image">
+                                        @if (item.Images != null && item.Images.Count > 0)
+                                        {
+                                            <a href="@Url.Action("ProductDetiles", "Home", new { ProID = item.ID })"><img src="~/Uploade/Images/@item.Images[0]" alt="event name"></a>
+                                        }
+
+                                        @*    <span rel="9" class="favorite_pr_btn" href="javascript:;" title="المفضلة"><i class="fa fa-heart-o"></i></span>*@
+                                    </div>
+                                    <h3>@item.name</h3>
+                                    <span class="date">
+                                        @item.Price $
+                                    </span>
+                                    @*<span class="stars">
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star "></span>
+                                            <span class="fa fa-star "></span>
+                                            <span class="fa fa-star "></span>
+                                        </span>*@
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <!--Pagination -->
+                <!--<nav class="Pager2" aria-label="pagination example">
+                    <ul class="pagination justify-content-center">-->
+                <!--Arrow left-->
+                <!--<li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item active">
+                            <a class="page-link" href="#">1 <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                        <li class="page-item"><a class="page-link" href="#">5</a></li>
+
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>-->
+            </div>
+
+            <div class="sidebar">
+                <h3 class="sidebar_title">
+                    فئات
+                    <span class="close_filter_btn"><i class="fa fa-times" aria-hidden="true"></i></span>
+                </h3>
+                <ul class="links_list">
+                    <li><a href="@Url.Action("Store","Home",new {cat_ID=0})">الكل</a> </li>
+                    @{
+                        foreach (var item in storecategory)
+                        {
+                            <li><a href="@Url.Action("Store","Home",new {cat_ID=item.ID })">@item.Name</a><span>@item.ProductStoreCount</span></li>
+
+                        }
+                    }
+
+                </ul>
+
+                @*<div class="c-form-group js-checkbox-radio-group" id="group-one">
+                        <div class="c-checkable-input">
+                            <input class="c-checkbox js-checkbox" id="input_one_a" type="checkbox" name="one" value="a" />
+                            <label for="input_one_a">ميزة 1</label>
+                        </div>
+                        <div class="c-checkable-input">
+                            <input class="c-checkbox js-checkbox" id="input_one_b" type="checkbox" name="one" value="b" />
+                            <label for="input_one_b">ميزة 2</label>
+                        </div>
+                        <div class="c-checkable-input">
+                            <input class="c-checkbox js-checkbox" id="input_one_c" type="checkbox" name="one" value="c" />
+                            <label for="input_one_c">ميزة 3</label>
+                        </div>
+                        <div class="c-checkable-input">
+                            <input class="c-checkbox js-checkbox" id="input_one_d" type="checkbox" name="one" value="d" />
+                            <label for="input_one_d">ميزة 4</label>
+                        </div>
+                    </div>*@
+
+
+                <div class="close_menu_board"></div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<!-- End Slider -->
+
+<script src="~/Content/js/owl.carousel.min.js" type="text/javascript"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+
+        /* navbar fixed */
+
+        $(window).scroll(function () {
+
+            var startScroll = 250;
+            var menuTop = $(".menu_top");
+            var scrollTop = $(window).scrollTop();
+
+            if (scrollTop >= startScroll) {
+                $(menuTop).addClass("fixed");
+            } else {
+                $(menuTop).removeClass("fixed");
+            }
+        });
+    });
+
+
+
+
+
+
+    /**-- Store Script --**/
+    $(".favorite_pr_btn").on("click", function () {
+        $(this).toggleClass("active");
+    });
+    $(".filter_btn").on("click", function () {
+        $(".sidebar").addClass("show");
+    });
+    $(".close_menu_board, .close_filter_btn").on("click", function () {
+        $(".sidebar").removeClass("show");
+    });
+
+
+</script>

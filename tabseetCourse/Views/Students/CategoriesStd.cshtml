@@ -1,17 +1,17 @@
 ﻿@model IEnumerable<tabseetCourse.Models.Std_Reg_CategoryModel>
 
 @{
-    ViewBag.Title = "CategoriesStd";
+    //ViewBag.Title = "CategoriesStd";
     Layout = "~/Views/Shared/_LayoutStudent.cshtml";
 }
-   var viewmodelHomepage = (newCoures.Models_UI.HomePageModel)ViewBag.HomepageViewModel;
-}
+   @*var viewmodelHomepage = (newCoures.Models_UI.HomePageModel)ViewBag.HomepageViewModel;*@
+ 
 
 
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<div class='top_baner' style="background-image:url(../Uploade/Images/@viewmodelHomepage.MainImage)">
+<div class='top_baner' style="background-image: url(../Uploade/Images/slider.jpg)">
     <center>
-        <span>@viewmodelHomepage.MainText</span>
+        @*<span>@viewmodelHomepage.MainText</span>*@
 
 
         @*<a href="javascript:;">للمزيد</a>*@
@@ -374,7 +374,7 @@
                                 <div class="col-sm-12">
                                     <!-- select -->
                                     <div class="form-group">
-                                        <label>الدفع لاحقا</label><br />
+                                        <label>سودان كاش</label><br />
                                         <input type="radio" id="Paymnetleater" name="paymnet" value="Leater" onchange="RadioChange()" />
 
                                     </div>
@@ -385,11 +385,11 @@
                             <div class="row">
                                 <div class="col-sm-12">
                                     <!-- select -->
-                                    <div class="form-group">
+                                    @*<div class="form-group">
                                         <label>طلب منحة</label><br />
                                         <input type="radio" id="PaymnetCode" name="paymnet" value="Code" onchange="RadioChange()" />
 
-                                    </div>
+                                    </div>*@
                                 </div>
                             </div>
                         </td>

@@ -398,31 +398,27 @@
             });
     }
 
-    function btnDelete(ItemID) {
-        var confirmation = confirm("Are you shore");
-        if (confirmation == true) {
-            $.ajax(
-                {
-                    async: true,
-
-                    type: 'POST',
-
-                    data: { ID: ItemID },
-
-                    url: '@Url.Action("DeleteProduct", "AdminPanel")',
-                    success: function (data) {
-                        window.location.reload();
-
-                    },
-                    error: function (response) {
-                        //alert("the problem is " + response.responseText);
-                    },
-                    complete: function (response) {
-                        //alert("finish call jasion " + response);
+                function btnDelete(ItemID) {
+                    var confirmation = confirm("Are you shore");
+                    if (confirmation == true) {
+                        $.ajax(
+                            {
+                                async: true,
+                                type: 'POST',
+                                data: { id: ItemID },
+                                url: '@Url.Action("DeleteStoreProduct", "Controlpanel")',
+                                success: function (data) {
+                                    window.location.reload();
+                                },
+                                error: function (response) {
+                                    //alert("the problem is " + response.responseText);
+                                },
+                                complete: function (response) {
+                                    //alert("finish call jasion " + response);
+                                }
+                            });
                     }
-                });
-        }
-    }
+                }
 
 
 
