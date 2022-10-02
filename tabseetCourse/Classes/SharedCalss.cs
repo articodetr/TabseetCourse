@@ -28,13 +28,13 @@ namespace tabseetCourse.Classes
 {
     public class SharedCalss : Controller
     {
-        public readonly TabseetDBEntities dbEntity;
+        public readonly db_a64c1e_tabseetsqlEntities dbEntity;
         public readonly UserIdentityContext dbIdentity;
         public readonly UserManager<MyIdentityUser> userManager;
         public readonly UserModel CurrentUser;
         public SharedCalss()
         {
-            dbEntity = new TabseetDBEntities();
+            dbEntity = new db_a64c1e_tabseetsqlEntities();
             dbIdentity = new UserIdentityContext();
 
 

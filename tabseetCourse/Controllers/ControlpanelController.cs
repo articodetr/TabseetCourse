@@ -155,7 +155,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult CreateCategoriesType(CategoryTypeModel ctm)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -415,7 +415,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult CreateCategories(CategoryModel value)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -1244,7 +1244,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult CreateTruOrFalseQuestion(QuestionsModel QM)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -1285,7 +1285,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult EditTruOrFalseQuestion(QuestionsModel QM)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -1356,7 +1356,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult CreateMultiChoiseQusetion(QuestionsModel QM)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -1407,7 +1407,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult EditMultiChoiseQusetion(QuestionsModel QM)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -1621,7 +1621,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult DeletQuestion(int Q_ID)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -1702,7 +1702,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult CreateMatchingChoiseQuestion(QuestionsModel QM)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -1780,7 +1780,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult EditMathcingQusetion(QuestionsModel QM)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -1967,7 +1967,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult AssingQuestionToAssignment(AssignmentModel am)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -2012,7 +2012,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult UpdateAssingQuestionToAssignment(AssignmentModel am)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -2331,7 +2331,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult CreateExams(ExamModel em)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -2374,7 +2374,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult EditExams(ExamModel em)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {
@@ -3120,7 +3120,7 @@ namespace tabseetCourse.Controllers
                             }
                         }
                     }
-                    using (var context = new TabseetDBEntities())
+                    using (var context = new db_a64c1e_tabseetsqlEntities())
                     {
                         using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                         {
@@ -3295,7 +3295,7 @@ namespace tabseetCourse.Controllers
                         }
                     }
 
-                    using (var context = new TabseetDBEntities())
+                    using (var context = new db_a64c1e_tabseetsqlEntities())
                     {
                         using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                         {
@@ -3624,7 +3624,7 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult ChangeDefultLang(int lang_ID)
         {
-            using (var context = new TabseetDBEntities())
+            using (var context = new db_a64c1e_tabseetsqlEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
                 {

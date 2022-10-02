@@ -13,10 +13,10 @@ namespace tabseetCourse.Data
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class TabseetDBEntities : DbContext
+    public partial class db_a64c1e_tabseetsqlEntities : DbContext
     {
-        public TabseetDBEntities()
-            : base("name=TabseetDBEntities")
+        public db_a64c1e_tabseetsqlEntities()
+            : base("name=db_a64c1e_tabseetsqlEntities")
         {
         }
     
@@ -72,10 +72,10 @@ namespace tabseetCourse.Data
         public virtual DbSet<Std_ExamFinish> Std_ExamFinish { get; set; }
         public virtual DbSet<std_lecture> std_lecture { get; set; }
         public virtual DbSet<Std_Reg_Category> Std_Reg_Category { get; set; }
+        public virtual DbSet<StoreCategory> StoreCategories { get; set; }
+        public virtual DbSet<StoreProduct> StoreProducts { get; set; }
         public virtual DbSet<StyleTable> StyleTables { get; set; }
         public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
         public virtual DbSet<UserLocation> UserLocations { get; set; }
-        public virtual DbSet<StoreCategory> StoreCategories { get; set; }
-        public virtual DbSet<StoreProduct> StoreProducts { get; set; }
     }
 }
