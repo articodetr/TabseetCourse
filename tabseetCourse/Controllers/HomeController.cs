@@ -971,7 +971,7 @@ namespace tabseetCourse.Controllers
                                     if (value != null && value.Count > 0)
                                     {
                                         Response.StatusCode = (int)HttpStatusCode.OK;
-                                        return RedirectToAction("Categories", "Students");
+                                        return RedirectToAction("CategoriesStd", "Students");
                                     }
                                     var catID = int.Parse(coursid.ToString());
                                     var category = dbEntity.Categories.Where(e => e.ID == catID || e.ParentCateogry_ID == catID).ToList();
@@ -996,7 +996,7 @@ namespace tabseetCourse.Controllers
                                         dbEntity.SaveChanges();
                                     }
                                 }
-                                return RedirectToAction("Categories", "Students");
+                                return RedirectToAction("CategoriesStd", "Students");
                             }
                         }
                         return RedirectToAction("LogIn", new { MessageID = 1 });

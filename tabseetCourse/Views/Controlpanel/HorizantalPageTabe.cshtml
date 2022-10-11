@@ -20,7 +20,7 @@
     </div>
     <table class="table">
         <tr>
-            <th>
+            @*<th>
                 @if (Session["Language"] != null && Session["Language"].ToString() == "1")
                 {
                     <div class="sub-title"> Page Languages</div>
@@ -30,7 +30,7 @@
                     <label class="sub-title">لغة الصفحة</label>
                 }
 
-            </th>
+            </th>*@
             <th>
                 @if (Session["Language"] != null && Session["Language"].ToString() == "1")
                 {
@@ -58,9 +58,9 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>
+                @*<td>
                     @Html.DisplayFor(modelItem => item.Lang_name)
-                </td>
+                </td>*@
                 <td>
                     @Html.DisplayFor(modelItem => item.Title)
                 </td>
@@ -104,10 +104,10 @@
                 <td class="hidden">
                     @*<input type="text"  id="new_pages_ID" name="new_pages_ID" value="@item.new_pages_ID" />*@
                 </td>
-                <td>
+                @*<td>
                     <select id="Lang_ID" name="Lang_ID">
                     </select>
-                </td>
+                </td>*@
                 <td>
                     <input type="text" placeholder="Item Name" id="Title" name="Title" />
                 </td>
@@ -187,7 +187,7 @@
 <script type="text/javascript">
 
     function Create() {
-                  $.ajax(
+                  @*$.ajax(
                 {
                     async: true,
 
@@ -208,7 +208,7 @@
                     complete: function (response) {
                         //alert("finish call jasion " + response);
                     }
-                  });
+                  });*@
             $("#CreateNew").show();
 
     }

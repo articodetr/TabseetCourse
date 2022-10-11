@@ -674,7 +674,7 @@ namespace tabseetCourse.Classes
 
                 var _email = "info@isaacademy.org";
                 var _epass = ConfigurationManager.AppSettings["EmailPassword"];
-                var _dispName = "أكاديمية علوم الدولية";
+                var _dispName = "أكاديمية تبسيط الدولية";
 
                 MailMessage myMessage = new MailMessage();
                 myMessage.To.Add(email);
