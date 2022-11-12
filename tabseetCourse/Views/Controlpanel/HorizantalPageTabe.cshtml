@@ -1,21 +1,16 @@
 ﻿@model IEnumerable<tabseetCourse.Models_UI.Page_Tabe_Model>
 
 @{
-    ViewBag.Title = "HorizantalPageTabe";
+    ViewBag.Title = "صفحة تابات افقية";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
  
 <div class="main-content">
     <div class="page-title">
-        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
-        {
-            <div class="title"> Horizantal Tabe Page</div>
-        }
-        else
-        {
+       
             <label class="title">صفحة تابات افقية</label>
-        }
+        
 
     </div>
     <table class="table">
@@ -32,14 +27,9 @@
 
             </th>*@
             <th>
-                @if (Session["Language"] != null && Session["Language"].ToString() == "1")
-                {
-                    <div class="sub-title"> Page Title </div>
-                }
-                else
-                {
+           
                     <label class="sub-title">عنوان الصفحة</label>
-                }
+              
             </th>
 
             <th style="display:none">

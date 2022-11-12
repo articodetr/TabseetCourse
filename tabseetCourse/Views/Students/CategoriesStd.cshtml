@@ -362,7 +362,7 @@
                                 <div class="col-sm-12">
                                     <!-- select -->
                                     <div class="form-group">
-                                        <label>الدفع عن طريق حوالة بنكية</label><br />
+                                        <label>الدفع عن طريق حوالة بنكية</label><br/>
                                         <input type="radio" id="PayMentInPank" name="paymnet" value="PanckTransfer" onchange="RadioChange()" />
 
                                     </div>
@@ -375,7 +375,7 @@
                                     <!-- select -->
                                     <div class="form-group">
                                         <label>سودان كاش</label><br />
-                                        <input type="radio" id="Paymnetleater" name="paymnet" value="Leater" onchange="RadioChange()" />
+                                        <input type="radio" id="Paymnetleater" name="paymnet" value="kachsodan" onchange="RadioChange()" />
 
                                     </div>
                                 </div>
@@ -385,11 +385,24 @@
                             <div class="row">
                                 <div class="col-sm-12">
                                     <!-- select -->
-                                    @*<div class="form-group">
-                                        <label>طلب منحة</label><br />
-                                        <input type="radio" id="PaymnetCode" name="paymnet" value="Code" onchange="RadioChange()" />
+                                    <div class="form-group">
+                                        <label>بنكك</label><br />
+                                        <input type="radio" id="Paymnetleater" name="paymnet" value="bankak" onchange="RadioChange()" />
 
-                                    </div>*@
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    @*<div class="form-group">
+                        <label>طلب منحة</label><br />
+                        <input type="radio" id="PaymnetCode" name="paymnet" value="Code" onchange="RadioChange()" />
+
+                    </div>*@
                                 </div>
                             </div>
                         </td>
@@ -398,58 +411,28 @@
                     <tr>
                         <td colspan="3">
 
-                            <div class="row" id="PaymnetCridetCard_Div">
-
-
-
-                                <div class="row justify-content-center">
-                                    <div class="col-12">
-                                        @*<h2 class="heading text-center">BBBootstrap</h2>*@
+                            <div class="row" id="kachsodan">
+                                <div class="col-sm-12">
+                                    <label for="stripe-card-element">ارجو إرفاق إشعار الدفع<span class="required">*</span></label>
+                                    <div class="form-group">
+                                        <input type="file" class="form-control" id="UploadFile" onchange="Validation()">
                                     </div>
                                 </div>
-                                <form onsubmit="event.preventDefault()" class="form-card" style="width:100%">
-
-                                    <div class="row justify-content-center form-group">
-
-                                    </div>
-                                    <div class="row justify-content-center">
-                                        <div class="col-12">
-                                            <div class="input-group"> <input type="text" name="Name" id="Card_Name" onchange="Validation()" placeholder="Full Name"> <label>Name</label> </div>
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center">
-                                        <div class="col-12">
-                                            <div class="input-group"> <input type="text" id="cr_no" name="card-no" onchange="Validation()" placeholder="0000 0000 0000 0000" minlength="19" maxlength="19"> <label>Card Number</label> </div>
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center">
-                                        <div class="col-12">
-                                            <div class="row">
-                                                <div class="col-6">
-                                                    <div class="input-group"> <input type="text" id="exp" name="expdate" onchange="Validation()" placeholder="MM/YY" minlength="5" maxlength="5"> <label>Expiry Date</label> </div>
-                                                </div>
-                                                <div class="col-6">
-                                                    <div class="input-group"> <input type="password" name="cvv" id="CVC" onchange="Validation()" placeholder="&#9679;&#9679;&#9679;" minlength="3" maxlength="3"> <label>CVV</label> </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center">
-
-                                    </div>
-                                </form>
-
-
-
-
                             </div>
-
+                            <div class="row" id="bankak">
+                                <div class="col-sm-12">
+                                    <label for="stripe-card-element">ارجو إرفاق إشعار الدفع<span class="required">*</span></label>
+                                    <div class="form-group">
+                                        <input type="file" class="form-control" id="UploadFile" onchange="Validation()">
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row" id="PayMentInPank_Div">
                                 <div class="col-sm-12">
                                     <label for="stripe-card-element"> تحويل المبلغ إلى الحساب  </label>
                                     <div class="form-group">
-                                        <label class="form-cntrol">94740674</label>
-                                        <label class="form-control">KHALED ABDULLAY YAHYA ALBAREDA</label>
+                                        <label class="form-cntrol">999999</label>
+                                        <label class="form-control">Zakarias</label>
                                     </div>
                                 </div>
                                 <div class="col-sm-12">
@@ -595,7 +578,8 @@
         $('#PaymnetCridetCard_Div').hide();
         $('#PayMentInPank_Div').hide();
         $('#PaymnetCode_Div').hide();
-
+        $('#kachsodan').hide();
+        
         document.getElementById("btn_Pay").disabled = true;
 
 
@@ -687,6 +671,9 @@
         $('#PaymnetCridetCard_Div').hide();
         $('#PayMentInPank_Div').hide();
         $('#PaymnetCode_Div').hide();
+        $('#kachsodan').hide();
+        $('#bankak').hide();
+        
         var value = getSelectedRadioBtnBaluss('paymnet');
         if (value == 'DirectPank') {
             $('#PaymnetCridetCard_Div').show();
@@ -699,6 +686,12 @@
             $('#PaymnetCode_Div').hide();
         } else if (value == 'Code') {
             $('#PaymnetCode_Div').show();
+        } else if (value ='kachsodan') {
+            $('#kachsodan').show();
+        } else if (value == 'bankak') {
+            $('#bankak').show();
+            
+
         }
     }
 

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<tabseetCourse.Models_UI.GridPageModel>
 
 @{
-    ViewBag.Title = "GridPage";
+    ViewBag.Title = "صفحة شبكية";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -186,31 +186,7 @@
 <script type="text/javascript">
     $('.form-validation').validate();
     function Create() {
-                  $.ajax(
-                {
-                    async: true,
-
-                    type: 'POST',
-                    //dataType: 'JSON',
-                    //contentType: 'application/json; charset=utf=8',
-                    //data: { id: Exam_id },
-
-                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
-                    success: function (data) {
-
-                        var s = '<option value="-1">Select Languages</option>';
-                        for (var i = 0; i < data.length; i++) {
-                            s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
-                        }
-                        $("#Lang_ID").html(s);
-                    },
-                    error: function (response) {
-                        alert("there is a problem in supject " + response);
-                    },
-                    complete: function (response) {
-                        //alert("finish call jasion " + response);
-                    }
-                  });
+              
             $("#CreateNew").show();
 
     }
