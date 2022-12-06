@@ -390,11 +390,17 @@ namespace tabseetCourse.Controllers
             try
             {
                 var categorytype = dbEntity.CategoryTypes.Where(e => e.ID == type).FirstOrDefault();
-                var value = dbEntity.Categories.Where(i => i.CategoryType_ID == categorytype.ID).Select(i => new { i.ID, i.NameAr, i.CategoryType_ID }).ToList();
-                if (value != null)
+                if (categorytype != null)
                 {
-                    Response.StatusCode = (int)HttpStatusCode.OK;
-                    return Json(value, JsonRequestBehavior.AllowGet);
+                    //var value2 = dbEntity.Categories.Where(i => i.CategoryType_ID == type).Select(i => new { i.ID, i.NameAr }).ToList();
+                    //var value1 = dbEntity.Categories.Where(i => i.CategoryType_ID == categorytype.ID).Select(i => new { i.ID, i.NameAr, i.CategoryType_ID }).ToList();
+                    var value = dbEntity.Categories.Where(i => i.CategoryType_ID == categorytype.ParentType).Select(i => new { i.ID, i.NameAr, i.CategoryType_ID }).ToList();
+
+                    if (value != null)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return Json(value, JsonRequestBehavior.AllowGet);
+                    }
                 }
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json(new { success = false, response = "Can't find Categories" }, JsonRequestBehavior.AllowGet);
@@ -425,11 +431,12 @@ namespace tabseetCourse.Controllers
                         New_pages pg = new New_pages();
                         if (isroot.ParentType == null || isroot.ParentType == 0)
                         {
-                            pg.Page_Type = 4;
+                      
+                            pg.Page_Type = 7;//Grid page
                         }
                         else
                         {
-                            pg.Page_Type = 7;
+                            pg.Page_Type = 4;//virtical tabe page
 
                         }
 
@@ -4632,12 +4639,13 @@ namespace tabseetCourse.Controllers
             return View(L_MM);
         }
         [HttpPost]
-        public ActionResult Menu(string title, int PageID)
+        public JsonResult Menu(string title, int PageID)
         {
             New_Menu mm = new New_Menu();
             
             mm.New_Page_ID = PageID;
             mm.Title = title;
+            mm.Lang_ID = 1;
             dbEntity.New_Menu.Add(mm);
             var result = dbEntity.SaveChanges();
             if (result > 0)

@@ -5,12 +5,25 @@
 </li>
 @foreach (var item in Model)
 {
-    <li class="nav-item">
-        @Html.ActionLink(item.Title, "GoPageMenu", new { PageID = item.New_Page_ID }, new { @class = "nav-link" })
-    </li>
 
+    if (item.New_Page_ID == 1066)
+    {
+        <li class="nav-item dropdown order-md-last">
+            <a href="@Url.Action("GoPageMenu","Home",new {PageID = item.New_Page_ID  })" class="nav-link">@item.Title</a>
+            <div class="dropdown-menu" style="background-color:rgba(255,255,255,0.9)">
+                <a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu","Home",new {PageID = 1093  })">اشتراك ساعات</a>
+                <a class="dropdown-item" style="color:#555555" href="#">اشتراك شهري</a>
+            </div>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            @Html.ActionLink(item.Title, "GoPageMenu", new { PageID = item.New_Page_ID }, new { @class = "nav-link" })
+        </li>
+    }
 }
 @*<li class="nav-item">
-    <a href="@Url.Action("Store","Home")" class="nav-link">المتجر</a>
+        <a href="@Url.Action("Store","Home")" class="nav-link">المتجر</a>
 
-</li>*@
+    </li>*@
