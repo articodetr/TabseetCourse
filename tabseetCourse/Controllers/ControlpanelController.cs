@@ -176,7 +176,7 @@ namespace tabseetCourse.Controllers
                         pg.Page_Type = 7;
 
                         pg.name = ctm.NameAR;
-                        pg.IsUiUx = 0;
+                        pg.IsUiUx = 1;
                         pg.CategoryType_ID = ct.ID;
                         context.New_pages.Add(pg);
                         context.SaveChanges();
@@ -4057,7 +4057,7 @@ namespace tabseetCourse.Controllers
                     }
                     na.Title = am.Title;
                     na.New_Page_ID = PageTabeID;
-                    //na.Lang_ID = am.Lang_ID;
+                    na.Lang_ID = 1;
                     na.Image_Cover = am.Image_Cover;
                     na.page_H_V_tabe = VHID;
                     dbEntity.New_Page_Tabe.Add(na);
@@ -4078,7 +4078,7 @@ namespace tabseetCourse.Controllers
 
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
             }

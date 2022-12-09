@@ -67,22 +67,15 @@
                 </td>
 
                 <td>
-                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
-                    {
-                        @Html.ActionLink("Add Tabe", "AddTaHorizantalPageTabe", new { PageID = item.ID }, new { @class = "btn btn-primary" })
-                        @*<button type="button" class="btn btn-primary" onclick="AddTabe(@item.ID)" >Add Tabe</button>*@
-                        <button type="button" class="btn btn-info" onclick="EditItem(@item.ID)">Edit </button>
+                  
 
-                        <button type="button" class="btn btn-danger" onclick="DeleteItem(@item.ID)">Delete </button>
-                    }
-                    else
-                    {
                         @Html.ActionLink("إضافة تبويب", "AddTaHorizantalPageTabe", new { PageID = item.ID }, new { @class = "btn btn-primary" })
                         @*<button type="button" class="btn btn-primary" onclick="AddTabe(@item.ID)" >Add Tabe</button>*@
                         <button type="button" class="btn btn-info" onclick="EditItem(@item.ID)">تعديل </button>
 
                         <button type="button" class="btn btn-danger" onclick="DeleteItem(@item.ID)">حذف </button>
-                    }
+                   
+                     
 
                 </td>
             </tr>
@@ -108,14 +101,9 @@
                     </div>
                 </td>
                 <td>
-                    @if (Session["Language"] != null && Session["Language"].ToString() == "1")
-                    {
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    }
-                    else
-                    {
+                 
                         <button type="submit" class="btn btn-primary">حفظ</button>
-                    }
+                 
 
                 </td>
             </tr>
@@ -150,14 +138,9 @@
             <div class="row">
                 <div class="col-xs-12 m-b">
                     <div class="demo-button">
-                        @if (Session["Language"] != null && Session["Language"].ToString() == "1")
-                        {
-                            <button type="button" class="btn btn-primary" onclick="Create()">Add</button>
-                        }
-                        else
-                        {
+                     
                             <button type="button" class="btn btn-primary" onclick="Create()">إضافة</button>
-                        }
+                       
 
                     </div>
 

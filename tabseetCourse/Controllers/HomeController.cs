@@ -591,13 +591,13 @@ namespace tabseetCourse.Controllers
             var result = new GridPageModel();
             try
             {
-                var lang = Session["Lang_ID"];
-                if (lang == null)
-                {
-                    Session["Lang_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
-                    Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
-                    lang = Session["Lang_ID"];
-                }
+                //var lang = Session["Lang_ID"];
+                //if (lang == null)
+                //{
+                //    Session["Lang_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
+                //    Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
+                //    lang = Session["Lang_ID"];
+                //}
                 var newpage = dbEntity.New_pages.Find(pageID);
                 //int Lang_ID = int.Parse(lang.ToString());
                 var value = dbEntity.NewGridPages.Where(e =>  e.Pages_ID == pageID).FirstOrDefault();
