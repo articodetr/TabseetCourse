@@ -13,10 +13,10 @@ namespace tabseetCourse.Data
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class db_a64c1e_tabseetsqlEntities : DbContext
+    public partial class TbDbEntities : DbContext
     {
-        public db_a64c1e_tabseetsqlEntities()
-            : base("name=db_a64c1e_tabseetsqlEntities")
+        public TbDbEntities()
+            : base("name=TbDbEntities")
         {
         }
     
@@ -25,7 +25,6 @@ namespace tabseetCourse.Data
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<C__MigrationHistory> C__MigrationHistory { get; set; }
         public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
         public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
         public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }

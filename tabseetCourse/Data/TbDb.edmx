@@ -4,17 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="db_a64c1e_tabseetsqlModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-        <EntityType Name="__MigrationHistory">
-          <Key>
-            <PropertyRef Name="MigrationId" />
-            <PropertyRef Name="ContextKey" />
-          </Key>
-          <Property Name="MigrationId" Type="nvarchar" MaxLength="150" Nullable="false" />
-          <Property Name="ContextKey" Type="nvarchar" MaxLength="300" Nullable="false" />
-          <Property Name="Model" Type="varbinary(max)" Nullable="false" />
-          <Property Name="ProductVersion" Type="nvarchar" MaxLength="32" Nullable="false" />
-        </EntityType>
+      <Schema Namespace="TbDbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="AspNetRoles">
           <Key>
             <PropertyRef Name="Id" />
@@ -43,11 +33,11 @@
         </EntityType>
         <EntityType Name="AspNetUserRoles">
           <Key>
-            <PropertyRef Name="UserId" />
-            <PropertyRef Name="RoleId" />
+            <PropertyRef Name="AspNetRoles_Id" />
+            <PropertyRef Name="AspNetUsers_Id" />
           </Key>
-          <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="RoleId" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="AspNetRoles_Id" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="AspNetUsers_Id" Type="nvarchar" MaxLength="128" Nullable="false" />
         </EntityType>
         <EntityType Name="AspNetUsers">
           <Key>
@@ -550,14 +540,14 @@
           <Property Name="Certificate_appreciation" Type="nchar" MaxLength="10" />
           <Property Name="Serial_Number" Type="nchar" MaxLength="10" />
         </EntityType>
-        <EntityType Name="StoreCategory">
+        <EntityType Name="StoreCategories">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Name" Type="nvarchar(max)" />
         </EntityType>
-        <EntityType Name="StoreProduct">
+        <EntityType Name="StoreProducts">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
@@ -597,6 +587,30 @@
           <Property Name="CountryName" Type="nvarchar" MaxLength="50" />
           <Property Name="Count" Type="int" />
         </EntityType>
+        <Association Name="FK_AspNetUserRoles_AspNetRoles">
+          <End Role="AspNetRoles" Type="Self.AspNetRoles" Multiplicity="1" />
+          <End Role="AspNetUserRoles" Type="Self.AspNetUserRoles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetRoles">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AspNetUserRoles">
+              <PropertyRef Name="AspNetRoles_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspNetUserRoles_AspNetUsers">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
+          <End Role="AspNetUserRoles" Type="Self.AspNetUserRoles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AspNetUserRoles">
+              <PropertyRef Name="AspNetUsers_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Assignment_Lecture">
           <End Role="Lectures" Type="Self.Lectures" Multiplicity="0..1" />
           <End Role="Assignments" Type="Self.Assignments" Multiplicity="*" />
@@ -693,34 +707,6 @@
               <PropertyRef Name="Id" />
             </Principal>
             <Dependent Role="AspNetUserLogins">
-              <PropertyRef Name="UserId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId">
-          <End Role="AspNetRoles" Type="Self.AspNetRoles" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Role="AspNetUserRoles" Type="Self.AspNetUserRoles" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="AspNetRoles">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="AspNetUserRoles">
-              <PropertyRef Name="RoleId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_dbo_AspNetUserRoles_dbo_AspNetUsers_UserId">
-          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Role="AspNetUserRoles" Type="Self.AspNetUserRoles" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="AspNetUsers">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="AspNetUserRoles">
               <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
@@ -1242,19 +1228,18 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_StoreProduct_StoreCategory">
-          <End Role="StoreCategory" Type="Self.StoreCategory" Multiplicity="1" />
-          <End Role="StoreProduct" Type="Self.StoreProduct" Multiplicity="*" />
+          <End Role="StoreCategories" Type="Self.StoreCategories" Multiplicity="1" />
+          <End Role="StoreProducts" Type="Self.StoreProducts" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="StoreCategory">
+            <Principal Role="StoreCategories">
               <PropertyRef Name="ID" />
             </Principal>
-            <Dependent Role="StoreProduct">
+            <Dependent Role="StoreProducts">
               <PropertyRef Name="Category_ID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="db_a64c1e_tabseetsqlModelStoreContainer">
-          <EntitySet Name="__MigrationHistory" EntityType="Self.__MigrationHistory" Schema="dbo" store:Type="Tables" />
+        <EntityContainer Name="TbDbModelStoreContainer">
           <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetUserClaims" EntityType="Self.AspNetUserClaims" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetUserLogins" EntityType="Self.AspNetUserLogins" Schema="dbo" store:Type="Tables" />
@@ -1302,11 +1287,19 @@
           <EntitySet Name="Std_ExamFinish" EntityType="Self.Std_ExamFinish" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="std_lecture" EntityType="Self.std_lecture" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Std_Reg_Category" EntityType="Self.Std_Reg_Category" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="StoreCategory" EntityType="Self.StoreCategory" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="StoreProduct" EntityType="Self.StoreProduct" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="StoreCategories" EntityType="Self.StoreCategories" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="StoreProducts" EntityType="Self.StoreProducts" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="StyleTables" EntityType="Self.StyleTables" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserLocations" EntityType="Self.UserLocations" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_AspNetUserRoles_AspNetRoles" Association="Self.FK_AspNetUserRoles_AspNetRoles">
+            <End Role="AspNetRoles" EntitySet="AspNetRoles" />
+            <End Role="AspNetUserRoles" EntitySet="AspNetUserRoles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspNetUserRoles_AspNetUsers" Association="Self.FK_AspNetUserRoles_AspNetUsers">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="AspNetUserRoles" EntitySet="AspNetUserRoles" />
+          </AssociationSet>
           <AssociationSet Name="FK_Assignment_Lecture" Association="Self.FK_Assignment_Lecture">
             <End Role="Lectures" EntitySet="Lectures" />
             <End Role="Assignments" EntitySet="Assignments" />
@@ -1338,14 +1331,6 @@
           <AssociationSet Name="FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" Association="Self.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId">
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
             <End Role="AspNetUserLogins" EntitySet="AspNetUserLogins" />
-          </AssociationSet>
-          <AssociationSet Name="FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId" Association="Self.FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId">
-            <End Role="AspNetRoles" EntitySet="AspNetRoles" />
-            <End Role="AspNetUserRoles" EntitySet="AspNetUserRoles" />
-          </AssociationSet>
-          <AssociationSet Name="FK_dbo_AspNetUserRoles_dbo_AspNetUsers_UserId" Association="Self.FK_dbo_AspNetUserRoles_dbo_AspNetUsers_UserId">
-            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
-            <End Role="AspNetUserRoles" EntitySet="AspNetUserRoles" />
           </AssociationSet>
           <AssociationSet Name="FK_Exam_Q_Exams" Association="Self.FK_Exam_Q_Exams">
             <End Role="Exams" EntitySet="Exams" />
@@ -1520,25 +1505,15 @@
             <End Role="Std_Reg_Category" EntitySet="Std_Reg_Category" />
           </AssociationSet>
           <AssociationSet Name="FK_StoreProduct_StoreCategory" Association="Self.FK_StoreProduct_StoreCategory">
-            <End Role="StoreCategory" EntitySet="StoreCategory" />
-            <End Role="StoreProduct" EntitySet="StoreProduct" />
+            <End Role="StoreCategories" EntitySet="StoreCategories" />
+            <End Role="StoreProducts" EntitySet="StoreProducts" />
           </AssociationSet>
         </EntityContainer>
       </Schema>
     </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="db_a64c1e_tabseetsqlModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="C__MigrationHistory">
-          <Key>
-            <PropertyRef Name="MigrationId" />
-            <PropertyRef Name="ContextKey" />
-          </Key>
-          <Property Name="MigrationId" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="ContextKey" Type="String" MaxLength="300" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Model" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
-          <Property Name="ProductVersion" Type="String" MaxLength="32" FixedLength="false" Unicode="true" Nullable="false" />
-        </EntityType>
+      <Schema Namespace="TbDbModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityType Name="AspNetRole">
           <Key>
             <PropertyRef Name="Id" />
@@ -2176,7 +2151,7 @@
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="StoreProducts" Relationship="Self.FK_StoreProduct_StoreCategory" FromRole="StoreCategory" ToRole="StoreProduct" />
+          <NavigationProperty Name="StoreProducts" Relationship="Self.FK_StoreProduct_StoreCategory" FromRole="StoreCategories" ToRole="StoreProducts" />
         </EntityType>
         <EntityType Name="StoreProduct">
           <Key>
@@ -2188,7 +2163,7 @@
           <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Price" Type="Double" />
           <Property Name="Images" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="StoreCategory" Relationship="Self.FK_StoreProduct_StoreCategory" FromRole="StoreProduct" ToRole="StoreCategory" />
+          <NavigationProperty Name="StoreCategory" Relationship="Self.FK_StoreProduct_StoreCategory" FromRole="StoreProducts" ToRole="StoreCategories" />
         </EntityType>
         <EntityType Name="StyleTable">
           <Key>
@@ -2836,13 +2811,13 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_StoreProduct_StoreCategory">
-          <End Role="StoreCategory" Type="Self.StoreCategory" Multiplicity="1" />
-          <End Role="StoreProduct" Type="Self.StoreProduct" Multiplicity="*" />
+          <End Role="StoreCategories" Type="Self.StoreCategory" Multiplicity="1" />
+          <End Role="StoreProducts" Type="Self.StoreProduct" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="StoreCategory">
+            <Principal Role="StoreCategories">
               <PropertyRef Name="ID" />
             </Principal>
-            <Dependent Role="StoreProduct">
+            <Dependent Role="StoreProducts">
               <PropertyRef Name="Category_ID" />
             </Dependent>
           </ReferentialConstraint>
@@ -2851,8 +2826,7 @@
           <End Role="AspNetRoles" Type="Self.AspNetRole" Multiplicity="*" />
           <End Role="AspNetUsers" Type="Self.AspNetUser" Multiplicity="*" />
         </Association>
-        <EntityContainer Name="db_a64c1e_tabseetsqlEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="C__MigrationHistory" EntityType="Self.C__MigrationHistory" />
+        <EntityContainer Name="TbDbEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRole" />
           <EntitySet Name="AspNetUserClaims" EntityType="Self.AspNetUserClaim" />
           <EntitySet Name="AspNetUserLogins" EntityType="Self.AspNetUserLogin" />
@@ -3109,8 +3083,8 @@
             <End Role="Q_TrueOrFolse" EntitySet="Q_TrueOrFolse" />
           </AssociationSet>
           <AssociationSet Name="FK_StoreProduct_StoreCategory" Association="Self.FK_StoreProduct_StoreCategory">
-            <End Role="StoreCategory" EntitySet="StoreCategories" />
-            <End Role="StoreProduct" EntitySet="StoreProducts" />
+            <End Role="StoreCategories" EntitySet="StoreCategories" />
+            <End Role="StoreProducts" EntitySet="StoreProducts" />
           </AssociationSet>
           <AssociationSet Name="AspNetUserRoles" Association="Self.AspNetUserRoles">
             <End Role="AspNetRoles" EntitySet="AspNetRoles" />
@@ -3122,19 +3096,9 @@
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="db_a64c1e_tabseetsqlModelStoreContainer" CdmEntityContainer="db_a64c1e_tabseetsqlEntities">
-          <EntitySetMapping Name="C__MigrationHistory">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.C__MigrationHistory">
-              <MappingFragment StoreEntitySet="__MigrationHistory">
-                <ScalarProperty Name="MigrationId" ColumnName="MigrationId" />
-                <ScalarProperty Name="ContextKey" ColumnName="ContextKey" />
-                <ScalarProperty Name="Model" ColumnName="Model" />
-                <ScalarProperty Name="ProductVersion" ColumnName="ProductVersion" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
+        <EntityContainerMapping StorageEntityContainer="TbDbModelStoreContainer" CdmEntityContainer="TbDbEntities">
           <EntitySetMapping Name="AspNetRoles">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.AspNetRole">
+            <EntityTypeMapping TypeName="TbDbModel.AspNetRole">
               <MappingFragment StoreEntitySet="AspNetRoles">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -3142,7 +3106,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="AspNetUserClaims">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.AspNetUserClaim">
+            <EntityTypeMapping TypeName="TbDbModel.AspNetUserClaim">
               <MappingFragment StoreEntitySet="AspNetUserClaims">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
@@ -3152,7 +3116,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="AspNetUserLogins">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.AspNetUserLogin">
+            <EntityTypeMapping TypeName="TbDbModel.AspNetUserLogin">
               <MappingFragment StoreEntitySet="AspNetUserLogins">
                 <ScalarProperty Name="LoginProvider" ColumnName="LoginProvider" />
                 <ScalarProperty Name="ProviderKey" ColumnName="ProviderKey" />
@@ -3161,7 +3125,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="AspNetUsers">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.AspNetUser">
+            <EntityTypeMapping TypeName="TbDbModel.AspNetUser">
               <MappingFragment StoreEntitySet="AspNetUsers">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="FirstName" ColumnName="FirstName" />
@@ -3194,7 +3158,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Assignment_Q">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Assignment_Q">
+            <EntityTypeMapping TypeName="TbDbModel.Assignment_Q">
               <MappingFragment StoreEntitySet="Assignment_Q">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Q_ID" ColumnName="Q_ID" />
@@ -3203,7 +3167,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Assignments">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Assignment">
+            <EntityTypeMapping TypeName="TbDbModel.Assignment">
               <MappingFragment StoreEntitySet="Assignments">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -3215,7 +3179,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Categories">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Category">
+            <EntityTypeMapping TypeName="TbDbModel.Category">
               <MappingFragment StoreEntitySet="Categories">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="NameAr" ColumnName="NameAr" />
@@ -3237,7 +3201,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="CategoryTypes">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.CategoryType">
+            <EntityTypeMapping TypeName="TbDbModel.CategoryType">
               <MappingFragment StoreEntitySet="CategoryTypes">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="NameAR" ColumnName="NameAR" />
@@ -3247,7 +3211,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="ChatTables">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.ChatTable">
+            <EntityTypeMapping TypeName="TbDbModel.ChatTable">
               <MappingFragment StoreEntitySet="ChatTables">
                 <ScalarProperty Name="int" ColumnName="int" />
                 <ScalarProperty Name="Message" ColumnName="Message" />
@@ -3258,7 +3222,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="CodeGenerateds">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.CodeGenerated">
+            <EntityTypeMapping TypeName="TbDbModel.CodeGenerated">
               <MappingFragment StoreEntitySet="CodeGenerateds">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Code" ColumnName="Code" />
@@ -3269,7 +3233,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Exam_Q">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Exam_Q">
+            <EntityTypeMapping TypeName="TbDbModel.Exam_Q">
               <MappingFragment StoreEntitySet="Exam_Q">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Q_ID" ColumnName="Q_ID" />
@@ -3278,7 +3242,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Exams">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Exam">
+            <EntityTypeMapping TypeName="TbDbModel.Exam">
               <MappingFragment StoreEntitySet="Exams">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -3293,7 +3257,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Lectures">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Lecture">
+            <EntityTypeMapping TypeName="TbDbModel.Lecture">
               <MappingFragment StoreEntitySet="Lectures">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lecture_Name" ColumnName="Lecture_Name" />
@@ -3310,7 +3274,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_About">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_About">
+            <EntityTypeMapping TypeName="TbDbModel.New_About">
               <MappingFragment StoreEntitySet="New_About">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="new_pages_ID" ColumnName="new_pages_ID" />
@@ -3321,7 +3285,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_About_Content">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_About_Content">
+            <EntityTypeMapping TypeName="TbDbModel.New_About_Content">
               <MappingFragment StoreEntitySet="New_About_Content">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="New_About_ID" ColumnName="New_About_ID" />
@@ -3331,7 +3295,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_ContactUs">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_ContactUs">
+            <EntityTypeMapping TypeName="TbDbModel.New_ContactUs">
               <MappingFragment StoreEntitySet="New_ContactUs">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="title" ColumnName="title" />
@@ -3352,7 +3316,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_CustomerContactUs">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_CustomerContactUs">
+            <EntityTypeMapping TypeName="TbDbModel.New_CustomerContactUs">
               <MappingFragment StoreEntitySet="New_CustomerContactUs">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -3363,7 +3327,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_FastNews">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_FastNews">
+            <EntityTypeMapping TypeName="TbDbModel.New_FastNews">
               <MappingFragment StoreEntitySet="New_FastNews">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
@@ -3372,7 +3336,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_FooterMenu">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_FooterMenu">
+            <EntityTypeMapping TypeName="TbDbModel.New_FooterMenu">
               <MappingFragment StoreEntitySet="New_FooterMenu">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="New_page_ID" ColumnName="New_page_ID" />
@@ -3380,7 +3344,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Home_Page">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_Home_Page">
+            <EntityTypeMapping TypeName="TbDbModel.New_Home_Page">
               <MappingFragment StoreEntitySet="New_Home_Page">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="phoneNumber" ColumnName="phoneNumber" />
@@ -3392,7 +3356,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_lang">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_lang">
+            <EntityTypeMapping TypeName="TbDbModel.New_lang">
               <MappingFragment StoreEntitySet="New_lang">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -3402,7 +3366,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_LR">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_LR">
+            <EntityTypeMapping TypeName="TbDbModel.New_LR">
               <MappingFragment StoreEntitySet="New_LR">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
@@ -3422,7 +3386,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Menu">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_Menu">
+            <EntityTypeMapping TypeName="TbDbModel.New_Menu">
               <MappingFragment StoreEntitySet="New_Menu">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3432,7 +3396,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_news">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_news">
+            <EntityTypeMapping TypeName="TbDbModel.New_news">
               <MappingFragment StoreEntitySet="New_news">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3446,7 +3410,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_page_department">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_page_department">
+            <EntityTypeMapping TypeName="TbDbModel.New_page_department">
               <MappingFragment StoreEntitySet="New_page_department">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3458,7 +3422,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_page_Department_tab">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_page_Department_tab">
+            <EntityTypeMapping TypeName="TbDbModel.New_page_Department_tab">
               <MappingFragment StoreEntitySet="New_page_Department_tab">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3469,7 +3433,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Page_Tabe">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_Page_Tabe">
+            <EntityTypeMapping TypeName="TbDbModel.New_Page_Tabe">
               <MappingFragment StoreEntitySet="New_Page_Tabe">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
@@ -3482,7 +3446,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Page_tabe_Content">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_Page_tabe_Content">
+            <EntityTypeMapping TypeName="TbDbModel.New_Page_tabe_Content">
               <MappingFragment StoreEntitySet="New_Page_tabe_Content">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Page_Tabe_ID" ColumnName="Page_Tabe_ID" />
@@ -3492,7 +3456,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Page_V_A_Horizantal_Tabe">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_Page_V_A_Horizantal_Tabe">
+            <EntityTypeMapping TypeName="TbDbModel.New_Page_V_A_Horizantal_Tabe">
               <MappingFragment StoreEntitySet="New_Page_V_A_Horizantal_Tabe">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3502,7 +3466,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Page_Vertical_and_H_Tabe">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_Page_Vertical_and_H_Tabe">
+            <EntityTypeMapping TypeName="TbDbModel.New_Page_Vertical_and_H_Tabe">
               <MappingFragment StoreEntitySet="New_Page_Vertical_and_H_Tabe">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3513,7 +3477,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_pages">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_pages">
+            <EntityTypeMapping TypeName="TbDbModel.New_pages">
               <MappingFragment StoreEntitySet="New_pages">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="name" ColumnName="name" />
@@ -3524,7 +3488,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_pages_facality">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_pages_facality">
+            <EntityTypeMapping TypeName="TbDbModel.New_pages_facality">
               <MappingFragment StoreEntitySet="New_pages_facality">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3535,7 +3499,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_pages_Text">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_pages_Text">
+            <EntityTypeMapping TypeName="TbDbModel.New_pages_Text">
               <MappingFragment StoreEntitySet="New_pages_Text">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="New_pages_ID" ColumnName="New_pages_ID" />
@@ -3547,7 +3511,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_pracktes">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_pracktes">
+            <EntityTypeMapping TypeName="TbDbModel.New_pracktes">
               <MappingFragment StoreEntitySet="New_pracktes">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3561,7 +3525,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Slider">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_Slider">
+            <EntityTypeMapping TypeName="TbDbModel.New_Slider">
               <MappingFragment StoreEntitySet="New_Slider">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Slider_Image" ColumnName="Slider_Image" />
@@ -3571,7 +3535,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_SocialMedia">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.New_SocialMedia">
+            <EntityTypeMapping TypeName="TbDbModel.New_SocialMedia">
               <MappingFragment StoreEntitySet="New_SocialMedia">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Facebook" ColumnName="Facebook" />
@@ -3587,7 +3551,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="NewGridPage_Content">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.NewGridPage_Content">
+            <EntityTypeMapping TypeName="TbDbModel.NewGridPage_Content">
               <MappingFragment StoreEntitySet="NewGridPage_Content">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3599,7 +3563,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="NewGridPages">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.NewGridPage">
+            <EntityTypeMapping TypeName="TbDbModel.NewGridPage">
               <MappingFragment StoreEntitySet="NewGridPages">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
@@ -3610,7 +3574,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Q_FillVoid">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Q_FillVoid">
+            <EntityTypeMapping TypeName="TbDbModel.Q_FillVoid">
               <MappingFragment StoreEntitySet="Q_FillVoid">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
@@ -3620,7 +3584,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Q_Matching">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Q_Matching">
+            <EntityTypeMapping TypeName="TbDbModel.Q_Matching">
               <MappingFragment StoreEntitySet="Q_Matching">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
@@ -3631,7 +3595,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Q_MultiChoice">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Q_MultiChoice">
+            <EntityTypeMapping TypeName="TbDbModel.Q_MultiChoice">
               <MappingFragment StoreEntitySet="Q_MultiChoice">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
@@ -3641,7 +3605,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Q_TrueOrFolse">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Q_TrueOrFolse">
+            <EntityTypeMapping TypeName="TbDbModel.Q_TrueOrFolse">
               <MappingFragment StoreEntitySet="Q_TrueOrFolse">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
@@ -3651,7 +3615,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Questions">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Question">
+            <EntityTypeMapping TypeName="TbDbModel.Question">
               <MappingFragment StoreEntitySet="Questions">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Type" ColumnName="Type" />
@@ -3663,7 +3627,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Std_ExamFinish">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Std_ExamFinish">
+            <EntityTypeMapping TypeName="TbDbModel.Std_ExamFinish">
               <MappingFragment StoreEntitySet="Std_ExamFinish">
                 <ScalarProperty Name="int" ColumnName="int" />
                 <ScalarProperty Name="Std_ID" ColumnName="Std_ID" />
@@ -3674,7 +3638,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="std_lecture">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.std_lecture">
+            <EntityTypeMapping TypeName="TbDbModel.std_lecture">
               <MappingFragment StoreEntitySet="std_lecture">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lecture_ID" ColumnName="Lecture_ID" />
@@ -3686,7 +3650,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Std_Reg_Category">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.Std_Reg_Category">
+            <EntityTypeMapping TypeName="TbDbModel.Std_Reg_Category">
               <MappingFragment StoreEntitySet="Std_Reg_Category">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Category_ID" ColumnName="Category_ID" />
@@ -3705,16 +3669,16 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="StoreCategories">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.StoreCategory">
-              <MappingFragment StoreEntitySet="StoreCategory">
+            <EntityTypeMapping TypeName="TbDbModel.StoreCategory">
+              <MappingFragment StoreEntitySet="StoreCategories">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="StoreProducts">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.StoreProduct">
-              <MappingFragment StoreEntitySet="StoreProduct">
+            <EntityTypeMapping TypeName="TbDbModel.StoreProduct">
+              <MappingFragment StoreEntitySet="StoreProducts">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="name" ColumnName="name" />
                 <ScalarProperty Name="Category_ID" ColumnName="Category_ID" />
@@ -3725,7 +3689,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="StyleTables">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.StyleTable">
+            <EntityTypeMapping TypeName="TbDbModel.StyleTable">
               <MappingFragment StoreEntitySet="StyleTables">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="MinuColor" ColumnName="MinuColor" />
@@ -3737,7 +3701,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="sysdiagrams">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.sysdiagram">
+            <EntityTypeMapping TypeName="TbDbModel.sysdiagram">
               <MappingFragment StoreEntitySet="sysdiagrams">
                 <ScalarProperty Name="name" ColumnName="name" />
                 <ScalarProperty Name="principal_id" ColumnName="principal_id" />
@@ -3748,7 +3712,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="UserLocations">
-            <EntityTypeMapping TypeName="db_a64c1e_tabseetsqlModel.UserLocation">
+            <EntityTypeMapping TypeName="TbDbModel.UserLocation">
               <MappingFragment StoreEntitySet="UserLocations">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="CountryName" ColumnName="CountryName" />
@@ -3756,12 +3720,12 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <AssociationSetMapping Name="AspNetUserRoles" TypeName="db_a64c1e_tabseetsqlModel.AspNetUserRoles" StoreEntitySet="AspNetUserRoles">
+          <AssociationSetMapping Name="AspNetUserRoles" TypeName="TbDbModel.AspNetUserRoles" StoreEntitySet="AspNetUserRoles">
             <EndProperty Name="AspNetRoles">
-              <ScalarProperty Name="Id" ColumnName="RoleId" />
+              <ScalarProperty Name="Id" ColumnName="AspNetRoles_Id" />
             </EndProperty>
             <EndProperty Name="AspNetUsers">
-              <ScalarProperty Name="Id" ColumnName="UserId" />
+              <ScalarProperty Name="Id" ColumnName="AspNetUsers_Id" />
             </EndProperty>
           </AssociationSetMapping>
         </EntityContainerMapping>

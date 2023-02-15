@@ -45,8 +45,8 @@ namespace tabseetCourse.Controllers
             {
                 if (Langnguages == null)
                 {
-                    Session["Lang_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
-                    Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
+                    Session["Lang_ID"] = 1;// dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
+                    Session["Direction_ID"] = 1;// dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
                 }
                 var lang = Session["Lang_ID"];
                 int Lang_ID = int.Parse(lang.ToString());
@@ -898,6 +898,7 @@ namespace tabseetCourse.Controllers
         {
             try
             {
+              
                 if (loginfo.Email != null && loginfo.Password != null)
                 {
                     var result = userManager.Users.ToList();

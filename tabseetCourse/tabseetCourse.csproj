@@ -233,176 +233,173 @@
     <Compile Include="Controllers\StudentsController.cs" />
     <Compile Include="Controllers\TeacherController.cs" />
     <Compile Include="Data\AspNetRole.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\AspNetUser.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\AspNetUserClaim.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\AspNetUserLogin.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Assignment.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Assignment_Q.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Category.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\CategoryType.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\ChatTable.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\CodeGenerated.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Data\C__MigrationHistory.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Exam.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Exam_Q.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Lecture.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\NewGridPage.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\NewGridPage_Content.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_About.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_About_Content.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_ContactUs.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_CustomerContactUs.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_FastNews.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_FooterMenu.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Home_Page.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_lang.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_LR.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Menu.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_news.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_pages.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_pages_facality.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_pages_Text.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_page_department.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_page_Department_tab.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Page_Tabe.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Page_tabe_Content.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Page_Vertical_and_H_Tabe.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Page_V_A_Horizantal_Tabe.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_pracktes.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Slider.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_SocialMedia.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Question.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Q_FillVoid.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Q_Matching.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Q_MultiChoice.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Q_TrueOrFolse.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Std_ExamFinish.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\std_lecture.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Std_Reg_Category.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\StoreCategory.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\StoreProduct.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\StyleTable.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\sysdiagram.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
-    <Compile Include="Data\TabseetDB.Context.cs">
+    <Compile Include="Data\TbDb.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>TabseetDB.Context.tt</DependentUpon>
+      <DependentUpon>TbDb.Context.tt</DependentUpon>
     </Compile>
-    <Compile Include="Data\TabseetDB.cs">
+    <Compile Include="Data\TbDb.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
-    <Compile Include="Data\TabseetDB.Designer.cs">
+    <Compile Include="Data\TbDb.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>TabseetDB.edmx</DependentUpon>
+      <DependentUpon>TbDb.edmx</DependentUpon>
     </Compile>
     <Compile Include="Data\UserIdentityContext.cs" />
     <Compile Include="Data\UserLocation.cs">
-      <DependentUpon>TabseetDB.tt</DependentUpon>
+      <DependentUpon>TbDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -6807,15 +6804,16 @@
     <Content Include="Content\static\favicon\unvirsity.png" />
     <Content Include="Content\static\gulpfile.js" />
     <Content Include="Content\user.png" />
-    <Content Include="Data\TabseetDB.Context.tt">
+    <Content Include="Data\TabseetDB.edmx.sql" />
+    <Content Include="Data\TbDb.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>TabseetDB.edmx</DependentUpon>
-      <LastGenOutput>TabseetDB.Context.cs</LastGenOutput>
+      <DependentUpon>TbDb.edmx</DependentUpon>
+      <LastGenOutput>TbDb.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="Data\TabseetDB.tt">
+    <Content Include="Data\TbDb.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>TabseetDB.edmx</DependentUpon>
-      <LastGenOutput>TabseetDB.cs</LastGenOutput>
+      <DependentUpon>TbDb.edmx</DependentUpon>
+      <LastGenOutput>TbDb.cs</LastGenOutput>
     </Content>
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -9053,13 +9051,14 @@
     <Content Include="Content\static\bower.json" />
     <Content Include="Content\static\package.json" />
     <Content Include="Data\errorLog.json" />
-    <EntityDeploy Include="Data\TabseetDB.edmx">
+    <EntityDeploy Include="Data\TbDb.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>TabseetDB.Designer.cs</LastGenOutput>
+      <LastGenOutput>TbDb.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <Content Include="Data\TabseetDB.edmx.diagram">
-      <DependentUpon>TabseetDB.edmx</DependentUpon>
+    <Content Include="Data\TbDb.edmx.diagram">
+      <DependentUpon>TbDb.edmx</DependentUpon>
     </Content>
+    <None Include="Properties\PublishProfiles\tbsetac.org - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.6.0.intellisense.js" />
     <Content Include="Scripts\CustomJavascript.js" />
     <Content Include="Scripts\jquery-3.6.0.js" />
@@ -9072,6 +9071,166 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Uploade\Images\100081273logo1.jpg" />
+    <Content Include="Uploade\Images\100081273Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\10072377logo1.jpg" />
+    <Content Include="Uploade\Images\10072377T PNG.png" />
+    <Content Include="Uploade\Images\10072377Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\10072377Tbset Logo2.png" />
+    <Content Include="Uploade\Images\119060221logo1.jpg" />
+    <Content Include="Uploade\Images\123900105T PNG.png" />
+    <Content Include="Uploade\Images\123900105Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\123900105Tbset Logo2.png" />
+    <Content Include="Uploade\Images\124271129pngegg.png" />
+    <Content Include="Uploade\Images\127625610slider12.jpg" />
+    <Content Include="Uploade\Images\134169328Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\156235724logo2.jpg" />
+    <Content Include="Uploade\Images\159474159slider12.jpg" />
+    <Content Include="Uploade\Images\1616912131263.jpg" />
+    <Content Include="Uploade\Images\170351446Aboutus.png" />
+    <Content Include="Uploade\Images\175358516pngwing.com.png" />
+    <Content Include="Uploade\Images\175358516slider.jpg" />
+    <Content Include="Uploade\Images\181356244logo1.jpg" />
+    <Content Include="Uploade\Images\188925408logo2.jpg" />
+    <Content Include="Uploade\Images\219483330slider12.jpg" />
+    <Content Include="Uploade\Images\222840693logo1.jpg" />
+    <Content Include="Uploade\Images\240562722slider12.jpg" />
+    <Content Include="Uploade\Images\243185240maxresdefault %281%29.jpg" />
+    <Content Include="Uploade\Images\2512165logo1.jpg" />
+    <Content Include="Uploade\Images\2512165logo2.jpg" />
+    <Content Include="Uploade\Images\2512165slider12.jpg" />
+    <Content Include="Uploade\Images\253430466123123.jpg" />
+    <Content Include="Uploade\Images\254424508logo1.jpg" />
+    <Content Include="Uploade\Images\254424508Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\27946450logo1.jpg" />
+    <Content Include="Uploade\Images\27946450Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\27946450Tbset Logo2.png" />
+    <Content Include="Uploade\Images\292075708logo1.jpg" />
+    <Content Include="Uploade\Images\313063806arabic_lang.jpg" />
+    <Content Include="Uploade\Images\321538257logo1.jpg" />
+    <Content Include="Uploade\Images\325205019logo1.jpg" />
+    <Content Include="Uploade\Images\325686062Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\326412991logo1.jpg" />
+    <Content Include="Uploade\Images\341139523logo1.jpg" />
+    <Content Include="Uploade\Images\341139523Tbset Logo2.png" />
+    <Content Include="Uploade\Images\350278672slider12.jpg" />
+    <Content Include="Uploade\Images\350650959pngegg.png" />
+    <Content Include="Uploade\Images\352589012Tbset logo with text2.png" />
+    <Content Include="Uploade\Images\353144390learning %281%29.jpg" />
+    <Content Include="Uploade\Images\363593289slider12.jpg" />
+    <Content Include="Uploade\Images\369807430logo1.jpg" />
+    <Content Include="Uploade\Images\37361321141-1-600x600.jpg" />
+    <Content Include="Uploade\Images\373613211slider.jpg" />
+    <Content Include="Uploade\Images\381296729logo2.jpg" />
+    <Content Include="Uploade\Images\381296729Tbset Logo2.png" />
+    <Content Include="Uploade\Images\394027415logo1.jpg" />
+    <Content Include="Uploade\Images\400837603logo2.jpg" />
+    <Content Include="Uploade\Images\400837603Tbset logo with text2.png" />
+    <Content Include="Uploade\Images\442423400arabic.jpg" />
+    <Content Include="Uploade\Images\442423400maths-course.jpeg" />
+    <Content Include="Uploade\Images\452298540den-900x570.jpg" />
+    <Content Include="Uploade\Images\460926799logo1.jpg" />
+    <Content Include="Uploade\Images\460926799slider12.jpg" />
+    <Content Include="Uploade\Images\461212826Pharmacy-specialties.jpg" />
+    <Content Include="Uploade\Images\467030965iconmedical.png" />
+    <Content Include="Uploade\Images\469807008learning %281%29.jpg" />
+    <Content Include="Uploade\Images\470217768logo1.jpg" />
+    <Content Include="Uploade\Images\486051194T PNG.png" />
+    <Content Include="Uploade\Images\486051194Tbset logo with text2.png" />
+    <Content Include="Uploade\Images\49099539image1.png" />
+    <Content Include="Uploade\Images\49381702373222.png" />
+    <Content Include="Uploade\Images\495467210Tbset Logo2.png" />
+    <Content Include="Uploade\Images\501873276slider12.jpg" />
+    <Content Include="Uploade\Images\509841233slider12.jpg" />
+    <Content Include="Uploade\Images\515040750logo1.jpg" />
+    <Content Include="Uploade\Images\515040750Tbset logo with text2.png" />
+    <Content Include="Uploade\Images\529156472iconmedical.png" />
+    <Content Include="Uploade\Images\5329855211263.jpg" />
+    <Content Include="Uploade\Images\543836481slider12.jpg" />
+    <Content Include="Uploade\Images\544934465pngwing.com.png" />
+    <Content Include="Uploade\Images\547730435logo1.jpg" />
+    <Content Include="Uploade\Images\547746621germanCourse.jpg" />
+    <Content Include="Uploade\Images\56377348Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\56377348Tbset logo with text2.png" />
+    <Content Include="Uploade\Images\573247044maths-course.jpeg" />
+    <Content Include="Uploade\Images\580289818logo1.jpg" />
+    <Content Include="Uploade\Images\580289818slider12.jpg" />
+    <Content Include="Uploade\Images\59239768slider12.jpg" />
+    <Content Include="Uploade\Images\595299405logo1.jpg" />
+    <Content Include="Uploade\Images\595299405Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\595299405Tbset Logo2.png" />
+    <Content Include="Uploade\Images\596232355slider12.jpg" />
+    <Content Include="Uploade\Images\606643271logo1.jpg" />
+    <Content Include="Uploade\Images\606643271slider12.jpg" />
+    <Content Include="Uploade\Images\606643271Tbset Logo2.png" />
+    <Content Include="Uploade\Images\615764246logo1.jpg" />
+    <Content Include="Uploade\Images\61603015XD.jpg" />
+    <Content Include="Uploade\Images\6274299711263.jpg" />
+    <Content Include="Uploade\Images\639070926323.jpg" />
+    <Content Include="Uploade\Images\643465034logo1.jpg" />
+    <Content Include="Uploade\Images\646462316logo2.jpg" />
+    <Content Include="Uploade\Images\646462316slider12.jpg" />
+    <Content Include="Uploade\Images\646462316Tbset logo with text2.png" />
+    <Content Include="Uploade\Images\662410793english-course.jpg" />
+    <Content Include="Uploade\Images\678224010maths-course.jpeg" />
+    <Content Include="Uploade\Images\680343283logo1.jpg" />
+    <Content Include="Uploade\Images\688015532maths-course.jpeg" />
+    <Content Include="Uploade\Images\688614834Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\688614834Tbset logo with text2.png" />
+    <Content Include="Uploade\Images\688614834Tbset Logo2.png" />
+    <Content Include="Uploade\Images\690320704pngegg.png" />
+    <Content Include="Uploade\Images\691535985Learning.jpg" />
+    <Content Include="Uploade\Images\69966601logo1.jpg" />
+    <Content Include="Uploade\Images\69966601Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\703083849maths-course.jpeg" />
+    <Content Include="Uploade\Images\712060877logo1.jpg" />
+    <Content Include="Uploade\Images\717009767slider12.jpg" />
+    <Content Include="Uploade\Images\718166200T PNG.png" />
+    <Content Include="Uploade\Images\718166200Tbset logo with text2.png" />
+    <Content Include="Uploade\Images\719422388logo1.jpg" />
+    <Content Include="Uploade\Images\721303911english-course.jpg" />
+    <Content Include="Uploade\Images\722032625slider12.jpg" />
+    <Content Include="Uploade\Images\726708855Hb-Pencil-with-Color-Body-with-Eraser.jpg" />
+    <Content Include="Uploade\Images\726805360logo1.jpg" />
+    <Content Include="Uploade\Images\753653399logo1.jpg" />
+    <Content Include="Uploade\Images\753653399slider12.jpg" />
+    <Content Include="Uploade\Images\755625812logo1.jpg" />
+    <Content Include="Uploade\Images\76194924Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\769770044T PNG.png" />
+    <Content Include="Uploade\Images\769770044Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\769770044Tbset Logo2.png" />
+    <Content Include="Uploade\Images\775360395slider12.jpg" />
+    <Content Include="Uploade\Images\779384533logo1.jpg" />
+    <Content Include="Uploade\Images\78754433040547-اغلى-اقلام-فى-العالم-%283%29.jpg" />
+    <Content Include="Uploade\Images\787544330aurora_diamante_6-1-1024x665.jpg" />
+    <Content Include="Uploade\Images\787544330Montblanc_Mystery_Masterpiece.jpg" />
+    <Content Include="Uploade\Images\79084726T PNG.png" />
+    <Content Include="Uploade\Images\828721519pngwing.com.png" />
+    <Content Include="Uploade\Images\8361859071263.jpg" />
+    <Content Include="Uploade\Images\850336970arabic.jpg" />
+    <Content Include="Uploade\Images\854193953Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\858979784Tbset Logo2.png" />
+    <Content Include="Uploade\Images\8655435640547-اغلى-اقلام-فى-العالم-%283%29.jpg" />
+    <Content Include="Uploade\Images\866124037logo1.jpg" />
+    <Content Include="Uploade\Images\866124037Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\871039562logo1.jpg" />
+    <Content Include="Uploade\Images\871039562Tbset logo with text2.png" />
+    <Content Include="Uploade\Images\89032914241-1-600x600.jpg" />
+    <Content Include="Uploade\Images\897035135slider12.jpg" />
+    <Content Include="Uploade\Images\903178829Blog12.jpg" />
+    <Content Include="Uploade\Images\922934068Blog12.jpg" />
+    <Content Include="Uploade\Images\945349404pngegg.png" />
+    <Content Include="Uploade\Images\949444271pngegg.png" />
+    <Content Include="Uploade\Images\972171575image1.png" />
+    <Content Include="Uploade\Images\974934063slider12.jpg" />
+    <Content Include="Uploade\Images\991320192logo1.jpg" />
+    <Content Include="Uploade\Images\991320192Tbset logo with text12.png" />
+    <Content Include="Uploade\Images\991349401logo1.jpg" />
+    <Content Include="Uploade\Images\991349401slider12.jpg" />
+    <Content Include="Uploade\Images\998068890logo1.jpg" />
+    <Content Include="Uploade\Images\998068890logo2.jpg" />
+    <Content Include="Uploade\Images\999858126Tbset Logo2.png" />
+    <Content Include="Uploade\Images\image1.png" />
     <Content Include="Uploade\Images\slider.jpg" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -9180,6 +9339,7 @@
     <Content Include="Views\Controlpanel\StoreProduct.cshtml" />
     <Content Include="Views\Home\Store.cshtml" />
     <Content Include="Views\Home\ProductDetiles.cshtml" />
+    <Content Include="Uploade\Images\Images.rar" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
