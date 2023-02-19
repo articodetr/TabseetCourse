@@ -13,10 +13,10 @@ namespace tabseetCourse.Data
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class TbDbEntities : DbContext
+    public partial class tbseedDBEntities : DbContext
     {
-        public TbDbEntities()
-            : base("name=TbDbEntities")
+        public tbseedDBEntities()
+            : base("name=tbseedDBEntities")
         {
         }
     

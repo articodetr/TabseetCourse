@@ -118,7 +118,7 @@ namespace tabseetCourse.Controllers
                 ViewBag.tetcher = tetchers;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
             }

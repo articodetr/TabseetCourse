@@ -233,173 +233,173 @@
     <Compile Include="Controllers\StudentsController.cs" />
     <Compile Include="Controllers\TeacherController.cs" />
     <Compile Include="Data\AspNetRole.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\AspNetUser.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\AspNetUserClaim.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\AspNetUserLogin.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Assignment.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Assignment_Q.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Category.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\CategoryType.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\ChatTable.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\CodeGenerated.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Exam.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Exam_Q.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Lecture.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\NewGridPage.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\NewGridPage_Content.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_About.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_About_Content.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_ContactUs.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_CustomerContactUs.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_FastNews.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_FooterMenu.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Home_Page.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_lang.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_LR.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Menu.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_news.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_pages.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_pages_facality.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_pages_Text.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_page_department.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_page_Department_tab.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Page_Tabe.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Page_tabe_Content.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Page_Vertical_and_H_Tabe.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Page_V_A_Horizantal_Tabe.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_pracktes.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_Slider.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\New_SocialMedia.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Question.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Q_FillVoid.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Q_Matching.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Q_MultiChoice.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Q_TrueOrFolse.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Std_ExamFinish.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\std_lecture.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Std_Reg_Category.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\StoreCategory.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\StoreProduct.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\StyleTable.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\sysdiagram.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Data\TbDb.Context.cs">
+    <Compile Include="Data\tbseedDB.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>TbDb.Context.tt</DependentUpon>
+      <DependentUpon>tbseedDB.Context.tt</DependentUpon>
     </Compile>
-    <Compile Include="Data\TbDb.cs">
+    <Compile Include="Data\tbseedDB.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Data\TbDb.Designer.cs">
+    <Compile Include="Data\tbseedDB.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>TbDb.edmx</DependentUpon>
+      <DependentUpon>tbseedDB.edmx</DependentUpon>
     </Compile>
     <Compile Include="Data\UserIdentityContext.cs" />
     <Compile Include="Data\UserLocation.cs">
-      <DependentUpon>TbDb.tt</DependentUpon>
+      <DependentUpon>tbseedDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -6805,15 +6805,15 @@
     <Content Include="Content\static\gulpfile.js" />
     <Content Include="Content\user.png" />
     <Content Include="Data\TabseetDB.edmx.sql" />
-    <Content Include="Data\TbDb.Context.tt">
+    <Content Include="Data\tbseedDB.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>TbDb.edmx</DependentUpon>
-      <LastGenOutput>TbDb.Context.cs</LastGenOutput>
+      <DependentUpon>tbseedDB.edmx</DependentUpon>
+      <LastGenOutput>tbseedDB.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="Data\TbDb.tt">
+    <Content Include="Data\tbseedDB.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>TbDb.edmx</DependentUpon>
-      <LastGenOutput>TbDb.cs</LastGenOutput>
+      <DependentUpon>tbseedDB.edmx</DependentUpon>
+      <LastGenOutput>tbseedDB.cs</LastGenOutput>
     </Content>
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -9051,12 +9051,12 @@
     <Content Include="Content\static\bower.json" />
     <Content Include="Content\static\package.json" />
     <Content Include="Data\errorLog.json" />
-    <EntityDeploy Include="Data\TbDb.edmx">
+    <EntityDeploy Include="Data\tbseedDB.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>TbDb.Designer.cs</LastGenOutput>
+      <LastGenOutput>tbseedDB.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <Content Include="Data\TbDb.edmx.diagram">
-      <DependentUpon>TbDb.edmx</DependentUpon>
+    <Content Include="Data\tbseedDB.edmx.diagram">
+      <DependentUpon>tbseedDB.edmx</DependentUpon>
     </Content>
     <None Include="Properties\PublishProfiles\tbsetac.org - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.6.0.intellisense.js" />
@@ -9339,7 +9339,6 @@
     <Content Include="Views\Controlpanel\StoreProduct.cshtml" />
     <Content Include="Views\Home\Store.cshtml" />
     <Content Include="Views\Home\ProductDetiles.cshtml" />
-    <Content Include="Uploade\Images\Images.rar" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

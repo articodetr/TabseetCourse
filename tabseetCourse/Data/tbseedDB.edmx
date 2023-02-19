@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="TbDbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="tbseedDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="AspNetRoles">
           <Key>
             <PropertyRef Name="Id" />
@@ -1239,7 +1239,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="TbDbModelStoreContainer">
+        <EntityContainer Name="tbseedDBModelStoreContainer">
           <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetUserClaims" EntityType="Self.AspNetUserClaims" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetUserLogins" EntityType="Self.AspNetUserLogins" Schema="dbo" store:Type="Tables" />
@@ -1509,11 +1509,10 @@
             <End Role="StoreProducts" EntitySet="StoreProducts" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="TbDbModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+      <Schema Namespace="tbseedDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityType Name="AspNetRole">
           <Key>
             <PropertyRef Name="Id" />
@@ -2826,7 +2825,7 @@
           <End Role="AspNetRoles" Type="Self.AspNetRole" Multiplicity="*" />
           <End Role="AspNetUsers" Type="Self.AspNetUser" Multiplicity="*" />
         </Association>
-        <EntityContainer Name="TbDbEntities" annotation:LazyLoadingEnabled="true">
+        <EntityContainer Name="tbseedDBEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRole" />
           <EntitySet Name="AspNetUserClaims" EntityType="Self.AspNetUserClaim" />
           <EntitySet Name="AspNetUserLogins" EntityType="Self.AspNetUserLogin" />
@@ -3096,9 +3095,9 @@
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="TbDbModelStoreContainer" CdmEntityContainer="TbDbEntities">
+        <EntityContainerMapping StorageEntityContainer="tbseedDBModelStoreContainer" CdmEntityContainer="tbseedDBEntities">
           <EntitySetMapping Name="AspNetRoles">
-            <EntityTypeMapping TypeName="TbDbModel.AspNetRole">
+            <EntityTypeMapping TypeName="tbseedDBModel.AspNetRole">
               <MappingFragment StoreEntitySet="AspNetRoles">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -3106,7 +3105,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="AspNetUserClaims">
-            <EntityTypeMapping TypeName="TbDbModel.AspNetUserClaim">
+            <EntityTypeMapping TypeName="tbseedDBModel.AspNetUserClaim">
               <MappingFragment StoreEntitySet="AspNetUserClaims">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
@@ -3116,7 +3115,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="AspNetUserLogins">
-            <EntityTypeMapping TypeName="TbDbModel.AspNetUserLogin">
+            <EntityTypeMapping TypeName="tbseedDBModel.AspNetUserLogin">
               <MappingFragment StoreEntitySet="AspNetUserLogins">
                 <ScalarProperty Name="LoginProvider" ColumnName="LoginProvider" />
                 <ScalarProperty Name="ProviderKey" ColumnName="ProviderKey" />
@@ -3125,7 +3124,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="AspNetUsers">
-            <EntityTypeMapping TypeName="TbDbModel.AspNetUser">
+            <EntityTypeMapping TypeName="tbseedDBModel.AspNetUser">
               <MappingFragment StoreEntitySet="AspNetUsers">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="FirstName" ColumnName="FirstName" />
@@ -3158,7 +3157,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Assignment_Q">
-            <EntityTypeMapping TypeName="TbDbModel.Assignment_Q">
+            <EntityTypeMapping TypeName="tbseedDBModel.Assignment_Q">
               <MappingFragment StoreEntitySet="Assignment_Q">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Q_ID" ColumnName="Q_ID" />
@@ -3167,7 +3166,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Assignments">
-            <EntityTypeMapping TypeName="TbDbModel.Assignment">
+            <EntityTypeMapping TypeName="tbseedDBModel.Assignment">
               <MappingFragment StoreEntitySet="Assignments">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -3179,7 +3178,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Categories">
-            <EntityTypeMapping TypeName="TbDbModel.Category">
+            <EntityTypeMapping TypeName="tbseedDBModel.Category">
               <MappingFragment StoreEntitySet="Categories">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="NameAr" ColumnName="NameAr" />
@@ -3201,7 +3200,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="CategoryTypes">
-            <EntityTypeMapping TypeName="TbDbModel.CategoryType">
+            <EntityTypeMapping TypeName="tbseedDBModel.CategoryType">
               <MappingFragment StoreEntitySet="CategoryTypes">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="NameAR" ColumnName="NameAR" />
@@ -3211,7 +3210,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="ChatTables">
-            <EntityTypeMapping TypeName="TbDbModel.ChatTable">
+            <EntityTypeMapping TypeName="tbseedDBModel.ChatTable">
               <MappingFragment StoreEntitySet="ChatTables">
                 <ScalarProperty Name="int" ColumnName="int" />
                 <ScalarProperty Name="Message" ColumnName="Message" />
@@ -3222,7 +3221,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="CodeGenerateds">
-            <EntityTypeMapping TypeName="TbDbModel.CodeGenerated">
+            <EntityTypeMapping TypeName="tbseedDBModel.CodeGenerated">
               <MappingFragment StoreEntitySet="CodeGenerateds">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Code" ColumnName="Code" />
@@ -3233,7 +3232,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Exam_Q">
-            <EntityTypeMapping TypeName="TbDbModel.Exam_Q">
+            <EntityTypeMapping TypeName="tbseedDBModel.Exam_Q">
               <MappingFragment StoreEntitySet="Exam_Q">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Q_ID" ColumnName="Q_ID" />
@@ -3242,7 +3241,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Exams">
-            <EntityTypeMapping TypeName="TbDbModel.Exam">
+            <EntityTypeMapping TypeName="tbseedDBModel.Exam">
               <MappingFragment StoreEntitySet="Exams">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -3257,7 +3256,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Lectures">
-            <EntityTypeMapping TypeName="TbDbModel.Lecture">
+            <EntityTypeMapping TypeName="tbseedDBModel.Lecture">
               <MappingFragment StoreEntitySet="Lectures">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lecture_Name" ColumnName="Lecture_Name" />
@@ -3274,7 +3273,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_About">
-            <EntityTypeMapping TypeName="TbDbModel.New_About">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_About">
               <MappingFragment StoreEntitySet="New_About">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="new_pages_ID" ColumnName="new_pages_ID" />
@@ -3285,7 +3284,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_About_Content">
-            <EntityTypeMapping TypeName="TbDbModel.New_About_Content">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_About_Content">
               <MappingFragment StoreEntitySet="New_About_Content">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="New_About_ID" ColumnName="New_About_ID" />
@@ -3295,7 +3294,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_ContactUs">
-            <EntityTypeMapping TypeName="TbDbModel.New_ContactUs">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_ContactUs">
               <MappingFragment StoreEntitySet="New_ContactUs">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="title" ColumnName="title" />
@@ -3316,7 +3315,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_CustomerContactUs">
-            <EntityTypeMapping TypeName="TbDbModel.New_CustomerContactUs">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_CustomerContactUs">
               <MappingFragment StoreEntitySet="New_CustomerContactUs">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -3327,7 +3326,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_FastNews">
-            <EntityTypeMapping TypeName="TbDbModel.New_FastNews">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_FastNews">
               <MappingFragment StoreEntitySet="New_FastNews">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
@@ -3336,7 +3335,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_FooterMenu">
-            <EntityTypeMapping TypeName="TbDbModel.New_FooterMenu">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_FooterMenu">
               <MappingFragment StoreEntitySet="New_FooterMenu">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="New_page_ID" ColumnName="New_page_ID" />
@@ -3344,7 +3343,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Home_Page">
-            <EntityTypeMapping TypeName="TbDbModel.New_Home_Page">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_Home_Page">
               <MappingFragment StoreEntitySet="New_Home_Page">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="phoneNumber" ColumnName="phoneNumber" />
@@ -3356,7 +3355,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_lang">
-            <EntityTypeMapping TypeName="TbDbModel.New_lang">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_lang">
               <MappingFragment StoreEntitySet="New_lang">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -3366,7 +3365,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_LR">
-            <EntityTypeMapping TypeName="TbDbModel.New_LR">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_LR">
               <MappingFragment StoreEntitySet="New_LR">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
@@ -3386,7 +3385,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Menu">
-            <EntityTypeMapping TypeName="TbDbModel.New_Menu">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_Menu">
               <MappingFragment StoreEntitySet="New_Menu">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3396,7 +3395,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_news">
-            <EntityTypeMapping TypeName="TbDbModel.New_news">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_news">
               <MappingFragment StoreEntitySet="New_news">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3410,7 +3409,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_page_department">
-            <EntityTypeMapping TypeName="TbDbModel.New_page_department">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_page_department">
               <MappingFragment StoreEntitySet="New_page_department">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3422,7 +3421,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_page_Department_tab">
-            <EntityTypeMapping TypeName="TbDbModel.New_page_Department_tab">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_page_Department_tab">
               <MappingFragment StoreEntitySet="New_page_Department_tab">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3433,7 +3432,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Page_Tabe">
-            <EntityTypeMapping TypeName="TbDbModel.New_Page_Tabe">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_Page_Tabe">
               <MappingFragment StoreEntitySet="New_Page_Tabe">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
@@ -3446,7 +3445,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Page_tabe_Content">
-            <EntityTypeMapping TypeName="TbDbModel.New_Page_tabe_Content">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_Page_tabe_Content">
               <MappingFragment StoreEntitySet="New_Page_tabe_Content">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Page_Tabe_ID" ColumnName="Page_Tabe_ID" />
@@ -3456,7 +3455,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Page_V_A_Horizantal_Tabe">
-            <EntityTypeMapping TypeName="TbDbModel.New_Page_V_A_Horizantal_Tabe">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_Page_V_A_Horizantal_Tabe">
               <MappingFragment StoreEntitySet="New_Page_V_A_Horizantal_Tabe">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3466,7 +3465,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Page_Vertical_and_H_Tabe">
-            <EntityTypeMapping TypeName="TbDbModel.New_Page_Vertical_and_H_Tabe">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_Page_Vertical_and_H_Tabe">
               <MappingFragment StoreEntitySet="New_Page_Vertical_and_H_Tabe">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3477,7 +3476,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_pages">
-            <EntityTypeMapping TypeName="TbDbModel.New_pages">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_pages">
               <MappingFragment StoreEntitySet="New_pages">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="name" ColumnName="name" />
@@ -3488,7 +3487,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_pages_facality">
-            <EntityTypeMapping TypeName="TbDbModel.New_pages_facality">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_pages_facality">
               <MappingFragment StoreEntitySet="New_pages_facality">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3499,7 +3498,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_pages_Text">
-            <EntityTypeMapping TypeName="TbDbModel.New_pages_Text">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_pages_Text">
               <MappingFragment StoreEntitySet="New_pages_Text">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="New_pages_ID" ColumnName="New_pages_ID" />
@@ -3511,7 +3510,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_pracktes">
-            <EntityTypeMapping TypeName="TbDbModel.New_pracktes">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_pracktes">
               <MappingFragment StoreEntitySet="New_pracktes">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3525,7 +3524,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_Slider">
-            <EntityTypeMapping TypeName="TbDbModel.New_Slider">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_Slider">
               <MappingFragment StoreEntitySet="New_Slider">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Slider_Image" ColumnName="Slider_Image" />
@@ -3535,7 +3534,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="New_SocialMedia">
-            <EntityTypeMapping TypeName="TbDbModel.New_SocialMedia">
+            <EntityTypeMapping TypeName="tbseedDBModel.New_SocialMedia">
               <MappingFragment StoreEntitySet="New_SocialMedia">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Facebook" ColumnName="Facebook" />
@@ -3551,7 +3550,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="NewGridPage_Content">
-            <EntityTypeMapping TypeName="TbDbModel.NewGridPage_Content">
+            <EntityTypeMapping TypeName="tbseedDBModel.NewGridPage_Content">
               <MappingFragment StoreEntitySet="NewGridPage_Content">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -3563,7 +3562,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="NewGridPages">
-            <EntityTypeMapping TypeName="TbDbModel.NewGridPage">
+            <EntityTypeMapping TypeName="tbseedDBModel.NewGridPage">
               <MappingFragment StoreEntitySet="NewGridPages">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lang_ID" ColumnName="Lang_ID" />
@@ -3574,7 +3573,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Q_FillVoid">
-            <EntityTypeMapping TypeName="TbDbModel.Q_FillVoid">
+            <EntityTypeMapping TypeName="tbseedDBModel.Q_FillVoid">
               <MappingFragment StoreEntitySet="Q_FillVoid">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
@@ -3584,7 +3583,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Q_Matching">
-            <EntityTypeMapping TypeName="TbDbModel.Q_Matching">
+            <EntityTypeMapping TypeName="tbseedDBModel.Q_Matching">
               <MappingFragment StoreEntitySet="Q_Matching">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
@@ -3595,7 +3594,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Q_MultiChoice">
-            <EntityTypeMapping TypeName="TbDbModel.Q_MultiChoice">
+            <EntityTypeMapping TypeName="tbseedDBModel.Q_MultiChoice">
               <MappingFragment StoreEntitySet="Q_MultiChoice">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
@@ -3605,7 +3604,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Q_TrueOrFolse">
-            <EntityTypeMapping TypeName="TbDbModel.Q_TrueOrFolse">
+            <EntityTypeMapping TypeName="tbseedDBModel.Q_TrueOrFolse">
               <MappingFragment StoreEntitySet="Q_TrueOrFolse">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Question_ID" ColumnName="Question_ID" />
@@ -3615,7 +3614,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Questions">
-            <EntityTypeMapping TypeName="TbDbModel.Question">
+            <EntityTypeMapping TypeName="tbseedDBModel.Question">
               <MappingFragment StoreEntitySet="Questions">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Type" ColumnName="Type" />
@@ -3627,7 +3626,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Std_ExamFinish">
-            <EntityTypeMapping TypeName="TbDbModel.Std_ExamFinish">
+            <EntityTypeMapping TypeName="tbseedDBModel.Std_ExamFinish">
               <MappingFragment StoreEntitySet="Std_ExamFinish">
                 <ScalarProperty Name="int" ColumnName="int" />
                 <ScalarProperty Name="Std_ID" ColumnName="Std_ID" />
@@ -3638,7 +3637,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="std_lecture">
-            <EntityTypeMapping TypeName="TbDbModel.std_lecture">
+            <EntityTypeMapping TypeName="tbseedDBModel.std_lecture">
               <MappingFragment StoreEntitySet="std_lecture">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Lecture_ID" ColumnName="Lecture_ID" />
@@ -3650,7 +3649,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Std_Reg_Category">
-            <EntityTypeMapping TypeName="TbDbModel.Std_Reg_Category">
+            <EntityTypeMapping TypeName="tbseedDBModel.Std_Reg_Category">
               <MappingFragment StoreEntitySet="Std_Reg_Category">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Category_ID" ColumnName="Category_ID" />
@@ -3669,7 +3668,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="StoreCategories">
-            <EntityTypeMapping TypeName="TbDbModel.StoreCategory">
+            <EntityTypeMapping TypeName="tbseedDBModel.StoreCategory">
               <MappingFragment StoreEntitySet="StoreCategories">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -3677,7 +3676,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="StoreProducts">
-            <EntityTypeMapping TypeName="TbDbModel.StoreProduct">
+            <EntityTypeMapping TypeName="tbseedDBModel.StoreProduct">
               <MappingFragment StoreEntitySet="StoreProducts">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="name" ColumnName="name" />
@@ -3689,7 +3688,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="StyleTables">
-            <EntityTypeMapping TypeName="TbDbModel.StyleTable">
+            <EntityTypeMapping TypeName="tbseedDBModel.StyleTable">
               <MappingFragment StoreEntitySet="StyleTables">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="MinuColor" ColumnName="MinuColor" />
@@ -3701,7 +3700,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="sysdiagrams">
-            <EntityTypeMapping TypeName="TbDbModel.sysdiagram">
+            <EntityTypeMapping TypeName="tbseedDBModel.sysdiagram">
               <MappingFragment StoreEntitySet="sysdiagrams">
                 <ScalarProperty Name="name" ColumnName="name" />
                 <ScalarProperty Name="principal_id" ColumnName="principal_id" />
@@ -3712,7 +3711,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="UserLocations">
-            <EntityTypeMapping TypeName="TbDbModel.UserLocation">
+            <EntityTypeMapping TypeName="tbseedDBModel.UserLocation">
               <MappingFragment StoreEntitySet="UserLocations">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="CountryName" ColumnName="CountryName" />
@@ -3720,7 +3719,7 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <AssociationSetMapping Name="AspNetUserRoles" TypeName="TbDbModel.AspNetUserRoles" StoreEntitySet="AspNetUserRoles">
+          <AssociationSetMapping Name="AspNetUserRoles" TypeName="tbseedDBModel.AspNetUserRoles" StoreEntitySet="AspNetUserRoles">
             <EndProperty Name="AspNetRoles">
               <ScalarProperty Name="Id" ColumnName="AspNetRoles_Id" />
             </EndProperty>
