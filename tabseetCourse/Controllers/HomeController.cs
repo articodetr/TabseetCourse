@@ -39,6 +39,8 @@ namespace tabseetCourse.Controllers
 
         public ActionResult Index()
         {
+            //CreateRoles();
+            //CreateUsers("khaled","idress","admin@tbsetac.org","05373342553","123456789a",new List<string>() {"Admin" },null);
             var Langnguages = Session["Lang_ID"];
             HomePageModel hp = new HomePageModel();
             try
