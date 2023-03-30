@@ -9,7 +9,7 @@
 
 
 <!-- Start index Content -->
-
+ 
 <link href="https://fonts.googleapis.com/css?family=Rajdhani&display=swap" rel="stylesheet">
 <!-- start of hero -->
 <section class="hero-slider hero-style">
@@ -49,7 +49,11 @@
 <!-- end of hero slider -->
 
 <div class="news_sec">
-    <span class="title">أخبار الأكاديمية</span>
+    @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+    {<span class="title">Academy News</span>}
+    else
+    {<span class="title">أخبار الأكاديمية</span>}
+
     <marquee direction="right" speed="normal" behavior="loop" id="FastNews_ID">
 
 
@@ -60,34 +64,63 @@
 
 <div class="container">
     <div class="about_sec">
+        @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+        {
+            <h2 class="sec_title">Profile of the Academy</h2>
 
-        <h2 class="sec_title">لمحة عن الأكاديمية</h2>
+        }
+        else
+        {
+            <h2 class="sec_title">لمحة عن الأكاديمية</h2>
+        }
+
 
         <div class="row">
 
             <div class="col-lg-7 col-md-12 col-sm-12">
                 <div class="text_sec">
-                    <h3>أكاديمية تبسيط الدولية</h3>
-                    <p>
-                        احصل على المساعدة الدراسية التي تحتاجها في لحظات و استمتع بتجربة تعليمية ممتعة و فريدة من نوعها.
-                        اجميع بين التميز والمتعة.
-                 
-                    </p>
-                    <h3>الرؤیة </h3>
-                    <p>
-                        إعداد طلاب قادرین على استیعاب تكنولوجیا العصر والتعلم النشط
-                    </p>
-                    <h3>الرسالة </h3>
-                    <p>
-                        توفیر بیئة داعمة لتنمیة مھارات المتعلم من جمیع الجوانب
-                        بإستخدام التكنولوجیا التعلیمیة
-                    </p>
+                    @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+                    {
+                        <h3>Simplify International Academy</h3>
+                        <p>
+                            Get the study help you need in moments and enjoy a fun and unique learning experience.
+                            All between excellence and pleasure.
+
+                        </p>
+                        <h3>vision </h3>
+                        <p>
+                            Preparing students who are able to absorb modern technology and active learning
+                        </p>
+                        <h3>Message </h3>
+                        <p>
+                            Provide a supportive environment for the development of the learner's skills in all aspects
+                            using educational technology
+                        </p>
+                    }
+                    else
+                    {
+                        <h3>أكاديمية تبسيط الدولية</h3>
+                        <p>
+                            احصل على المساعدة الدراسية التي تحتاجها في لحظات و استمتع بتجربة تعليمية ممتعة و فريدة من نوعها.
+                            اجميع بين التميز والمتعة.
+
+                        </p>
+                        <h3>الرؤیة </h3>
+                        <p>
+                            إعداد طلاب قادرین على استیعاب تكنولوجیا العصر والتعلم النشط
+                        </p>
+                        <h3>الرسالة </h3>
+                        <p>
+                            توفیر بیئة داعمة لتنمیة مھارات المتعلم من جمیع الجوانب
+                            بإستخدام التكنولوجیا التعلیمیة
+                        </p>
+                    }
                 </div>
             </div>
 
 
             <div class="col-lg-5 col-md-12 col-sm-12">
-                <div class="about_video_sec"> 
+                <div class="about_video_sec">
                     <a href="https://www.youtube.com/embed/CF5IjhmSdlw" data-fancybox="About" data-caption="">
                         <img src="~/Content2/img/about-video-1.jpeg" alt="About Us" />
                         <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="play-circle" role="img" viewBox="0 0 512 512" class="svg-inline--fa fa-play-circle fa-w-16 fa-9x"><path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm115.7 272l-176 101c-15.8 8.8-35.7-2.5-35.7-21V152c0-18.4 19.8-29.8 35.7-21l176 107c16.4 9.2 16.4 32.9 0 42z" class=""></path></svg>
@@ -98,8 +131,15 @@
 
         </div>
 
+        @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+        {
+            <a href="/Home/aboutPage?pageID=23" class="more_btn">More</a>
+        }
+        else
+        {
+            <a href="/Home/aboutPage?pageID=23" class="more_btn">تعرف أكثر</a>
+        }
 
-        <a href="/Home/aboutPage?pageID=23" class="more_btn">تعرف أكثر</a>
 
     </div>
 </div>
@@ -111,17 +151,35 @@
     <div class="container">
 
         <div class="row">
+            @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+            {<h2 class="sec_title">
 
-            <h2 class="sec_title">
-                جديد الفعاليات
-            </h2>
+                    New events
+                </h2>
+            }
+            else
+            {
+                <h2 class="sec_title">
+                    جديد الفعاليات
+
+                </h2>
+            }
+
 
             <div class="owl-slider">
                 <div id="carousel2" class="owl-carousel">
                     @{Html.RenderAction("IniNews", "Home");}
                 </div>
             </div>
-            <a href="@Url.Action("AllNews","Home")" class="more_btn">كافة الأنشطة</a>
+            @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+            {
+                <a href="@Url.Action("AllNews","Home")" class="more_btn">All activities</a>
+            }
+            else
+            {
+                <a href="@Url.Action("AllNews","Home")" class="more_btn">كافة الأنشطة</a>
+            }
+
         </div>
     </div>
 </div>
@@ -133,10 +191,19 @@
     <div class="container">
 
         <div class="row">
+            @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+            {
+                <h2 class="sec_title">
+                    Educational Programs
+                </h2>
+            }
+            else
+            {
+                <h2 class="sec_title">
+                    البرامج التعليمية
+                </h2>
+            }
 
-            <h2 class="sec_title">
-                البرامج التعليمية
-            </h2>
 
             <div class="owl-slider">
                 <div id="carousel2" class="owl-carousel">
@@ -184,11 +251,27 @@
 
                                     }
                                     else
-                                    {
-                                        <ins>مجانا</ins>
-                                    }
+                                    { 
+                                        if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+                                        {
+                                            <ins>Free</ins>
+                                        }
+                                        else
+                                        {
+                                            <ins>مجانا</ins>
+                                        }
+
+                                }
                                 </span>
-                                <a href="#" onclick="TackThisCourse(@item.ID)" class="read_more">اشترك</a>
+                                @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+                                {
+                                    <a href="#" onclick="TackThisCourse(@item.ID)" class="read_more">Subscribe</a>
+                                }
+                                else
+                                {
+                                    <a href="#" onclick="TackThisCourse(@item.ID)" class="read_more">اشترك</a>
+                                }
+
                             </div>
                         }
                     }
@@ -196,7 +279,15 @@
 
                 </div>
             </div>
-            <a href="@Url.Action("MoreCourse","Home")" class="more_btn">كافة البرامج</a>
+            @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+            {
+                <a href="@Url.Action("MoreCourse","Home")" class="more_btn">All Programs</a>
+            }
+            else
+            {
+                <a href="@Url.Action("MoreCourse","Home")" class="more_btn">كافة البرامج</a>
+            }
+
         </div>
     </div>
 </div>

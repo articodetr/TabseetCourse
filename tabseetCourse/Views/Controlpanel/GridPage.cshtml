@@ -123,8 +123,8 @@
                     <input type="text" id="ID2" name="ID" />
                 </td>
                 <td>
-                    @*<select id="Lang_ID" name="Lang_ID">
-                        </select>*@
+                    <select id="Lang_ID" name="Lang_ID">
+                        </select>
                 </td>
                 <td>
                     <input type="text" placeholder="Item Name" id="Title2" name="Title" />
@@ -186,7 +186,28 @@
 <script type="text/javascript">
     $('.form-validation').validate();
     function Create() {
-              
+                  $.ajax(
+                {
+                    async: true,
+
+                    type: 'POST',
+
+                    url: '@Url.Action("GetAllLanguages", "Controlpanel")',
+                    success: function (data) {
+
+                        var s = '';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                        }
+                        $("#Lang_ID").html(s);
+                    },
+                    error: function (response) {
+                        alert("there is a problem in supject " + response);
+                    },
+                    complete: function (response) {
+                        //alert("finish call jasion " + response);
+                    }
+                  });
             $("#CreateNew").show();
 
     }

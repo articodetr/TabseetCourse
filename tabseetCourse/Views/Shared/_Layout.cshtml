@@ -54,6 +54,28 @@
     <!--  My Style  -->
 
     <link href="~/Content2/css/style.css" rel="stylesheet" type="text/css" />
+    @{
+        <!--  My Style  -->
+
+        if (Session["Direction_ID"] != null)
+        {
+            int value = int.Parse(Session["Direction_ID"].ToString());
+            if (value == 0)
+            {
+
+                <link href="~/Content/css/style-en.css" rel="stylesheet" type="text/css" />
+            }
+            else
+            {
+                <link href="~/Content/css/style.css" rel="stylesheet" type="text/css" />
+            }
+
+        }
+        else
+        {
+            <link href="~/Content/css/style.css" rel="stylesheet" type="text/css" />
+        }
+    }
     <link href="~/Content2/css/index.css" rel="stylesheet" type="text/css" />
 
 
@@ -198,6 +220,21 @@
 
                         </div>
                     </div>}
+
+            <div class="nav-item dropdown order-md-last">
+                <ul class="lang_list full">
+                  
+                    <li>
+                        <select id="Lang_id" name="Lang_id" onchange="MainLoanguageChange()">
+                            @*<option value="1">عربي</option>
+                            <option value="2">English</option>*@
+                        </select>
+                    </li>
+
+
+                </ul>
+              
+            </div>
             </div>
         </nav>
     </div>
@@ -303,6 +340,32 @@
                     $(menuTop).removeClass("fixed");
                 }
             });
+
+             $.ajax(
+            {
+                async: true,
+
+                type: 'POST',
+                //dataType: 'JSON',
+                //contentType: 'application/json; charset=utf=8',
+                //data: { id: Exam_id },
+
+                url: '@Url.Action("GetAllLanguages", "Home")',
+                success: function (data) {
+
+                    var s;
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
+                    }
+                    $("#Lang_id").html(s); 
+                },
+                error: function (response) {
+                    alert("there is a problem in supject " + response);
+                },
+                complete: function (response) {
+                    //alert("finish call jasion " + response);
+                }
+            });
         });
 
 
@@ -376,7 +439,29 @@
         });
 
 
+        function MainLoanguageChange() {
 
+            //alert("event click value " +$("#Lang_id").val())
+            $.ajax(
+                {
+
+
+                    type: 'POST',
+                    data: { lang_ID: $("#Lang_id").val() },
+                    url: '@Url.Action("SetLocalLang", "Home")',
+                    success: function (data) {
+                        location.reload(true);
+
+
+                    },
+                    error: function (response) {
+
+                     alert("There is a problem Can't Load Data" + response.error);
+                 },
+                    complete: function (response) {
+                 }
+                });
+        };
 
     </script>
     <!--  End Content  -->

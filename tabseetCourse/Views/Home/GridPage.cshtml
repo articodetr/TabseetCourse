@@ -60,13 +60,31 @@
                             }
                             else
                             {
-                                <span class="date">
-                                    مجاني
-                                </span>
+                                if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+                                {
+                                    <span class="date">
+                                        Free
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="date">
+                                        مجاني
+                                    </span>
+                                }
+
                             }
                             @if (item.Is_reg == 1)
                             {
-                                <button href="#" onclick="TackThisCourse(@item.ID)" class="read_more">اشترك</button>
+                                if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+                                {
+                                    <button href="#" onclick="TackThisCourse(@item.ID)" class="read_more">Subscribe</button>
+                                }
+                                else
+                                {
+                                    <button href="#" onclick="TackThisCourse(@item.ID)" class="read_more">اشترك</button>
+                                }
+
                             }
 
                         </div>

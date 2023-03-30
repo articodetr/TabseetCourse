@@ -1,6 +1,14 @@
 ﻿@model IEnumerable<tabseetCourse.Models_UI.MenuModel>
 <li class="nav-item">
-    <a href="@Url.Action("Index","Home")" class="nav-link">الرئيسية</a>
+    @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+    {
+        <a href="@Url.Action("Index","Home")" class="nav-link">Home</a>
+            }
+            else
+            { 
+<a href="@Url.Action("Index","Home")" class="nav-link">الرئيسية</a>
+    }
+
 
 </li>
 @foreach (var item in Model)
@@ -17,11 +25,19 @@
         <li class="nav-item dropdown order-md-last" style="order:inherit">
             <a href="@Url.Action("GoPageMenu","Home",new {PageID = item.New_Page_ID  })" class="nav-link">@item.Title</a>
             <div class="dropdown-menu" style="background-color:rgba(255,255,255,0.9);min-width:150px">
-                <a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu","Home",new {PageID = 1101  })">اشتراك ساعات</a>
-        <a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu","Home",new {PageID = 1102  })">اشتراك شهري</a>
+                @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+                {
+                    <a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu", "Home", new { PageID = 1101 })">Hours subscription</a>
+                    <a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu", "Home", new { PageID = 1102 })">Monthly subscription</a>
+                }
+                else
+                {
+                    <a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu", "Home", new { PageID = 1101 })">اشتراك ساعات</a>
+                    <a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu", "Home", new { PageID = 1102 })">اشتراك شهري</a>
+                }
                 @*<a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu","Home",new {PageID = 1070  })">ابتدائي</a>
-                <a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu","Home",new {PageID = 1071  })">متوسط</a>
-                <a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu","Home",new {PageID = 1072  })">ثانوي</a>*@
+        <a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu","Home",new {PageID = 1071  })">متوسط</a>
+        <a class="dropdown-item" style="color:#555555" href="@Url.Action("GoPageMenu","Home",new {PageID = 1072  })">ثانوي</a>*@
             </div>
         </li>
 

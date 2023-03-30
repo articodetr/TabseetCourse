@@ -47,8 +47,8 @@ namespace tabseetCourse.Controllers
             {
                 if (Langnguages == null)
                 {
-                    Session["Lang_ID"] = 1;// dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
-                    Session["Direction_ID"] = 1;// dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
+                    Session["Lang_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
+                    Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
                 }
                 var lang = Session["Lang_ID"];
                 int Lang_ID = int.Parse(lang.ToString());
@@ -461,8 +461,14 @@ namespace tabseetCourse.Controllers
         [HttpGet]
         public ActionResult IniNews()
         {
-     
-            var value = dbEntity.New_news.ToList();
+            var lang = Session["Lang_ID"];
+            if (lang == null)
+            {
+                Session["Lang_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
+                Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
+            }
+            int Lang_ID = int.Parse(Session["Lang_ID"].ToString());
+            var value = dbEntity.New_news.Where(e=>e.Lang_ID==Lang_ID).ToList();
             List<NewsModel> Lf = new List<NewsModel>();
             foreach (var item in value)
             {
@@ -593,6 +599,13 @@ namespace tabseetCourse.Controllers
             var result = new GridPageModel();
             try
             {
+                var lang = Session["Lang_ID"];
+                if (lang == null)
+                {
+                    Session["Lang_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
+                    Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
+                }
+                int Lang_ID = int.Parse(Session["Lang_ID"].ToString());
                 //var lang = Session["Lang_ID"];
                 //if (lang == null)
                 //{
@@ -637,7 +650,12 @@ namespace tabseetCourse.Controllers
                             grdCont.ID = item.ID;
                         }
                         grdCont.Description = item.Description;
-                        grdCont.Title = item.NameAr;
+                        if (Lang_ID==1)
+                        {
+                            grdCont.Title = item.NameAr;
+                        }else
+                            grdCont.Title = item.NameEn;
+
                         grdCont.GridPageID = item.New_Page_ID.Value;
                         result.GirdContent.Add(grdCont);
                     }
@@ -660,8 +678,15 @@ namespace tabseetCourse.Controllers
             AboutModel am = new AboutModel();
             am.L_aboutTabmodel = new List<AboutTabeModel>();
             try
-            {
-                var result = dbEntity.New_About.Where(e =>   e.new_pages_ID == pageID).FirstOrDefault();
+            {     var lang = Session["Lang_ID"];
+                if (lang == null)
+                {
+                    Session["Lang_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
+                    Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
+                    lang = Session["Lang_ID"];
+                }
+                int Lang_ID = int.Parse(lang.ToString());
+                var result = dbEntity.New_About.Where(e => e.new_pages_ID == pageID && e.Lang_ID== Lang_ID).FirstOrDefault();
 
                 am.ID = result.ID;
                 am.Image_Cover = result.Image_Cover;
@@ -1300,14 +1325,14 @@ namespace tabseetCourse.Controllers
             List<New_FastNewsModel> L_FN = new List<New_FastNewsModel>();
             try
             {
-                //var lang = Session["Lang_ID"];
-                //if (lang == null)
-                //{
-                //    Session["Lang_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
-                //    Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
-                //}
-                //int Lang_ID = int.Parse(Session["Lang_ID"].ToString());
-                var values = dbEntity.New_FastNews.ToList();
+                var lang = Session["Lang_ID"];
+                if (lang == null)
+                {
+                    Session["Lang_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
+                    Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
+                }
+                int Lang_ID = int.Parse(Session["Lang_ID"].ToString());
+                var values = dbEntity.New_FastNews.Where(e=>e.Lang_ID==Lang_ID).ToList();
                 foreach (var item in values)
                 {
                     New_FastNewsModel fn = new New_FastNewsModel();

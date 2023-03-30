@@ -117,10 +117,10 @@
                 <td class="hidden">
                     @*<input type="text"  id="new_pages_ID" name="new_pages_ID" value="@item.new_pages_ID" />*@
                 </td>
-                <td style="display:none">
-                    <input type="text" value="1" id="Lang_ID" name="Lang_ID" />
-                    @*<select id="Lang_ID" name="Lang_ID">
-                    </select>*@
+                <td  >
+                   
+                    <select id="Lang_ID" name="Lang_ID">
+                    </select>
                 </td>
                 <td>
                     <input type="text" placeholder="Item Name" id="Title" name="Title" />
@@ -155,8 +155,8 @@
                     <input type="text" id="ID2" name="ID" />
                 </td>
                 <td>
-                    @*<select id="Lang_ID" name="Lang_ID">
-                        </select>*@
+                    <select id="Lang_ID2" name="Lang_ID">
+                        </select>
                 </td>
                 <td>
                     <input type="text" placeholder="Item Name" id="Title2" name="Title" />
@@ -219,7 +219,7 @@
 <script type="text/javascript">
     $('.form-validation').validate();
     function Create() {
-                  @*$.ajax(
+                  $.ajax(
                 {
                     async: true,
 
@@ -236,6 +236,7 @@
                             s += '<option value="' + data[i].ID + '">' + data[i].Name + '</option>';
                         }
                         $("#Lang_ID").html(s);
+                        $("#Lang_ID2").html(s);
                     },
                     error: function (response) {
                         alert("there is a problem in supject " + response);
@@ -243,7 +244,7 @@
                     complete: function (response) {
                         //alert("finish call jasion " + response);
                     }
-                  });*@
+                  });
             $("#CreateNew").show();
 
     }

@@ -48,9 +48,9 @@
         @foreach (var item in Model)
         {
             <tr>
-                @*<td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Lang_name)
-                </td>*@
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Title)
                 </td>
@@ -87,10 +87,10 @@
                 <td class="hidden">
                     @*<input type="text"  id="new_pages_ID" name="new_pages_ID" value="@item.new_pages_ID" />*@
                 </td>
-                @*<td>
+                <td>
                     <select id="Lang_ID" name="Lang_ID">
                     </select>
-                </td>*@
+                </td>
                 <td>
                     <input type="text" placeholder="Item Name" id="Title" name="Title" />
                 </td>
@@ -160,7 +160,7 @@
 <script type="text/javascript">
 
     function Create() {
-                  @*$.ajax(
+                  $.ajax(
                 {
                     async: true,
 
@@ -181,7 +181,7 @@
                     complete: function (response) {
                         //alert("finish call jasion " + response);
                     }
-                  });*@
+                  });
             $("#CreateNew").show();
 
     }

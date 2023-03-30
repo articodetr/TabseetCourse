@@ -38,9 +38,16 @@
             </p>
         }
 
+        @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+        {
+            @Html.ActionLink("...More", "ReadMoreNews", "Home", new { News_ID = item.ID }, new { @class = "read_more", @id = "read_more_word" })
+        }
+        else
+        {
+            @Html.ActionLink("المزيد...", "ReadMoreNews", "Home", new { News_ID = item.ID }, new { @class = "read_more", @id = "read_more_word" })
+        }
 
 
-        @Html.ActionLink("المزيد...", "ReadMoreNews", "Home", new { News_ID = item.ID }, new { @class = "read_more", @id = "read_more_word" })
 
     </div>
 }

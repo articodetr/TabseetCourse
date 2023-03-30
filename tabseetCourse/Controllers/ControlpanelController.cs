@@ -3831,7 +3831,7 @@ namespace tabseetCourse.Controllers
                 result.ID = item.ID;
                 result.Title = item.Title;
                 //result.Lang_Name = item.New_lang.Name;
-                //result.Lang_ID = item.Lang_ID.Value;
+                result.Lang_ID = item.Lang_ID.Value;
                 result.Image_Cover = item.Image_Cover;
                 am.Add(result);
             }
@@ -4032,7 +4032,7 @@ namespace tabseetCourse.Controllers
                 var value = new Page_Tabe_Model();
                 value.ID = item.ID;
                 value.Image_Cover = item.Image_Cover;
-                //value.Lang_ID = item.Lang_ID;
+                value.Lang_ID = item.Lang_ID;
                 //value.Lang_name = item.New_lang.Name;
                 value.New_Page_ID = item.New_Page_ID;
                 value.page_H_V_tabe = item.page_H_V_tabe;
@@ -4057,7 +4057,7 @@ namespace tabseetCourse.Controllers
                     }
                     na.Title = am.Title;
                     na.New_Page_ID = PageTabeID;
-                    na.Lang_ID = 1;
+                    na.Lang_ID = am.Lang_ID; 
                     na.Image_Cover = am.Image_Cover;
                     na.page_H_V_tabe = VHID;
                     dbEntity.New_Page_Tabe.Add(na);
@@ -4250,7 +4250,7 @@ namespace tabseetCourse.Controllers
 
                     //nco.Image_Cover = am.Image_Cover;
                     nco.title = am.title;
-                    //nco.Lang_ID = am.Lang_ID;
+                    nco.Lang_ID = am.Lang_ID;
                     nco.Map_Link = am.Map_Link;
                     nco.UN_Adress = am.UN_Adress;
                     nco.UN_Email = am.UN_Email;
@@ -4284,7 +4284,7 @@ namespace tabseetCourse.Controllers
                         res.Image_Cover = SaveImage(am.ImageCover);
                     }
                     res.title = am.title;
-                    //res.Lang_ID = am.Lang_ID;
+                    res.Lang_ID = am.Lang_ID;
                     res.Map_Link = am.Map_Link;
                     res.UN_Adress = am.UN_Adress;
                     res.UN_Email = am.UN_Email;
@@ -4333,7 +4333,7 @@ namespace tabseetCourse.Controllers
                     ho.ID = homepage.ID;
                     ho.title = homepage.title;
                     ho.Image_Cover = homepage.Image_Cover;
-                    //ho.Lang_ID = homepage.Lang_ID;
+                    ho.Lang_ID = homepage.Lang_ID;
                     ho.Map_Link = homepage.Map_Link;
                     ho.New_Page_ID = homepage.New_Page_ID;
                     ho.UN_Adress = homepage.UN_Adress;
@@ -4381,7 +4381,7 @@ namespace tabseetCourse.Controllers
                 if (PT.New_pages_ID == 0)
                 {
                     New_pages_Text pt = new New_pages_Text();
-                    //pt.Lang_ID = PT.Lang_ID;
+                    pt.Lang_ID = PT.Lang_ID;
                     pt.New_pages_ID = Page_Tex.Value;
                     pt.Text_Description = PT.Text_Description;
                     pt.title = PT.title;
@@ -4394,7 +4394,7 @@ namespace tabseetCourse.Controllers
                 else
                 {
                     var result = dbEntity.New_pages_Text.Where(e =>  e.New_pages_ID == PT.New_pages_ID).FirstOrDefault();
-                    //result.Lang_ID = PT.Lang_ID;
+                    result.Lang_ID = PT.Lang_ID;
                     result.New_pages_ID = Page_Tex.Value;
                     result.Text_Description = PT.Text_Description;
                     result.title = PT.title;
@@ -4424,7 +4424,7 @@ namespace tabseetCourse.Controllers
                 {
                     ptm.ID = result.ID;
                     ptm.Image_Cover = result.Image_Cover;
-                    //ptm.Lang_ID = result.Lang_ID;
+                    ptm.Lang_ID = result.Lang_ID;
                     ptm.New_pages_ID = result.New_pages_ID;
                     ptm.Text_Description = result.Text_Description;
                     ptm.title = result.title;
@@ -4456,7 +4456,7 @@ namespace tabseetCourse.Controllers
                 result.ID = item.ID;
                 result.Title = item.Title;
                 result.Lang_name = item.New_lang.Name;
-                //result.Lang_ID = item.Lang_ID;
+                result.Lang_ID = item.Lang_ID;
                 result.new_pages_ID = item.new_pages_ID;
                 am.Add(result);
             }
@@ -4474,7 +4474,7 @@ namespace tabseetCourse.Controllers
                 }
                 na.Title = am.Title;
                 na.new_pages_ID = aboutPageID;
-                //na.Lang_ID = am.Lang_ID;
+                na.Lang_ID = am.Lang_ID;
                 na.Image_Cover = am.Image_Cover;
                 dbEntity.New_About.Add(na);
                 dbEntity.SaveChanges();
@@ -4639,13 +4639,13 @@ namespace tabseetCourse.Controllers
             return View(L_MM);
         }
         [HttpPost]
-        public JsonResult Menu(string title, int PageID)
+        public JsonResult Menu(string title, int PageID,int LangID)
         {
             New_Menu mm = new New_Menu();
             
             mm.New_Page_ID = PageID;
             mm.Title = title;
-            mm.Lang_ID = 1;
+            mm.Lang_ID =  LangID;
             dbEntity.New_Menu.Add(mm);
             var result = dbEntity.SaveChanges();
             if (result > 0)
@@ -4796,7 +4796,7 @@ namespace tabseetCourse.Controllers
                 var sli = new SliderModel();
                 sli.ID = item.ID;
                 sli.Image = item.Slider_Image;
-                //sli.Lang_ID = item.Lang_ID;
+                sli.Lang_ID = item.Lang_ID;
                 //sli.Lang_Name = item.New_lang.Name;
                 sli.TextMessage = item.TextMessage;
                 result.Add(sli);
@@ -4929,7 +4929,7 @@ namespace tabseetCourse.Controllers
                 result.DateTime = item.DateTime;
                 result.FullDescription = item.FullDescription;
                 result.ID = item.ID;
-                //result.Lang_ID = item.Lang_ID;
+                result.Lang_ID = item.Lang_ID;
                 //result.Lang_name = item.New_lang.Name;
                 result.Title = item.Title;
                 Lvalue.Add(result);
@@ -4957,7 +4957,7 @@ namespace tabseetCourse.Controllers
                     nn.Cover_image = News.Cover_image;
                     nn.DateTime = News.DateTime;
                     nn.FullDescription = News.FullDescription;
-                    //nn.Lang_ID = News.Lang_ID;
+                    nn.Lang_ID = News.Lang_ID;
                     nn.ShortDescription = News.ShortDescription;
                     nn.FullDescription = News.FullDescription;
                     nn.Shourt_image = News.Shourt_image;
@@ -5036,7 +5036,7 @@ namespace tabseetCourse.Controllers
                     nm.ID = value.ID;
                     nm.Title = value.Title;
                     nm.DateTime = value.DateTime;
-                    //nm.Lang_ID = value.Lang_ID;
+                    nm.Lang_ID = value.Lang_ID;
                     //nm.Lang_name = value.New_lang.Name;
                     nm.ShortDescription = value.ShortDescription;
                     nm.FullDescription = value.FullDescription;
@@ -5068,7 +5068,7 @@ namespace tabseetCourse.Controllers
                 {
                     New_FastNewsModel fn = new New_FastNewsModel();
                     fn.ID = item.ID;
-                    //fn.Lang_ID = item.Lang_ID.Value;
+                    fn.Lang_ID = item.Lang_ID.Value;
                     //fn.Lang_Name = item.New_lang.Name;
                     fn.NewsText = item.NewsText;
                     L_NFNM.Add(fn);
@@ -5085,7 +5085,7 @@ namespace tabseetCourse.Controllers
             New_FastNews nfn = new New_FastNews();
             try
             {
-                //nfn.Lang_ID = Lang_ID;
+                nfn.Lang_ID = Lang_ID;
                 nfn.NewsText = message;
                 dbEntity.New_FastNews.Add(nfn);
                 dbEntity.SaveChanges();
@@ -5106,7 +5106,7 @@ namespace tabseetCourse.Controllers
                 var value = dbEntity.New_FastNews.Find(ID);
                 if (value != null)
                 {
-                    //value.Lang_ID = Lang_ID;
+                    value.Lang_ID = Lang_ID;
                     value.NewsText = Message;
                     dbEntity.New_FastNews.Attach(value);
                     dbEntity.Entry(value).State = EntityState.Modified;
@@ -5130,7 +5130,7 @@ namespace tabseetCourse.Controllers
             {
                 var value = dbEntity.New_FastNews.Find(ID);
                 nfn.ID = value.ID;
-                //nfn.Lang_ID = value.Lang_ID.Value;
+                nfn.Lang_ID = value.Lang_ID.Value;
                 nfn.NewsText = value.NewsText;
             }
             catch (Exception ex)
@@ -5173,7 +5173,7 @@ namespace tabseetCourse.Controllers
                 result.DateTime = item.DateTime;
                 result.FullDescription = item.FullDescription;
                 result.ID = item.ID;
-                //result.Lang_ID = item.Lang_ID;
+                result.Lang_ID = item.Lang_ID;
                 result.Lang_name = item.New_lang.Name;
                 result.Title = item.Title;
                 Lvalue.Add(result);
@@ -5202,7 +5202,7 @@ namespace tabseetCourse.Controllers
                     nn.Cover_image = News.Cover_image;
                     nn.DateTime = News.DateTime;
                     nn.FullDescription = News.FullDescription;
-                    //nn.Lang_ID = News.Lang_ID;
+                    nn.Lang_ID = News.Lang_ID;
                     nn.ShortDescription = News.ShortDescription;
                     nn.FullDescription = News.FullDescription;
                     nn.Shourt_image = News.Shourt_image;
@@ -5225,7 +5225,7 @@ namespace tabseetCourse.Controllers
                     //nn.Cover_image = News.Cover_image;
                     nn.DateTime = News.DateTime;
                     nn.FullDescription = News.FullDescription;
-                    //nn.Lang_ID = News.Lang_ID;
+                    nn.Lang_ID = News.Lang_ID;
                     nn.ShortDescription = News.ShortDescription;
                     nn.FullDescription = News.FullDescription;
                     //nn.Shourt_image = News.Shourt_image;
@@ -5280,7 +5280,7 @@ namespace tabseetCourse.Controllers
                     nm.ID = value.ID;
                     nm.Title = value.Title;
                     nm.DateTime = value.DateTime;
-                    //nm.Lang_ID = value.Lang_ID;
+                    nm.Lang_ID = value.Lang_ID;
                     //nm.Lang_name = value.New_lang.Name;
                     nm.ShortDescription = value.ShortDescription;
                     nm.FullDescription = value.FullDescription;
