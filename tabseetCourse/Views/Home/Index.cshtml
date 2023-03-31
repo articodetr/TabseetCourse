@@ -226,7 +226,14 @@
                                         }
                                     </a>
                                 </div>
-                                <h3> @item.NameAr</h3>
+                                @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+                                {
+                                    <h3> @item.NameEn</h3>
+                                }
+                                else
+                                {
+                                    <h3> @item.NameAr</h3>
+                                }
 
                                 @if (item.Description != null)
                                 {
@@ -251,7 +258,7 @@
 
                                     }
                                     else
-                                    { 
+                                    {
                                         if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
                                         {
                                             <ins>Free</ins>
@@ -261,7 +268,7 @@
                                             <ins>مجانا</ins>
                                         }
 
-                                }
+                                    }
                                 </span>
                                 @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
                                 {

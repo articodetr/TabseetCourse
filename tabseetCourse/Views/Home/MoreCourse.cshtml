@@ -46,6 +46,7 @@
 <script>
 
     var isLoading = true;
+    var lang_ID=@Session["Lang_ID"]
     $(document).ready(function () {
         SerchOnClick();
 
@@ -64,7 +65,7 @@
 
 
                     for (var i = 0; i < data.length; ++i) {
-                        console.log(data[i].NameAr);
+                   
                         s += '<div class="col-md-4">';
                         s += '<div class="item">';
                         s += '<div class="image">';
@@ -76,23 +77,41 @@
                             s +='<img src="/Uploade/Images/' + data[i].Icon + '" alt="event name">';
                         }
 
-                        console.log(  s);
 
-                        s += '</a></div><h3>' + data[i].NameAr + '</h3>';
+                        if (lang_ID == 2) {
+                            s += '</a></div><h3>' + data[i].NameEn + '</h3>';
+                        } else {
+                            s += '</a></div><h3>' + data[i].NameAr + '</h3>';
+                        }
+                        
                         if (data[i].IsPayed == 1 && data[i].PayedValue != "0") {
                             s += '<span class="date">' + data[i].PayedValue + 'USD</span>';
 
                         }
                         else {
-                            s += '<span class="date">مجاني</span>';
+                            if (lang_ID == 2) {
+                                s += '<span class="date">Free</span>';
+                            } else {
+                                s += '<span class="date">مجاني</span>';
+                            }
+                            
                         }
-                        console.log(s);
-                        if (data[i].CanRegister == 1) {
-                            s +='<a href="#" onclick="TackThisCourse(' + data[i].ID + ')" class="read_more">اشترك</a>';
+                        if (lang_ID == 2) {
+                            if (data[i].CanRegister == 1) {
+                                s += '<a href="#" onclick="TackThisCourse(' + data[i].ID + ')" class="read_more">Subscribe</a>';
+                            }
+                            else {
+                                s += '@@Html.ActionLink("Read More", "GoPageMenu", new { PageID =' + data[i].New_Page_ID + '}, new { @@class = "read_more" })';
+                            }
+                        } else {
+                            if (data[i].CanRegister == 1) {
+                                s += '<a href="#" onclick="TackThisCourse(' + data[i].ID + ')" class="read_more">اشترك</a>';
+                            }
+                            else {
+                                s += '@@Html.ActionLink("اقرأ المزيد", "GoPageMenu", new { PageID =' + data[i].New_Page_ID + '}, new { @@class = "read_more" })';
+                            }
                         }
-                        else {
-                            s +='@@Html.ActionLink("اقرأ المزيد", "GoPageMenu", new { PageID =' + data[i].New_Page_ID + '}, new { @@class = "read_more" })';
-                        }
+                        
                         s += '</div></div>';
                     }
 

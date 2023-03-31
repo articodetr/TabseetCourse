@@ -258,30 +258,55 @@
             <div class="row">
                 <div class="col-sm-6 col-md-4">
                     @*<h6>العنوان</h6>
-                        <p>
-                            Beştepe, Via Flat İş Merkezi Kat:3, Nergiz Sk.
-                            No:7-2, 06560 Esenyurt/İstanbul, Turkey
-                        </p>*@
+            <p>
+                Beştepe, Via Flat İş Merkezi Kat:3, Nergiz Sk.
+                No:7-2, 06560 Esenyurt/İstanbul, Turkey
+            </p>*@
                 </div>
+                @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+                {<div class="col-xs-6 col-md-4">
 
-                <div class="col-xs-6 col-md-4">
-                    <h6>روابط سريعة</h6>
-                    <ul class="footer-links">
-                        <li><a href="https://tabseet.org/Home/aboutPage?pageID=7"> عن الأكاديمية</a></li>
-                        <li><a href="https://tabseet.org/Home/GridPage?pageID=18">الدبلومات</a></li>
-                        <li><a href="https://tabseet.org/Home/GridPage?pageID=58">الدورات</a></li>
-                        <li><a href="https://tabseet.org/Home/AllTeacher">علماؤنا</a></li>
-                    </ul>
-                </div>
+                        <h6>Quick links</h6>
+                        <ul class="footer-links">
+                            <li><a href="https://tabseet.org/Home/aboutPage?pageID=7"> About the Academy</a></li>
+                            <li><a href="https://tabseet.org/Home/GridPage?pageID=18">Diplomas</a></li>
+                            <li><a href="https://tabseet.org/Home/GridPage?pageID=58">Courses</a></li>
+                            @*<li><a href="https://tabseet.org/Home/AllTeacher"></a></li>*@
+                        </ul>
+                    </div>
 
-                <div class="col-xs-6 col-md-4">
-                    <h6>تواصل معنا</h6>
-                    <ul class="footer-links">
-                        @*  <li><a href="/">الشروط والأحكام</a></li>*@
-                        <li><a href="https://tabseet.org/Home/PageText?pageID=72">سياسة الخصوصية</a></li>
-                        <li><a href="https://tabseet.org/Home/ContactUsPage?pageID=8">تواصل معنا</a></li>
-                    </ul>
-                </div>
+                    <div class="col-xs-6 col-md-4">
+                        <h6>Connect with us</h6>
+                        <ul class="footer-links">
+                            @*  <li><a href="/">الشروط والأحكام</a></li>*@
+                            <li><a href="https://tabseet.org/Home/PageText?pageID=72">privacy policy</a></li>
+                            <li><a href="https://tabseet.org/Home/ContactUsPage?pageID=8">Connect us</a></li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-xs-6 col-md-4">
+
+                        <h6>روابط سريعة</h6>
+                        <ul class="footer-links">
+                            <li><a href="https://tabseet.org/Home/aboutPage?pageID=7"> عن الأكاديمية</a></li>
+                            <li><a href="https://tabseet.org/Home/GridPage?pageID=18">الدبلومات</a></li>
+                            <li><a href="https://tabseet.org/Home/GridPage?pageID=58">الدورات</a></li>
+                            @*<li><a href="https://tabseet.org/Home/AllTeacher">علماؤنا</a></li>*@
+                        </ul>
+                    </div>
+
+                    <div class="col-xs-6 col-md-4">
+                        <h6>تواصل معنا</h6>
+                        <ul class="footer-links">
+                            @*  <li><a href="/">الشروط والأحكام</a></li>*@
+                            <li><a href="https://tabseet.org/Home/PageText?pageID=72">سياسة الخصوصية</a></li>
+                            <li><a href="https://tabseet.org/Home/ContactUsPage?pageID=8">تواصل معنا</a></li>
+                        </ul>
+                    </div>
+                }
+
             </div>
             <hr>
         </div>
@@ -296,11 +321,11 @@
 
                 <div class="col-md-4 col-sm-6 col-xs-12">
                     <ul class="social-icons">
-                        <li><a class="facebook" href="https://www.facebook.com/isaonlinenet" title=" facebook"><i class="fa fa-facebook" style="padding-top:10px"></i></a></li>
-                        <li><a class="twitter" href="https://twitter.com/isaonlinenet" title=" twitter"><i class="fa fa-twitter" style="padding-top:10px"></i></a></li>
-                        <li><a class="youtube" href="https://www.youtube.com/channel/UCQZ6YGvZrJWMB-qZpmJ4Icw/featured" title=" youtube"><i class="fa fa-youtube" style="padding-top:10px"></i></a></li>
-                        <li><a class="telegram" href="https://t.me/isaonlinenet" title=" telegram"><i class="fa fa-telegram" style="padding-top:10px"></i></a></li>
-                        <li><a class="instagram" href="https://instagram.com/isaonlinenet?igshid=534tgor07m1i" title=" instagram"><i class="fa fa-instagram" style="padding-top:10px"></i></a></li>
+                        <li><a class="facebook" href="#" title=" facebook"><i class="fa fa-facebook" style="padding-top:10px"></i></a></li>
+                        <li><a class="twitter" href="#" title=" twitter"><i class="fa fa-twitter" style="padding-top:10px"></i></a></li>
+                        <li><a class="youtube" href="#" title=" youtube"><i class="fa fa-youtube" style="padding-top:10px"></i></a></li>
+                        <li><a class="telegram" href="#" title=" telegram"><i class="fa fa-telegram" style="padding-top:10px"></i></a></li>
+                        <li><a class="instagram" href="#" title=" instagram"><i class="fa fa-instagram" style="padding-top:10px"></i></a></li>
                     </ul>
                 </div>
             </div>

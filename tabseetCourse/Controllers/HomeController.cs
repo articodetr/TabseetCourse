@@ -434,8 +434,14 @@ namespace tabseetCourse.Controllers
         }
         public ActionResult AllNews()
         {
-     
-            var value = dbEntity.New_news.ToList();
+            var lang = Session["Lang_ID"];
+            if (lang == null)
+            {
+                Session["Lang_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().ID;
+                Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
+            }
+            int Lang_ID = int.Parse(Session["Lang_ID"].ToString());
+            var value = dbEntity.New_news.Where(e=>e.Lang_ID==Lang_ID).ToList();
             List<NewsModel> L_new = new List<NewsModel>();
             try
             {
