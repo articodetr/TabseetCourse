@@ -206,17 +206,32 @@
                             <span class="name">  &nbsp;&nbsp;  </span>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="loginDropdown">
-                            <a class="dropdown-item" href="@Url.Action("Login", "Home")">
-                                <i class="fas fa-sign-in-alt" style="padding-left:25px;padding-right:23px"></i>
-                                تسجيل دخول
-                            </a>
-                            <a class="dropdown-item" href="@Url.Action("RegesterNewStdView", "Home")">
-                                <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 812.4 929.6" style="enable-background:new 0 0 812.4 929.6;padding-left:25px" xml:space="preserve">
-                                <path d="M617.6,461.4c-54.1,47.7-126,77.1-205.2,77.1c-80.4,0-153.4-30.3-207.8-79.4C78.2,492.1,0,605.1,0,740.1v68.8c0,161,812.4,161,812.4,0v-68.8C812.4,608.6,738.2,497.5,617.6,461.4L617.6,461.4z M412.5,489.5c140.2,0,254.1-109.4,254.1-244.6S552.9,0,412.5,0C272.5,0,158.6,109.7,158.6,244.9C158.6,380.1,272.5,489.5,412.5,489.5L412.5,489.5z" />
+                            @if (Session["Lang_ID"] != null && Session["Lang_ID"].ToString() == "2")
+                            {<a class="dropdown-item" href="@Url.Action("Login", "Home")">
+                                    <i class="fas fa-sign-in-alt" style="padding-left:25px;padding-right:23px"></i>
+                                    Signin 
+                                </a>
+                                <a class="dropdown-item" href="@Url.Action("RegesterNewStdView", "Home")">
+                                    <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 812.4 929.6" style="enable-background:new 0 0 812.4 929.6;padding-left:25px" xml:space="preserve">
+                                    <path d="M617.6,461.4c-54.1,47.7-126,77.1-205.2,77.1c-80.4,0-153.4-30.3-207.8-79.4C78.2,492.1,0,605.1,0,740.1v68.8c0,161,812.4,161,812.4,0v-68.8C812.4,608.6,738.2,497.5,617.6,461.4L617.6,461.4z M412.5,489.5c140.2,0,254.1-109.4,254.1-244.6S552.9,0,412.5,0C272.5,0,158.6,109.7,158.6,244.9C158.6,380.1,272.5,489.5,412.5,489.5L412.5,489.5z" />
                         </svg>
-                                إنشاء حساب
-                            </a>
+                                    Create Account
+                                </a>}
+                            else
+                            {
 
+
+                                <a class="dropdown-item" href="@Url.Action("Login", "Home")">
+                                    <i class="fas fa-sign-in-alt" style="padding-left:25px;padding-right:23px"></i>
+                                    تسجيل دخول
+                                </a>
+                                <a class="dropdown-item" href="@Url.Action("RegesterNewStdView", "Home")">
+                                    <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 812.4 929.6" style="enable-background:new 0 0 812.4 929.6;padding-left:25px" xml:space="preserve">
+                                    <path d="M617.6,461.4c-54.1,47.7-126,77.1-205.2,77.1c-80.4,0-153.4-30.3-207.8-79.4C78.2,492.1,0,605.1,0,740.1v68.8c0,161,812.4,161,812.4,0v-68.8C812.4,608.6,738.2,497.5,617.6,461.4L617.6,461.4z M412.5,489.5c140.2,0,254.1-109.4,254.1-244.6S552.9,0,412.5,0C272.5,0,158.6,109.7,158.6,244.9C158.6,380.1,272.5,489.5,412.5,489.5L412.5,489.5z" />
+                        </svg>
+                                    إنشاء حساب
+                                </a>
+                            }
 
                         </div>
                     </div>}
