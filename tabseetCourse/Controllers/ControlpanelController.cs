@@ -11,6 +11,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Services.Description;
 using tabseetCourse.Classes;
 using tabseetCourse.Data;
 using tabseetCourse.Models;
@@ -1097,6 +1098,54 @@ namespace tabseetCourse.Controllers
             }
         }
 
+        [HttpGet]
+        public ActionResult GetStdCourse(string std_ID)
+        {
+            try
+            {
+                bool isAuthorize = false;
+                var username = _UsermodelModel;
+                ViewBag.stdname = dbEntity.AspNetUsers.Find(std_ID).RealName;
+                if (username != null)
+                {
+                    Session["username"] = username.RealName;
+                    if (username != null)
+                    {
+                        Session["username"] = username.RealName;
+                        var role = username.L_role;
+                        List<string> roleaccepted = new List<string>();
+                        roleaccepted.Add("Admin");
+                        roleaccepted.Add("PaymentActive");
+                        isAuthorize = IsTrustedUser(username, roleaccepted);
+                    }
+                }
+
+                if (isAuthorize == true)
+                {
+                  var result =  from s in dbEntity.Std_Reg_Category
+                    join ca in dbEntity.Categories on s.Category_ID equals ca.ID
+                    where s.Std_ID == std_ID
+                    select ca;
+                    //var result = dbEntity.Std_Reg_Category.Where(e=>e.Std_ID== std_ID).ToList();
+                    //foreach (var item in result)
+                    //{
+                    //    var categoryname = item.Category.NameAr;
+                    //}
+                    
+
+                    if (result != null)
+                    {
+
+                        return View(result);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Printerror("ActiveStudenCourse", ex.Message, ex.InnerException.ToString(), ex.StackTrace);
+            }
+            return RedirectToAction("ActiveCourse");
+        }
 
         #endregion
 
@@ -2890,6 +2939,8 @@ namespace tabseetCourse.Controllers
                 return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+
         #endregion
 
         #region sendemail

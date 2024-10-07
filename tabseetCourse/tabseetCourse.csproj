@@ -9339,6 +9339,7 @@
     <Content Include="Views\Controlpanel\StoreProduct.cshtml" />
     <Content Include="Views\Home\Store.cshtml" />
     <Content Include="Views\Home\ProductDetiles.cshtml" />
+    <Content Include="Views\Controlpanel\GetStdCourse.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
