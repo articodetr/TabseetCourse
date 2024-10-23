@@ -750,6 +750,7 @@ namespace tabseetCourse.Controllers
                         srcm.std_category_Ispayed = item.std_category_Ispayed.Value;
                         srcm.category_Ispayed = item.category_Ispayed.Value;
                         srcm.Std_ID = item.Std_ID;
+                        srcm.Student_Name = dbEntity.AspNetUsers.FirstOrDefault(e => e.Id == item.Std_ID).RealName;
                         //srcm.Student_Name = item.AspNetUser.RealName;
 
                         if (item.PayMent_Method != null)
