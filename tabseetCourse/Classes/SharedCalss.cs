@@ -672,7 +672,7 @@ namespace tabseetCourse.Classes
             try
             {
 
-                var _email = "info@tabseet.org";
+                var _email = "info@tbsetaca.com";
                 var _epass = ConfigurationManager.AppSettings["EmailPassword"];
                 var _dispName = "أكاديمية تبسيط الدولية";
 
