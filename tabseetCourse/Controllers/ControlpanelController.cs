@@ -2705,6 +2705,11 @@ namespace tabseetCourse.Controllers
         {
             try
             {
+                if (tm.Categores_ID==null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json(new { response = "يجب اضافة مادة التدريس"   }, JsonRequestBehavior.AllowGet);
+                }
                 var value = await userManager.FindByEmailAsync(tm.Email);
                 if (value != null)
                 {
