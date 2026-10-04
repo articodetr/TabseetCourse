@@ -350,6 +350,18 @@
                                 <div class="col-sm-12">
                                     <!-- select -->
                                     <div class="form-group">
+                                        <label>الدفع عن طريق وكيل</label><br />
+                                        <input type="radio" id="PaymnetbyClient" name="paymnet" value="DirectPank" onchange="RadioChange()" />
+                                    </div>
+
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- select -->
+                                    <div class="form-group">
                                         <label>الدفع مباشرة</label><br />
                                         <input type="radio" id="PaymnetCridetCard" name="paymnet" value="DirectPank" onchange="RadioChange()" />
                                     </div>
@@ -362,7 +374,7 @@
                                 <div class="col-sm-12">
                                     <!-- select -->
                                     <div class="form-group">
-                                        <label>الدفع عن طريق حوالة بنكية</label><br/>
+                                        <label>الدفع عن طريق حوالة بنكية</label><br />
                                         <input type="radio" id="PayMentInPank" name="paymnet" value="PanckTransfer" onchange="RadioChange()" />
 
                                     </div>
@@ -393,7 +405,7 @@
                                 </div>
                             </div>
                         </td>
-                        
+
                         <td>
                             <div class="row">
                                 <div class="col-sm-12">
@@ -673,6 +685,7 @@
         $('#PaymnetCode_Div').hide();
         $('#kachsodan').hide();
         $('#bankak').hide();
+        $('#PaymnetbyClient').hide();
         
         var value = getSelectedRadioBtnBaluss('paymnet');
         if (value == 'DirectPank') {
