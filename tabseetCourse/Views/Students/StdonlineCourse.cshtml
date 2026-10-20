@@ -1,139 +1,2775 @@
 ﻿@model IEnumerable<tabseetCourse.Models.LectureModel>
+@using System.Globalization
 
 @{
-    ViewBag.Title = "StdonlineCourse";
+    ViewBag.Title = "جدول حصصي - أكاديمية تبسيط الدولية";
     Layout = "~/Views/Shared/_LayoutStudent.cshtml";
 }
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.css" integrity="sha512-OodagY/LAbXf1TAkypAk+8OWjR+wGA8k3H7TGH+gku7+VsOmJRCQ2pTQJoTo/bATGwTOFdypCXqMV8snRZkC+w==" crossorigin="anonymous" />
+@functions {
+    public class TimetableLectureEntry
+    {
+        public int ID { get; set; }
+        public int CategoryId { get; set; }
+        public string LectureName { get; set; }
+        public string CourseName { get; set; }
+        public string RawDayAndTime { get; set; }
+        public bool HasValidDate { get; set; }
+        public DateTime StartDateTime { get; set; }
+        public string DateKey { get; set; }
+        public string TimeText { get; set; }
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int Day { get; set; }
+        public int Hour { get; set; }
+        public int Minute { get; set; }
+        public int DayColIndex { get; set; }
+        public string DayNameAr { get; set; }
+        public string StatusKey { get; set; }
+        public string StatusLabel { get; set; }
+        public bool IsValidHttpsLink { get; set; }
+        public string SafeClientLink { get; set; }
+        public bool HasDocument { get; set; }
+        public string DocumentFileName { get; set; }
+        public string SafeDocumentUrl { get; set; }
+        public string ThemeClass { get; set; }
+    }
+
+    public static int GetArabicWeekDayIndex(DayOfWeek dow)
+    {
+        // السبت = 0, الأحد = 1, الاثنين = 2, الثلاثاء = 3, الأربعاء = 4, الخميس = 5, الجمعة = 6
+        return ((int)dow + 1) % 7;
+    }
+
+    public static string GetArabicDayName(DayOfWeek dow)
+    {
+        switch (dow)
+        {
+            case DayOfWeek.Saturday: return "السبت";
+            case DayOfWeek.Sunday: return "الأحد";
+            case DayOfWeek.Monday: return "الاثنين";
+            case DayOfWeek.Tuesday: return "الثلاثاء";
+            case DayOfWeek.Wednesday: return "الأربعاء";
+            case DayOfWeek.Thursday: return "الخميس";
+            case DayOfWeek.Friday: return "الجمعة";
+            default: return "";
+        }
+    }
+
+    public static string GetArabicMonthName(int month)
+    {
+        string[] months = new string[]
+        {
+            "", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+            "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+        };
+        return (month >= 1 && month <= 12) ? months[month] : "";
+    }
+
+    public static string FormatArabicWeekRange(DateTime weekStart, DateTime weekEnd)
+    {
+        if (weekStart.Year == weekEnd.Year && weekStart.Month == weekEnd.Month)
+        {
+            return string.Format("{0} – {1} {2} {3}", weekStart.Day, weekEnd.Day, GetArabicMonthName(weekStart.Month), weekStart.Year);
+        }
+        if (weekStart.Year == weekEnd.Year)
+        {
+            return string.Format("{0} {1} – {2} {3} {4}", weekStart.Day, GetArabicMonthName(weekStart.Month), weekEnd.Day, GetArabicMonthName(weekEnd.Month), weekStart.Year);
+        }
+        return string.Format("{0} {1} {2} – {3} {4} {5}", weekStart.Day, GetArabicMonthName(weekStart.Month), weekStart.Year, weekEnd.Day, GetArabicMonthName(weekEnd.Month), weekEnd.Year);
+    }
+
+    public static string GetCourseThemeClass(int categoryId, int fallbackIndex)
+    {
+        string[] themes = new string[] { "tt-theme-blue", "tt-theme-gold", "tt-theme-green", "tt-theme-purple" };
+        int idx = categoryId > 0 ? (categoryId - 1) % themes.Length : fallbackIndex % themes.Length;
+        if (idx < 0) idx = 0;
+        return themes[idx];
+    }
+}
+
+@{
+    var rawLectures = Model != null ? Model.ToList() : new List<tabseetCourse.Models.LectureModel>();
+    DateTime now = DateTime.Now;
+    DateTime todayDate = now.Date;
+    string todayKey = todayDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+    int offsetFromSat = GetArabicWeekDayIndex(todayDate.DayOfWeek);
+    DateTime currentWeekStart = todayDate.AddDays(-offsetFromSat);
+    DateTime currentWeekEnd = currentWeekStart.AddDays(6);
+
+    string[] supportedFormats = new string[]
+    {
+        "yyyy-MM-dd HH:mm",
+        "yyyy-MM-dd HH:mm:ss",
+        "yyyy-MM-ddTHH:mm:ss",
+        "yyyy-MM-ddTHH:mm",
+        "yyyy-MM-dd",
+        "MM/dd/yyyy HH:mm:ss",
+        "MM/dd/yyyy HH:mm",
+        "dd/MM/yyyy HH:mm:ss",
+        "dd/MM/yyyy HH:mm"
+    };
+
+    var allEntries = new List<TimetableLectureEntry>();
+    int itemCounter = 0;
+
+    foreach (var item in rawLectures)
+    {
+        if (item == null) { continue; }
+        itemCounter++;
+
+        var entry = new TimetableLectureEntry();
+        entry.ID = item.ID;
+        entry.CategoryId = item.Category_ID;
+        entry.LectureName = !string.IsNullOrWhiteSpace(item.Lecture_Name) ? item.Lecture_Name.Trim() : "محاضرة بدون عنوان";
+        entry.CourseName = !string.IsNullOrWhiteSpace(item.CategoresName) ? item.CategoresName.Trim() : "دورة تعليمية";
+        entry.RawDayAndTime = item.DayandTime != null ? item.DayandTime.Trim() : "";
+        entry.ThemeClass = GetCourseThemeClass(item.Category_ID, itemCounter);
+
+        // فحص رابط دخول المحاضرة بأمان (HTTPS فقط)
+        Uri parsedClientUri = null;
+        bool validHttps = !string.IsNullOrWhiteSpace(item.LectureLink_Client)
+            && Uri.TryCreate(item.LectureLink_Client.Trim(), UriKind.Absolute, out parsedClientUri)
+            && parsedClientUri != null
+            && string.Equals(parsedClientUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase);
+
+        entry.IsValidHttpsLink = validHttps;
+        entry.SafeClientLink = validHttps ? parsedClientUri.AbsoluteUri : "";
+
+        // فحص المرفق التعليمي
+        if (!string.IsNullOrWhiteSpace(item.DocumenFile))
+        {
+            string cleanDoc = item.DocumenFile.Trim();
+            entry.HasDocument = true;
+            entry.DocumentFileName = cleanDoc;
+            entry.SafeDocumentUrl = "https://tbsetaca.com/Uploade/Images/" + Uri.EscapeUriString(cleanDoc);
+        }
+        else
+        {
+            entry.HasDocument = false;
+            entry.DocumentFileName = "";
+            entry.SafeDocumentUrl = "";
+        }
+
+        // تحليل التاريخ والوقت بشكل آمن دون تخمين أو تغيير المنطقة الزمنية
+        DateTime parsedDt = DateTime.MinValue;
+        bool isDateValid = false;
+
+        if (!string.IsNullOrWhiteSpace(entry.RawDayAndTime) && entry.RawDayAndTime != "موعد غير محدد")
+        {
+            if (DateTime.TryParseExact(entry.RawDayAndTime, supportedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDt))
+            {
+                if (parsedDt.Year >= 1900 && parsedDt.Year <= 2100)
+                {
+                    isDateValid = true;
+                }
+            }
+        }
+
+        if (isDateValid)
+        {
+            entry.HasValidDate = true;
+            entry.StartDateTime = parsedDt;
+            entry.Year = parsedDt.Year;
+            entry.Month = parsedDt.Month;
+            entry.Day = parsedDt.Day;
+            entry.Hour = parsedDt.Hour;
+            entry.Minute = parsedDt.Minute;
+            entry.DateKey = parsedDt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            entry.TimeText = parsedDt.ToString("HH:mm", CultureInfo.InvariantCulture);
+            entry.DayColIndex = GetArabicWeekDayIndex(parsedDt.DayOfWeek);
+            entry.DayNameAr = GetArabicDayName(parsedDt.DayOfWeek);
+
+            if (item.Is_Lecture_End)
+            {
+                entry.StatusKey = "past";
+                entry.StatusLabel = "سابقة";
+            }
+            else if (parsedDt <= now)
+            {
+                entry.StatusKey = "ongoing";
+                entry.StatusLabel = "جارية";
+            }
+            else
+            {
+                entry.StatusKey = "upcoming";
+                entry.StatusLabel = "قادمة";
+            }
+        }
+        else
+        {
+            entry.HasValidDate = false;
+            entry.StartDateTime = DateTime.MinValue;
+            entry.DateKey = "";
+            entry.TimeText = "";
+            entry.DayColIndex = -1;
+            entry.DayNameAr = "";
+            entry.StatusKey = "unscheduled";
+            entry.StatusLabel = "موعد غير محدد";
+        }
+
+        allEntries.Add(entry);
+    }
+
+    // إحصائيات الملخص من بيانات Model الحالية فقط
+    var currentWeekLectures = allEntries
+        .Where(x => x.HasValidDate && x.StartDateTime.Date >= currentWeekStart && x.StartDateTime.Date <= currentWeekEnd)
+        .OrderBy(x => x.StartDateTime)
+        .ToList();
+
+    var upcomingAndOngoingLectures = allEntries
+        .Where(x => x.HasValidDate && (x.StatusKey == "upcoming" || x.StatusKey == "ongoing"))
+        .OrderBy(x => x.StartDateTime)
+        .ToList();
+
+    // أقرب محاضرة مباشرة مستقبلية (أو جارية إن لم توجد مستقبلية بعدها)
+    var nextLecture = allEntries
+        .Where(x => x.HasValidDate && x.StatusKey == "upcoming")
+        .OrderBy(x => x.StartDateTime)
+        .FirstOrDefault()
+        ?? upcomingAndOngoingLectures.FirstOrDefault();
+
+    // حصص اليوم
+    var todayLectures = allEntries
+        .Where(x => x.HasValidDate && x.DateKey == todayKey)
+        .OrderBy(x => x.StartDateTime)
+        .ToList();
+
+    // الحصص السابقة (جميع الحصص السابقة في بيانات الطالب مرتبة من الأحدث إلى الأقدم)
+    var previousLectures = allEntries
+        .Where(x => x.HasValidDate && x.StatusKey == "past")
+        .OrderByDescending(x => x.StartDateTime)
+        .ToList();
+
+    // المحاضرات ذات الموعد غير المحدد
+    var unscheduledLectures = allEntries
+        .Where(x => !x.HasValidDate || x.StatusKey == "unscheduled")
+        .ToList();
+
+    // حساب نطاق الساعات للأسبوع الحالي (مع هامش قبل وبعد أول وآخر حصة)
+    int weekMinHour = 9;
+    int weekMaxHour = 17;
+    if (currentWeekLectures.Any())
+    {
+        int minH = currentWeekLectures.Min(x => x.Hour);
+        int maxH = currentWeekLectures.Max(x => x.Hour);
+        weekMinHour = Math.Max(0, minH - 1);
+        weekMaxHour = Math.Min(23, maxH + 1);
+        if (weekMaxHour - weekMinHour < 5)
+        {
+            weekMinHour = Math.Max(0, weekMinHour - 1);
+            weekMaxHour = Math.Min(23, Math.Max(weekMaxHour + 2, weekMinHour + 5));
+        }
+    }
+
+    string[] arabicWeekDayNames = new string[] { "السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة" };
+}
+
 <input type="text" value="@ViewBag.CategoryID" hidden="hidden" id="CategoryID" />
 <input type="text" hidden="hidden" id="Lecture_ID" />
 <input type="text" hidden="hidden" id="Lec_mini_Time" />
 <input type="text" hidden="hidden" id="assingm_ID" />
-<!-- Start Slider -->
-<!-- Start Slider -->
-<div class="sec_content padding_menu cours_details">
-    <div class="container">
 
-        <div class="col-md-4 float-right">
+<style>
+    #studentTimetable {
+        float: left;
+        width: 100%;
+        min-height: 100vh;
+        background-color: #F8FAFC;
+        padding-top: 118px;
+        padding-bottom: 64px;
+        direction: rtl;
+        text-align: right;
+        font-family: 'Cairo', sans-serif;
+        color: #1E293B;
+        box-sizing: border-box;
+    }
 
-            <div class="text_sec">
-                <img class="cours_image" alt="course Name" src="~/Content2/img/pr-2.jpg">
-                <h1>@ViewBag.LectureName</h1>
+    #studentTimetable *,
+    #studentTimetable *::before,
+    #studentTimetable *::after {
+        box-sizing: border-box;
+    }
 
-                <p>عدد المحاضرات</p>
-                <span class="number">@Model.Count()</span>
+    #studentTimetable .tt-container {
+        max-width: 1360px;
+        margin: 0 auto;
+        padding: 0 20px;
+        width: 100%;
+    }
 
-                <div class="w_text">
-                    <p>
-                        @*شرح مختصر عن البرنامج التعليمي*@
-                    </p>
+    /* رأس الصفحة والملخص */
+    #studentTimetable .tt-page-header {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 22px 26px;
+        margin-bottom: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 18px;
+        box-shadow: 0 2px 10px rgba(17, 52, 100, 0.04);
+    }
+
+    #studentTimetable .tt-header-info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    #studentTimetable .tt-title-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    #studentTimetable .tt-title-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #113464 0%, #1E4E8C 100%);
+        color: #C5A052;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    #studentTimetable .tt-page-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #113464;
+        line-height: 1.3;
+    }
+
+    #studentTimetable .tt-page-subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: #64748B;
+        line-height: 1.6;
+    }
+
+    #studentTimetable .tt-summary-stats {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    #studentTimetable .tt-stat-pill {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 148px;
+    }
+
+    #studentTimetable .tt-stat-pill-gold {
+        background: #FEFBF3;
+        border-color: #F3E3B8;
+    }
+
+    #studentTimetable .tt-stat-pill-navy {
+        background: #F0F6FF;
+        border-color: #CFE2FF;
+    }
+
+    #studentTimetable .tt-stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+
+    #studentTimetable .tt-stat-pill-navy .tt-stat-icon {
+        background: #DBEAFE;
+        color: #113464;
+    }
+
+    #studentTimetable .tt-stat-pill-gold .tt-stat-icon {
+        background: #FEF0C7;
+        color: #9A7221;
+    }
+
+    #studentTimetable .tt-stat-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    #studentTimetable .tt-stat-value {
+        font-size: 19px;
+        font-weight: 700;
+        color: #113464;
+        line-height: 1.1;
+    }
+
+    #studentTimetable .tt-stat-label {
+        font-size: 12px;
+        color: #64748B;
+        font-weight: 600;
+    }
+
+    /* التخطيط الرئيسي: اللوحة الجانبية يمينًا والجدول الرئيسي يسارًا على سطح المكتب */
+    #studentTimetable .tt-workspace {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 22px;
+        width: 100%;
+    }
+
+    #studentTimetable .tt-sidebar {
+        order: 1;
+        flex: 0 0 330px;
+        width: 330px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    #studentTimetable .tt-main-area {
+        order: 2;
+        flex: 1 1 0%;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* البطاقات العامة */
+    #studentTimetable .tt-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(15, 23, 42, 0.035);
+        overflow: hidden;
+    }
+
+    /* شريط التنقل بين الأسابيع */
+    #studentTimetable .tt-week-toolbar {
+        padding: 18px 22px;
+        border-bottom: 1px solid #EDF2F7;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+        background: #FFFFFF;
+    }
+
+    #studentTimetable .tt-week-range-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #studentTimetable .tt-week-badge-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #F1F5F9;
+        color: #113464;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+    }
+
+    #studentTimetable .tt-week-range-label {
+        font-size: 12px;
+        color: #64748B;
+        display: block;
+    }
+
+    #studentTimetable .tt-week-range-text {
+        font-size: 16px;
+        font-weight: 700;
+        color: #113464;
+        margin: 0;
+    }
+
+    #studentTimetable .tt-week-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    #studentTimetable .tt-nav-btn {
+        appearance: none;
+        border: 1px solid #E2E8F0;
+        background: #FFFFFF;
+        color: #1E293B;
+        font-family: 'Cairo', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 7px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+        line-height: 1.4;
+    }
+
+    #studentTimetable .tt-nav-btn:hover {
+        background: #F8FAFC;
+        border-color: #CBD5E1;
+        color: #113464;
+    }
+
+    #studentTimetable .tt-nav-btn-current {
+        background: #113464;
+        border-color: #113464;
+        color: #FFFFFF;
+    }
+
+    #studentTimetable .tt-nav-btn-current:hover {
+        background: #1B4682;
+        border-color: #1B4682;
+        color: #FFFFFF;
+    }
+
+    /* الجدول الأسبوعي لسطح المكتب والتابلت */
+    #studentTimetable .tt-desktop-timetable {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #studentTimetable .tt-grid-table {
+        width: 100%;
+        min-width: 840px;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+    #studentTimetable .tt-grid-table th,
+    #studentTimetable .tt-grid-table td {
+        border-bottom: 1px solid #F1F5F9;
+        border-left: 1px solid #F1F5F9;
+        vertical-align: top;
+    }
+
+    #studentTimetable .tt-grid-table th:last-child,
+    #studentTimetable .tt-grid-table td:last-child {
+        border-left: none;
+    }
+
+    #studentTimetable .tt-time-col-header {
+        width: 74px;
+        background: #F8FAFC;
+        text-align: center;
+        vertical-align: middle;
+        padding: 14px 6px;
+        color: #64748B;
+        font-size: 16px;
+    }
+
+    #studentTimetable .tt-day-col-header {
+        background: #F8FAFC;
+        padding: 12px 6px;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    #studentTimetable .tt-day-col-header:hover {
+        background: #F1F5F9;
+    }
+
+    #studentTimetable .tt-day-col-header.is-today {
+        background: #F0F6FF;
+    }
+
+    #studentTimetable .tt-day-col-header.is-selected {
+        background: #FEF9EC;
+        box-shadow: inset 0 -3px 0 #C5A052;
+    }
+
+    #studentTimetable .tt-day-header-name {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 6px;
+    }
+
+    #studentTimetable .tt-day-col-header.is-today .tt-day-header-name {
+        color: #113464;
+    }
+
+    #studentTimetable .tt-day-header-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        font-size: 13px;
+        font-weight: 700;
+        color: #334155;
+        background: transparent;
+        transition: all 0.2s ease;
+    }
+
+    #studentTimetable .tt-day-col-header.is-today .tt-day-header-num {
+        background: #113464;
+        color: #FFFFFF;
+        box-shadow: 0 2px 6px rgba(17, 52, 100, 0.25);
+    }
+
+    #studentTimetable .tt-day-col-header.is-selected:not(.is-today) .tt-day-header-num {
+        background: #C5A052;
+        color: #FFFFFF;
+    }
+
+    #studentTimetable .tt-time-cell {
+        width: 74px;
+        padding: 12px 6px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748B;
+        background: #FAFBFD;
+        direction: ltr;
+        user-select: none;
+    }
+
+    #studentTimetable .tt-slot-cell {
+        padding: 6px;
+        min-height: 76px;
+        height: 76px;
+        background: #FFFFFF;
+        transition: background-color 0.15s ease;
+    }
+
+    #studentTimetable .tt-slot-cell.is-today-col {
+        background: rgba(240, 246, 255, 0.35);
+    }
+
+    #studentTimetable .tt-slot-cell.is-selected-col {
+        background: rgba(254, 249, 236, 0.45);
+    }
+
+    #studentTimetable .tt-slot-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: 100%;
+    }
+
+    /* بطاقات المحاضرات داخل الجدول */
+    #studentTimetable .tt-lecture-card {
+        border-radius: 10px;
+        padding: 9px 10px;
+        border-right: 4px solid #3B82F6;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-height: 92px;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        overflow-wrap: break-word;
+    }
+
+    #studentTimetable .tt-lecture-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+    }
+
+    /* ألوان Pastel هادئة للبطاقات */
+    #studentTimetable .tt-theme-blue {
+        background-color: #EBF5FF;
+        border-right-color: #2563EB;
+    }
+
+    #studentTimetable .tt-theme-gold {
+        background-color: #FEF7E6;
+        border-right-color: #C5A052;
+    }
+
+    #studentTimetable .tt-theme-green {
+        background-color: #ECFDF5;
+        border-right-color: #10B981;
+    }
+
+    #studentTimetable .tt-theme-purple {
+        background-color: #F3E8FF;
+        border-right-color: #8B5CF6;
+    }
+
+    #studentTimetable .tt-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    #studentTimetable .tt-card-time {
+        font-size: 11px;
+        font-weight: 700;
+        color: #334155;
+        direction: ltr;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    #studentTimetable .tt-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.4;
+        white-space: nowrap;
+    }
+
+    #studentTimetable .tt-status-upcoming {
+        background: #DCFCE7;
+        color: #166534;
+        border: 1px solid #BBF7D0;
+    }
+
+    #studentTimetable .tt-status-ongoing {
+        background: #DBEAFE;
+        color: #1E40AF;
+        border: 1px solid #BFDBFE;
+    }
+
+    #studentTimetable .tt-status-past {
+        background: #F1F5F9;
+        color: #475569;
+        border: 1px solid #CBD5E1;
+    }
+
+    #studentTimetable .tt-status-unscheduled {
+        background: #FEF3C7;
+        color: #92400E;
+        border: 1px solid #FDE68A;
+    }
+
+    #studentTimetable .tt-card-course {
+        font-size: 11px;
+        font-weight: 700;
+        color: #113464;
+        line-height: 1.35;
+    }
+
+    #studentTimetable .tt-card-title {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #1E293B;
+        line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    #studentTimetable .tt-card-footer {
+        margin-top: auto;
+        padding-top: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    #studentTimetable .tt-join-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        background: #113464;
+        color: #FFFFFF;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 5px 9px;
+        border-radius: 7px;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background-color 0.2s ease, transform 0.15s ease;
+        line-height: 1.4;
+    }
+
+    #studentTimetable .tt-join-btn:hover {
+        background: #1D4B8F;
+        color: #FFFFFF;
+        text-decoration: none;
+    }
+
+    #studentTimetable .tt-join-btn-outline {
+        background: #FFFFFF;
+        color: #113464;
+        border: 1px solid #CBD5E1;
+    }
+
+    #studentTimetable .tt-join-btn-outline:hover {
+        background: #F1F5F9;
+        color: #113464;
+        border-color: #94A3B8;
+    }
+
+    #studentTimetable .tt-doc-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #9A7221;
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid #E2E8F0;
+        padding: 3px 7px;
+        border-radius: 6px;
+        white-space: nowrap;
+        text-decoration: none;
+    }
+
+    #studentTimetable .tt-doc-link:hover {
+        background: #FFFFFF;
+        color: #785513;
+        text-decoration: none;
+    }
+
+    #studentTimetable .tt-no-link {
+        font-size: 11px;
+        color: #64748B;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    /* رسالة عدم وجود حصص في الأسبوع */
+    #studentTimetable .tt-week-empty-banner {
+        padding: 28px 20px;
+        text-align: center;
+        background: #FAFBFD;
+        border-bottom: 1px solid #EDF2F7;
+    }
+
+    #studentTimetable .tt-week-empty-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #F1F5F9;
+        color: #64748B;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    #studentTimetable .tt-week-empty-text {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: #334155;
+    }
+
+    #studentTimetable .tt-week-empty-sub {
+        margin: 4px 0 0 0;
+        font-size: 13px;
+        color: #64748B;
+    }
+
+    /* واجهة الهاتف البديلة للجدول الأسبوعي */
+    #studentTimetable .tt-mobile-timetable {
+        display: none;
+        padding: 16px;
+    }
+
+    #studentTimetable .tt-mobile-days-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        margin-bottom: 14px;
+        border-bottom: 1px solid #F1F5F9;
+    }
+
+    #studentTimetable .tt-mobile-day-pill {
+        appearance: none;
+        border: 1px solid #E2E8F0;
+        background: #F8FAFC;
+        color: #334155;
+        font-family: 'Cairo', sans-serif;
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        flex-shrink: 0;
+    }
+
+    #studentTimetable .tt-mobile-day-pill.is-active {
+        background: #113464;
+        border-color: #113464;
+        color: #FFFFFF;
+    }
+
+    #studentTimetable .tt-mobile-day-pill.has-lec:not(.is-active) {
+        border-color: #C5A052;
+        background: #FEFBF3;
+    }
+
+    #studentTimetable .tt-mobile-cards-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    #studentTimetable .tt-mobile-lec-card {
+        border-radius: 12px;
+        padding: 14px;
+        border-right: 4px solid #2563EB;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #studentTimetable .tt-mobile-lec-card .tt-join-btn {
+        width: 100%;
+        padding: 9px 14px;
+        font-size: 13px;
+    }
+
+    /* اللوحة الجانبية: التقويم المصغر والحصة القادمة وحصص اليوم */
+    #studentTimetable .tt-widget-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #F1F5F9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    #studentTimetable .tt-widget-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #113464;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #studentTimetable .tt-widget-title i {
+        color: #C5A052;
+    }
+
+    #studentTimetable .tt-widget-body {
+        padding: 18px 20px;
+    }
+
+    /* التقويم المصغر */
+    #studentTimetable .tt-cal-nav {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    #studentTimetable .tt-cal-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        border: 1px solid #E2E8F0;
+        background: #F8FAFC;
+        color: #113464;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+
+    #studentTimetable .tt-cal-btn:hover {
+        background: #113464;
+        border-color: #113464;
+        color: #FFFFFF;
+    }
+
+    #studentTimetable .tt-cal-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    #studentTimetable .tt-cal-weekday {
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748B;
+        padding: 4px 0;
+    }
+
+    #studentTimetable .tt-cal-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+    }
+
+    #studentTimetable .tt-cal-day {
+        appearance: none;
+        border: 1px solid transparent;
+        background: transparent;
+        font-family: 'Cairo', sans-serif;
+        height: 36px;
+        border-radius: 9px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1E293B;
+        cursor: pointer;
+        position: relative;
+        padding: 0;
+        transition: all 0.15s ease;
+    }
+
+    #studentTimetable .tt-cal-day:hover {
+        background: #F1F5F9;
+    }
+
+    #studentTimetable .tt-cal-day.is-other-month {
+        color: #CBD5E1;
+    }
+
+    #studentTimetable .tt-cal-day.is-in-week {
+        background: #F8FAFC;
+    }
+
+    #studentTimetable .tt-cal-day.has-lecture {
+        font-weight: 700;
+        color: #113464;
+        background: #FEF9EC;
+        border-color: #F3E3B8;
+    }
+
+    #studentTimetable .tt-cal-day.has-lecture::after {
+        content: "";
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #C5A052;
+        position: absolute;
+        bottom: 3px;
+    }
+
+    #studentTimetable .tt-cal-day.is-today {
+        background: #113464;
+        color: #FFFFFF;
+        border-color: #113464;
+        font-weight: 700;
+    }
+
+    #studentTimetable .tt-cal-day.is-today.has-lecture::after {
+        background: #C5A052;
+    }
+
+    #studentTimetable .tt-cal-day.is-selected:not(.is-today) {
+        border: 2px solid #113464;
+        background: #EFF6FF;
+        color: #113464;
+    }
+
+    #studentTimetable .tt-cal-legend {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid #F1F5F9;
+        font-size: 12px;
+        color: #64748B;
+    }
+
+    #studentTimetable .tt-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    #studentTimetable .tt-legend-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    /* بطاقة الحصة القادمة وحصص اليوم في اللوحة الجانبية */
+    #studentTimetable .tt-side-lec-card {
+        border-radius: 12px;
+        padding: 14px;
+        border-right: 4px solid #113464;
+        background: #F8FAFC;
+        border-top: 1px solid #E2E8F0;
+        border-left: 1px solid #E2E8F0;
+        border-bottom: 1px solid #E2E8F0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #studentTimetable .tt-side-lec-card + .tt-side-lec-card {
+        margin-top: 12px;
+    }
+
+    #studentTimetable .tt-side-lec-title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: #113464;
+        line-height: 1.45;
+    }
+
+    #studentTimetable .tt-side-lec-course {
+        font-size: 12px;
+        font-weight: 600;
+        color: #9A7221;
+    }
+
+    #studentTimetable .tt-side-lec-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: #475569;
+    }
+
+    #studentTimetable .tt-side-empty {
+        text-align: center;
+        padding: 14px 10px;
+        color: #64748B;
+        font-size: 13px;
+        font-weight: 600;
+        background: #F8FAFC;
+        border-radius: 10px;
+        border: 1px dashed #CBD5E1;
+    }
+
+    /* قسم الحصص السابقة وموعد غير محدد */
+    #studentTimetable .tt-section-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid #EDF2F7;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    #studentTimetable .tt-section-title-group {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    #studentTimetable .tt-section-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #113464;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #studentTimetable .tt-section-subtitle {
+        margin: 0;
+        font-size: 13px;
+        color: #64748B;
+    }
+
+    #studentTimetable .tt-count-badge {
+        background: #F1F5F9;
+        color: #113464;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 999px;
+        border: 1px solid #E2E8F0;
+    }
+
+    #studentTimetable .tt-prev-list {
+        padding: 18px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    #studentTimetable .tt-prev-row {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-right: 4px solid #94A3B8;
+        border-radius: 12px;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #studentTimetable .tt-prev-row:hover {
+        border-color: #CBD5E1;
+        border-right-color: #113464;
+        box-shadow: 0 3px 10px rgba(15, 23, 42, 0.04);
+    }
+
+    #studentTimetable .tt-prev-row.tt-prev-hidden {
+        display: none;
+    }
+
+    #studentTimetable .tt-prev-main {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        flex: 1 1 280px;
+        min-width: 0;
+    }
+
+    #studentTimetable .tt-prev-title {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: #1E293B;
+        line-height: 1.4;
+    }
+
+    #studentTimetable .tt-prev-course {
+        font-size: 13px;
+        font-weight: 600;
+        color: #113464;
+    }
+
+    #studentTimetable .tt-prev-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        font-size: 13px;
+        color: #475569;
+    }
+
+    #studentTimetable .tt-prev-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    #studentTimetable .tt-prev-meta-item i {
+        color: #C5A052;
+    }
+
+    #studentTimetable .tt-prev-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    #studentTimetable .tt-show-more-wrap {
+        padding: 0 22px 20px 22px;
+        text-align: center;
+    }
+
+    #studentTimetable .tt-show-more-btn {
+        appearance: none;
+        border: 1px solid #CBD5E1;
+        background: #F8FAFC;
+        color: #113464;
+        font-family: 'Cairo', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 8px 22px;
+        border-radius: 10px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+    #studentTimetable .tt-show-more-btn:hover {
+        background: #113464;
+        border-color: #113464;
+        color: #FFFFFF;
+    }
+
+    /* التجاوب مع الشاشات المتوسطة والهواتف */
+    @@media (max-width: 1100px) {
+        #studentTimetable .tt-workspace {
+            flex-direction: column;
+        }
+
+        #studentTimetable .tt-main-area {
+            order: 1;
+            width: 100%;
+        }
+
+        #studentTimetable .tt-sidebar {
+            order: 2;
+            width: 100%;
+            flex: 1 1 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 18px;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        #studentTimetable {
+            padding-top: 100px;
+            padding-bottom: 40px;
+        }
+
+        #studentTimetable .tt-container {
+            padding: 0 12px;
+        }
+
+        #studentTimetable .tt-page-header {
+            padding: 16px;
+        }
+
+        #studentTimetable .tt-page-title {
+            font-size: 20px;
+        }
+
+        #studentTimetable .tt-summary-stats {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        #studentTimetable .tt-stat-pill {
+            min-width: 0;
+            padding: 10px 12px;
+        }
+
+        #studentTimetable .tt-week-toolbar {
+            padding: 14px 16px;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        #studentTimetable .tt-week-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        #studentTimetable .tt-nav-btn {
+            justify-content: center;
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+
+        #studentTimetable .tt-nav-btn-current {
+            grid-column: 1 / -1;
+            order: 3;
+        }
+
+        /* إخفاء الشبكة العريضة في الهاتف وإظهار واجهة الهاتف المخصصة */
+        #studentTimetable .tt-desktop-timetable {
+            display: none;
+        }
+
+        #studentTimetable .tt-mobile-timetable {
+            display: block;
+        }
+
+        #studentTimetable .tt-sidebar {
+            grid-template-columns: 1fr;
+        }
+
+        #studentTimetable .tt-prev-list {
+            padding: 14px;
+        }
+
+        #studentTimetable .tt-prev-row {
+            padding: 14px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        #studentTimetable .tt-prev-main {
+            flex: 0 0 auto;
+            width: 100%;
+        }
+
+        #studentTimetable .tt-prev-actions {
+            width: 100%;
+            justify-content: flex-start;
+            padding-top: 8px;
+            border-top: 1px solid #F1F5F9;
+        }
+    }
+</style>
+
+<div id="studentTimetable" class="sec_content padding_menu" dir="rtl">
+    <div class="tt-container">
+
+        <!-- A. عنوان الصفحة والملخص -->
+        <header class="tt-page-header">
+            <div class="tt-header-info">
+                <div class="tt-title-row">
+                    <span class="tt-title-icon"><i class="fas fa-calendar-alt"></i></span>
+                    <h1 class="tt-page-title">جدول حصصي</h1>
+                </div>
+                <p class="tt-page-subtitle">تابع مواعيد محاضراتك المباشرة والحصص القادمة والسابقة.</p>
+            </div>
+
+            <div class="tt-summary-stats">
+                <div class="tt-stat-pill tt-stat-pill-navy">
+                    <span class="tt-stat-icon"><i class="fas fa-calendar-week"></i></span>
+                    <div class="tt-stat-content">
+                        <span class="tt-stat-value" id="ttStatWeekCount">@currentWeekLectures.Count</span>
+                        <span class="tt-stat-label">حصص هذا الأسبوع</span>
+                    </div>
+                </div>
+                <div class="tt-stat-pill tt-stat-pill-gold">
+                    <span class="tt-stat-icon"><i class="fas fa-video"></i></span>
+                    <div class="tt-stat-content">
+                        <span class="tt-stat-value" id="ttStatUpcomingCount">@upcomingAndOngoingLectures.Count</span>
+                        <span class="tt-stat-label">الحصص القادمة</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="tt-card" style="padding: 18px 22px; margin-bottom: 20px; border-right: 4px solid #EF4444; background: #FEF2F2; color: #991B1B; font-weight: 600;">
+                <i class="fas fa-exclamation-circle"></i> @ViewBag.ErrorMessage
+            </div>
+        }
+
+        <!-- منطقة العمل الرئيسية: اللوحة الجانبية يمينًا والجدول الأسبوعي والحصص السابقة يسارًا -->
+        <div class="tt-workspace">
+
+            <!-- 6. اللوحة الجانبية (على اليمين في سطح المكتب) -->
+            <aside class="tt-sidebar" aria-label="اللوحة الجانبية للجدول">
+
+                <!-- العنصر الأول: تقويم مصغر -->
+                <div class="tt-card">
+                    <div class="tt-widget-header">
+                        <h2 class="tt-widget-title">
+                            <i class="far fa-calendar"></i>
+                            <span id="ttCalMonthYear">@GetArabicMonthName(todayDate.Month) @todayDate.Year</span>
+                        </h2>
+                        <div class="tt-cal-nav">
+                            <button type="button" class="tt-cal-btn" id="ttBtnPrevMonth" title="الشهر السابق" aria-label="الشهر السابق">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <button type="button" class="tt-cal-btn" id="ttBtnNextMonth" title="الشهر التالي" aria-label="الشهر التالي">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="tt-widget-body">
+                        <div class="tt-cal-weekdays">
+                            <span class="tt-cal-weekday" title="السبت">س</span>
+                            <span class="tt-cal-weekday" title="الأحد">ح</span>
+                            <span class="tt-cal-weekday" title="الاثنين">ن</span>
+                            <span class="tt-cal-weekday" title="الثلاثاء">ث</span>
+                            <span class="tt-cal-weekday" title="الأربعاء">ر</span>
+                            <span class="tt-cal-weekday" title="الخميس">خ</span>
+                            <span class="tt-cal-weekday" title="الجمعة">ج</span>
+                        </div>
+                        <div class="tt-cal-days" id="ttMiniCalGrid">
+                            @{
+                                DateTime firstOfMonth = new DateTime(todayDate.Year, todayDate.Month, 1);
+                                int startOffset = GetArabicWeekDayIndex(firstOfMonth.DayOfWeek);
+                                DateTime gridStart = firstOfMonth.AddDays(-startOffset);
+                                var lectureDateSet = new HashSet<string>(allEntries.Where(e => e.HasValidDate).Select(e => e.DateKey));
+
+                                for (int i = 0; i < 42; i++)
+                                {
+                                    DateTime cellDate = gridStart.AddDays(i);
+                                    string cellKey = cellDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                                    bool isOtherMonth = cellDate.Month != todayDate.Month;
+                                    bool isCellToday = cellDate.Date == todayDate;
+                                    bool hasLec = lectureDateSet.Contains(cellKey);
+                                    bool inCurrWeek = cellDate.Date >= currentWeekStart && cellDate.Date <= currentWeekEnd;
+
+                                    string classes = "tt-cal-day";
+                                    if (isOtherMonth) { classes += " is-other-month"; }
+                                    if (inCurrWeek) { classes += " is-in-week"; }
+                                    if (hasLec) { classes += " has-lecture"; }
+                                    if (isCellToday) { classes += " is-today"; }
+
+                                    <button type="button" class="@classes" data-date="@cellKey" title="@cellKey">@cellDate.Day</button>
+                                }
+                            }
+                        </div>
+                        <div class="tt-cal-legend">
+                            <span class="tt-legend-item">
+                                <span class="tt-legend-dot" style="background: #113464;"></span> اليوم
+                            </span>
+                            <span class="tt-legend-item">
+                                <span class="tt-legend-dot" style="background: #C5A052;"></span> يوم به محاضرة
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
-            </div>
-
-        </div>
-        <div class="col-md-8 float-left">
-            <div class="text_sec content">
-                <h2>المحاضرات المباشرة</h2>
-
-
-                <ul class="content_list" id="LectureStd">
-
-                    @{ bool lectureEnable = true;
-                        int index = 0;
-                        foreach (var item in Model)
+                <!-- العنصر الثاني: الحصة القادمة -->
+                <div class="tt-card">
+                    <div class="tt-widget-header">
+                        <h2 class="tt-widget-title">
+                            <i class="fas fa-bell"></i>
+                            <span>الحصة القادمة</span>
+                        </h2>
+                    </div>
+                    <div class="tt-widget-body" id="ttNextLectureWidget">
+                        @if (nextLecture != null)
                         {
-                            if (item.Is_Lecture_End == false)
-                            {
-
-
-                                index++;
-
-                                <li>
-                                    <b class="">@index</b>
-                                    <p title="@item.Lecture_Name">@item.Lecture_Name </p>
-                                    <div class="form-group">
-                                        <label for="completed">ملفات مساعدة</label>
-                                        <a href="#"
-                                           onclick="window.open('https://tbsetaca.com/Uploade/Images/@item.DocumenFile', '_blank');">اضغط هنا</a>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="costs">الفئة</label>
-                                        <label for="completed">@item.CategoresName</label>
-
-
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="costs">بدأ</label>
-                                        <a href="@item.LectureLink_Client" target="_blank">
-
-                                            <i class="fas fa-play-circle"></i>
-
+                            <div class="tt-side-lec-card @nextLecture.ThemeClass">
+                                <div class="tt-card-top">
+                                    <span class="tt-side-lec-course">@nextLecture.CourseName</span>
+                                    <span class="tt-status-badge @(nextLecture.StatusKey == "ongoing" ? "tt-status-ongoing" : "tt-status-upcoming")">@nextLecture.StatusLabel</span>
+                                </div>
+                                <h3 class="tt-side-lec-title">@nextLecture.LectureName</h3>
+                                <div class="tt-side-lec-meta">
+                                    <span><i class="far fa-calendar-alt"></i> @nextLecture.DayNameAr، @nextLecture.DateKey</span>
+                                    <span style="direction: ltr;"><i class="far fa-clock"></i> @nextLecture.TimeText</span>
+                                </div>
+                                <div class="tt-card-footer">
+                                    @if (nextLecture.IsValidHttpsLink)
+                                    {
+                                        <a href="@nextLecture.SafeClientLink" target="_blank" rel="noopener noreferrer" class="tt-join-btn">
+                                            <i class="fas fa-video"></i> دخول المحاضرة
                                         </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="tt-no-link">رابط المحاضرة غير متوفر</span>
+                                    }
+
+                                    @if (nextLecture.HasDocument)
+                                    {
+                                        <a href="@nextLecture.SafeDocumentUrl" target="_blank" rel="noopener noreferrer" class="tt-doc-link">
+                                            <i class="fas fa-paperclip"></i> المرفق التعليمي
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="tt-side-empty">لا توجد حصص قادمة حاليًا.</div>
+                        }
+                    </div>
+                </div>
+
+                <!-- العنصر الثالث: حصص اليوم -->
+                <div class="tt-card">
+                    <div class="tt-widget-header">
+                        <h2 class="tt-widget-title">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>حصص اليوم</span>
+                        </h2>
+                        <span style="font-size: 12px; color: #64748B; font-weight: 600;">@GetArabicDayName(todayDate.DayOfWeek)</span>
+                    </div>
+                    <div class="tt-widget-body" id="ttTodayLecturesWidget">
+                        @if (todayLectures.Any())
+                        {
+                            foreach (var tLec in todayLectures)
+                            {
+                                string badgeCls = tLec.StatusKey == "past" ? "tt-status-past" : (tLec.StatusKey == "ongoing" ? "tt-status-ongoing" : "tt-status-upcoming");
+                                <div class="tt-side-lec-card @tLec.ThemeClass">
+                                    <div class="tt-card-top">
+                                        <span class="tt-side-lec-course">@tLec.CourseName</span>
+                                        <span class="tt-status-badge @badgeCls">@tLec.StatusLabel</span>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="costs">التوقيت</label>
-
-                                        <label>@item.DayandTime</label>
-
-
-
+                                    <h3 class="tt-side-lec-title">@tLec.LectureName</h3>
+                                    <div class="tt-side-lec-meta">
+                                        <span style="direction: ltr;"><i class="far fa-clock"></i> @tLec.TimeText</span>
                                     </div>
+                                    <div class="tt-card-footer">
+                                        @if (tLec.IsValidHttpsLink)
+                                        {
+                                            <a href="@tLec.SafeClientLink" target="_blank" rel="noopener noreferrer" class="tt-join-btn">
+                                                <i class="fas fa-video"></i> دخول المحاضرة
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="tt-no-link">رابط المحاضرة غير متوفر</span>
+                                        }
 
-                                </li>
+                                        @if (tLec.HasDocument)
+                                        {
+                                            <a href="@tLec.SafeDocumentUrl" target="_blank" rel="noopener noreferrer" class="tt-doc-link">
+                                                <i class="fas fa-paperclip"></i> المرفق التعليمي
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
                             }
+                        }
+                        else
+                        {
+                            <div class="tt-side-empty">لا توجد حصص مجدولة اليوم.</div>
+                        }
+                    </div>
+                </div>
 
+            </aside>
+
+            <!-- المنطقة الرئيسية: الجدول الأسبوعي + الحصص السابقة -->
+            <main class="tt-main-area">
+
+                <!-- B & C. بطاقة الجدول الأسبوعي والتنقل بين الأسابيع -->
+                <section class="tt-card" aria-label="الجدول الأسبوعي">
+                    <div class="tt-week-toolbar">
+                        <div class="tt-week-range-box">
+                            <span class="tt-week-badge-icon"><i class="fas fa-calendar-week"></i></span>
+                            <div>
+                                <span class="tt-week-range-label">النطاق الأسبوعي المعروض</span>
+                                <h2 class="tt-week-range-text" id="ttWeekRangeDisplay">@FormatArabicWeekRange(currentWeekStart, currentWeekEnd)</h2>
+                            </div>
+                        </div>
+
+                        <div class="tt-week-controls">
+                            <button type="button" class="tt-nav-btn" id="ttBtnPrevWeek">
+                                <i class="fas fa-chevron-right"></i> الأسبوع السابق
+                            </button>
+                            <button type="button" class="tt-nav-btn tt-nav-btn-current" id="ttBtnCurrentWeek">
+                                العودة إلى الأسبوع الحالي
+                            </button>
+                            <button type="button" class="tt-nav-btn" id="ttBtnNextWeek">
+                                الأسبوع التالي <i class="fas fa-chevron-left"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- رسالة الأسبوع الفارغ -->
+                    <div class="tt-week-empty-banner" id="ttWeekEmptyBanner" style="@(currentWeekLectures.Any() ? "display:none;" : "")">
+                        <div class="tt-week-empty-icon"><i class="far fa-calendar-times"></i></div>
+                        <p class="tt-week-empty-text">لا توجد حصص مجدولة خلال هذا الأسبوع.</p>
+                        <p class="tt-week-empty-sub">يمكنك التنقل بين الأسابيع أو مراجعة قسم الحصص السابقة أدناه.</p>
+                    </div>
+
+                    <!-- الجدول الأسبوعي لسطح المكتب والأجهزة اللوحية -->
+                    <div class="tt-desktop-timetable" id="ttDesktopTimetableContainer">
+                        <table class="tt-grid-table" aria-label="شبكة الجدول الأسبوعي">
+                            <thead>
+                                <tr id="ttDesktopHeaderRow">
+                                    <th class="tt-time-col-header" scope="col" title="الساعة">
+                                        <i class="far fa-clock"></i>
+                                    </th>
+                                    @for (int d = 0; d < 7; d++)
+                                    {
+                                        DateTime colDate = currentWeekStart.AddDays(d);
+                                        string colKey = colDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                                        bool isColToday = colDate.Date == todayDate;
+                                        <th class="tt-day-col-header @(isColToday ? "is-today" : "")" scope="col" data-date="@colKey" data-day-index="@d">
+                                            <span class="tt-day-header-name">@arabicWeekDayNames[d]</span>
+                                            <span class="tt-day-header-num">@colDate.Day</span>
+                                        </th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody id="ttDesktopGridBody">
+                                @for (int hr = weekMinHour; hr <= weekMaxHour; hr++)
+                                {
+                                    string hourLabel = string.Format(CultureInfo.InvariantCulture, "{0:00}:00", hr);
+                                    <tr>
+                                        <td class="tt-time-cell">@hourLabel</td>
+                                        @for (int d = 0; d < 7; d++)
+                                        {
+                                            DateTime slotDate = currentWeekStart.AddDays(d);
+                                            bool isTodayCol = slotDate.Date == todayDate;
+                                            var slotLectures = currentWeekLectures.Where(x => x.DayColIndex == d && x.Hour == hr).ToList();
+                                            <td class="tt-slot-cell @(isTodayCol ? "is-today-col" : "")" data-day-index="@d" data-hour="@hr">
+                                                @if (slotLectures.Any())
+                                                {
+                                                    <div class="tt-slot-stack">
+                                                        @foreach (var sLec in slotLectures)
+                                                        {
+                                                            string statusCls = sLec.StatusKey == "past" ? "tt-status-past" : (sLec.StatusKey == "ongoing" ? "tt-status-ongoing" : "tt-status-upcoming");
+                                                            <article class="tt-lecture-card @sLec.ThemeClass" data-lecture-id="@sLec.ID">
+                                                                <div class="tt-card-top">
+                                                                    <span class="tt-card-time"><i class="far fa-clock"></i> @sLec.TimeText</span>
+                                                                    <span class="tt-status-badge @statusCls">@sLec.StatusLabel</span>
+                                                                </div>
+                                                                <div class="tt-card-course">@sLec.CourseName</div>
+                                                                <h3 class="tt-card-title" title="@sLec.LectureName">@sLec.LectureName</h3>
+                                                                <div class="tt-card-footer">
+                                                                    @if (sLec.IsValidHttpsLink)
+                                                                    {
+                                                                        <a href="@sLec.SafeClientLink" target="_blank" rel="noopener noreferrer" class="tt-join-btn">
+                                                                            <i class="fas fa-video"></i> دخول المحاضرة
+                                                                        </a>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="tt-no-link">رابط المحاضرة غير متوفر</span>
+                                                                    }
+
+                                                                    @if (sLec.HasDocument)
+                                                                    {
+                                                                        <a href="@sLec.SafeDocumentUrl" target="_blank" rel="noopener noreferrer" class="tt-doc-link" title="المرفق التعليمي">
+                                                                            <i class="fas fa-paperclip"></i> المرفق
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </article>
+                                                        }
+                                                    </div>
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- العرض المخصص للهاتف المحمول -->
+                    <div class="tt-mobile-timetable" id="ttMobileTimetableContainer">
+                        <div class="tt-mobile-days-bar" id="ttMobileDaysBar">
+                            <button type="button" class="tt-mobile-day-pill is-active" data-day-filter="all">
+                                <span>كل الأسبوع</span>
+                                <small>(@currentWeekLectures.Count)</small>
+                            </button>
+                            @for (int d = 0; d < 7; d++)
+                            {
+                                DateTime mDate = currentWeekStart.AddDays(d);
+                                bool hasDayLec = currentWeekLectures.Any(x => x.DayColIndex == d);
+                                <button type="button" class="tt-mobile-day-pill @(hasDayLec ? "has-lec" : "")" data-day-filter="@d">
+                                    <span>@arabicWeekDayNames[d]</span>
+                                    <small>@mDate.Day</small>
+                                </button>
+                            }
+                        </div>
+
+                        <div class="tt-mobile-cards-list" id="ttMobileCardsList">
+                            @if (currentWeekLectures.Any())
+                            {
+                                foreach (var mLec in currentWeekLectures)
+                                {
+                                    string mStatusCls = mLec.StatusKey == "past" ? "tt-status-past" : (mLec.StatusKey == "ongoing" ? "tt-status-ongoing" : "tt-status-upcoming");
+                                    <article class="tt-mobile-lec-card @mLec.ThemeClass" data-day-index="@mLec.DayColIndex">
+                                        <div class="tt-card-top">
+                                            <span class="tt-card-course">@mLec.CourseName</span>
+                                            <span class="tt-status-badge @mStatusCls">@mLec.StatusLabel</span>
+                                        </div>
+                                        <h3 class="tt-side-lec-title">@mLec.LectureName</h3>
+                                        <div class="tt-side-lec-meta">
+                                            <span><i class="far fa-calendar"></i> @mLec.DayNameAr، @mLec.DateKey</span>
+                                            <span style="direction: ltr;"><i class="far fa-clock"></i> @mLec.TimeText</span>
+                                        </div>
+                                        <div class="tt-card-footer">
+                                            @if (mLec.IsValidHttpsLink)
+                                            {
+                                                <a href="@mLec.SafeClientLink" target="_blank" rel="noopener noreferrer" class="tt-join-btn">
+                                                    <i class="fas fa-video"></i> دخول المحاضرة
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="tt-no-link">رابط المحاضرة غير متوفر</span>
+                                            }
+
+                                            @if (mLec.HasDocument)
+                                            {
+                                                <a href="@mLec.SafeDocumentUrl" target="_blank" rel="noopener noreferrer" class="tt-doc-link">
+                                                    <i class="fas fa-paperclip"></i> المرفق التعليمي
+                                                </a>
+                                            }
+                                        </div>
+                                    </article>
+                                }
+                            }
+                        </div>
+                    </div>
+                </section>
+
+                <!-- قسم المحاضرات ذات الموعد غير المحدد (يظهر عند وجود محاضرة بدون تاريخ صالح) -->
+                <section class="tt-card" id="ttUnscheduledSection" aria-label="محاضرات بموعد غير محدد" style="@(unscheduledLectures.Any() ? "" : "display:none;")">
+                    <div class="tt-section-header">
+                        <div class="tt-section-title-group">
+                            <h2 class="tt-section-title">
+                                <i class="fas fa-clock" style="color: #D97706;"></i>
+                                <span>موعد غير محدد</span>
+                            </h2>
+                            <p class="tt-section-subtitle">محاضرات مسجلة لم يتم تحديد تاريخ أو وقت بدايتها بعد.</p>
+                        </div>
+                        <span class="tt-count-badge" id="ttUnscheduledCountBadge">@unscheduledLectures.Count</span>
+                    </div>
+                    <div class="tt-prev-list" id="ttUnscheduledList">
+                        @foreach (var uLec in unscheduledLectures)
+                        {
+                            <article class="tt-prev-row" style="border-right-color: #F59E0B;" data-lecture-id="@uLec.ID">
+                                <div class="tt-prev-main">
+                                    <span class="tt-prev-course">@uLec.CourseName</span>
+                                    <h3 class="tt-prev-title">@uLec.LectureName</h3>
+                                    <div class="tt-prev-meta">
+                                        <span class="tt-status-badge tt-status-unscheduled">موعد غير محدد</span>
+                                    </div>
+                                </div>
+                                <div class="tt-prev-actions">
+                                    @if (uLec.HasDocument)
+                                    {
+                                        <a href="@uLec.SafeDocumentUrl" target="_blank" rel="noopener noreferrer" class="tt-doc-link">
+                                            <i class="fas fa-file-alt"></i> المرفق التعليمي
+                                        </a>
+                                    }
+                                    @if (uLec.IsValidHttpsLink)
+                                    {
+                                        <a href="@uLec.SafeClientLink" target="_blank" rel="noopener noreferrer" class="tt-join-btn">
+                                            <i class="fas fa-video"></i> دخول المحاضرة
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="tt-no-link">رابط المحاضرة غير متوفر</span>
+                                    }
+                                </div>
+                            </article>
+                        }
+                    </div>
+                </section>
+
+                <!-- 7. قسم الحصص السابقة -->
+                <section class="tt-card" id="ttPreviousLecturesSection" aria-label="الحصص السابقة">
+                    <div class="tt-section-header">
+                        <div class="tt-section-title-group">
+                            <h2 class="tt-section-title">
+                                <i class="fas fa-history" style="color: #C5A052;"></i>
+                                <span>الحصص السابقة</span>
+                            </h2>
+                            <p class="tt-section-subtitle">جميع المحاضرات المباشرة السابقة في دوراتك مرتبة من الأحدث إلى الأقدم.</p>
+                        </div>
+                        <span class="tt-count-badge">@previousLectures.Count حصة</span>
+                    </div>
+
+                    @if (previousLectures.Any())
+                    {
+                        int prevInitialLimit = 6;
+                        int prevIdx = 0;
+                        <div class="tt-prev-list" id="ttPreviousLecturesList">
+                            @foreach (var pLec in previousLectures)
+                            {
+                                prevIdx++;
+                                bool isExtra = prevIdx > prevInitialLimit;
+                                <article class="tt-prev-row @(isExtra ? "tt-prev-hidden" : "")" data-prev-extra="@(isExtra ? "1" : "0")" data-lecture-id="@pLec.ID">
+                                    <div class="tt-prev-main">
+                                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                            <span class="tt-prev-course">@pLec.CourseName</span>
+                                            <span class="tt-status-badge tt-status-past">سابقة</span>
+                                        </div>
+                                        <h3 class="tt-prev-title">@pLec.LectureName</h3>
+                                        <div class="tt-prev-meta">
+                                            <span class="tt-prev-meta-item">
+                                                <i class="far fa-calendar-check"></i>
+                                                <span>التاريخ: @pLec.DayNameAr، @pLec.DateKey</span>
+                                            </span>
+                                            <span class="tt-prev-meta-item">
+                                                <i class="far fa-clock"></i>
+                                                <span>الساعة: <strong style="direction: ltr; display: inline-block;">@pLec.TimeText</strong></span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="tt-prev-actions">
+                                        @if (pLec.HasDocument)
+                                        {
+                                            <a href="@pLec.SafeDocumentUrl" target="_blank" rel="noopener noreferrer" class="tt-doc-link">
+                                                <i class="fas fa-file-download"></i> الملف المساعد (@pLec.DocumentFileName)
+                                            </a>
+                                        }
+
+                                        @if (pLec.IsValidHttpsLink)
+                                        {
+                                            <a href="@pLec.SafeClientLink" target="_blank" rel="noopener noreferrer" class="tt-join-btn tt-join-btn-outline" title="فتح رابط الاجتماع المحفوظ">
+                                                <i class="fas fa-external-link-alt"></i> فتح الرابط
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="tt-no-link">رابط المحاضرة غير متوفر</span>
+                                        }
+                                    </div>
+                                </article>
+                            }
+                        </div>
+
+                        if (previousLectures.Count > prevInitialLimit)
+                        {
+                            int remainingCount = previousLectures.Count - prevInitialLimit;
+                            <div class="tt-show-more-wrap">
+                                <button type="button" class="tt-show-more-btn" id="ttBtnTogglePrev" data-expanded="0" data-more-count="@remainingCount">
+                                    <span>عرض المزيد من الحصص السابقة (@remainingCount)</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
                         }
                     }
+                    else
+                    {
+                        <div style="padding: 28px 22px; text-align: center; color: #64748B; font-weight: 600;">
+                            لا توجد حصص سابقة مسجلة حتى الآن.
+                        </div>
+                    }
+                </section>
 
-                </ul>
-            </div>
+            </main>
         </div>
+
+        <!-- مخزن بيانات آمن للقراءة من JavaScript دون أي طلبات خادم إضافية -->
+        <div id="ttLecturesDataset" style="display:none;" aria-hidden="true" data-today="@todayKey">
+            @foreach (var entry in allEntries)
+            {
+                <div class="tt-data-row"
+                     data-id="@entry.ID"
+                     data-category-id="@entry.CategoryId"
+                     data-name="@entry.LectureName"
+                     data-course="@entry.CourseName"
+                     data-raw-datetime="@entry.RawDayAndTime"
+                     data-valid-date="@(entry.HasValidDate ? "1" : "0")"
+                     data-date-key="@entry.DateKey"
+                     data-time-text="@entry.TimeText"
+                     data-year="@entry.Year"
+                     data-month="@entry.Month"
+                     data-day="@entry.Day"
+                     data-hour="@entry.Hour"
+                     data-minute="@entry.Minute"
+                     data-day-col="@entry.DayColIndex"
+                     data-day-name="@entry.DayNameAr"
+                     data-status-key="@entry.StatusKey"
+                     data-status-label="@entry.StatusLabel"
+                     data-valid-link="@(entry.IsValidHttpsLink ? "1" : "0")"
+                     data-link="@entry.SafeClientLink"
+                     data-has-doc="@(entry.HasDocument ? "1" : "0")"
+                     data-doc-name="@entry.DocumentFileName"
+                     data-doc-url="@entry.SafeDocumentUrl"
+                     data-theme="@entry.ThemeClass"></div>
+            }
+        </div>
+
     </div>
 </div>
-<!-- End Slider -->
-<!-- Cours Modal -->
-@*////////////////////////*@
 
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- /.content -->
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-<!-- AdminLTE for demo purposes -->
-<!-- Page specific script -->
 <script>
     var isLoading = false;
     $(document).ready(function () {
         $(".menu_top").addClass("fixed");
-        //var category_ID = $("#Category_ID").val();
-
-
     });
 
-
-
-
-
-    function assingLectureInfo(ID, LectureLink_Client, LectureAssingment, LectureMinTime, Others, DocumenFile, MediaLink)
-    {
+    function assingLectureInfo(ID, LectureLink_Client, LectureAssingment, LectureMinTime, Others, DocumenFile, MediaLink) {
         $("#Video_ID").attr("src", LectureLink_Client);
-
         $("#assingm_ID").val(LectureAssingment);
         $("#Lecture_ID").val(ID);
         $("#Lec_mini_Time").val(LectureMinTime);
-        btnStartLecture();
+        if (typeof btnStartLecture === "function") {
+            btnStartLecture();
+        }
     }
 
+    (function () {
+        "use strict";
 
+        var ARABIC_DAYS = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
+        var ARABIC_MONTHS = ["", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+
+        function pad2(n) {
+            return n < 10 ? "0" + n : "" + n;
+        }
+
+        function formatDateKey(dateObj) {
+            return dateObj.getFullYear() + "-" + pad2(dateObj.getMonth() + 1) + "-" + pad2(dateObj.getDate());
+        }
+
+        function getArabicDayIndexFromJsDay(jsDay) {
+            // JS: 0=Sun, 1=Mon, ..., 6=Sat -> Arabic week: 0=Sat, 1=Sun, ..., 6=Fri
+            return (jsDay + 1) % 7;
+        }
+
+        function getWeekStartSaturday(dateObj) {
+            var d = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate(), 0, 0, 0, 0);
+            var offset = getArabicDayIndexFromJsDay(d.getDay());
+            d.setDate(d.getDate() - offset);
+            return d;
+        }
+
+        function addDays(dateObj, days) {
+            return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate() + days, 0, 0, 0, 0);
+        }
+
+        function formatArabicWeekRange(startObj, endObj) {
+            var sY = startObj.getFullYear(), sM = startObj.getMonth() + 1, sD = startObj.getDate();
+            var eY = endObj.getFullYear(), eM = endObj.getMonth() + 1, eD = endObj.getDate();
+            if (sY === eY && sM === eM) {
+                return sD + " – " + eD + " " + ARABIC_MONTHS[sM] + " " + sY;
+            }
+            if (sY === eY) {
+                return sD + " " + ARABIC_MONTHS[sM] + " – " + eD + " " + ARABIC_MONTHS[eM] + " " + sY;
+            }
+            return sD + " " + ARABIC_MONTHS[sM] + " " + sY + " – " + eD + " " + ARABIC_MONTHS[eM] + " " + eY;
+        }
+
+        function isSafeHttpsUrl(urlStr) {
+            if (!urlStr || typeof urlStr !== "string") return false;
+            var trimmed = urlStr.trim();
+            if (!/^https:\/\/[^\s/$.?#].[^\s]*$/i.test(trimmed)) return false;
+            try {
+                var u = new URL(trimmed);
+                return u.protocol === "https:";
+            } catch (e) {
+                return /^https:\/\//i.test(trimmed);
+            }
+        }
+
+        function parseStrictDateKey(dateKeyStr) {
+            if (!dateKeyStr || typeof dateKeyStr !== "string") return null;
+            var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKeyStr.trim());
+            if (!m) return null;
+            var y = parseInt(m[1], 10);
+            var mo = parseInt(m[2], 10);
+            var d = parseInt(m[3], 10);
+            if (y < 1900 || y > 2100 || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+            var dt = new Date(y, mo - 1, d, 0, 0, 0, 0);
+            if (dt.getFullYear() !== y || (dt.getMonth() + 1) !== mo || dt.getDate() !== d) return null;
+            return dt;
+        }
+
+        function parseLectureDateTimeStrict(rawStr) {
+            if (!rawStr || typeof rawStr !== "string") return null;
+            var trimmed = rawStr.trim();
+            if (!trimmed || trimmed === "موعد غير محدد") return null;
+
+            var m = /^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?$/.exec(trimmed);
+            if (!m) return null;
+
+            var y = parseInt(m[1], 10);
+            var mo = parseInt(m[2], 10);
+            var d = parseInt(m[3], 10);
+            var hr = m[4] !== undefined ? parseInt(m[4], 10) : 0;
+            var mi = m[5] !== undefined ? parseInt(m[5], 10) : 0;
+            var sc = m[6] !== undefined ? parseInt(m[6], 10) : 0;
+
+            if (y < 1900 || y > 2100 || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+            if (hr < 0 || hr > 23 || mi < 0 || mi > 59 || sc < 0 || sc > 59) return null;
+
+            var dt = new Date(y, mo - 1, d, hr, mi, 0, 0);
+            if (dt.getFullYear() !== y || (dt.getMonth() + 1) !== mo || dt.getDate() !== d) return null;
+
+            var dayCol = getArabicDayIndexFromJsDay(dt.getDay());
+            return {
+                dateObj: dt,
+                year: y,
+                month: mo,
+                day: d,
+                hour: hr,
+                minute: mi,
+                dateKey: y + "-" + pad2(mo) + "-" + pad2(d),
+                timeText: pad2(hr) + ":" + pad2(mi),
+                dayCol: dayCol,
+                dayName: ARABIC_DAYS[dayCol]
+            };
+        }
+
+        function initStudentTimetable() {
+            var root = document.getElementById("studentTimetable");
+            var datasetEl = document.getElementById("ttLecturesDataset");
+            if (!root || !datasetEl) return;
+
+            var serverTodayStr = datasetEl.getAttribute("data-today") || "";
+            var todayDate = parseStrictDateKey(serverTodayStr) || new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), 0, 0, 0, 0);
+            var todayKey = formatDateKey(todayDate);
+            var currentWeekStart = getWeekStartSaturday(todayDate);
+
+            var dataNodes = datasetEl.querySelectorAll(".tt-data-row");
+            var lectures = [];
+            var lectureDateSet = {};
+
+            for (var i = 0; i < dataNodes.length; i++) {
+                var node = dataNodes[i];
+                var rawDt = node.getAttribute("data-raw-datetime") || "";
+                var parsed = parseLectureDateTimeStrict(rawDt);
+                var serverValid = node.getAttribute("data-valid-date") === "1";
+
+                var isDateValid = false;
+                var dateObj = null;
+                var dateKey = "";
+                var timeText = "";
+                var hour = 0;
+                var minute = 0;
+                var dayCol = -1;
+                var dayName = "";
+
+                if (parsed) {
+                    isDateValid = true;
+                    dateObj = parsed.dateObj;
+                    dateKey = parsed.dateKey;
+                    timeText = parsed.timeText;
+                    hour = parsed.hour;
+                    minute = parsed.minute;
+                    dayCol = parsed.dayCol;
+                    dayName = parsed.dayName;
+                    lectureDateSet[dateKey] = true;
+                } else if (serverValid) {
+                    var sYear = parseInt(node.getAttribute("data-year") || "0", 10);
+                    var sMonth = parseInt(node.getAttribute("data-month") || "0", 10);
+                    var sDay = parseInt(node.getAttribute("data-day") || "0", 10);
+                    var sHour = parseInt(node.getAttribute("data-hour") || "0", 10);
+                    var sMin = parseInt(node.getAttribute("data-minute") || "0", 10);
+                    var candidate = new Date(sYear, sMonth - 1, sDay, sHour, sMin, 0, 0);
+                    if (sYear >= 1900 && sYear <= 2100 && candidate.getFullYear() === sYear && (candidate.getMonth() + 1) === sMonth && candidate.getDate() === sDay && sHour >= 0 && sHour <= 23 && sMin >= 0 && sMin <= 59) {
+                        isDateValid = true;
+                        dateObj = candidate;
+                        dateKey = node.getAttribute("data-date-key") || formatDateKey(candidate);
+                        timeText = node.getAttribute("data-time-text") || (pad2(sHour) + ":" + pad2(sMin));
+                        hour = sHour;
+                        minute = sMin;
+                        dayCol = getArabicDayIndexFromJsDay(candidate.getDay());
+                        dayName = ARABIC_DAYS[dayCol];
+                        lectureDateSet[dateKey] = true;
+                    }
+                }
+
+                var rawLink = node.getAttribute("data-link") || "";
+                var validLink = node.getAttribute("data-valid-link") === "1" && isSafeHttpsUrl(rawLink);
+
+                lectures.push({
+                    id: node.getAttribute("data-id") || "",
+                    name: node.getAttribute("data-name") || "",
+                    course: node.getAttribute("data-course") || "",
+                    validDate: isDateValid,
+                    dateObj: dateObj,
+                    dateKey: dateKey,
+                    timeText: timeText,
+                    hour: hour,
+                    minute: minute,
+                    dayCol: dayCol,
+                    dayName: dayName,
+                    statusKey: isDateValid ? (node.getAttribute("data-status-key") || "upcoming") : "unscheduled",
+                    statusLabel: isDateValid ? (node.getAttribute("data-status-label") || "قادمة") : "موعد غير محدد",
+                    validLink: validLink,
+                    link: validLink ? rawLink : "",
+                    hasDoc: node.getAttribute("data-has-doc") === "1",
+                    docName: node.getAttribute("data-doc-name") || "",
+                    docUrl: node.getAttribute("data-doc-url") || "",
+                    theme: node.getAttribute("data-theme") || "tt-theme-blue"
+                });
+            }
+
+            var state = {
+                activeWeekStart: new Date(currentWeekStart.getTime()),
+                selectedDateKey: null,
+                calYear: todayDate.getFullYear(),
+                calMonth: todayDate.getMonth() + 1,
+                mobileDayFilter: "all"
+            };
+
+            var elWeekRange = document.getElementById("ttWeekRangeDisplay");
+            var elEmptyBanner = document.getElementById("ttWeekEmptyBanner");
+            var elHeaderRow = document.getElementById("ttDesktopHeaderRow");
+            var elGridBody = document.getElementById("ttDesktopGridBody");
+            var elMobileDaysBar = document.getElementById("ttMobileDaysBar");
+            var elMobileCardsList = document.getElementById("ttMobileCardsList");
+            var elCalMonthYear = document.getElementById("ttCalMonthYear");
+            var elMiniCalGrid = document.getElementById("ttMiniCalGrid");
+
+            function getStatusBadgeClass(statusKey) {
+                if (statusKey === "past") return "tt-status-badge tt-status-past";
+                if (statusKey === "ongoing") return "tt-status-badge tt-status-ongoing";
+                if (statusKey === "upcoming") return "tt-status-badge tt-status-upcoming";
+                return "tt-status-badge tt-status-unscheduled";
+            }
+
+            function buildActionFooter(lec) {
+                var footer = document.createElement("div");
+                footer.className = "tt-card-footer";
+
+                if (lec.validLink && isSafeHttpsUrl(lec.link)) {
+                    var joinLink = document.createElement("a");
+                    joinLink.href = lec.link;
+                    joinLink.target = "_blank";
+                    joinLink.rel = "noopener noreferrer";
+                    joinLink.className = "tt-join-btn";
+
+                    var icon = document.createElement("i");
+                    icon.className = "fas fa-video";
+                    joinLink.appendChild(icon);
+                    joinLink.appendChild(document.createTextNode(" دخول المحاضرة"));
+                    footer.appendChild(joinLink);
+                } else {
+                    var noLink = document.createElement("span");
+                    noLink.className = "tt-no-link";
+                    noLink.textContent = "رابط المحاضرة غير متوفر";
+                    footer.appendChild(noLink);
+                }
+
+                if (lec.hasDoc && lec.docUrl) {
+                    var docLink = document.createElement("a");
+                    docLink.href = lec.docUrl;
+                    docLink.target = "_blank";
+                    docLink.rel = "noopener noreferrer";
+                    docLink.className = "tt-doc-link";
+                    docLink.title = "المرفق التعليمي";
+
+                    var clipIcon = document.createElement("i");
+                    clipIcon.className = "fas fa-paperclip";
+                    docLink.appendChild(clipIcon);
+                    docLink.appendChild(document.createTextNode(" المرفق"));
+                    footer.appendChild(docLink);
+                }
+
+                return footer;
+            }
+
+            function renderDesktopAndMobileWeek() {
+                var weekStart = state.activeWeekStart;
+                var weekEnd = addDays(weekStart, 6);
+                var weekStartKey = formatDateKey(weekStart);
+                var weekEndKey = formatDateKey(weekEnd);
+
+                if (elWeekRange) {
+                    elWeekRange.textContent = formatArabicWeekRange(weekStart, weekEnd);
+                }
+
+                var weekLectures = [];
+                for (var i = 0; i < lectures.length; i++) {
+                    var l = lectures[i];
+                    if (l.validDate && l.dateKey >= weekStartKey && l.dateKey <= weekEndKey) {
+                        weekLectures.push(l);
+                    }
+                }
+
+                weekLectures.sort(function (a, b) {
+                    return a.dateObj.getTime() - b.dateObj.getTime();
+                });
+
+                if (elEmptyBanner) {
+                    elEmptyBanner.style.display = weekLectures.length === 0 ? "" : "none";
+                }
+
+                // تحديث ترويسة الأيام السبعة
+                if (elHeaderRow) {
+                    while (elHeaderRow.firstChild) {
+                        elHeaderRow.removeChild(elHeaderRow.firstChild);
+                    }
+
+                    var timeTh = document.createElement("th");
+                    timeTh.className = "tt-time-col-header";
+                    timeTh.scope = "col";
+                    timeTh.title = "الساعة";
+                    var clockIcon = document.createElement("i");
+                    clockIcon.className = "far fa-clock";
+                    timeTh.appendChild(clockIcon);
+                    elHeaderRow.appendChild(timeTh);
+
+                    for (var d = 0; d < 7; d++) {
+                        var colDate = addDays(weekStart, d);
+                        var colKey = formatDateKey(colDate);
+                        var th = document.createElement("th");
+                        var thClass = "tt-day-col-header";
+                        if (colKey === todayKey) thClass += " is-today";
+                        if (state.selectedDateKey && colKey === state.selectedDateKey) thClass += " is-selected";
+                        th.className = thClass;
+                        th.scope = "col";
+                        th.setAttribute("data-date", colKey);
+                        th.setAttribute("data-day-index", String(d));
+
+                        var spanName = document.createElement("span");
+                        spanName.className = "tt-day-header-name";
+                        spanName.textContent = ARABIC_DAYS[d];
+
+                        var spanNum = document.createElement("span");
+                        spanNum.className = "tt-day-header-num";
+                        spanNum.textContent = String(colDate.getDate());
+
+                        th.appendChild(spanName);
+                        th.appendChild(spanNum);
+
+                        (function (capturedKey, capturedDayIdx) {
+                            th.addEventListener("click", function () {
+                                state.selectedDateKey = capturedKey;
+                                state.mobileDayFilter = String(capturedDayIdx);
+                                renderDesktopAndMobileWeek();
+                                renderMiniCalendar();
+                            });
+                        })(colKey, d);
+
+                        elHeaderRow.appendChild(th);
+                    }
+                }
+
+                // حساب النطاق الزمني
+                var minHour = 9;
+                var maxHour = 17;
+                if (weekLectures.length > 0) {
+                    var minH = 23;
+                    var maxH = 0;
+                    for (var j = 0; j < weekLectures.length; j++) {
+                        if (weekLectures[j].hour < minH) minH = weekLectures[j].hour;
+                        if (weekLectures[j].hour > maxH) maxH = weekLectures[j].hour;
+                    }
+                    minHour = Math.max(0, minH - 1);
+                    maxHour = Math.min(23, maxH + 1);
+                    if (maxHour - minHour < 5) {
+                        minHour = Math.max(0, minHour - 1);
+                        maxHour = Math.min(23, Math.max(maxHour + 2, minHour + 5));
+                    }
+                }
+
+                // بناء صفوف الساعات لسطح المكتب
+                if (elGridBody) {
+                    while (elGridBody.firstChild) {
+                        elGridBody.removeChild(elGridBody.firstChild);
+                    }
+
+                    for (var hr = minHour; hr <= maxHour; hr++) {
+                        var tr = document.createElement("tr");
+
+                        var tdTime = document.createElement("td");
+                        tdTime.className = "tt-time-cell";
+                        tdTime.textContent = pad2(hr) + ":00";
+                        tr.appendChild(tdTime);
+
+                        for (var dayIdx = 0; dayIdx < 7; dayIdx++) {
+                            var sDate = addDays(weekStart, dayIdx);
+                            var sKey = formatDateKey(sDate);
+                            var tdSlot = document.createElement("td");
+                            var slotCls = "tt-slot-cell";
+                            if (sKey === todayKey) slotCls += " is-today-col";
+                            if (state.selectedDateKey && sKey === state.selectedDateKey) slotCls += " is-selected-col";
+                            tdSlot.className = slotCls;
+
+                            var matching = [];
+                            for (var k = 0; k < weekLectures.length; k++) {
+                                if (weekLectures[k].dayCol === dayIdx && weekLectures[k].hour === hr) {
+                                    matching.push(weekLectures[k]);
+                                }
+                            }
+
+                            if (matching.length > 0) {
+                                var stack = document.createElement("div");
+                                stack.className = "tt-slot-stack";
+
+                                for (var m = 0; m < matching.length; m++) {
+                                    var item = matching[m];
+                                    var card = document.createElement("article");
+                                    card.className = "tt-lecture-card " + item.theme;
+                                    card.setAttribute("data-lecture-id", item.id);
+
+                                    var topDiv = document.createElement("div");
+                                    topDiv.className = "tt-card-top";
+
+                                    var timeSpan = document.createElement("span");
+                                    timeSpan.className = "tt-card-time";
+                                    var cIcon = document.createElement("i");
+                                    cIcon.className = "far fa-clock";
+                                    timeSpan.appendChild(cIcon);
+                                    timeSpan.appendChild(document.createTextNode(" " + item.timeText));
+
+                                    var badgeSpan = document.createElement("span");
+                                    badgeSpan.className = getStatusBadgeClass(item.statusKey);
+                                    badgeSpan.textContent = item.statusLabel;
+
+                                    topDiv.appendChild(timeSpan);
+                                    topDiv.appendChild(badgeSpan);
+
+                                    var courseDiv = document.createElement("div");
+                                    courseDiv.className = "tt-card-course";
+                                    courseDiv.textContent = item.course;
+
+                                    var titleH3 = document.createElement("h3");
+                                    titleH3.className = "tt-card-title";
+                                    titleH3.title = item.name;
+                                    titleH3.textContent = item.name;
+
+                                    card.appendChild(topDiv);
+                                    card.appendChild(courseDiv);
+                                    card.appendChild(titleH3);
+                                    card.appendChild(buildActionFooter(item));
+
+                                    stack.appendChild(card);
+                                }
+                                tdSlot.appendChild(stack);
+                            }
+
+                            tr.appendChild(tdSlot);
+                        }
+
+                        elGridBody.appendChild(tr);
+                    }
+                }
+
+                // بناء واجهة الهاتف
+                if (elMobileDaysBar && elMobileCardsList) {
+                    while (elMobileDaysBar.firstChild) {
+                        elMobileDaysBar.removeChild(elMobileDaysBar.firstChild);
+                    }
+                    while (elMobileCardsList.firstChild) {
+                        elMobileCardsList.removeChild(elMobileCardsList.firstChild);
+                    }
+
+                    var allBtn = document.createElement("button");
+                    allBtn.type = "button";
+                    allBtn.className = "tt-mobile-day-pill" + (state.mobileDayFilter === "all" ? " is-active" : "");
+                    var allSpan = document.createElement("span");
+                    allSpan.textContent = "كل الأسبوع";
+                    var allSmall = document.createElement("small");
+                    allSmall.textContent = "(" + weekLectures.length + ")";
+                    allBtn.appendChild(allSpan);
+                    allBtn.appendChild(allSmall);
+                    allBtn.addEventListener("click", function () {
+                        state.mobileDayFilter = "all";
+                        renderDesktopAndMobileWeek();
+                    });
+                    elMobileDaysBar.appendChild(allBtn);
+
+                    for (var md = 0; md < 7; md++) {
+                        var mDate = addDays(weekStart, md);
+                        var hasDayLec = false;
+                        for (var wl = 0; wl < weekLectures.length; wl++) {
+                            if (weekLectures[wl].dayCol === md) {
+                                hasDayLec = true;
+                                break;
+                            }
+                        }
+                        var dayBtn = document.createElement("button");
+                        dayBtn.type = "button";
+                        var dayBtnCls = "tt-mobile-day-pill";
+                        if (state.mobileDayFilter === String(md)) dayBtnCls += " is-active";
+                        if (hasDayLec) dayBtnCls += " has-lec";
+                        dayBtn.className = dayBtnCls;
+
+                        var dSpan = document.createElement("span");
+                        dSpan.textContent = ARABIC_DAYS[md];
+                        var dSmall = document.createElement("small");
+                        dSmall.textContent = String(mDate.getDate());
+                        dayBtn.appendChild(dSpan);
+                        dayBtn.appendChild(dSmall);
+
+                        (function (capturedMd, capturedDateKey) {
+                            dayBtn.addEventListener("click", function () {
+                                state.mobileDayFilter = String(capturedMd);
+                                state.selectedDateKey = capturedDateKey;
+                                renderDesktopAndMobileWeek();
+                                renderMiniCalendar();
+                            });
+                        })(md, formatDateKey(mDate));
+
+                        elMobileDaysBar.appendChild(dayBtn);
+                    }
+
+                    var filteredMobile = [];
+                    for (var fl = 0; fl < weekLectures.length; fl++) {
+                        if (state.mobileDayFilter === "all" || String(weekLectures[fl].dayCol) === state.mobileDayFilter) {
+                            filteredMobile.push(weekLectures[fl]);
+                        }
+                    }
+
+                    if (filteredMobile.length === 0 && weekLectures.length > 0) {
+                        var emptyDayDiv = document.createElement("div");
+                        emptyDayDiv.className = "tt-side-empty";
+                        emptyDayDiv.textContent = "لا توجد حصص مجدولة في هذا اليوم.";
+                        elMobileCardsList.appendChild(emptyDayDiv);
+                    } else {
+                        for (var mc = 0; mc < filteredMobile.length; mc++) {
+                            var mItem = filteredMobile[mc];
+                            var mCard = document.createElement("article");
+                            mCard.className = "tt-mobile-lec-card " + mItem.theme;
+
+                            var mTop = document.createElement("div");
+                            mTop.className = "tt-card-top";
+                            var mCourse = document.createElement("span");
+                            mCourse.className = "tt-card-course";
+                            mCourse.textContent = mItem.course;
+                            var mBadge = document.createElement("span");
+                            mBadge.className = getStatusBadgeClass(mItem.statusKey);
+                            mBadge.textContent = mItem.statusLabel;
+                            mTop.appendChild(mCourse);
+                            mTop.appendChild(mBadge);
+
+                            var mTitle = document.createElement("h3");
+                            mTitle.className = "tt-side-lec-title";
+                            mTitle.textContent = mItem.name;
+
+                            var mMeta = document.createElement("div");
+                            mMeta.className = "tt-side-lec-meta";
+                            var mDateSpan = document.createElement("span");
+                            mDateSpan.textContent = mItem.dayName + "، " + mItem.dateKey;
+                            var mTimeSpan = document.createElement("span");
+                            mTimeSpan.style.direction = "ltr";
+                            mTimeSpan.textContent = mItem.timeText;
+                            mMeta.appendChild(mDateSpan);
+                            mMeta.appendChild(mTimeSpan);
+
+                            mCard.appendChild(mTop);
+                            mCard.appendChild(mTitle);
+                            mCard.appendChild(mMeta);
+                            mCard.appendChild(buildActionFooter(mItem));
+
+                            elMobileCardsList.appendChild(mCard);
+                        }
+                    }
+                }
+            }
+
+            function renderMiniCalendar() {
+                if (!elMiniCalGrid || !elCalMonthYear) return;
+
+                elCalMonthYear.textContent = ARABIC_MONTHS[state.calMonth] + " " + state.calYear;
+
+                while (elMiniCalGrid.firstChild) {
+                    elMiniCalGrid.removeChild(elMiniCalGrid.firstChild);
+                }
+
+                var firstOfMonth = new Date(state.calYear, state.calMonth - 1, 1, 0, 0, 0, 0);
+                var startOffset = getArabicDayIndexFromJsDay(firstOfMonth.getDay());
+                var gridStart = addDays(firstOfMonth, -startOffset);
+
+                var weekStartKey = formatDateKey(state.activeWeekStart);
+                var weekEndKey = formatDateKey(addDays(state.activeWeekStart, 6));
+
+                for (var i = 0; i < 42; i++) {
+                    var cellDate = addDays(gridStart, i);
+                    var cellKey = formatDateKey(cellDate);
+                    var isOtherMonth = (cellDate.getMonth() + 1) !== state.calMonth;
+                    var isToday = cellKey === todayKey;
+                    var hasLec = !!lectureDateSet[cellKey];
+                    var inActiveWeek = cellKey >= weekStartKey && cellKey <= weekEndKey;
+                    var isSelected = state.selectedDateKey === cellKey;
+
+                    var btn = document.createElement("button");
+                    btn.type = "button";
+                    var cls = "tt-cal-day";
+                    if (isOtherMonth) cls += " is-other-month";
+                    if (inActiveWeek) cls += " is-in-week";
+                    if (hasLec) cls += " has-lecture";
+                    if (isToday) cls += " is-today";
+                    if (isSelected) cls += " is-selected";
+                    btn.className = cls;
+                    btn.setAttribute("data-date", cellKey);
+                    btn.title = hasLec ? (cellKey + " (يوجد محاضرة)") : cellKey;
+                    btn.textContent = String(cellDate.getDate());
+
+                    (function (capturedDate, capturedKey) {
+                        btn.addEventListener("click", function () {
+                            state.selectedDateKey = capturedKey;
+                            state.activeWeekStart = getWeekStartSaturday(capturedDate);
+                            state.calYear = capturedDate.getFullYear();
+                            state.calMonth = capturedDate.getMonth() + 1;
+                            state.mobileDayFilter = String(getArabicDayIndexFromJsDay(capturedDate.getDay()));
+                            renderDesktopAndMobileWeek();
+                            renderMiniCalendar();
+                        });
+                    })(cellDate, cellKey);
+
+                    elMiniCalGrid.appendChild(btn);
+                }
+            }
+
+            // أزرار التنقل بين الأسابيع
+            var btnPrevWeek = document.getElementById("ttBtnPrevWeek");
+            var btnNextWeek = document.getElementById("ttBtnNextWeek");
+            var btnCurrWeek = document.getElementById("ttBtnCurrentWeek");
+
+            if (btnPrevWeek) {
+                btnPrevWeek.addEventListener("click", function () {
+                    state.activeWeekStart = addDays(state.activeWeekStart, -7);
+                    state.selectedDateKey = null;
+                    state.mobileDayFilter = "all";
+                    state.calYear = state.activeWeekStart.getFullYear();
+                    state.calMonth = state.activeWeekStart.getMonth() + 1;
+                    renderDesktopAndMobileWeek();
+                    renderMiniCalendar();
+                });
+            }
+
+            if (btnNextWeek) {
+                btnNextWeek.addEventListener("click", function () {
+                    state.activeWeekStart = addDays(state.activeWeekStart, 7);
+                    state.selectedDateKey = null;
+                    state.mobileDayFilter = "all";
+                    state.calYear = state.activeWeekStart.getFullYear();
+                    state.calMonth = state.activeWeekStart.getMonth() + 1;
+                    renderDesktopAndMobileWeek();
+                    renderMiniCalendar();
+                });
+            }
+
+            if (btnCurrWeek) {
+                btnCurrWeek.addEventListener("click", function () {
+                    state.activeWeekStart = new Date(currentWeekStart.getTime());
+                    state.selectedDateKey = todayKey;
+                    state.mobileDayFilter = "all";
+                    state.calYear = todayDate.getFullYear();
+                    state.calMonth = todayDate.getMonth() + 1;
+                    renderDesktopAndMobileWeek();
+                    renderMiniCalendar();
+                });
+            }
+
+            // أزرار التنقل بين الأشهر في التقويم المصغر
+            var btnPrevMonth = document.getElementById("ttBtnPrevMonth");
+            var btnNextMonth = document.getElementById("ttBtnNextMonth");
+
+            if (btnPrevMonth) {
+                btnPrevMonth.addEventListener("click", function () {
+                    state.calMonth -= 1;
+                    if (state.calMonth < 1) {
+                        state.calMonth = 12;
+                        state.calYear -= 1;
+                    }
+                    renderMiniCalendar();
+                });
+            }
+
+            if (btnNextMonth) {
+                btnNextMonth.addEventListener("click", function () {
+                    state.calMonth += 1;
+                    if (state.calMonth > 12) {
+                        state.calMonth = 1;
+                        state.calYear += 1;
+                    }
+                    renderMiniCalendar();
+                });
+            }
+
+            // زر عرض المزيد في قسم الحصص السابقة
+            var btnTogglePrev = document.getElementById("ttBtnTogglePrev");
+            if (btnTogglePrev) {
+                btnTogglePrev.addEventListener("click", function () {
+                    var expanded = btnTogglePrev.getAttribute("data-expanded") === "1";
+                    var moreCount = btnTogglePrev.getAttribute("data-more-count") || "";
+                    var extraRows = root.querySelectorAll('#ttPreviousLecturesList [data-prev-extra="1"]');
+                    for (var r = 0; r < extraRows.length; r++) {
+                        if (expanded) {
+                            extraRows[r].classList.add("tt-prev-hidden");
+                        } else {
+                            extraRows[r].classList.remove("tt-prev-hidden");
+                        }
+                    }
+                    btnTogglePrev.setAttribute("data-expanded", expanded ? "0" : "1");
+                    btnTogglePrev.textContent = "";
+                    var labelSpan = document.createElement("span");
+                    labelSpan.textContent = expanded
+                        ? ("عرض المزيد من الحصص السابقة (" + moreCount + ")")
+                        : "عرض عدد أقل";
+                    var chevron = document.createElement("i");
+                    chevron.className = expanded ? "fas fa-chevron-down" : "fas fa-chevron-up";
+                    btnTogglePrev.appendChild(labelSpan);
+                    btnTogglePrev.appendChild(chevron);
+                });
+            }
+
+            renderDesktopAndMobileWeek();
+            renderMiniCalendar();
+            renderUnscheduledLectures();
+
+            function renderUnscheduledLectures() {
+                var unsec = document.getElementById("ttUnscheduledSection");
+                var unlist = document.getElementById("ttUnscheduledList");
+                var unbadge = document.getElementById("ttUnscheduledCountBadge");
+                if (!unsec || !unlist) return;
+
+                var unscheduled = [];
+                for (var u = 0; u < lectures.length; u++) {
+                    if (!lectures[u].validDate || lectures[u].statusKey === "unscheduled") {
+                        unscheduled.push(lectures[u]);
+                    }
+                }
+
+                if (unscheduled.length === 0) {
+                    unsec.style.display = "none";
+                    return;
+                }
+
+                unsec.style.display = "";
+                if (unbadge) unbadge.textContent = String(unscheduled.length);
+
+                while (unlist.firstChild) {
+                    unlist.removeChild(unlist.firstChild);
+                }
+
+                for (var idx = 0; idx < unscheduled.length; idx++) {
+                    var item = unscheduled[idx];
+                    var row = document.createElement("article");
+                    row.className = "tt-prev-row";
+                    row.style.borderRightColor = "#F59E0B";
+                    row.setAttribute("data-lecture-id", item.id);
+
+                    var mainDiv = document.createElement("div");
+                    mainDiv.className = "tt-prev-main";
+
+                    var courseSpan = document.createElement("span");
+                    courseSpan.className = "tt-prev-course";
+                    courseSpan.textContent = item.course;
+
+                    var titleH3 = document.createElement("h3");
+                    titleH3.className = "tt-prev-title";
+                    titleH3.textContent = item.name;
+
+                    var metaDiv = document.createElement("div");
+                    metaDiv.className = "tt-prev-meta";
+                    var stBadge = document.createElement("span");
+                    stBadge.className = "tt-status-badge tt-status-unscheduled";
+                    stBadge.textContent = "موعد غير محدد";
+                    metaDiv.appendChild(stBadge);
+
+                    mainDiv.appendChild(courseSpan);
+                    mainDiv.appendChild(titleH3);
+                    mainDiv.appendChild(metaDiv);
+
+                    var actionsDiv = document.createElement("div");
+                    actionsDiv.className = "tt-prev-actions";
+                    actionsDiv.appendChild(buildActionFooter(item));
+
+                    row.appendChild(mainDiv);
+                    row.appendChild(actionsDiv);
+                    unlist.appendChild(row);
+                }
+            }
+        }
+
+        window.refreshStudentTimetable = initStudentTimetable;
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initStudentTimetable);
+        } else {
+            initStudentTimetable();
+        }
+    })();
 </script>
-
-
-
-
-
-
-
-

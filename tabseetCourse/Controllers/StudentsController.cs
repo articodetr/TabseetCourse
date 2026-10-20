@@ -455,55 +455,120 @@ namespace tabseetCourse.Controllers
             List<LectureModel> L_M = new List<LectureModel>();
             try
             {
-
                 if (CurrentUser == null)
                 {
                     return RedirectToAction("LogIn", "Home");
                 }
-                var result = dbEntity.Std_Reg_Category.Where(e => e.Std_ID == CurrentUser.ID).Select(e => e.Category_ID).ToList();
 
-                foreach (var item in result)
+                string studentId = CurrentUser.ID;
+                var registeredCategoryIds = dbEntity.Std_Reg_Category
+                    .Where(e => e.Std_ID == studentId)
+                    .Select(e => e.Category_ID)
+                    .Distinct()
+                    .ToList();
+
+                if (registeredCategoryIds == null || registeredCategoryIds.Count == 0)
                 {
-
-                    var value = dbEntity.Lectures.Where(e => e.Category_ID == item && e.LectureTypeOnOff == "1").ToList();
-                    foreach (var lec in value)
-                    {
-                        if (DateTime.Parse(lec.DayandTime).AddHours(0.5) >= DateTime.Now)
-                        {
-                            LectureModel lm = new LectureModel();
-                            lm.ID = lec.ID;
-                            lm.LectureLink_Client = lec.LectureLink_Client;
-                            lm.Lecture_Name = lec.Lecture_Name;
-                            lm.CategoresName = lec.Category.NameAr;
-                            lm.LectureTypeOnOff = lec.LectureTypeOnOff;
-                            lm.MediaLink = lec.MediaLink;
-                            if (lec.DayandTime != null)
-                            {
-                                lm.DayandTime = DateTime.Parse(lec.DayandTime).ToString("MM/dd/yyyy");
-                                if (DateTime.Parse(lec.DayandTime).AddHours(2) < DateTime.Now)
-                                {
-                                    lm.Is_Lecture_End = true;
-                                }
-                                else
-                                {
-                                    lm.Is_Lecture_End = false;
-                                }
-                            }
-                            else
-                                lm.Is_Lecture_End = true;
-
-                            lm.DocumenFile = lec.DocumenFile;
-                            lm.Others = lec.Others;
-                            L_M.Add(lm);
-                        }
-
-                    }
+                    return View(L_M);
                 }
+
+                var liveLectures = dbEntity.Lectures
+                    .Where(l => registeredCategoryIds.Contains(l.Category_ID) && l.LectureTypeOnOff == "1")
+                    .ToList();
+
+                // Ensure each Lecture.ID appears only once in the final list
+                var uniqueLectures = liveLectures
+                    .GroupBy(l => l.ID)
+                    .Select(g => g.First())
+                    .ToList();
+
+                string[] knownFormats = new string[]
+                {
+                    "yyyy-MM-dd HH:mm:ss",
+                    "yyyy-MM-ddTHH:mm:ss",
+                    "yyyy-MM-ddTHH:mm",
+                    "yyyy-MM-dd HH:mm",
+                    "yyyy-MM-dd",
+                    "MM/dd/yyyy HH:mm:ss",
+                    "MM/dd/yyyy HH:mm",
+                    "MM/dd/yyyy h:mm tt",
+                    "MM/dd/yyyy h:mm",
+                    "MM/dd/yyyy",
+                    "dd/MM/yyyy HH:mm:ss",
+                    "dd/MM/yyyy HH:mm"
+                };
+
+                DateTime now = DateTime.Now;
+
+                var parsedList = new List<Tuple<LectureModel, bool, DateTime>>();
+
+                foreach (var lec in uniqueLectures)
+                {
+                    LectureModel lm = new LectureModel();
+                    lm.ID = lec.ID;
+                    lm.Category_ID = lec.Category_ID;
+                    lm.LectureLink_Client = lec.LectureLink_Client;
+                    lm.Lecture_Name = lec.Lecture_Name;
+                    lm.CategoresName = (lec.Category != null && !string.IsNullOrEmpty(lec.Category.NameAr)) ? lec.Category.NameAr : "";
+                    lm.LectureTypeOnOff = lec.LectureTypeOnOff;
+                    lm.MediaLink = lec.MediaLink;
+                    lm.DocumenFile = lec.DocumenFile;
+                    lm.Others = lec.Others;
+
+                    bool hasValidDate = false;
+                    DateTime dt = DateTime.MinValue;
+
+                    if (!string.IsNullOrWhiteSpace(lec.DayandTime))
+                    {
+                        string trimmed = lec.DayandTime.Trim();
+                        if (DateTime.TryParseExact(trimmed, knownFormats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+                        {
+                            hasValidDate = true;
+                        }
+                        else if (DateTime.TryParse(trimmed, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+                        {
+                            hasValidDate = true;
+                        }
+                    }
+
+                    if (hasValidDate)
+                    {
+                        lm.DayandTime = dt.ToString("yyyy-MM-dd HH:mm");
+                        // Preserve approximate 2-hour window to identify ended live lecture
+                        lm.Is_Lecture_End = dt.AddHours(2) < now;
+                    }
+                    else
+                    {
+                        lm.DayandTime = "موعد غير محدد";
+                        lm.Is_Lecture_End = true;
+                    }
+
+                    parsedList.Add(Tuple.Create(lm, hasValidDate, dt));
+                }
+
+                // 1) Upcoming / ongoing lectures first, sorted by start time ascending
+                var upcoming = parsedList
+                    .Where(x => x.Item2 && !x.Item1.Is_Lecture_End)
+                    .OrderBy(x => x.Item3)
+                    .Select(x => x.Item1);
+
+                // 2) Previous lectures afterward, sorted by start time descending (most recent first)
+                var previous = parsedList
+                    .Where(x => x.Item2 && x.Item1.Is_Lecture_End)
+                    .OrderByDescending(x => x.Item3)
+                    .Select(x => x.Item1);
+
+                // 3) Lectures without a valid date last
+                var noDate = parsedList
+                    .Where(x => !x.Item2)
+                    .Select(x => x.Item1);
+
+                L_M = upcoming.Concat(previous).Concat(noDate).ToList();
             }
             catch (Exception ex)
             {
-
-
+                Printerror("StdonlineCourse", ex.Message, ex.InnerException != null ? ex.InnerException.Message : null, ex.StackTrace);
+                ViewBag.ErrorMessage = "حدث خطأ أثناء تحميل جدول المحاضرات المباشرة. يرجى المحاولة لاحقًا.";
             }
 
             return View(L_M);
