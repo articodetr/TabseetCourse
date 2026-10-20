@@ -5,6 +5,8 @@
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
+@Html.AntiForgeryToken()
+
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
@@ -99,7 +101,16 @@
                             <td>@item.Lecture_Name </td>
                             <td>@item.CategoresName </td>
 
-                            <td><a href="@item.LectureLink_Host "> للمحاضر  </a>/<a href="@item.LectureLink_Client ">  للطالب </a></td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.LectureLink_Host))
+                                {
+                                    <a href="@item.LectureLink_Host" target="_blank"> للمحاضر  </a><span>/</span>
+                                }
+                                @if (!string.IsNullOrEmpty(item.LectureLink_Client))
+                                {
+                                    <a href="@item.LectureLink_Client" target="_blank">  رابط المحاضرة </a>
+                                }
+                            </td>
                             <td>@item.DayandTime </td>
                             <td>
                                 <div class="btn-group">
@@ -205,8 +216,8 @@
                                 <div class="col-sm-12" id="LectureDIV_ID">
                                     <!-- select -->
                                     <div class="form-group">
-                                        <label>رابط الفيديو</label>
-                                        <input type="url" id="LictureLink_ID" class="form-control" style="width:100%" required placeholder="URL LINK" />
+                                        <label id="lblLectureLink">رابط المحاضرة المباشرة</label>
+                                        <input type="url" id="LictureLink_ID" class="form-control" style="width:100%" required placeholder="مثال: Zoom, Google Meet, Teams, Webex أو أي منصة برابط HTTPS" />
                                         @*<span id="reqCategory_ID" style="color:red"></span>*@
 
                                     </div>
@@ -356,8 +367,8 @@
                                 <div class="col-sm-12" id="ELectureDIV_ID">
                                     <!-- select -->
                                     <div class="form-group">
-                                        <label>رابط الفيديو</label>
-                                        <input type="url" id="ELictureLink_ID" class="form-control" style="width:100%" required placeholder="URL LINK" />
+                                        <label id="ElblLectureLink">رابط المحاضرة المباشرة</label>
+                                        <input type="url" id="ELictureLink_ID" class="form-control" style="width:100%" required placeholder="مثال: Zoom, Google Meet, Teams, Webex أو أي منصة برابط HTTPS" />
                                         @*<span id="reqCategory_ID" style="color:red"></span>*@
 
                                     </div>
@@ -515,11 +526,17 @@
                             '<td>' + data[i].Lecture_Name + '</td>' +
                             '<td>' + data[i].NameAr + '</td>';
                         if (data[i].LectureTypeOnOff == 1) {
-                            s += '<td>مباشر</td>' +
-                                '<td><a href="' + data[i].LectureLink_Host + '"> للمحاضر  </a>/<a href="' + data[i].LectureLink_Client + '">  للطالب </a></td>';
+                            var links = '';
+                            if (data[i].LectureLink_Host) {
+                                links += '<a href="' + data[i].LectureLink_Host + '" target="_blank"> للمحاضر  </a> / ';
+                            }
+                            if (data[i].LectureLink_Client) {
+                                links += '<a href="' + data[i].LectureLink_Client + '" target="_blank">  رابط المحاضرة </a>';
+                            }
+                            s += '<td>مباشر</td><td>' + links + '</td>';
                         } else {
                             s += '<td>مسجلة</td>' +
-                                '<td><a href="' + data[i].LectureLink_Client + '"> رابط المحاضرة  </a></td>';
+                                '<td><a href="' + (data[i].LectureLink_Client || '#') + '" target="_blank"> رابط المحاضرة  </a></td>';
                         }
 
                         s +=
@@ -602,6 +619,10 @@
         fd.append('MediaLink', MediaLink);
         fd.append('Others', Description);
         fd.append('DocumentFileUpload', PC_File);
+        var token = $('input[name="__RequestVerificationToken"]').val();
+        if (token) {
+            fd.append('__RequestVerificationToken', token);
+        }
         //var dataJson = JSON.stringify(fd);
         $.ajax(
             {
@@ -710,13 +731,14 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
+                var token = $('input[name="__RequestVerificationToken"]').val();
                 $.ajax(
                     {
                         async: true,
                         type: 'POST',
                         //dataType: 'JSON',
                         //contentType: 'application/json; charset=utf=8',
-                        data: { ID: ID },
+                        data: { ID: ID, __RequestVerificationToken: token },
                         url: '@Url.Action("DeleteLecture", "Controlpanel")',
                         success: function (data) {
                             swalWithBootstrapButtons.fire(
@@ -752,28 +774,35 @@
 
     }
     function TypeChange(Type_ID) {
-
         if (Type_ID == 1) {
             $("#DivTime_ID").show();
-            $("#DivGenerate_ID").show();
-            $("#LectureDIV_ID").hide();
+            $("#DivGenerate_ID").hide();
+            $("#LectureDIV_ID").show();
+            $("#lblLectureLink").text("رابط المحاضرة المباشرة");
+            $("#LictureLink_ID").attr("placeholder", "مثال: Zoom, Google Meet, Teams, Webex أو أي منصة برابط HTTPS");
         }
         else {
             $("#DivTime_ID").hide();
             $("#DivGenerate_ID").hide();
             $("#LectureDIV_ID").show();
+            $("#lblLectureLink").text("رابط المحاضرة المسجلة");
+            $("#LictureLink_ID").attr("placeholder", "مثال: YouTube, Google Drive, Vimeo أو أي مصدر فيديو برابط HTTPS");
         }
     }
     function TypeChangeEdit(Type_ID) {
         if (Type_ID == 1) {
             $("#EDivTime_ID").show();
-            $("#EDivGenerate_ID").show();
-            $("#ELectureDIV_ID").hide();
+            $("#EDivGenerate_ID").hide();
+            $("#ELectureDIV_ID").show();
+            $("#ElblLectureLink").text("رابط المحاضرة المباشرة");
+            $("#ELictureLink_ID").attr("placeholder", "مثال: Zoom, Google Meet, Teams, Webex أو أي منصة برابط HTTPS");
         }
         else {
             $("#EDivTime_ID").hide();
             $("#EDivGenerate_ID").hide();
             $("#ELectureDIV_ID").show();
+            $("#ElblLectureLink").text("رابط المحاضرة المسجلة");
+            $("#ELictureLink_ID").attr("placeholder", "مثال: YouTube, Google Drive, Vimeo أو أي مصدر فيديو برابط HTTPS");
         }
     }
     function FileType(FileType) {

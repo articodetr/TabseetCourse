@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using tabseetCourse.Classes;
 using tabseetCourse.Data;
 using tabseetCourse.Models;
+using Microsoft.AspNet.Identity;
 
 namespace tabseetCourse.Controllers
 {
@@ -131,23 +132,107 @@ namespace tabseetCourse.Controllers
             //}
             return View(L_iden);
         }
+        private List<int> GetTeacherCategoryIds(string categoriesString)
+        {
+            List<int> result = new List<int>();
+            if (string.IsNullOrWhiteSpace(categoriesString))
+                return result;
+
+            string[] items = categoriesString.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var item in items)
+            {
+                string[] parts = item.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 0 && int.TryParse(parts[0].Trim(), out int catId))
+                {
+                    if (!result.Contains(catId))
+                    {
+                        result.Add(catId);
+                    }
+                }
+            }
+            return result;
+        }
+
+        private bool IsAuthorizedForCategory(int categoryId, out string errorMessage)
+        {
+            errorMessage = null;
+            if (!Request.IsAuthenticated || User == null || User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                errorMessage = "المستخدم غير مسجل الدخول";
+                return false;
+            }
+
+            string userId = User.Identity.GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                errorMessage = "المستخدم غير مسجل الدخول";
+                return false;
+            }
+
+            var user = userManager.FindById(userId);
+            if (user == null || user.IsActive != 1)
+            {
+                errorMessage = "حساب المستخدم غير فعال أو غير موجود";
+                return false;
+            }
+
+            var roles = userManager.GetRoles(userId);
+            if (roles != null && roles.Contains("Admin"))
+            {
+                return true;
+            }
+
+            if (roles != null && roles.Contains("Teacher"))
+            {
+                var catIds = GetTeacherCategoryIds(user.Categories_ID);
+                if (catIds.Contains(categoryId))
+                {
+                    return true;
+                }
+                errorMessage = "الدورة غير مسندة لهذا المدرس";
+                return false;
+            }
+
+            errorMessage = "غير مصرح لك بإدارة محاضرات هذه الدورة";
+            return false;
+        }
+
         [HttpGet]
         public ActionResult LecturesByCategoryStudend(int Cat_ID, string categoryName)
         {
+            if (!IsAuthorizedForCategory(Cat_ID, out string errorRedirect))
+            {
+                return RedirectToAction("TeacherCourse", "Teacher");
+            }
+
             ViewBag.CategoryID = Cat_ID;
             ViewBag.Name = categoryName;
             return View();
-
         }
+
         [HttpPost]
         public JsonResult LectureByCategorysStd(int Cat_ID)
         {
-            //List<LectureModel> L_M = new List<LectureModel>();
-
             try
             {
+                if (!IsAuthorizedForCategory(Cat_ID, out string authError))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, response = authError }, JsonRequestBehavior.AllowGet);
+                }
+
                 var values = dbEntity.Lectures.Where(i => (i.Category_ID == Cat_ID))
-                    .Select(i => new { i.ID, i.Lecture_Name, i.Category_ID, i.Category.NameAr, i.Category.NameEn, i.LectureTypeOnOff, i.LectureLink_Host, i.LectureLink_Client, i.Assignments.Count }).ToList();
+                    .Select(i => new {
+                        i.ID,
+                        i.Lecture_Name,
+                        i.Category_ID,
+                        i.Category.NameAr,
+                        i.Category.NameEn,
+                        i.LectureTypeOnOff,
+                        LectureLink_Host = string.Empty,
+                        i.LectureLink_Client,
+                        i.Assignments.Count
+                    }).ToList();
                 if (values != null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.OK;

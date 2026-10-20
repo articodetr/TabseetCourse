@@ -16,6 +16,7 @@ using tabseetCourse.Classes;
 using tabseetCourse.Data;
 using tabseetCourse.Models;
 using tabseetCourse.Models_UI;
+using Microsoft.AspNet.Identity;
 
 namespace tabseetCourse.Controllers
 {
@@ -860,12 +861,257 @@ namespace tabseetCourse.Controllers
             ViewBag.Name = categoryName;
             return View();
         }
-        //[Authorize(Roles = "Admin, Teacher, ViewLectures ,  EditLectures")]
+        private static bool IsValidZoomUrl(string url, out string normalizedUrl)
+        {
+            normalizedUrl = null;
+            if (string.IsNullOrWhiteSpace(url))
+                return false;
+
+            url = url.Trim();
+            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
+                return false;
+
+            if (uri.Scheme != Uri.UriSchemeHttps)
+                return false;
+
+            string host = uri.Host.ToLowerInvariant();
+            bool isZoomHost = host == "zoom.us" || host.EndsWith(".zoom.us", StringComparison.OrdinalIgnoreCase);
+            if (!isZoomHost || (host.Length <= 8 && host != "zoom.us"))
+                return false;
+
+            normalizedUrl = uri.AbsoluteUri;
+            return true;
+        }
+
+        private static bool IsValidLectureUrl(string url, out string normalizedUrl, out string errorMessage)
+        {
+            normalizedUrl = null;
+            errorMessage = null;
+
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                errorMessage = "الرابط مطلوب ولا يمكن أن يكون فارغاً";
+                return false;
+            }
+
+            url = url.Trim();
+
+            if (url.IndexOf("<iframe", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                var match = System.Text.RegularExpressions.Regex.Match(url, @"src\s*=\s*[""']([^""']+)[""']", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                if (match.Success && !string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                {
+                    url = match.Groups[1].Value.Trim();
+                }
+            }
+
+            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
+            {
+                errorMessage = "الرابط غير صالح. يرجى إدخال رابط URL كامل ومطلق";
+                return false;
+            }
+
+            if (!string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            {
+                errorMessage = "يجب أن يستخدم الرابط بروتوكول HTTPS الآمن (https://)";
+                return false;
+            }
+
+            string host = uri.Host.Trim().ToLowerInvariant();
+            if (string.IsNullOrEmpty(host))
+            {
+                errorMessage = "عنوان النطاق غير صالح في الرابط";
+                return false;
+            }
+
+            if (host == "localhost" || host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase))
+            {
+                errorMessage = "غير مسموح بروابط localhost المحلية كمصدر للمحاضرة";
+                return false;
+            }
+
+            if (System.Net.IPAddress.TryParse(host, out System.Net.IPAddress ip))
+            {
+                if (System.Net.IPAddress.IsLoopback(ip) || ip.Equals(System.Net.IPAddress.Any) || ip.Equals(System.Net.IPAddress.IPv6Any) || ip.Equals(System.Net.IPAddress.None))
+                {
+                    errorMessage = "غير مسموح بعناوين IP المحلية أو الخاصة كمصدر للمحاضرة";
+                    return false;
+                }
+
+                byte[] bytes = ip.GetAddressBytes();
+                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                {
+                    if (bytes[0] == 10 ||
+                        (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31) ||
+                        (bytes[0] == 192 && bytes[1] == 168) ||
+                        (bytes[0] == 169 && bytes[1] == 254))
+                    {
+                        errorMessage = "غير مسموح بنطاقات IP للشبكات المحلية والخاصة كمصدر للمحاضرة";
+                        return false;
+                    }
+                }
+            }
+
+            if (!host.Contains(".") || host.StartsWith(".") || host.EndsWith("."))
+            {
+                errorMessage = "يجب أن يحتوي الرابط على اسم نطاق صالح ومسجل";
+                return false;
+            }
+
+            if (uri.AbsolutePath.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                errorMessage = "ملف PDF لا يُعتبر مصدرًا صالحًا للمحاضرة؛ يرجى إدخال رابط محاضرة أو فيديو صالح";
+                return false;
+            }
+
+            normalizedUrl = uri.AbsoluteUri;
+            return true;
+        }
+
+        private static bool IsValidPdfAttachment(HttpPostedFileBase file, out string errorMessage)
+        {
+            errorMessage = null;
+            if (file == null || file.ContentLength <= 0)
+                return true;
+
+            string fileName = file.FileName ?? string.Empty;
+            string ext = Path.GetExtension(fileName)?.Trim().ToLowerInvariant() ?? string.Empty;
+            string contentType = (file.ContentType ?? string.Empty).Trim().ToLowerInvariant();
+
+            string[] videoExtensions = { ".mp4", ".mov", ".avi", ".mkv", ".webm", ".wmv", ".flv", ".m4v", ".mpeg", ".mpg", ".3gp" };
+            if (contentType.StartsWith("video/", StringComparison.OrdinalIgnoreCase) || videoExtensions.Contains(ext))
+            {
+                errorMessage = "رفع ملفات الفيديو غير مدعوم حاليًا في النظام. حقل رفع الملف مخصص للمرفقات التعليمية الإضافية بصيغة PDF فقط، ويجب إدخال رابط فيديو HTTPS صالح للمحاضرة";
+                return false;
+            }
+
+            if (ext != ".pdf" || (!string.IsNullOrEmpty(contentType) && contentType != "application/pdf" && contentType != "application/x-pdf" && contentType != "application/octet-stream"))
+            {
+                errorMessage = "حقل رفع الملف مخصص للمرفقات التعليمية الإضافية بصيغة PDF فقط (.pdf)";
+                return false;
+            }
+
+            return true;
+        }
+
+        private List<int> GetTeacherCategoryIds(string categoriesString)
+        {
+            List<int> result = new List<int>();
+            if (string.IsNullOrWhiteSpace(categoriesString))
+                return result;
+
+            string[] items = categoriesString.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var item in items)
+            {
+                string[] parts = item.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 0 && int.TryParse(parts[0].Trim(), out int catId))
+                {
+                    if (!result.Contains(catId))
+                    {
+                        result.Add(catId);
+                    }
+                }
+            }
+            return result;
+        }
+
+        private bool GetAuthenticatedLectureUser(out MyIdentityUser user, out string role, out List<int> allowedCatIds, out string errorMessage)
+        {
+            user = null;
+            role = null;
+            allowedCatIds = new List<int>();
+            errorMessage = null;
+
+            if (!Request.IsAuthenticated || User == null || User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                errorMessage = "المستخدم غير مسجل الدخول";
+                return false;
+            }
+
+            string userId = User.Identity.GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                errorMessage = "المستخدم غير مسجل الدخول";
+                return false;
+            }
+
+            user = userManager.FindById(userId);
+            if (user == null || user.IsActive != 1)
+            {
+                errorMessage = "حساب المستخدم غير فعال أو غير موجود";
+                return false;
+            }
+
+            var roles = userManager.GetRoles(userId);
+            if (roles != null && roles.Contains("Admin"))
+            {
+                role = "Admin";
+            }
+            else if (roles != null && roles.Contains("Teacher"))
+            {
+                role = "Teacher";
+            }
+            else if (roles != null && roles.Any(r => r == "LectureView" || r == "LectureEdit" || r == "LectureDelete"))
+            {
+                role = "Admin";
+            }
+            else if (!string.IsNullOrEmpty(user.role))
+            {
+                if (user.role.Contains("Admin")) role = "Admin";
+                else if (user.role.Contains("Teacher")) role = "Teacher";
+            }
+
+            if (role == null)
+            {
+                errorMessage = "المستخدم لا يملك صلاحية إدارة المحاضرات";
+                return false;
+            }
+
+            if (role == "Teacher")
+            {
+                allowedCatIds = GetTeacherCategoryIds(user.Categories_ID);
+            }
+
+            return true;
+        }
+
         [HttpPost]
         public JsonResult AllLectures(int byCategorieType = 0, int byCategorie = 0)
         {
             try
             {
+                if (!GetAuthenticatedLectureUser(out var user, out var role, out var allowedCatIds, out var authError))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, response = authError }, JsonRequestBehavior.AllowGet);
+                }
+
+                if (role == "Teacher")
+                {
+                    if (byCategorie > 0 && !allowedCatIds.Contains(byCategorie))
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                        return Json(new { success = false, response = "غير مصرح لك بعرض محاضرات هذه الدورة" }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    var teacherLectures = dbEntity.Lectures
+                        .Where(i => allowedCatIds.Contains(i.Category_ID) && (byCategorie == 0 || i.Category_ID == byCategorie))
+                        .Select(i => new {
+                            i.ID,
+                            i.Lecture_Name,
+                            i.Category_ID,
+                            i.Category.NameAr,
+                            i.Category.NameEn,
+                            i.LectureTypeOnOff,
+                            LectureLink_Host = string.Empty,
+                            i.LectureLink_Client,
+                            i.Assignments.Count
+                        }).ToList();
+
+                    Response.StatusCode = (int)HttpStatusCode.OK;
+                    return Json(teacherLectures, JsonRequestBehavior.AllowGet);
+                }
+
                 var values = dbEntity.Lectures.Where(i => (byCategorie == 0 && byCategorieType == 0) || (byCategorie == 0 && i.Category.CategoryType_ID == byCategorieType) || (i.Category.CategoryType_ID == byCategorieType || i.Category_ID == byCategorie))
                     .Select(i => new { i.ID, i.Lecture_Name, i.Category_ID, i.Category.NameAr, i.Category.NameEn, i.LectureTypeOnOff, i.LectureLink_Host, i.LectureLink_Client, i.Assignments.Count }).ToList();
                 if (values != null)
@@ -883,111 +1129,174 @@ namespace tabseetCourse.Controllers
                 return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        //[Authorize(Roles = "Admin, Teacher, ViewLectures ,  EditLectures")]
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<JsonResult> CreateLectuer(LectureModel LM)
         {
             try
             {
+                if (!GetAuthenticatedLectureUser(out var user, out var role, out var allowedCatIds, out var authError))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, responseText = authError }, JsonRequestBehavior.AllowGet);
+                }
+
+                if (role == "Teacher" && !allowedCatIds.Contains(LM.Category_ID))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, responseText = "غير مصرح لك بإضافة محاضرة في هذه الدورة" }, JsonRequestBehavior.AllowGet);
+                }
+
+                if (string.IsNullOrWhiteSpace(LM.Lecture_Name))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.OK;
+                    return Json(new { success = false, responseText = "اسم المحاضرة مطلوب" }, JsonRequestBehavior.AllowGet);
+                }
+
+                if (LM.DocumentFileUpload != null && LM.DocumentFileUpload.ContentLength > 0)
+                {
+                    if (!IsValidPdfAttachment(LM.DocumentFileUpload, out string attachmentError))
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return Json(new { success = false, responseText = attachmentError }, JsonRequestBehavior.AllowGet);
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(LM.LectureLink_Client))
+                {
+                    LM.LectureLink_Client = Request["LectureLink"] ?? Request["LectureLink_Client"];
+                }
+
                 Lecture l = new Lecture();
-                LectureModel lm = new LectureModel();
                 if (LM.LectureTypeOnOff == "1")
                 {
-
-
-                    var result = _UsermodelModel;
-
-                    if (result != null)
+                    if (string.IsNullOrWhiteSpace(LM.DayandTime))
                     {
-                        lm = await GenerateLectureLink(LM.Lecture_Name, "isa.academy2020@gmail.com", LM.DayandTime);
-                        if (lm.Code == "201")
-                        {
-                            LM.LectureLink_Client = lm.LectureLink_Client;
-                            LM.LectureLink_Host = lm.LectureLink_Host;
-                        }
-                        else
-                        {
-                            Response.StatusCode = (int)HttpStatusCode.OK;
-                            return Json(new { success = false, responseText = "Zoom Message " + lm.Message }, JsonRequestBehavior.AllowGet);
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return Json(new { success = false, responseText = "موعد المحاضرة مطلوب للمحاضرة المباشرة" }, JsonRequestBehavior.AllowGet);
+                    }
 
-                        }
+                    if (!IsValidLectureUrl(LM.LectureLink_Client, out string normalizedUrl, out string urlError))
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return Json(new { success = false, responseText = "رابط المحاضرة المباشرة غير صالح: " + urlError }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    DateTime parsedDt;
+                    if (DateTime.TryParse(LM.DayandTime, out parsedDt))
+                    {
+                        l.DayandTime = parsedDt.ToString("yyyy-MM-dd HH:mm:ss");
                     }
                     else
                     {
-                        Response.StatusCode = (int)HttpStatusCode.OK;
-                        return Json(new { success = false, responseText = "لا يوجد حساب على الزوم" }, JsonRequestBehavior.AllowGet);
+                        l.DayandTime = LM.DayandTime.Trim();
                     }
-                }
-                if (LM.LectureTypeOnOff == "1")
-                {
-                    l.LectureLink_Client = LM.LectureLink_Client;
-                    l.LectureLink_Host = LM.LectureLink_Host;
+
+                    l.LectureLink_Client = normalizedUrl;
+                    l.LectureLink_Host = string.Empty;
                     l.LectureTypeOnOff = "1";
-                    l.DayandTime = LM.DayandTime;
                     l.LectureMinTime = "0";
                 }
                 else
                 {
-                    l.LectureLink_Client = LM.LectureLink_Client;
+                    if (string.IsNullOrWhiteSpace(LM.LectureLink_Client))
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        if (LM.DocumentFileUpload != null && LM.DocumentFileUpload.ContentLength > 0)
+                        {
+                            return Json(new { success = false, responseText = "رابط المحاضرة المسجلة مطلوب: ملف PDF المرفق يُعد مرفقًا تعليميًا إضافيًا فقط ولا يُعتبر بديلًا عن مصدر فيديو المحاضرة" }, JsonRequestBehavior.AllowGet);
+                        }
+                        return Json(new { success = false, responseText = "رابط المحاضرة المسجلة مطلوب (يجب توفير مصدر فيديو صالح)" }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    if (!IsValidLectureUrl(LM.LectureLink_Client, out string normalizedUrl, out string urlError))
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return Json(new { success = false, responseText = "رابط المحاضرة المسجلة غير صالح: " + urlError }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    l.LectureLink_Client = normalizedUrl;
                     l.LectureLink_Host = string.Empty;
                     l.LectureTypeOnOff = "0";
                     l.DayandTime = string.Empty;
                     l.LectureMinTime = LM.LectureMinTime.ToString();
                 }
+
                 l.Category_ID = LM.Category_ID;
-                l.Lecture_Name = LM.Lecture_Name;
+                l.Lecture_Name = LM.Lecture_Name.Trim();
                 l.MediaLink = LM.MediaLink;
                 l.Others = LM.Others;
-                if (LM.DocumentFileUpload != null)
+                if (LM.DocumentFileUpload != null && LM.DocumentFileUpload.ContentLength > 0)
                 {
                     l.DocumenFile = SaveImage(LM.DocumentFileUpload);
                 }
+
                 dbEntity.Lectures.Add(l);
-                dbEntity.SaveChanges();
+                await dbEntity.SaveChangesAsync();
                 Response.StatusCode = (int)HttpStatusCode.OK;
-                return Json(new { success = true, responseText = "" }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = true, responseText = "تمت إضافة المحاضرة بنجاح" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 Response.StatusCode = (int)HttpStatusCode.OK;
                 return Json(new { success = false, responseText = ex.Message }, JsonRequestBehavior.AllowGet);
             }
-
         }
-        //[Authorize(Roles = "Admin, Teacher, ViewLectures ,  EditLectures")]
+
         [HttpPost]
         public JsonResult EditLecture(int id)
         {
-            LectureModel lm = new LectureModel();
             try
             {
-                var value = dbEntity.Lectures.Find(id);
-                if (value != null)
+                if (!GetAuthenticatedLectureUser(out var user, out var role, out var allowedCatIds, out var authError))
                 {
-                    lm.ID = value.ID;
-                    lm.Category_ID = value.Category_ID;
-                    lm.DayandTime = value.DayandTime;
-                    lm.LectureLink_Client = value.LectureLink_Client;
-                    lm.LectureLink_Host = value.LectureLink_Host;
-                    lm.LectureTypeOnOff = value.LectureTypeOnOff;
-                    lm.Lecture_Name = value.Lecture_Name;
-                    lm.MediaLink = value.MediaLink;
-                    lm.Others = value.Others;
-                    lm.DocumenFile = value.DocumenFile;
-                    if (value.LectureMinTime != null)
-                    {
-                        int minitime;
-                        if (int.TryParse(value.LectureMinTime, out minitime))
-                        {
-                            lm.LectureMinTime = minitime;
-                        }
-
-
-                    }
-
-
-
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, response = authError }, JsonRequestBehavior.AllowGet);
                 }
+
+                var value = dbEntity.Lectures.Find(id);
+                if (value == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, response = "المحاضرة غير موجودة" }, JsonRequestBehavior.AllowGet);
+                }
+
+                if (role == "Teacher" && !allowedCatIds.Contains(value.Category_ID))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, response = "غير مصرح لك بالوصول لهذه المحاضرة" }, JsonRequestBehavior.AllowGet);
+                }
+
+                LectureModel lm = new LectureModel();
+                lm.ID = value.ID;
+                lm.Category_ID = value.Category_ID;
+
+                if (!string.IsNullOrWhiteSpace(value.DayandTime) && DateTime.TryParse(value.DayandTime, out DateTime dt))
+                {
+                    lm.DayandTime = dt.ToString("yyyy-MM-ddTHH:mm");
+                }
+                else
+                {
+                    lm.DayandTime = value.DayandTime;
+                }
+
+                lm.LectureLink_Client = value.LectureLink_Client;
+                lm.LectureLink_Host = role == "Admin" ? value.LectureLink_Host : string.Empty;
+                lm.LectureTypeOnOff = value.LectureTypeOnOff;
+                lm.Lecture_Name = value.Lecture_Name;
+                lm.MediaLink = value.MediaLink;
+                lm.Others = value.Others;
+                lm.DocumenFile = value.DocumenFile;
+                if (value.LectureMinTime != null)
+                {
+                    int minitime;
+                    if (int.TryParse(value.LectureMinTime, out minitime))
+                    {
+                        lm.LectureMinTime = minitime;
+                    }
+                }
+
                 Response.StatusCode = (int)HttpStatusCode.OK;
                 return Json(lm, JsonRequestBehavior.AllowGet);
             }
@@ -996,101 +1305,165 @@ namespace tabseetCourse.Controllers
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
             }
-
         }
-        //[Authorize(Roles = "Admin, Teacher, ViewLectures ,  EditLectures")]
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<JsonResult> EditLectuer(LectureModel LM)
         {
             try
             {
+                if (!GetAuthenticatedLectureUser(out var user, out var role, out var allowedCatIds, out var authError))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, responseText = authError }, JsonRequestBehavior.AllowGet);
+                }
+
                 var l = dbEntity.Lectures.Find(LM.ID);
-                LectureModel lm = new LectureModel();
+                if (l == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, responseText = "المحاضرة غير موجودة" }, JsonRequestBehavior.AllowGet);
+                }
+
+                int actualCategoryId = l.Category_ID;
+                if (role == "Teacher" && !allowedCatIds.Contains(actualCategoryId))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, responseText = "غير مصرح لك بتعديل محاضرة في هذه الدورة" }, JsonRequestBehavior.AllowGet);
+                }
+
+                if (string.IsNullOrWhiteSpace(LM.Lecture_Name))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.OK;
+                    return Json(new { success = false, responseText = "اسم المحاضرة مطلوب" }, JsonRequestBehavior.AllowGet);
+                }
+
+                if (LM.DocumentFileUpload != null && LM.DocumentFileUpload.ContentLength > 0)
+                {
+                    if (!IsValidPdfAttachment(LM.DocumentFileUpload, out string attachmentError))
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return Json(new { success = false, responseText = attachmentError }, JsonRequestBehavior.AllowGet);
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(LM.LectureLink_Client))
+                {
+                    LM.LectureLink_Client = Request["LectureLink"] ?? Request["LectureLink_Client"];
+                }
+
                 if (LM.LectureTypeOnOff == "1")
                 {
-
-                    string code;
-                    string LectureLink_Host;
-                    string LectureLink_Client;
-                    string errorMessage;
-                    var result = _UsermodelModel;
-
-                    if (result != null)
+                    if (string.IsNullOrWhiteSpace(LM.DayandTime))
                     {
-                        lm = await GenerateLectureLink(LM.Lecture_Name, "isa.academy2020@gmail.com", LM.DayandTime);
-                        if (lm.Code == "201")
-                        {
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return Json(new { success = false, responseText = "موعد المحاضرة مطلوب للمحاضرة المباشرة" }, JsonRequestBehavior.AllowGet);
+                    }
 
-                            l.Category_ID = LM.Category_ID;
-                            l.DayandTime = LM.DayandTime;
-                            l.LectureLink_Client = lm.LectureLink_Client;
-                            l.LectureLink_Host = lm.LectureLink_Host;
-                            l.LectureTypeOnOff = "1";
-                            l.Lecture_Name = LM.Lecture_Name;
-                            l.MediaLink = LM.MediaLink;
-                            l.Others = LM.Others;
-                            l.LectureMinTime = "0";
-                            if (LM.DocumentFileUpload != null)
-                            {
-                                l.DocumenFile = SaveImage(LM.DocumentFileUpload);
-                            }
-                            dbEntity.Lectures.Attach(l);
-                            dbEntity.Entry(l).State = System.Data.Entity.EntityState.Modified;
-                            dbEntity.SaveChanges();
-                        }
-                        else
-                        {
-                            Response.StatusCode = (int)HttpStatusCode.OK;
-                            return Json(new { success = false, responseText = "Zoom Message " + lm.Message }, JsonRequestBehavior.AllowGet);
+                    if (!IsValidLectureUrl(LM.LectureLink_Client, out string normalizedUrl, out string urlError))
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return Json(new { success = false, responseText = "رابط المحاضرة المباشرة غير صالح: " + urlError }, JsonRequestBehavior.AllowGet);
+                    }
 
-                        }
+                    DateTime parsedDt;
+                    if (DateTime.TryParse(LM.DayandTime, out parsedDt))
+                    {
+                        l.DayandTime = parsedDt.ToString("yyyy-MM-dd HH:mm:ss");
                     }
                     else
                     {
-                        Response.StatusCode = (int)HttpStatusCode.OK;
-                        return Json(new { success = false, responseText = "لا يوجد حساب على الزوم" }, JsonRequestBehavior.AllowGet);
+                        l.DayandTime = LM.DayandTime.Trim();
+                    }
+
+                    l.Lecture_Name = LM.Lecture_Name.Trim();
+                    l.LectureLink_Client = normalizedUrl;
+                    l.LectureLink_Host = string.Empty;
+                    l.LectureTypeOnOff = "1";
+                    l.LectureMinTime = "0";
+                    l.MediaLink = LM.MediaLink;
+                    l.Others = LM.Others;
+                    if (LM.DocumentFileUpload != null && LM.DocumentFileUpload.ContentLength > 0)
+                    {
+                        l.DocumenFile = SaveImage(LM.DocumentFileUpload);
                     }
                 }
                 else
                 {
+                    if (string.IsNullOrWhiteSpace(LM.LectureLink_Client))
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        if (LM.DocumentFileUpload != null && LM.DocumentFileUpload.ContentLength > 0)
+                        {
+                            return Json(new { success = false, responseText = "رابط المحاضرة المسجلة مطلوب: ملف PDF المرفق يُعد مرفقًا تعليميًا إضافيًا فقط ولا يُعتبر بديلًا عن مصدر فيديو المحاضرة" }, JsonRequestBehavior.AllowGet);
+                        }
+                        return Json(new { success = false, responseText = "رابط المحاضرة المسجلة مطلوب (يجب توفير مصدر فيديو صالح)" }, JsonRequestBehavior.AllowGet);
+                    }
 
-                    l.Category_ID = LM.Category_ID;
+                    if (!IsValidLectureUrl(LM.LectureLink_Client, out string normalizedUrl, out string urlError))
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return Json(new { success = false, responseText = "رابط المحاضرة المسجلة غير صالح: " + urlError }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    l.Lecture_Name = LM.Lecture_Name.Trim();
                     l.DayandTime = string.Empty;
-                    l.LectureLink_Client = LM.LectureLink_Client;
+                    l.LectureLink_Client = normalizedUrl;
                     l.LectureLink_Host = string.Empty;
                     l.LectureTypeOnOff = "0";
-                    l.Lecture_Name = LM.Lecture_Name;
+                    l.LectureMinTime = LM.LectureMinTime.ToString();
                     l.MediaLink = LM.MediaLink;
                     l.Others = LM.Others;
-                    l.LectureMinTime = LM.LectureMinTime.ToString();
-                    if (LM.DocumentFileUpload != null)
+                    if (LM.DocumentFileUpload != null && LM.DocumentFileUpload.ContentLength > 0)
                     {
                         l.DocumenFile = SaveImage(LM.DocumentFileUpload);
                     }
-                    dbEntity.Lectures.Attach(l);
-                    dbEntity.Entry(l).State = System.Data.Entity.EntityState.Modified;
-                    dbEntity.SaveChanges();
                 }
+
+                dbEntity.Lectures.Attach(l);
+                dbEntity.Entry(l).State = System.Data.Entity.EntityState.Modified;
+                await dbEntity.SaveChangesAsync();
                 Response.StatusCode = (int)HttpStatusCode.OK;
-                return Json(new { success = true, response = "" }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = true, responseText = "تم تعديل المحاضرة بنجاح", response = "" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = false, responseText = ex.Message, response = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        //[Authorize(Roles = "Admin, Teacher, ViewLectures ,  EditLectures")]
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public JsonResult DeleteLecture(int ID)
         {
             try
             {
+                if (!GetAuthenticatedLectureUser(out var user, out var role, out var allowedCatIds, out var authError))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, response = authError }, JsonRequestBehavior.AllowGet);
+                }
+
                 var value = dbEntity.Lectures.Find(ID);
+                if (value == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, response = "المحاضرة غير موجودة" }, JsonRequestBehavior.AllowGet);
+                }
+
+                int actualCategoryId = value.Category_ID;
+                if (role == "Teacher" && !allowedCatIds.Contains(actualCategoryId))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, response = "غير مصرح لك بحذف محاضرة في هذه الدورة" }, JsonRequestBehavior.AllowGet);
+                }
+
                 dbEntity.Lectures.Remove(value);
                 dbEntity.SaveChanges();
                 Response.StatusCode = (int)HttpStatusCode.OK;
-                return Json(new { success = true, response = "" }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = true, response = "تم حذف المحاضرة بنجاح" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

@@ -6,6 +6,8 @@
   var viewModel = (tabseetCourse.Models.UserModel)ViewBag._UsermodelModel;
 }
 
+@Html.AntiForgeryToken()
+
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
@@ -152,8 +154,8 @@
                             <div class="row">
                                 <div class="col-sm-12" id="DivTime_ID">
                                     <div class="form-group">
-                                        <label>وقت</label><label style="color:red">*</label>
-                                        <input type="text" id="DateTime_ID" onchange="validationAdd()" class="form-control" />
+                                        <label>وقت</label><label id="reqDateTimeStar" style="color:red">*</label>
+                                        <input type="datetime-local" id="DateTime_ID" oninput="validationAdd()" onchange="validationAdd()" class="form-control" />
                                     </div>
                                 </div>
                             </div>
@@ -161,7 +163,7 @@
                                 <div class="col-sm-12" id="LectureDivMiniTime_ID">
                                     <div class="form-group">
                                         <label> الوقت الاصغري للحضور بلدقيقة</label>
-                                        <input type="number" id="LictureMiniTime_ID" class="form-control" value="0" min="0" max="90" onchange="validationAdd()" style="width:100%" required placeholder="Mini Time" />
+                                        <input type="number" id="LictureMiniTime_ID" class="form-control" value="0" min="0" max="90" oninput="validationAdd()" onchange="validationAdd()" style="width:100%" placeholder="Mini Time" />
                                     </div>
                                 </div>
                             </div>
@@ -172,8 +174,10 @@
                             <div class="row">
                                 <div class="col-sm-12" id="LectureDIV_ID">
                                     <div class="form-group">
-                                        <label>رابط الفيديو</label><label style="color:red">*</label>
-                                        <input type="url" id="LictureLink_ID" class="form-control" onkeyup="validationAdd()" style="width:100%" required placeholder="URL LINK" />
+                                        <label id="lblLectureLink">رابط المحاضرة المباشرة</label><label id="reqLectureLinkStar" style="color:red">*</label>
+                                        <input type="url" id="LictureLink_ID" class="form-control" oninput="validationAdd()" onkeyup="validationAdd()" onchange="validationAdd()" style="width:100%" required placeholder="مثال: Zoom, Google Meet, Teams, Webex أو أي منصة برابط HTTPS" />
+                                        <small id="lectureLinkHint" class="form-text text-muted">مطلوب: أدخل رابط الجلسة المباشرة بصيغة HTTPS.</small>
+                                        <span id="lectureLinkError" class="text-danger" style="display:none; font-size:0.875rem;"></span>
                                     </div>
                                 </div>
                             </div>
@@ -186,10 +190,10 @@
                                 <div class="col-sm-12">
                                     <!-- select -->
                                     <div class="form-group">
-                                        <label>نوع الملف </label>
-                                        <select id="DocType" class="form-control" onchange="FileType(this.value)" required>
-                                            <option value="1">تحميل ملف</option>
-                                            <option value="0">روابط</option>
+                                        <label>نوع المرفق التعليمي (اختياري)</label>
+                                        <select id="DocType" class="form-control" onchange="FileType(this.value)">
+                                            <option value="1">رفع ملف مرفق (PDF فقط)</option>
+                                            <option value="0">رابط مرفق إضافي</option>
                                         </select>
 
                                     </div>
@@ -202,9 +206,10 @@
                                 <div class="col-sm-12" id="UploadFileDiv_ID">
                                     <!-- select -->
                                     <div class="form-group">
-                                        <label>ملفات</label>
-                                        <input type="file" id="UploadFile_ID" class="form-control" onchange="validationAdd()" required accept="application/pdf" />
-
+                                        <label>ملف مرفق مساعد (PDF فقط - اختياري)</label>
+                                        <input type="file" id="UploadFile_ID" class="form-control" onchange="validationAdd()" accept="application/pdf,.pdf" />
+                                        <small class="form-text text-muted">مخصص للمرفقات التعليمية الإضافية بصيغة PDF فقط (اختياري)، ولا يُعتبر بديلًا عن رابط فيديو المحاضرة.</small>
+                                        <span id="uploadFileError" class="text-danger" style="display:none; font-size:0.875rem;"></span>
                                     </div>
                                 </div>
                             </div>
@@ -212,8 +217,8 @@
                                 <div class="col-sm-12">
                                     <!-- select -->
                                     <div class="form-group" id="LinkDIV_ID">
-                                        <label>روابط اخرى</label>
-                                        <input type="url" id="otherLink_ID" class="form-control" onkeyup="validationAdd()" style="width:100%" required placeholder="URL LINK" />
+                                        <label>روابط اخرى (مرفق إضافي اختياري)</label>
+                                        <input type="url" id="otherLink_ID" class="form-control" oninput="validationAdd()" onkeyup="validationAdd()" style="width:100%" placeholder="رابط مرفق إضافي اختياري (URL)" />
                                         @*<span id="reqCategory_ID" style="color:red"></span>*@
 
                                     </div>
@@ -300,8 +305,8 @@
                                 <div class="col-sm-12" id="EDivTime_ID">
                                     <!-- select -->
                                     <div class="form-group">
-                                        <label>وقت</label><label style="color:red">*</label>
-                                        <input type="datetime-local" id="EDateTime_ID" onchange="validationEdit()" class="form-control" />
+                                        <label>وقت</label><label id="EreqDateTimeStar" style="color:red">*</label>
+                                        <input type="datetime-local" id="EDateTime_ID" oninput="validationEdit()" onchange="validationEdit()" class="form-control" />
                                     </div>
                                 </div>
                             </div>
@@ -309,7 +314,7 @@
                                 <div class="col-sm-12" id="ELectureDivMiniTime_ID">
                                     <div class="form-group">
                                         <label> الوقت الاصغري للحضور بلدقيقة</label>
-                                        <input type="number" id="ELictureMiniTime_ID" class="form-control" min="0" max="90" value="0" onchange="validationEdit()" style="width:100%" required placeholder="Mini Time" />
+                                        <input type="number" id="ELictureMiniTime_ID" class="form-control" min="0" max="90" value="0" oninput="validationEdit()" onchange="validationEdit()" style="width:100%" placeholder="Mini Time" />
                                     </div>
                                 </div>
                             </div>
@@ -323,8 +328,10 @@
                                 <div class="col-sm-12" id="ELectureDIV_ID">
                                     <!-- select -->
                                     <div class="form-group">
-                                        <label>رابط الفيديو</label><label style="color:red">*</label>
-                                        <input type="url" id="ELictureLink_ID" class="form-control" onkeyup="validationEdit()" style="width:100%" required placeholder="URL LINK" />
+                                        <label id="ElblLectureLink">رابط المحاضرة المباشرة</label><label id="EreqLectureLinkStar" style="color:red">*</label>
+                                        <input type="url" id="ELictureLink_ID" class="form-control" oninput="validationEdit()" onkeyup="validationEdit()" onchange="validationEdit()" style="width:100%" required placeholder="مثال: Zoom, Google Meet, Teams, Webex أو أي منصة برابط HTTPS" />
+                                        <small id="ElectureLinkHint" class="form-text text-muted">مطلوب: أدخل رابط الجلسة المباشرة بصيغة HTTPS.</small>
+                                        <span id="ElectureLinkError" class="text-danger" style="display:none; font-size:0.875rem;"></span>
                                         @*<span id="reqCategory_ID" style="color:red"></span>*@
 
                                     </div>
@@ -340,10 +347,10 @@
                                 <div class="col-sm-12">
                                     <!-- select -->
                                     <div class="form-group">
-                                        <label>نوع الملف </label>
-                                        <select id="EDocType" class="form-control" onchange="FileType(this.value)" required>
-                                            <option value="1">تحميل ملف</option>
-                                            <option value="0">روابط</option>
+                                        <label>نوع المرفق التعليمي (اختياري)</label>
+                                        <select id="EDocType" class="form-control" onchange="FileTypeEdit(this.value)">
+                                            <option value="1">رفع ملف مرفق (PDF فقط)</option>
+                                            <option value="0">رابط مرفق إضافي</option>
                                         </select>
 
                                     </div>
@@ -356,9 +363,11 @@
                                 <div class="col-sm-12" id="EUploadFileDiv_ID">
                                     <!-- select -->
                                     <div class="form-group">
-                                        <label>ملفات</label>
-                                        <input type="file" id="EUploadFile_ID" class="form-control" onchange="validationEdit()" required accept="application/pdf" />
-
+                                        <label>ملف مرفق مساعد (PDF فقط - اختياري)</label>
+                                        <input type="file" id="EUploadFile_ID" class="form-control" onchange="validationEdit()" accept="application/pdf,.pdf" />
+                                        <small id="existingDocFileHint" class="form-text text-info" style="display:none;"></small>
+                                        <small class="form-text text-muted">مخصص للمرفقات التعليمية الإضافية بصيغة PDF فقط (اختياري)، ولا يُعتبر بديلًا عن رابط فيديو المحاضرة ولا يلزم إعادة رفعه عند التعديل.</small>
+                                        <span id="EuploadFileError" class="text-danger" style="display:none; font-size:0.875rem;"></span>
                                     </div>
                                 </div>
                             </div>
@@ -366,8 +375,8 @@
                                 <div class="col-sm-12">
                                     <!-- select -->
                                     <div class="form-group" id="ELinkDIV_ID">
-                                        <label>روابط اخرى</label>
-                                        <input type="url" id="EotherLink_ID" class="form-control" onkeyup="validationEdit()" style="width:100%" required placeholder="URL LINK" />
+                                        <label>روابط اخرى (مرفق إضافي اختياري)</label>
+                                        <input type="url" id="EotherLink_ID" class="form-control" oninput="validationEdit()" onkeyup="validationEdit()" style="width:100%" placeholder="رابط مرفق إضافي اختياري (URL)" />
                                         @*<span id="reqCategory_ID" style="color:red"></span>*@
 
                                     </div>
@@ -439,51 +448,191 @@
     $(document).ready(function () {
         document.getElementById("btnSave").disabled = true;
         document.getElementById("btnUpdate").disabled = true;
+        TypeChange($("#LectureType_ID").val());
         GetLecture();
     });
-    function validationAdd() {
-        var LectureName_ID = $("#LectureName_ID").val();
-        var DateTime_ID = $("#DateTime_ID").val();
-        var LictureLink_ID = $("#LictureLink_ID").val();
-        var LectureType_ID = $("#LectureType_ID").val();
+    function extractLectureUrl(rawInput, lectureType) {
+        var url = (rawInput || "").trim();
+        if (String(lectureType) === "0" && url.toLowerCase().indexOf("<iframe") !== -1 && url.toLowerCase().indexOf("src=") !== -1) {
+            var match = url.match(/src\s*=\s*["']([^"']+)["']/i);
+            if (match && match[1]) {
+                url = match[1].trim();
+            }
+        }
+        return url;
+    }
 
-
-        if (LectureName_ID != "" && LectureType_ID == 0 && LictureLink_ID != "") {
-
-            document.getElementById("btnSave").disabled = false;
-        } else if (LectureName_ID != "" && LectureType_ID == 1 && DateTime_ID != "") {
-            document.getElementById("btnSave").disabled = false;
-        } else {
-            document.getElementById("btnSave").disabled = true;
+    function isValidHttpsLectureUrl(rawInput, lectureType) {
+        var url = extractLectureUrl(rawInput, lectureType);
+        if (!url) {
+            return { valid: false, reason: "empty", url: "" };
+        }
+        try {
+            var parsed = new URL(url);
+            if (parsed.protocol !== "https:") {
+                return { valid: false, reason: "protocol", url: url };
+            }
+            var host = (parsed.hostname || "").toLowerCase();
+            if (!host || host === "localhost" || host.endsWith(".localhost") || host.indexOf(".") === -1 || host.startsWith(".") || host.endsWith(".")) {
+                return { valid: false, reason: "host", url: url };
+            }
+            if (/^(127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(host) || host === "0.0.0.0" || host === "[::1]") {
+                return { valid: false, reason: "private_ip", url: url };
+            }
+            if ((parsed.pathname || "").toLowerCase().endsWith(".pdf")) {
+                return { valid: false, reason: "pdf_link", url: url };
+            }
+            return { valid: true, reason: "ok", url: parsed.href };
+        } catch (e) {
+            return { valid: false, reason: "invalid_url", url: url };
         }
     }
-    function validationEdit() {
-        console.log()
-        var LectureName_ID = $("#ELectureName_ID").val();
-        var DateTime_ID = $("#EDateTime_ID").val();
-        var LictureLink_ID = $("#ELictureLink_ID").val();
-        var LectureType_ID = $("#ELectureType_ID").val();
 
-
-        if (LectureName_ID != "" && LectureType_ID == 0 && LictureLink_ID != "") {
-
-            document.getElementById("btnUpdate").disabled = false;
-        } else if (LectureName_ID != "" && LectureType_ID == 1 && DateTime_ID != "") {
-            document.getElementById("btnUpdate").disabled = false;
-        } else {
-            document.getElementById("btnUpdate").disabled = true;
+    function checkAttachmentFile(fileInputSelector) {
+        var inputEl = $(fileInputSelector)[0];
+        if (!inputEl || !inputEl.files || inputEl.files.length === 0) {
+            return { hasFile: false, isPdf: false, isVideo: false, validAttachment: true, error: "" };
         }
+        var file = inputEl.files[0];
+        var fileName = (file.name || "").toLowerCase();
+        var mimeType = (file.type || "").toLowerCase();
+        var videoExts = [".mp4", ".mov", ".avi", ".mkv", ".webm", ".wmv", ".flv", ".m4v", ".mpeg", ".mpg", ".3gp"];
+        var isVideoExt = videoExts.some(function (ext) { return fileName.endsWith(ext); });
+
+        if (mimeType.indexOf("video/") === 0 || isVideoExt) {
+            return {
+                hasFile: true,
+                isPdf: false,
+                isVideo: true,
+                validAttachment: false,
+                error: "رفع ملفات الفيديو غير مدعوم حاليًا. هذا الحقل مخصص لملفات PDF التعليمية المرفقة فقط، ويجب إدخال رابط فيديو HTTPS للمحاضرة."
+            };
+        }
+
+        var isPdfExt = fileName.endsWith(".pdf");
+        var isPdfMime = (!mimeType || mimeType === "application/pdf" || mimeType === "application/x-pdf" || mimeType === "application/octet-stream");
+        if (!isPdfExt || !isPdfMime) {
+            return {
+                hasFile: true,
+                isPdf: false,
+                isVideo: false,
+                validAttachment: false,
+                error: "يُسمح فقط برفع ملفات PDF (.pdf) كمرفقات تعليمية إضافية."
+            };
+        }
+
+        return { hasFile: true, isPdf: true, isVideo: false, validAttachment: true, error: "" };
+    }
+
+    function validationAdd() {
+        var LectureName_ID = ($("#LectureName_ID").val() || "").trim();
+        var DateTime_ID = ($("#DateTime_ID").val() || "").trim();
+        var LictureLink_ID = ($("#LictureLink_ID").val() || "").trim();
+        var LectureType_ID = String($("#LectureType_ID").val() || "1");
+
+        var fileCheck = checkAttachmentFile('#UploadFile_ID');
+        if (!fileCheck.validAttachment) {
+            $("#uploadFileError").text(fileCheck.error).show();
+        } else {
+            $("#uploadFileError").text("").hide();
+        }
+
+        var hasSupportedVideoFile = false;
+        var isLinkRequired = (LectureType_ID === "1") || !hasSupportedVideoFile;
+        if (isLinkRequired) {
+            $("#reqLectureLinkStar").show();
+            $("#LictureLink_ID").prop("required", true);
+        } else {
+            $("#reqLectureLinkStar").hide();
+            $("#LictureLink_ID").prop("required", false);
+        }
+
+        var linkCheck = isValidHttpsLectureUrl(LictureLink_ID, LectureType_ID);
+        if (LictureLink_ID === "") {
+            if (LectureType_ID === "0" && fileCheck.hasFile && fileCheck.isPdf) {
+                $("#lectureLinkError").text("ملف PDF المرفق مخصص للمرفقات التعليمية الإضافية فقط ولا يُعتبر بديلًا عن رابط فيديو المحاضرة المسجلة (HTTPS).").show();
+            } else {
+                $("#lectureLinkError").text("").hide();
+            }
+        } else if (!linkCheck.valid) {
+            if (linkCheck.reason === "pdf_link") {
+                $("#lectureLinkError").text("ملف PDF لا يُعتبر مصدرًا للمحاضرة؛ يرجى إدخال رابط محاضرة أو فيديو صالح بصيغة HTTPS.").show();
+            } else {
+                $("#lectureLinkError").text("يرجى إدخال رابط HTTPS صالح ومكتمل (مثال: https://...).").show();
+            }
+        } else {
+            $("#lectureLinkError").text("").hide();
+        }
+
+        var isValid = false;
+        if (LectureType_ID === "1") {
+            isValid = (LectureName_ID !== "" && DateTime_ID !== "" && linkCheck.valid && fileCheck.validAttachment);
+        } else {
+            isValid = (LectureName_ID !== "" && (linkCheck.valid || hasSupportedVideoFile) && fileCheck.validAttachment);
+        }
+
+        document.getElementById("btnSave").disabled = !isValid;
+    }
+
+    function validationEdit() {
+        var LectureName_ID = ($("#ELectureName_ID").val() || "").trim();
+        var DateTime_ID = ($("#EDateTime_ID").val() || "").trim();
+        var LictureLink_ID = ($("#ELictureLink_ID").val() || "").trim();
+        var LectureType_ID = String($("#ELectureType_ID").val() || "1");
+
+        var fileCheck = checkAttachmentFile('#EUploadFile_ID');
+        if (!fileCheck.validAttachment) {
+            $("#EuploadFileError").text(fileCheck.error).show();
+        } else {
+            $("#EuploadFileError").text("").hide();
+        }
+
+        var hasSupportedVideoFile = false;
+        var isLinkRequired = (LectureType_ID === "1") || !hasSupportedVideoFile;
+        if (isLinkRequired) {
+            $("#EreqLectureLinkStar").show();
+            $("#ELictureLink_ID").prop("required", true);
+        } else {
+            $("#EreqLectureLinkStar").hide();
+            $("#ELictureLink_ID").prop("required", false);
+        }
+
+        var linkCheck = isValidHttpsLectureUrl(LictureLink_ID, LectureType_ID);
+        if (LictureLink_ID === "") {
+            if (LectureType_ID === "0" && fileCheck.hasFile && fileCheck.isPdf) {
+                $("#ElectureLinkError").text("ملف PDF المرفق مخصص للمرفقات التعليمية الإضافية فقط ولا يُعتبر بديلًا عن رابط فيديو المحاضرة المسجلة (HTTPS).").show();
+            } else {
+                $("#ElectureLinkError").text("").hide();
+            }
+        } else if (!linkCheck.valid) {
+            if (linkCheck.reason === "pdf_link") {
+                $("#ElectureLinkError").text("ملف PDF لا يُعتبر مصدرًا للمحاضرة؛ يرجى إدخال رابط محاضرة أو فيديو صالح بصيغة HTTPS.").show();
+            } else {
+                $("#ElectureLinkError").text("يرجى إدخال رابط HTTPS صالح ومكتمل (مثال: https://...).").show();
+            }
+        } else {
+            $("#ElectureLinkError").text("").hide();
+        }
+
+        var isValid = false;
+        if (LectureType_ID === "1") {
+            isValid = (LectureName_ID !== "" && DateTime_ID !== "" && linkCheck.valid && fileCheck.validAttachment);
+        } else {
+            isValid = (LectureName_ID !== "" && (linkCheck.valid || hasSupportedVideoFile) && fileCheck.validAttachment);
+        }
+
+        document.getElementById("btnUpdate").disabled = !isValid;
     }
 
     function GetLecture() {
 
-        $("#LectureDIV_ID").hide();
+        $("#LectureDIV_ID").show();
         $("#LectureDivMiniTime_ID").hide();
         $("#ELectureDivMiniTime_ID").hide();
         $("#UploadFileDiv_ID").show();
         $("#LinkDIV_ID").hide();
 
-        $("#ELectureDIV_ID").hide();
+        $("#ELectureDIV_ID").show();
         $("#EUploadFileDiv_ID").show();
         $("#ELinkDIV_ID").hide();
         var cat_ID = $("#CategoryID").val();
@@ -503,11 +652,16 @@
                             '<td>' + data[i].Lecture_Name + '</td>' +
                             '<td>' + data[i].NameAr + '</td>';
                         if (data[i].LectureTypeOnOff == 1) {
-                            s += '<td>مباشر</td>' +
-                                '<td><a href="' + data[i].LectureLink_Host + '" target="_blank"> للمحاضر  </a>/<a href="' + data[i].LectureLink_Client + '"target="_blank">  للطالب </a></td>';
+                            if (data[i].LectureLink_Host) {
+                                s += '<td>مباشر</td>' +
+                                    '<td><a href="' + data[i].LectureLink_Host + '" target="_blank"> للمحاضر  </a>/<a href="' + data[i].LectureLink_Client + '" target="_blank">  للطالب </a></td>';
+                            } else {
+                                s += '<td>مباشر</td>' +
+                                    '<td><a href="' + data[i].LectureLink_Client + '" target="_blank"> رابط المحاضرة المباشرة </a></td>';
+                            }
                         } else {
                             s += '<td>مسجلة</td>' +
-                                '<td><a href="' + data[i].LectureLink_Client + '" target="_blank"> رابط المحاضرة  </a></td>';
+                                '<td><a href="' + (data[i].LectureLink_Client || '#') + '" target="_blank"> رابط المحاضرة المسجلة </a></td>';
                         }
 
                         s += '<td>' +
@@ -579,48 +733,45 @@
 
 
     $('#btnSave').click(function () {
+        validationAdd();
+        if (document.getElementById("btnSave").disabled) {
+            alert("يرجى استكمال الحقول المطلوبة وإدخال رابط HTTPS صالح للمحاضرة.");
+            return;
+        }
 
         var fd = new FormData();
 
-        var Lecture_Name = $("#LectureName_ID").val();
+        var Lecture_Name = ($("#LectureName_ID").val() || "").trim();
         var Category_ID = $("#CategoryID").val();
         var LectureTypeOnOff = $("#LectureType_ID").val();
-      //  var LectureLink = $("#LictureLink_ID").val();
-        //var LictureLink_ID = $("#LictureLink_ID").val();
-        var check = $("#LictureLink_ID").val();
-        var LectureLink = "";
-
+        var check = ($("#LictureLink_ID").val() || "").trim();
+        var LectureLink = extractLectureUrl(check, LectureTypeOnOff);
 
         var MediaLink = $("#otherLink_ID").val();
         var Description = $("#Description_ID").val();
         var LictureMiniTime_ID = $("#LictureMiniTime_ID").val();
 
         var DayandTime = null;
-        if (LectureTypeOnOff == 1) {
+        if (LectureTypeOnOff == "1") {
             DayandTime = $("#DateTime_ID").val();
-        } else {
-            let result = check.includes("iframe");
-            if (result) {
-                var $test = $($("#LictureLink_ID").val());
-                LectureLink = $test.filter(':first').prop('src');
-            } else {
-                alert("رابط الفيديو غير صالح");
-
-                return false;
-            }
         }
         var PC_File = $('#UploadFile_ID')[0].files[0];
+        var token = $('input[name="__RequestVerificationToken"]').val();
+        fd.append('__RequestVerificationToken', token);
         fd.append('LectureMinTime', LictureMiniTime_ID);
         fd.append('Lecture_Name', Lecture_Name);
         fd.append('Category_ID', Category_ID);
         fd.append('DayandTime', DayandTime);
+        fd.append('LectureLink', LectureLink);
         fd.append('LectureLink_Client', LectureLink);
         fd.append('LectureTypeOnOff', LectureTypeOnOff);
         fd.append('MediaLink', MediaLink);
         fd.append('Others', Description);
-        fd.append('DocumentFileUpload', PC_File);
-        $("div.spanner").addClass("show");
-        $("div.overlay").addClass("show");
+        if (PC_File) {
+            fd.append('DocumentFileUpload', PC_File);
+        }
+        $("div.spanner").removeClass("hide").addClass("show");
+        $("div.overlay").removeClass("hide").addClass("show");
         $.ajax(
             {
                 async: true,
@@ -631,69 +782,68 @@
 
                 url: '@Url.Action("CreateLectuer", "Controlpanel")',
                 success: function (data) {
-                    $("div.spanner").addClass("hide");
-                    $("div.overlay").addClass("hide");
+                    $("div.spanner").removeClass("show").addClass("hide");
+                    $("div.overlay").removeClass("show").addClass("hide");
                     if (data.success == true) {
                         window.location.reload();
                     } else {
-                        //console.log(data.responseText);
                         alert(data.responseText);
                     }
                 },
                 error: function (response) {
-                    //console.log(response.responseText);
                     alert(response.responseText);
                 },
                 complete: function (response) {
-                    $("div.spanner").addClass("hide");
-                    $("div.overlay").addClass("hide");
+                    $("div.spanner").removeClass("show").addClass("hide");
+                    $("div.overlay").removeClass("show").addClass("hide");
                 }
             });
     });
 
     $('#btnUpdate').click(function () {
-        $("div.spanner").addClass("show");
-        $("div.overlay").addClass("show");
-        var fd = new FormData();
-        var EditID = $("#EditID").val();
-        var Lecture_Name = $("#ELectureName_ID").val();
-        var Category_ID = $("#CategoryID").val();
-       var ELectureType_ID = $("#ELectureType_ID").val();
-
-
-
-
-
-        var check = $("#ELictureLink_ID").val();
-        var LectureLink = "";
-        let result = check.includes("iframe");
-        if (result) {
-            var $test1 = $($("#ELictureLink_ID").val());
-
-            var LectureLink = $test1.filter(':first').prop('src');
-        } else {
-            LectureLink = check;
+        validationEdit();
+        if (document.getElementById("btnUpdate").disabled) {
+            alert("يرجى استكمال الحقول المطلوبة وإدخال رابط HTTPS صالح للمحاضرة.");
+            return;
         }
 
-        var EDateTime_ID = $("#EDateTime_ID").val();
+        $("div.spanner").removeClass("hide").addClass("show");
+        $("div.overlay").removeClass("hide").addClass("show");
+        var fd = new FormData();
+        var EditID = $("#EditID").val();
+        var Lecture_Name = ($("#ELectureName_ID").val() || "").trim();
+        var Category_ID = $("#CategoryID").val();
+        var ELectureType_ID = $("#ELectureType_ID").val();
+
+        var check = ($("#ELictureLink_ID").val() || "").trim();
+        var LectureLink = extractLectureUrl(check, ELectureType_ID);
+
+        var DayandTime = null;
+        if (ELectureType_ID == "1") {
+            DayandTime = $("#EDateTime_ID").val();
+        }
 
         var MediaLink = $("#EotherLink_ID").val();
         var Description = $("#EDescription_ID").val();
         var LictureMiniTime_ID = $("#ELictureMiniTime_ID").val();
 
-
         var PC_File = $('#EUploadFile_ID')[0].files[0];
+        var token = $('input[name="__RequestVerificationToken"]').val();
 
+        fd.append('__RequestVerificationToken', token);
         fd.append('ID', EditID);
         fd.append('Lecture_Name', Lecture_Name);
         fd.append('Category_ID', Category_ID);
-        fd.append('DayandTime', EDateTime_ID);
+        fd.append('DayandTime', DayandTime);
         fd.append('LectureMinTime', LictureMiniTime_ID);
+        fd.append('LectureLink', LectureLink);
         fd.append('LectureLink_Client', LectureLink);
         fd.append('LectureTypeOnOff', ELectureType_ID);
         fd.append('MediaLink', MediaLink);
         fd.append('Others', Description);
-        fd.append('DocumentFileUpload', PC_File);
+        if (PC_File) {
+            fd.append('DocumentFileUpload', PC_File);
+        }
         $.ajax(
             {
                 async: true,
@@ -703,8 +853,8 @@
                 processData: false,
                 url: '@Url.Action("EditLectuer", "Controlpanel")',
                 success: function (data) {
-                    $("div.spanner").addClass("hide");
-                    $("div.overlay").addClass("hide");
+                    $("div.spanner").removeClass("show").addClass("hide");
+                    $("div.overlay").removeClass("show").addClass("hide");
                     if (data.success) {
                         window.location.reload();
                     } else {
@@ -716,8 +866,8 @@
                     alert(response.responseText);
                 },
                 complete: function (response) {
-                    $("div.spanner").addClass("hide");
-                    $("div.overlay").addClass("hide");
+                    $("div.spanner").removeClass("show").addClass("hide");
+                    $("div.overlay").removeClass("show").addClass("hide");
                 }
             });
     });
@@ -731,8 +881,6 @@
                 data: { id: Lecture_ID },
                 url: '@Url.Action("EditLecture", "Controlpanel")',
                 success: function (data) {
-                    TypeChangeEdit(data.LectureTypeOnOff);
-
                     $("#EditID").val(data.ID);
                     $("#CategoryID").val(data.Category_ID);
                     $("#EDateTime_ID").val(data.DayandTime);
@@ -743,7 +891,15 @@
                     $("#EotherLink_ID").val(data.MediaLink);
                     $("#EDescription_ID").val(data.Others);
                     $("#ELectureType_ID").val(data.LectureTypeOnOff);
+                    $("#EUploadFile_ID").val("");
 
+                    if (data.DocumenFile) {
+                        $("#existingDocFileHint").text("المرفق التعليمي المحفوظ حاليًا: " + data.DocumenFile + " (لا يلزم إعادة رفعه عند التعديل)").show();
+                    } else {
+                        $("#existingDocFileHint").text("").hide();
+                    }
+
+                    TypeChangeEdit(data.LectureTypeOnOff);
                 },
                 error: function (response) {
                     alert("the problem is " + response.responseText);
@@ -772,13 +928,14 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
+                var token = $('input[name="__RequestVerificationToken"]').val();
                 $.ajax(
                     {
                         async: true,
                         type: 'POST',
                         //dataType: 'JSON',
                         //contentType: 'application/json; charset=utf=8',
-                        data: { ID: ID },
+                        data: { ID: ID, __RequestVerificationToken: token },
                         url: '@Url.Action("DeleteLecture", "Controlpanel")',
                         success: function (data) {
                             swalWithBootstrapButtons.fire(
@@ -814,53 +971,76 @@
 
     }
     function TypeChange(Type_ID) {
-        validationAdd();
-        if (Type_ID == 1) {
+        if (String(Type_ID) === "1") {
             $("#DivTime_ID").show();
-            //$("#DivGenerate_ID").show();
-            $("#LectureDIV_ID").hide();
+            $("#DateTime_ID").prop("required", true);
+            $("#reqDateTimeStar").show();
+            $("#LectureDIV_ID").show();
             $("#LectureDivMiniTime_ID").hide();
+            $("#LictureMiniTime_ID").prop("required", false);
+            $("#lblLectureLink").text("رابط المحاضرة المباشرة");
+            $("#LictureLink_ID").attr("placeholder", "مثال: Zoom, Google Meet, Teams, Webex أو أي منصة برابط HTTPS");
+            $("#lectureLinkHint").text("مطلوب: أدخل رابط الجلسة المباشرة بصيغة HTTPS (مثل Zoom أو Google Meet أو Teams).");
         }
         else {
             $("#DivTime_ID").hide();
-            //$("#DivGenerate_ID").hide();
+            $("#DateTime_ID").prop("required", false);
+            $("#reqDateTimeStar").hide();
             $("#LectureDIV_ID").show();
             $("#LectureDivMiniTime_ID").show();
+            $("#LictureMiniTime_ID").prop("required", true);
+            $("#lblLectureLink").text("رابط فيديو المحاضرة المسجلة");
+            $("#LictureLink_ID").attr("placeholder", "مثال: YouTube, Google Drive, Vimeo أو أي مصدر فيديو برابط HTTPS");
+            $("#lectureLinkHint").text("مطلوب: أدخل رابط الفيديو المسجل بصيغة HTTPS. (رفع ملف الفيديو غير مدعوم حاليًا؛ حقل الملف أدناه مخصص لمرفقات PDF الإضافية فقط).");
         }
+        validationAdd();
     }
     function TypeChangeEdit(Type_ID) {
-        if (Type_ID == 1) {
+        if (String(Type_ID) === "1") {
             $("#EDivTime_ID").show();
+            $("#EDateTime_ID").prop("required", true);
+            $("#EreqDateTimeStar").show();
+            $("#ELectureDIV_ID").show();
             $("#ELectureDivMiniTime_ID").hide();
-
-            //$("#EDivGenerate_ID").show();
-            $("#ELectureDIV_ID").hide();
+            $("#ELictureMiniTime_ID").prop("required", false);
+            $("#ElblLectureLink").text("رابط المحاضرة المباشرة");
+            $("#ELictureLink_ID").attr("placeholder", "مثال: Zoom, Google Meet, Teams, Webex أو أي منصة برابط HTTPS");
+            $("#ElectureLinkHint").text("مطلوب: أدخل رابط الجلسة المباشرة بصيغة HTTPS (مثل Zoom أو Google Meet أو Teams).");
         }
         else {
             $("#EDivTime_ID").hide();
+            $("#EDateTime_ID").prop("required", false);
+            $("#EreqDateTimeStar").hide();
             $("#ELectureDivMiniTime_ID").show();
-            //$("#EDivGenerate_ID").hide();
             $("#ELectureDIV_ID").show();
+            $("#ELictureMiniTime_ID").prop("required", true);
+            $("#ElblLectureLink").text("رابط فيديو المحاضرة المسجلة");
+            $("#ELictureLink_ID").attr("placeholder", "مثال: YouTube, Google Drive, Vimeo أو أي مصدر فيديو برابط HTTPS");
+            $("#ElectureLinkHint").text("مطلوب: أدخل رابط الفيديو المسجل بصيغة HTTPS. (رفع ملف الفيديو غير مدعوم حاليًا؛ حقل الملف أدناه مخصص لمرفقات PDF الإضافية فقط).");
         }
+        validationEdit();
     }
-    function FileType(FileType) {
-        validationAdd();
-        if (FileType == 1) {
-            //$("#Categories_ID").disabled = true;
-
+    function FileType(FileTypeVal) {
+        if (String(FileTypeVal) === "1") {
             $("#UploadFileDiv_ID").show();
             $("#LinkDIV_ID").hide();
-
-            $("#EUploadFileDiv_ID").show();
-            $("#ELinkDIV_ID").hide();
-
         }
         else {
             $("#UploadFileDiv_ID").hide();
             $("#LinkDIV_ID").show();
+        }
+        validationAdd();
+    }
+    function FileTypeEdit(FileTypeVal) {
+        if (String(FileTypeVal) === "1") {
+            $("#EUploadFileDiv_ID").show();
+            $("#ELinkDIV_ID").hide();
+        }
+        else {
             $("#EUploadFileDiv_ID").hide();
             $("#ELinkDIV_ID").show();
         }
+        validationEdit();
     }
 
     function addassignment(lectur_ID) {

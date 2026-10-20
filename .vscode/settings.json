@@ -1,0 +1,17 @@
+{
+    "dotnet.preferCSharpExtension": true,
+    "files.encoding": "utf8bom",
+    "files.autoGuessEncoding": false,
+    "[razor]": {
+        "files.encoding": "utf8bom"
+    },
+    "[html]": {
+        "files.encoding": "utf8bom"
+    },
+    "[csharp]": {
+        "files.encoding": "utf8bom"
+    },
+    "[powershell]": {
+        "files.encoding": "utf8bom"
+    }
+}
