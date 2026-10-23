@@ -1,8 +1,8 @@
-﻿@model IEnumerable<tabseetCourse.Models.LectureModel>
+@model IEnumerable<tabseetCourse.Models.LectureModel>
 @using System.Globalization
 
 @{
-    ViewBag.Title = "جدول حصصي - أكاديمية تبسيط الدولية";
+    ViewBag.Title = "جدول الحصص - أكاديمية تبسيط الدولية";
     Layout = "~/Views/Shared/_LayoutStudent.cshtml";
 }
 
@@ -18,6 +18,9 @@
         public DateTime StartDateTime { get; set; }
         public string DateKey { get; set; }
         public string TimeText { get; set; }
+        public int DurationMinutes { get; set; }
+        public string EndTimeText { get; set; }
+        public string TimeRangeText { get; set; }
         public int Year { get; set; }
         public int Month { get; set; }
         public int Day { get; set; }
@@ -29,6 +32,8 @@
         public string StatusLabel { get; set; }
         public bool IsValidHttpsLink { get; set; }
         public string SafeClientLink { get; set; }
+        public bool HasMediaLink { get; set; }
+        public string MediaLink { get; set; }
         public bool HasDocument { get; set; }
         public string DocumentFileName { get; set; }
         public string SafeDocumentUrl { get; set; }
@@ -152,6 +157,18 @@
             entry.SafeDocumentUrl = "";
         }
 
+        entry.DurationMinutes = item.LectureMinTime;
+        if (!string.IsNullOrWhiteSpace(item.MediaLink))
+        {
+            entry.HasMediaLink = true;
+            entry.MediaLink = item.MediaLink.Trim();
+        }
+        else
+        {
+            entry.HasMediaLink = false;
+            entry.MediaLink = "";
+        }
+
         // تحليل التاريخ والوقت بشكل آمن دون تخمين أو تغيير المنطقة الزمنية
         DateTime parsedDt = DateTime.MinValue;
         bool isDateValid = false;
@@ -178,6 +195,17 @@
             entry.Minute = parsedDt.Minute;
             entry.DateKey = parsedDt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             entry.TimeText = parsedDt.ToString("HH:mm", CultureInfo.InvariantCulture);
+            if (entry.DurationMinutes > 0)
+            {
+                DateTime endDt = parsedDt.AddMinutes(entry.DurationMinutes);
+                entry.EndTimeText = endDt.ToString("HH:mm", CultureInfo.InvariantCulture);
+                entry.TimeRangeText = entry.TimeText + " – " + entry.EndTimeText;
+            }
+            else
+            {
+                entry.EndTimeText = "";
+                entry.TimeRangeText = entry.TimeText;
+            }
             entry.DayColIndex = GetArabicWeekDayIndex(parsedDt.DayOfWeek);
             entry.DayNameAr = GetArabicDayName(parsedDt.DayOfWeek);
 
@@ -203,6 +231,8 @@
             entry.StartDateTime = DateTime.MinValue;
             entry.DateKey = "";
             entry.TimeText = "";
+            entry.EndTimeText = "";
+            entry.TimeRangeText = "";
             entry.DayColIndex = -1;
             entry.DayNameAr = "";
             entry.StatusKey = "unscheduled";
@@ -297,6 +327,67 @@
         margin: 0 auto;
         padding: 0 20px;
         width: 100%;
+    }
+
+    /* شريط التبويب والتنقل بين المواد والجدول */
+    .tt-page-tabs {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 18px;
+        background: #FFFFFF;
+        padding: 6px 10px;
+        border-radius: 14px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 2px 8px rgba(17, 52, 100, 0.04);
+    }
+
+    .tt-page-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none !important;
+        color: #475569;
+        transition: all 0.2s ease;
+        background: transparent;
+    }
+
+    .tt-page-tab:hover {
+        background: #F1F5F9;
+        color: #113464;
+    }
+
+    .tt-page-tab.is-active {
+        background: linear-gradient(135deg, #113464 0%, #1E4E8C 100%);
+        color: #FFFFFF !important;
+        box-shadow: 0 3px 10px rgba(17, 52, 100, 0.16);
+    }
+
+    .tt-page-tab.is-active i {
+        color: #C5A052;
+    }
+
+    .tt-video-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 7px 14px;
+        background: #059669;
+        color: #FFFFFF !important;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none !important;
+        transition: background 0.2s ease;
+    }
+
+    .tt-video-btn:hover {
+        background: #047857;
     }
 
     /* رأس الصفحة والملخص */
@@ -1452,19 +1543,83 @@
             border-top: 1px solid #F1F5F9;
         }
     }
+    /* جدول مبسط: الساعة + اسم المادة فقط. تفاصيل المحاضرة في النافذة. */
+    #studentTimetable .tt-lecture-card,
+    #studentTimetable .tt-mobile-lec-card {
+        cursor: pointer;
+    }
+    #studentTimetable .tt-lecture-card:focus-visible,
+    #studentTimetable .tt-mobile-lec-card:focus-visible,
+    #studentTimetable .tt-subject-choice:focus-visible,
+    #studentTimetable .tt-subject-lesson:focus-visible {
+        outline: 3px solid #C5A052;
+        outline-offset: 3px;
+    }
+    #studentTimetable .tt-lecture-card .tt-status-badge,
+    #studentTimetable .tt-lecture-card .tt-card-title,
+    #studentTimetable .tt-lecture-card .tt-card-footer,
+    #studentTimetable .tt-mobile-lec-card .tt-status-badge,
+    #studentTimetable .tt-mobile-lec-card .tt-side-lec-title,
+    #studentTimetable .tt-mobile-lec-card .tt-card-footer,
+    #studentTimetable .tt-mobile-lec-card .tt-side-lec-meta span:first-child {
+        display: none;
+    }
+    #studentTimetable .tt-lecture-card .tt-card-course,
+    #studentTimetable .tt-mobile-lec-card .tt-card-course {
+        overflow-wrap: anywhere;
+        font-weight: 800;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    #studentTimetable .tt-lecture-card .tt-card-top {
+        justify-content: flex-start;
+    }
+    #studentTimetable .tt-lesson-modal[hidden] { display: none !important; }
+    #studentTimetable .tt-lesson-modal {
+        position: fixed; inset: 0; z-index: 10050; display: flex; align-items: center;
+        justify-content: center; padding: 16px; direction: rtl;
+    }
+    #studentTimetable .tt-modal-shade { position: absolute; inset: 0; background: rgba(10, 26, 48, .64); }
+    #studentTimetable .tt-modal-panel {
+        position: relative; z-index: 1; width: min(100%, 520px); max-height: min(85vh, 750px);
+        overflow-y: auto; border-radius: 18px; padding: 25px; background: #fff;
+        box-shadow: 0 22px 65px rgba(0, 0, 0, .18); color: #113464;
+    }
+    #studentTimetable .tt-modal-close { float: left; background: #F1F5F9; color: #113464; border: 0; border-radius: 50%; width: 34px; height: 34px; cursor: pointer; font-size: 21px; }
+    #studentTimetable .tt-modal-course { color: #946B20; font-weight: 800; font-size: 14px; }
+    #studentTimetable .tt-modal-panel h2 { color: #113464; font-size: 21px; margin: 12px 0; line-height: 1.6; }
+    #studentTimetable .tt-modal-meta { display: grid; gap: 9px; padding: 15px; background: #F8FAFC; border-radius: 12px; color: #475569; font-size: 14px; }
+    #studentTimetable .tt-modal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    #studentTimetable .tt-modal-actions a { flex: 1 1 165px; justify-content: center; text-align: center; text-decoration: none; }
+    #studentTimetable .tt-modal-unavailable { color: #64748B; font-size: 13px; padding: 8px 0; }
+    @@media (max-width: 767px) {
+        #studentTimetable .tt-modal-panel { padding: 18px; }
+    }
 </style>
 
 <div id="studentTimetable" class="sec_content padding_menu" dir="rtl">
     <div class="tt-container">
+
+        <!-- التنقل السريع بين المواد الدراسية وجدول الحصص -->
+        <nav class="tt-page-tabs" aria-label="أقسام واجهة الطالب">
+            <a href="@Url.Action("StdSubjects", "Students")" class="tt-page-tab">
+                <i class="fas fa-book-open"></i>
+                <span>المواد الدراسية</span>
+            </a>
+            <a href="@Url.Action("StdonlineCourse", "Students")" class="tt-page-tab is-active" aria-current="page">
+                <i class="fas fa-calendar-alt"></i>
+                <span>جدول الحصص</span>
+            </a>
+        </nav>
 
         <!-- A. عنوان الصفحة والملخص -->
         <header class="tt-page-header">
             <div class="tt-header-info">
                 <div class="tt-title-row">
                     <span class="tt-title-icon"><i class="fas fa-calendar-alt"></i></span>
-                    <h1 class="tt-page-title">جدول حصصي</h1>
+                    <h1 class="tt-page-title">جدول الحصص</h1>
                 </div>
-                <p class="tt-page-subtitle">تابع مواعيد محاضراتك المباشرة والحصص القادمة والسابقة.</p>
+                <p class="tt-page-subtitle">التقويم والمواعيد الأسبوعية لجميع حصصك الدراسية.</p>
             </div>
 
             <div class="tt-summary-stats">
@@ -1684,7 +1839,7 @@
                                 <i class="fas fa-chevron-right"></i> الأسبوع السابق
                             </button>
                             <button type="button" class="tt-nav-btn tt-nav-btn-current" id="ttBtnCurrentWeek">
-                                العودة إلى الأسبوع الحالي
+                                <i class="fas fa-calendar-day"></i> العودة إلى اليوم
                             </button>
                             <button type="button" class="tt-nav-btn" id="ttBtnNextWeek">
                                 الأسبوع التالي <i class="fas fa-chevron-left"></i>
@@ -1737,10 +1892,9 @@
                                                         @foreach (var sLec in slotLectures)
                                                         {
                                                             string statusCls = sLec.StatusKey == "past" ? "tt-status-past" : (sLec.StatusKey == "ongoing" ? "tt-status-ongoing" : "tt-status-upcoming");
-                                                            <article class="tt-lecture-card @sLec.ThemeClass" data-lecture-id="@sLec.ID">
+                                                            <article class="tt-lecture-card @sLec.ThemeClass" data-lecture-id="@sLec.ID" tabindex="0" role="button" aria-label="عرض تفاصيل حصة @sLec.CourseName">
                                                                 <div class="tt-card-top">
-                                                                    <span class="tt-card-time"><i class="far fa-clock"></i> @sLec.TimeText</span>
-                                                                    <span class="tt-status-badge @statusCls">@sLec.StatusLabel</span>
+                                                                    <span class="tt-card-time"><i class="far fa-clock"></i> @sLec.TimeRangeText</span>
                                                                 </div>
                                                                 <div class="tt-card-course">@sLec.CourseName</div>
                                                                 <h3 class="tt-card-title" title="@sLec.LectureName">@sLec.LectureName</h3>
@@ -1799,15 +1953,14 @@
                                 foreach (var mLec in currentWeekLectures)
                                 {
                                     string mStatusCls = mLec.StatusKey == "past" ? "tt-status-past" : (mLec.StatusKey == "ongoing" ? "tt-status-ongoing" : "tt-status-upcoming");
-                                    <article class="tt-mobile-lec-card @mLec.ThemeClass" data-day-index="@mLec.DayColIndex">
+                                    <article class="tt-mobile-lec-card @mLec.ThemeClass" data-day-index="@mLec.DayColIndex" data-lecture-id="@mLec.ID" tabindex="0" role="button" aria-label="عرض تفاصيل حصة @mLec.CourseName">
                                         <div class="tt-card-top">
                                             <span class="tt-card-course">@mLec.CourseName</span>
-                                            <span class="tt-status-badge @mStatusCls">@mLec.StatusLabel</span>
                                         </div>
                                         <h3 class="tt-side-lec-title">@mLec.LectureName</h3>
                                         <div class="tt-side-lec-meta">
                                             <span><i class="far fa-calendar"></i> @mLec.DayNameAr، @mLec.DateKey</span>
-                                            <span style="direction: ltr;"><i class="far fa-clock"></i> @mLec.TimeText</span>
+                                            <span style="direction: ltr;"><i class="far fa-clock"></i> @mLec.TimeRangeText</span>
                                         </div>
                                         <div class="tt-card-footer">
                                             @if (mLec.IsValidHttpsLink)
@@ -1967,6 +2120,22 @@
             </main>
         </div>
 
+        <!-- تفاصيل الحصة: لا يغادر الطالب الصفحة، وروابطها الأصلية تفتح من النافذة -->
+        <div id="ttLessonModal" class="tt-lesson-modal" role="dialog" aria-modal="true" aria-labelledby="ttModalTitle" hidden>
+            <div class="tt-modal-shade" data-tt-modal-close="1"></div>
+            <div class="tt-modal-panel" id="ttModalPanel" tabindex="-1" role="document">
+                <button type="button" id="ttModalClose" class="tt-modal-close" aria-label="إغلاق التفاصيل" data-tt-modal-close="1">×</button>
+                <div id="ttModalSubject" class="tt-modal-course"></div>
+                <h2 id="ttModalTitle"></h2>
+                <div class="tt-modal-meta">
+                    <div><strong>التاريخ:</strong> <span id="ttModalDate"></span></div>
+                    <div><strong>الساعة:</strong> <span id="ttModalTime"></span></div>
+                    <div><strong>الحالة:</strong> <span id="ttModalStatus"></span></div>
+                </div>
+                <div id="ttModalActions" class="tt-modal-actions"></div>
+            </div>
+        </div>
+
         <!-- مخزن بيانات آمن للقراءة من JavaScript دون أي طلبات خادم إضافية -->
         <div id="ttLecturesDataset" style="display:none;" aria-hidden="true" data-today="@todayKey">
             @foreach (var entry in allEntries)
@@ -1980,6 +2149,8 @@
                      data-valid-date="@(entry.HasValidDate ? "1" : "0")"
                      data-date-key="@entry.DateKey"
                      data-time-text="@entry.TimeText"
+                     data-end-time="@entry.EndTimeText"
+                     data-time-range="@entry.TimeRangeText"
                      data-year="@entry.Year"
                      data-month="@entry.Month"
                      data-day="@entry.Day"
@@ -1991,6 +2162,8 @@
                      data-status-label="@entry.StatusLabel"
                      data-valid-link="@(entry.IsValidHttpsLink ? "1" : "0")"
                      data-link="@entry.SafeClientLink"
+                     data-has-media="@(entry.HasMediaLink ? "1" : "0")"
+                     data-media-link="@entry.MediaLink"
                      data-has-doc="@(entry.HasDocument ? "1" : "0")"
                      data-doc-name="@entry.DocumentFileName"
                      data-doc-url="@entry.SafeDocumentUrl"
@@ -2184,12 +2357,15 @@
 
                 lectures.push({
                     id: node.getAttribute("data-id") || "",
+                    categoryId: node.getAttribute("data-category-id") || "",
                     name: node.getAttribute("data-name") || "",
                     course: node.getAttribute("data-course") || "",
                     validDate: isDateValid,
                     dateObj: dateObj,
                     dateKey: dateKey,
                     timeText: timeText,
+                    timeRangeText: node.getAttribute("data-time-range") || timeText,
+                    endTimeText: node.getAttribute("data-end-time") || "",
                     hour: hour,
                     minute: minute,
                     dayCol: dayCol,
@@ -2198,6 +2374,8 @@
                     statusLabel: isDateValid ? (node.getAttribute("data-status-label") || "قادمة") : "موعد غير محدد",
                     validLink: validLink,
                     link: validLink ? rawLink : "",
+                    hasMedia: node.getAttribute("data-has-media") === "1",
+                    mediaLink: node.getAttribute("data-media-link") || "",
                     hasDoc: node.getAttribute("data-has-doc") === "1",
                     docName: node.getAttribute("data-doc-name") || "",
                     docUrl: node.getAttribute("data-doc-url") || "",
@@ -2404,6 +2582,9 @@
                                     var card = document.createElement("article");
                                     card.className = "tt-lecture-card " + item.theme;
                                     card.setAttribute("data-lecture-id", item.id);
+                                    card.setAttribute("tabindex", "0");
+                                    card.setAttribute("role", "button");
+                                    card.setAttribute("aria-label", "عرض تفاصيل حصة " + item.course);
 
                                     var topDiv = document.createElement("div");
                                     topDiv.className = "tt-card-top";
@@ -2413,14 +2594,9 @@
                                     var cIcon = document.createElement("i");
                                     cIcon.className = "far fa-clock";
                                     timeSpan.appendChild(cIcon);
-                                    timeSpan.appendChild(document.createTextNode(" " + item.timeText));
-
-                                    var badgeSpan = document.createElement("span");
-                                    badgeSpan.className = getStatusBadgeClass(item.statusKey);
-                                    badgeSpan.textContent = item.statusLabel;
+                                    timeSpan.appendChild(document.createTextNode(" " + (item.timeRangeText || item.timeText)));
 
                                     topDiv.appendChild(timeSpan);
-                                    topDiv.appendChild(badgeSpan);
 
                                     var courseDiv = document.createElement("div");
                                     courseDiv.className = "tt-card-course";
@@ -2524,17 +2700,17 @@
                             var mItem = filteredMobile[mc];
                             var mCard = document.createElement("article");
                             mCard.className = "tt-mobile-lec-card " + mItem.theme;
+                            mCard.setAttribute("data-lecture-id", mItem.id);
+                            mCard.setAttribute("tabindex", "0");
+                            mCard.setAttribute("role", "button");
+                            mCard.setAttribute("aria-label", "عرض تفاصيل حصة " + mItem.course);
 
                             var mTop = document.createElement("div");
                             mTop.className = "tt-card-top";
                             var mCourse = document.createElement("span");
                             mCourse.className = "tt-card-course";
                             mCourse.textContent = mItem.course;
-                            var mBadge = document.createElement("span");
-                            mBadge.className = getStatusBadgeClass(mItem.statusKey);
-                            mBadge.textContent = mItem.statusLabel;
                             mTop.appendChild(mCourse);
-                            mTop.appendChild(mBadge);
 
                             var mTitle = document.createElement("h3");
                             mTitle.className = "tt-side-lec-title";
@@ -2546,7 +2722,7 @@
                             mDateSpan.textContent = mItem.dayName + "، " + mItem.dateKey;
                             var mTimeSpan = document.createElement("span");
                             mTimeSpan.style.direction = "ltr";
-                            mTimeSpan.textContent = mItem.timeText;
+                            mTimeSpan.textContent = mItem.timeRangeText || mItem.timeText;
                             mMeta.appendChild(mDateSpan);
                             mMeta.appendChild(mTimeSpan);
 
@@ -2709,9 +2885,117 @@
                 });
             }
 
+            // تفاصيل الحصة: النافذة المنبثقة
+            function initLectureDetailsModal() {
+                var modal = document.getElementById("ttLessonModal");
+                var dialog = document.getElementById("ttModalPanel");
+                var modalTitle = document.getElementById("ttModalTitle");
+                var modalSubject = document.getElementById("ttModalSubject");
+                var modalDate = document.getElementById("ttModalDate");
+                var modalTime = document.getElementById("ttModalTime");
+                var modalStatus = document.getElementById("ttModalStatus");
+                var modalActions = document.getElementById("ttModalActions");
+                if (!modal || !dialog || !modalActions) return;
+
+                var oldFocus = null;
+
+                function findLecture(id) {
+                    for (var x = 0; x < lectures.length; x++) {
+                        if (lectures[x].id === id) return lectures[x];
+                    }
+                    return null;
+                }
+
+                function buildModalLink(label, url, className, iconClass) {
+                    if (!isSafeHttpsUrl(url)) return null;
+                    var a = document.createElement("a");
+                    a.href = url;
+                    a.target = "_blank";
+                    a.rel = "noopener noreferrer";
+                    a.className = className;
+                    if (iconClass) {
+                        var ic = document.createElement("i");
+                        ic.className = iconClass;
+                        a.appendChild(ic);
+                        a.appendChild(document.createTextNode(" "));
+                    }
+                    a.appendChild(document.createTextNode(label));
+                    return a;
+                }
+
+                function openLectureDetails(lec) {
+                    if (!lec) return;
+                    oldFocus = document.activeElement;
+                    modalSubject.textContent = lec.course;
+                    modalTitle.textContent = lec.name;
+                    modalDate.textContent = lec.validDate ? (lec.dayName + "، " + lec.dateKey) : "موعد غير محدد";
+                    modalTime.textContent = lec.validDate ? (lec.timeRangeText || lec.timeText) : "غير محددة";
+                    modalStatus.textContent = lec.statusLabel;
+                    while (modalActions.firstChild) modalActions.removeChild(modalActions.firstChild);
+
+                    var join = lec.validLink ? buildModalLink(lec.statusKey === "past" ? "فتح رابط الاجتماع المحفوظ" : "دخول المحاضرة", lec.link, "tt-join-btn", "fas fa-video") : null;
+                    if (join) {
+                        modalActions.appendChild(join);
+                    } else {
+                        var unavailable = document.createElement("span");
+                        unavailable.className = "tt-modal-unavailable";
+                        unavailable.textContent = "رابط المحاضرة المباشرة غير متوفر";
+                        modalActions.appendChild(unavailable);
+                    }
+
+                    if (lec.hasMedia && isSafeHttpsUrl(lec.mediaLink)) {
+                        var video = buildModalLink("مشاهدة الفيديو المسجل", lec.mediaLink, "tt-video-btn", "fas fa-play-circle");
+                        if (video) modalActions.appendChild(video);
+                    }
+
+                    if (lec.hasDoc && isSafeHttpsUrl(lec.docUrl)) {
+                        var doc = buildModalLink("فتح المرفق التعليمي", lec.docUrl, "tt-doc-link", "fas fa-paperclip");
+                        if (doc) modalActions.appendChild(doc);
+                    }
+
+                    modal.hidden = false;
+                    dialog.focus();
+                }
+
+                function closeLectureDetails() {
+                    if (modal.hidden) return;
+                    modal.hidden = true;
+                    if (oldFocus && document.contains(oldFocus) && typeof oldFocus.focus === "function") oldFocus.focus();
+                    oldFocus = null;
+                }
+
+                root.addEventListener("click", function (event) {
+                    var closeTarget = event.target.closest("[data-tt-modal-close]");
+                    if (closeTarget && modal.contains(closeTarget)) { closeLectureDetails(); return; }
+                    var target = event.target.closest(".tt-lecture-card, .tt-mobile-lec-card, .tt-side-lec-card, .tt-prev-row");
+                    if (!target || !root.contains(target) || event.target.closest("a")) return;
+                    openLectureDetails(findLecture(target.getAttribute("data-lecture-id")));
+                });
+
+                root.addEventListener("keydown", function (event) {
+                    if (event.key === "Escape" && !modal.hidden) { event.preventDefault(); closeLectureDetails(); return; }
+                    if (!modal.hidden && event.key === "Tab") {
+                        var focusable = modal.querySelectorAll('button:not([disabled]),a[href]');
+                        if (!focusable.length) { event.preventDefault(); dialog.focus(); return; }
+                        var first = focusable[0];
+                        var last = focusable[focusable.length - 1];
+                        if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog)) { event.preventDefault(); last.focus(); }
+                        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+                        return;
+                    }
+                    if (event.key !== "Enter" && event.key !== " ") return;
+                    var target = event.target.closest(".tt-lecture-card, .tt-mobile-lec-card, .tt-side-lec-card, .tt-prev-row");
+                    if (target && root.contains(target)) {
+                        event.preventDefault();
+                        openLectureDetails(findLecture(target.getAttribute("data-lecture-id")));
+                    }
+                });
+            }
+
             renderDesktopAndMobileWeek();
             renderMiniCalendar();
             renderUnscheduledLectures();
+            initLectureDetailsModal();
 
             function renderUnscheduledLectures() {
                 var unsec = document.getElementById("ttUnscheduledSection");

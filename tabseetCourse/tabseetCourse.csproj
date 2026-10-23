@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Microsoft.TypeScript.MSBuild.4.7.4\build\Microsoft.TypeScript.MSBuild.props" Condition="Exists('..\packages\Microsoft.TypeScript.MSBuild.4.7.4\build\Microsoft.TypeScript.MSBuild.props')" />
   <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
@@ -413,6 +413,7 @@
     <Compile Include="Models\ExamModel.cs" />
     <Compile Include="Models\Exam_Q_Model.cs" />
     <Compile Include="Models\LectureModel.cs" />
+    <Compile Include="Models\StudentSubjectsViewModel.cs" />
     <Compile Include="Models\QuestionsModel.cs" />
     <Compile Include="Models\Q_MatchingModel.cs" />
     <Compile Include="Models\Q_MultiChoiceModel.cs" />
@@ -9313,6 +9314,7 @@
     <Content Include="Views\Students\ShowSupDeploamCourse.cshtml" />
     <Content Include="Views\Students\LecturesStd.cshtml" />
     <Content Include="Views\Students\StdonlineCourse.cshtml" />
+    <Content Include="Views\Students\StdSubjects.cshtml" />
     <Content Include="Views\Students\AssignmentQuestion.cshtml" />
     <Content Include="Views\Students\Exams.cshtml" />
     <Content Include="Views\Students\Certfications.cshtml" />

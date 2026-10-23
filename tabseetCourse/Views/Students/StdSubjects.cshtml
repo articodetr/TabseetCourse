@@ -1,0 +1,1326 @@
+@model IEnumerable<tabseetCourse.Models.StudentSubjectItemModel>
+@using System.Globalization
+
+@{
+    ViewBag.Title = "المواد الدراسية - أكاديمية تبسيط الدولية";
+    Layout = "~/Views/Shared/_LayoutStudent.cshtml";
+
+    var courses = Model != null ? Model.ToList() : new List<tabseetCourse.Models.StudentSubjectItemModel>();
+    int totalCourses = courses.Count;
+    int totalLectures = courses.Sum(c => c.LectureCount);
+}
+
+@functions {
+    public static bool IsSafeHttpsUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        Uri uri;
+        return Uri.TryCreate(url.Trim(), UriKind.Absolute, out uri)
+            && uri != null
+            && string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase);
+    }
+}
+
+<style>
+    #studentSubjects {
+        float: left;
+        width: 100%;
+        min-height: 100vh;
+        background-color: #F8FAFC;
+        padding-top: 118px;
+        padding-bottom: 64px;
+        direction: rtl;
+        text-align: right;
+        font-family: 'Cairo', sans-serif;
+        color: #1E293B;
+        box-sizing: border-box;
+    }
+
+    #studentSubjects *,
+    #studentSubjects *::before,
+    #studentSubjects *::after {
+        box-sizing: border-box;
+    }
+
+    #studentSubjects .sub-container {
+        max-width: 1360px;
+        margin: 0 auto;
+        padding: 0 20px;
+        width: 100%;
+    }
+
+    /* شريط التبويب المشترك بين المواد والجدول */
+    .tt-page-tabs {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 18px;
+        background: #FFFFFF;
+        padding: 6px 10px;
+        border-radius: 14px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 2px 8px rgba(17, 52, 100, 0.04);
+    }
+
+    .tt-page-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none !important;
+        color: #475569;
+        transition: all 0.2s ease;
+        background: transparent;
+    }
+
+    .tt-page-tab:hover {
+        background: #F1F5F9;
+        color: #113464;
+    }
+
+    .tt-page-tab.is-active {
+        background: linear-gradient(135deg, #113464 0%, #1E4E8C 100%);
+        color: #FFFFFF !important;
+        box-shadow: 0 3px 10px rgba(17, 52, 100, 0.16);
+    }
+
+    .tt-page-tab.is-active i {
+        color: #C5A052;
+    }
+
+    /* رأس الصفحة والملخص */
+    #studentSubjects .sub-page-header {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 22px 26px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 18px;
+        box-shadow: 0 2px 10px rgba(17, 52, 100, 0.04);
+    }
+
+    #studentSubjects .sub-header-info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    #studentSubjects .sub-title-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    #studentSubjects .sub-title-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #113464 0%, #1E4E8C 100%);
+        color: #C5A052;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    #studentSubjects .sub-page-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #113464;
+        line-height: 1.3;
+    }
+
+    #studentSubjects .sub-page-subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: #64748B;
+        font-weight: 500;
+    }
+
+    #studentSubjects .sub-summary-stats {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    #studentSubjects .sub-stat-pill {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 18px;
+        border-radius: 12px;
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+    }
+
+    #studentSubjects .sub-stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    #studentSubjects .sub-stat-pill-navy .sub-stat-icon {
+        background: rgba(17, 52, 100, 0.1);
+        color: #113464;
+    }
+
+    #studentSubjects .sub-stat-pill-gold .sub-stat-icon {
+        background: rgba(197, 160, 82, 0.15);
+        color: #946B20;
+    }
+
+    #studentSubjects .sub-stat-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #studentSubjects .sub-stat-value {
+        font-size: 18px;
+        font-weight: 800;
+        color: #113464;
+        line-height: 1.2;
+    }
+
+    #studentSubjects .sub-stat-label {
+        font-size: 12px;
+        color: #64748B;
+        font-weight: 600;
+    }
+
+    /* شبكة المواد الدراسية */
+    #studentSubjects .sub-section-title-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        gap: 12px;
+    }
+
+    #studentSubjects .sub-section-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #113464;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #studentSubjects .sub-section-title i {
+        color: #C5A052;
+    }
+
+    #studentSubjects .sub-section-hint {
+        margin: 0;
+        font-size: 13px;
+        color: #64748B;
+    }
+
+    #studentSubjects .sub-courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 18px;
+        margin-bottom: 30px;
+    }
+
+    #studentSubjects .sub-course-card {
+        background: #FFFFFF;
+        border: 2px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 14px;
+        transition: all 0.25s ease;
+        cursor: pointer;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(17, 52, 100, 0.03);
+    }
+
+    #studentSubjects .sub-course-card:hover {
+        border-color: #C5A052;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(17, 52, 100, 0.08);
+    }
+
+    #studentSubjects .sub-course-card.is-active {
+        border-color: #113464;
+        background: #FDFEFE;
+        box-shadow: 0 8px 24px rgba(17, 52, 100, 0.12);
+    }
+
+    #studentSubjects .sub-course-card.is-active::after {
+        content: "المادة المحددة";
+        position: absolute;
+        top: -11px;
+        left: 20px;
+        background: #113464;
+        color: #FFFFFF;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: 20px;
+        box-shadow: 0 2px 6px rgba(17, 52, 100, 0.2);
+    }
+
+    #studentSubjects .sub-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    #studentSubjects .sub-course-icon-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(17, 52, 100, 0.08) 0%, rgba(30, 78, 140, 0.14) 100%);
+        color: #113464;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    #studentSubjects .sub-course-count-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #F1F5F9;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+
+    #studentSubjects .sub-course-name {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: #113464;
+        line-height: 1.4;
+    }
+
+    #studentSubjects .sub-course-teacher {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 13px;
+        color: #64748B;
+        font-weight: 600;
+    }
+
+    #studentSubjects .sub-course-teacher i {
+        color: #C5A052;
+    }
+
+    #studentSubjects .sub-course-action {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 12px;
+        border-top: 1px solid #F1F5F9;
+    }
+
+    #studentSubjects .sub-view-btn {
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 9px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        background: #F8FAFC;
+        color: #113464;
+        border: 1px solid #E2E8F0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    #studentSubjects .sub-course-card.is-active .sub-view-btn {
+        background: #113464;
+        color: #FFFFFF;
+        border-color: #113464;
+    }
+
+    #studentSubjects .sub-course-card:not(.is-active):hover .sub-view-btn {
+        background: #F1F5F9;
+        border-color: #CBD5E1;
+        color: #113464;
+    }
+
+    /* منطقة محاضرات المادة المحددة */
+    #studentSubjects .sub-lectures-panel {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 10px rgba(17, 52, 100, 0.04);
+        margin-bottom: 24px;
+    }
+
+    #studentSubjects .sub-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid #E2E8F0;
+        margin-bottom: 20px;
+    }
+
+    #studentSubjects .sub-panel-title-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    #studentSubjects .sub-panel-title {
+        margin: 0;
+        font-size: 19px;
+        font-weight: 700;
+        color: #113464;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #studentSubjects .sub-panel-title i {
+        color: #C5A052;
+    }
+
+    #studentSubjects .sub-panel-subtitle {
+        margin: 0;
+        font-size: 13px;
+        color: #64748B;
+    }
+
+    #studentSubjects .sub-filter-pills {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #F8FAFC;
+        padding: 4px 6px;
+        border-radius: 10px;
+        border: 1px solid #E2E8F0;
+    }
+
+    #studentSubjects .sub-filter-pill {
+        border: 0;
+        background: transparent;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748B;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    #studentSubjects .sub-filter-pill.is-active {
+        background: #113464;
+        color: #FFFFFF;
+    }
+
+    /* بطاقات المحاضرات */
+    #studentSubjects .sub-lectures-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    #studentSubjects .sub-lec-row {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-right: 4px solid #113464;
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+        transition: all 0.2s ease;
+    }
+
+    #studentSubjects .sub-lec-row:hover {
+        border-color: #CBD5E1;
+        border-right-color: #C5A052;
+        background: #F8FAFC;
+        box-shadow: 0 4px 12px rgba(17, 52, 100, 0.05);
+    }
+
+    #studentSubjects .sub-lec-main {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1 1 300px;
+    }
+
+    #studentSubjects .sub-lec-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    #studentSubjects .sub-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    #studentSubjects .sub-badge-live {
+        background: #EFF6FF;
+        color: #1D4ED8;
+    }
+
+    #studentSubjects .sub-badge-rec {
+        background: #F0FDF4;
+        color: #047857;
+    }
+
+    #studentSubjects .sub-badge-past {
+        background: #F1F5F9;
+        color: #475569;
+    }
+
+    #studentSubjects .sub-lec-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #113464;
+        line-height: 1.4;
+    }
+
+    #studentSubjects .sub-lec-meta {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: #64748B;
+        font-weight: 600;
+    }
+
+    #studentSubjects .sub-lec-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    #studentSubjects .sub-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none !important;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    #studentSubjects .sub-btn-join {
+        background: #113464;
+        color: #FFFFFF !important;
+    }
+
+    #studentSubjects .sub-btn-join:hover {
+        background: #1E4E8C;
+        color: #FFFFFF !important;
+    }
+
+    #studentSubjects .sub-btn-video {
+        background: #059669;
+        color: #FFFFFF !important;
+    }
+
+    #studentSubjects .sub-btn-video:hover {
+        background: #047857;
+        color: #FFFFFF !important;
+    }
+
+    #studentSubjects .sub-btn-doc {
+        background: #F8FAFC;
+        border-color: #CBD5E1;
+        color: #113464 !important;
+    }
+
+    #studentSubjects .sub-btn-doc:hover {
+        background: #F1F5F9;
+        border-color: #94A3B8;
+    }
+
+    #studentSubjects .sub-btn-details {
+        background: transparent;
+        color: #64748B !important;
+        border-color: #E2E8F0;
+    }
+
+    #studentSubjects .sub-btn-details:hover {
+        background: #F8FAFC;
+        color: #113464 !important;
+    }
+
+    /* الحالة الفارغة */
+    #studentSubjects .sub-empty-box {
+        padding: 48px 24px;
+        text-align: center;
+        background: #FFFFFF;
+        border: 2px dashed #CBD5E1;
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    #studentSubjects .sub-empty-box i {
+        font-size: 42px;
+        color: #94A3B8;
+        margin-bottom: 4px;
+    }
+
+    #studentSubjects .sub-empty-box h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #113464;
+    }
+
+    #studentSubjects .sub-empty-box p {
+        margin: 0;
+        font-size: 14px;
+        color: #64748B;
+        max-width: 420px;
+    }
+
+    /* النافذة المنبثقة للتفاصيل */
+    #studentSubjects .sub-modal[hidden] {
+        display: none !important;
+    }
+
+    #studentSubjects .sub-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 10050;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        direction: rtl;
+    }
+
+    #studentSubjects .sub-modal-shade {
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 26, 48, 0.65);
+    }
+
+    #studentSubjects .sub-modal-panel {
+        position: relative;
+        z-index: 1;
+        width: min(100%, 540px);
+        max-height: min(85vh, 750px);
+        overflow-y: auto;
+        border-radius: 18px;
+        padding: 26px;
+        background: #FFFFFF;
+        box-shadow: 0 22px 65px rgba(0, 0, 0, 0.2);
+        color: #113464;
+        text-align: right;
+    }
+
+    #studentSubjects .sub-modal-close {
+        float: left;
+        background: #F1F5F9;
+        color: #113464;
+        border: 0;
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        cursor: pointer;
+        font-size: 21px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+
+    #studentSubjects .sub-modal-course {
+        color: #946B20;
+        font-weight: 800;
+        font-size: 14px;
+    }
+
+    #studentSubjects .sub-modal-title {
+        color: #113464;
+        font-size: 20px;
+        margin: 12px 0;
+        line-height: 1.5;
+        font-weight: 700;
+    }
+
+    #studentSubjects .sub-modal-meta {
+        display: grid;
+        gap: 10px;
+        padding: 16px;
+        background: #F8FAFC;
+        border-radius: 12px;
+        color: #475569;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    #studentSubjects .sub-modal-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    #studentSubjects .sub-modal-actions a,
+    #studentSubjects .sub-modal-actions button {
+        flex: 1 1 160px;
+        justify-content: center;
+        text-align: center;
+    }
+
+    @@media (max-width: 767px) {
+        #studentSubjects {
+            padding-top: 90px;
+            padding-bottom: 40px;
+        }
+
+        #studentSubjects .sub-page-header {
+            padding: 16px;
+        }
+
+        #studentSubjects .sub-page-title {
+            font-size: 20px;
+        }
+
+        #studentSubjects .sub-courses-grid {
+            grid-template-columns: 1fr;
+        }
+
+        #studentSubjects .sub-lec-row {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        #studentSubjects .sub-lec-actions {
+            width: 100%;
+        }
+
+        #studentSubjects .sub-lec-actions a,
+        #studentSubjects .sub-lec-actions button {
+            flex: 1 1 calc(50% - 8px);
+            justify-content: center;
+        }
+    }
+</style>
+
+<div id="studentSubjects" class="sec_content padding_menu" dir="rtl">
+    <div class="sub-container">
+
+        <!-- التنقل السريع بين المواد الدراسية وجدول الحصص -->
+        <nav class="tt-page-tabs" aria-label="أقسام واجهة الطالب">
+            <a href="@Url.Action("StdSubjects", "Students")" class="tt-page-tab is-active" aria-current="page">
+                <i class="fas fa-book-open"></i>
+                <span>المواد الدراسية</span>
+            </a>
+            <a href="@Url.Action("StdonlineCourse", "Students")" class="tt-page-tab">
+                <i class="fas fa-calendar-alt"></i>
+                <span>جدول الحصص</span>
+            </a>
+        </nav>
+
+        <!-- ترويسة الصفحة والملخص -->
+        <header class="sub-page-header">
+            <div class="sub-header-info">
+                <div class="sub-title-row">
+                    <span class="sub-title-icon"><i class="fas fa-book-reader"></i></span>
+                    <h1 class="sub-page-title">المواد الدراسية</h1>
+                </div>
+                <p class="sub-page-subtitle">المواد والدورات التدريبية المسجل بها مع إمكانية استعراض جميع المحاضرات والمرفقات.</p>
+            </div>
+
+            <div class="sub-summary-stats">
+                <div class="sub-stat-pill sub-stat-pill-navy">
+                    <span class="sub-stat-icon"><i class="fas fa-book"></i></span>
+                    <div class="sub-stat-content">
+                        <span class="sub-stat-value">@totalCourses</span>
+                        <span class="sub-stat-label">المواد المسجلة</span>
+                    </div>
+                </div>
+                <div class="sub-stat-pill sub-stat-pill-gold">
+                    <span class="sub-stat-icon"><i class="fas fa-play-circle"></i></span>
+                    <div class="sub-stat-content">
+                        <span class="sub-stat-value">@totalLectures</span>
+                        <span class="sub-stat-label">إجمالي المحاضرات</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div style="padding: 16px 20px; margin-bottom: 20px; border-right: 4px solid #EF4444; background: #FEF2F2; color: #991B1B; font-weight: 600; border-radius: 10px;">
+                <i class="fas fa-exclamation-circle"></i> @ViewBag.ErrorMessage
+            </div>
+        }
+
+        @if (courses.Count == 0)
+        {
+            <div class="sub-empty-box">
+                <i class="fas fa-folder-open"></i>
+                <h3>لا توجد مواد مسجلة حاليًا</h3>
+                <p>لم يتم تسجيلك في أي مواد دراسية حتى الآن. عند التسجيل في أي دورة ستظهر هنا مباشرة مع كافة محاضراتها.</p>
+            </div>
+        }
+        else
+        {
+            <!-- شبكة بطاقات المواد الدراسية -->
+            <div class="sub-section-title-wrap">
+                <h2 class="sub-section-title">
+                    <i class="fas fa-shapes"></i>
+                    <span>اختر المادة لعرض محاضراتها</span>
+                </h2>
+                <p class="sub-section-hint">اضغط على بطاقة أي مادة لعرض محاضراتها المباشرة والمسجلة أدناه.</p>
+            </div>
+
+            <div class="sub-courses-grid" id="subCoursesGrid" role="tablist" aria-label="قائمة المواد الدراسية">
+                @for (int i = 0; i < courses.Count; i++)
+                {
+                    var course = courses[i];
+                    bool isFirst = i == 0;
+                    <div class="sub-course-card @(isFirst ? "is-active" : "")"
+                         data-category-id="@course.CategoryId"
+                         tabindex="0"
+                         role="tab"
+                         aria-selected="@(isFirst ? "true" : "false")"
+                         aria-controls="subLecturesPanel">
+                        <div class="sub-card-top">
+                            <span class="sub-course-icon-badge">
+                                <i class="fas fa-graduation-cap"></i>
+                            </span>
+                            <span class="sub-course-count-badge">
+                                <i class="fas fa-play"></i> @course.LectureCount محاضرات
+                            </span>
+                        </div>
+
+                        <div>
+                            <h3 class="sub-course-name">@course.CategoryName</h3>
+                            <div class="sub-course-teacher" style="margin-top: 6px;">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span>@(string.IsNullOrWhiteSpace(course.TeacherName) ? "أكاديمية تبسيط" : course.TeacherName)</span>
+                            </div>
+                        </div>
+
+                        <div class="sub-course-action">
+                            <button type="button" class="sub-view-btn" aria-hidden="true" tabindex="-1">
+                                <i class="fas fa-list-ul"></i>
+                                <span>عرض المحاضرات</span>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- لوحة عرض محاضرات المادة المحددة -->
+            <section class="sub-lectures-panel" id="subLecturesPanel" role="tabpanel" aria-live="polite">
+                <div class="sub-panel-head">
+                    <div class="sub-panel-title-group">
+                        <h2 class="sub-panel-title">
+                            <i class="fas fa-layer-group"></i>
+                            <span>محاضرات مادة: </span>
+                            <span id="subSelectedCourseTitle" style="color: #C5A052;">@courses[0].CategoryName</span>
+                        </h2>
+                        <p class="sub-panel-subtitle">جميع المحاضرات المباشرة والمسجلة الخاصة بهذه المادة.</p>
+                    </div>
+
+                    <div class="sub-filter-pills" id="subFilterPills">
+                        <button type="button" class="sub-filter-pill is-active" data-filter="all">الكل</button>
+                        <button type="button" class="sub-filter-pill" data-filter="live">المباشرة</button>
+                        <button type="button" class="sub-filter-pill" data-filter="recorded">المسجلة</button>
+                    </div>
+                </div>
+
+                <div class="sub-lectures-list" id="subLecturesList">
+                    <!-- سيتم البناء تلقائيًا بواسطة JavaScript بناءً على المادة المحددة -->
+                </div>
+
+                <div class="sub-empty-box" id="subLecturesEmpty" style="display:none;">
+                    <i class="far fa-calendar-times"></i>
+                    <h3>لا توجد محاضرات في هذه المادة</h3>
+                    <p>لم يتم إضافة محاضرات لهذه المادة حتى الآن.</p>
+                </div>
+            </section>
+        }
+
+        <!-- النافذة المنبثقة لتفاصيل المحاضرة -->
+        <div id="subLectureModal" class="sub-modal" role="dialog" aria-modal="true" aria-labelledby="subModalTitle" hidden>
+            <div class="sub-modal-shade" data-sub-modal-close="1"></div>
+            <div class="sub-modal-panel" id="subModalPanel" tabindex="-1">
+                <button type="button" id="subModalClose" class="sub-modal-close" aria-label="إغلاق التفاصيل" data-sub-modal-close="1">×</button>
+                <div id="subModalSubject" class="sub-modal-course"></div>
+                <h3 id="subModalTitle" class="sub-modal-title"></h3>
+                <div class="sub-modal-meta">
+                    <div><strong>نوع المحاضرة:</strong> <span id="subModalType"></span></div>
+                    <div><strong>الموعد:</strong> <span id="subModalTime"></span></div>
+                </div>
+                <div id="subModalActions" class="sub-modal-actions"></div>
+            </div>
+        </div>
+
+        <!-- مخزن البيانات الآمن لجميع المواد ومحاضراتها للقراءة من المتصفح دون طلبات خادم إضافية -->
+        <div id="subCoursesDataset" style="display:none;" aria-hidden="true">
+            @foreach (var course in courses)
+            {
+                <div class="sub-data-course"
+                     data-id="@course.CategoryId"
+                     data-name="@course.CategoryName"
+                     data-teacher="@course.TeacherName"
+                     data-count="@course.LectureCount">
+                    @foreach (var lec in course.Lectures)
+                    {
+                        bool validClient = IsSafeHttpsUrl(lec.LectureLink_Client);
+                        bool validMedia = IsSafeHttpsUrl(lec.MediaLink);
+                        bool hasDoc = !string.IsNullOrWhiteSpace(lec.DocumenFile);
+                        string docUrl = hasDoc ? ("https://tbsetaca.com/Uploade/Images/" + Uri.EscapeUriString(lec.DocumenFile.Trim())) : "";
+
+                        <div class="sub-data-lecture"
+                             data-id="@lec.ID"
+                             data-category-id="@lec.Category_ID"
+                             data-course="@course.CategoryName"
+                             data-name="@lec.Lecture_Name"
+                             data-type="@lec.LectureTypeOnOff"
+                             data-datetime="@lec.DayandTime"
+                             data-is-end="@(lec.Is_Lecture_End ? "1" : "0")"
+                             data-valid-client="@(validClient ? "1" : "0")"
+                             data-client-url="@(validClient ? lec.LectureLink_Client.Trim() : "")"
+                             data-valid-media="@(validMedia ? "1" : "0")"
+                             data-media-url="@(validMedia ? lec.MediaLink.Trim() : "")"
+                             data-has-doc="@(hasDoc ? "1" : "0")"
+                             data-doc-name="@(hasDoc ? lec.DocumenFile.Trim() : "")"
+                             data-doc-url="@docUrl"></div>
+                    }
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+<script>
+    (function () {
+        "use strict";
+
+        $(document).ready(function () {
+            $(".menu_top").addClass("fixed");
+        });
+
+        function isSafeHttps(url) {
+            if (!url || typeof url !== "string") return false;
+            var trimmed = url.trim();
+            if (!/^https:\/\/[^\s/$.?#].[^\s]*$/i.test(trimmed)) return false;
+            try {
+                var u = new URL(trimmed);
+                return u.protocol === "https:";
+            } catch (e) {
+                return /^https:\/\//i.test(trimmed);
+            }
+        }
+
+        function initStudentSubjectsPage() {
+            var datasetRoot = document.getElementById("subCoursesDataset");
+            var coursesGrid = document.getElementById("subCoursesGrid");
+            var lecturesList = document.getElementById("subLecturesList");
+            var lecturesEmpty = document.getElementById("subLecturesEmpty");
+            var selectedCourseTitle = document.getElementById("subSelectedCourseTitle");
+            var filterPills = document.getElementById("subFilterPills");
+
+            var modal = document.getElementById("subLectureModal");
+            var modalPanel = document.getElementById("subModalPanel");
+            var modalSubject = document.getElementById("subModalSubject");
+            var modalTitle = document.getElementById("subModalTitle");
+            var modalType = document.getElementById("subModalType");
+            var modalTime = document.getElementById("subModalTime");
+            var modalActions = document.getElementById("subModalActions");
+
+            if (!datasetRoot) return;
+
+            // استخراج بيانات المواد والمحاضرات من مخزن البيانات
+            var courseNodes = datasetRoot.querySelectorAll(".sub-data-course");
+            var coursesData = [];
+            var allLecturesMap = {};
+
+            for (var c = 0; c < courseNodes.length; c++) {
+                var cNode = courseNodes[c];
+                var cId = cNode.getAttribute("data-id") || "";
+                var cName = cNode.getAttribute("data-name") || "مادة دراسية";
+                var cTeacher = cNode.getAttribute("data-teacher") || "";
+                var cCount = parseInt(cNode.getAttribute("data-count") || "0", 10);
+
+                var lecs = [];
+                var lecNodes = cNode.querySelectorAll(".sub-data-lecture");
+                for (var l = 0; l < lecNodes.length; l++) {
+                    var lNode = lecNodes[l];
+                    var item = {
+                        id: lNode.getAttribute("data-id") || "",
+                        categoryId: cId,
+                        courseName: cName,
+                        name: lNode.getAttribute("data-name") || "محاضرة بدون عنوان",
+                        type: lNode.getAttribute("data-type") || "1", // 1=live, 0=recorded
+                        dateTime: lNode.getAttribute("data-datetime") || "موعد غير محدد",
+                        isEnd: lNode.getAttribute("data-is-end") === "1",
+                        validClient: lNode.getAttribute("data-valid-client") === "1",
+                        clientUrl: lNode.getAttribute("data-client-url") || "",
+                        validMedia: lNode.getAttribute("data-valid-media") === "1",
+                        mediaUrl: lNode.getAttribute("data-media-url") || "",
+                        hasDoc: lNode.getAttribute("data-has-doc") === "1",
+                        docName: lNode.getAttribute("data-doc-name") || "",
+                        docUrl: lNode.getAttribute("data-doc-url") || ""
+                    };
+                    lecs.push(item);
+                    allLecturesMap[item.id] = item;
+                }
+
+                coursesData.push({
+                    id: cId,
+                    name: cName,
+                    teacher: cTeacher,
+                    count: cCount,
+                    lectures: lecs
+                });
+            }
+
+            var currentCategoryId = coursesData.length > 0 ? coursesData[0].id : null;
+            var currentFilter = "all";
+            var oldFocus = null;
+
+            function renderLectures() {
+                if (!lecturesList) return;
+
+                while (lecturesList.firstChild) {
+                    lecturesList.removeChild(lecturesList.firstChild);
+                }
+
+                var currentCourse = null;
+                for (var i = 0; i < coursesData.length; i++) {
+                    if (coursesData[i].id === currentCategoryId) {
+                        currentCourse = coursesData[i];
+                        break;
+                    }
+                }
+
+                if (!currentCourse) {
+                    if (lecturesEmpty) lecturesEmpty.style.display = "";
+                    return;
+                }
+
+                if (selectedCourseTitle) {
+                    selectedCourseTitle.textContent = currentCourse.name;
+                }
+
+                var filtered = [];
+                for (var j = 0; j < currentCourse.lectures.length; j++) {
+                    var lec = currentCourse.lectures[j];
+                    if (currentFilter === "live" && lec.type !== "1") continue;
+                    if (currentFilter === "recorded" && lec.type !== "0") continue;
+                    filtered.push(lec);
+                }
+
+                if (filtered.length === 0) {
+                    if (lecturesEmpty) {
+                        lecturesEmpty.style.display = "";
+                    }
+                    return;
+                }
+
+                if (lecturesEmpty) {
+                    lecturesEmpty.style.display = "none";
+                }
+
+                for (var k = 0; k < filtered.length; k++) {
+                    var lItem = filtered[k];
+
+                    var row = document.createElement("article");
+                    row.className = "sub-lec-row";
+                    row.setAttribute("data-lecture-id", lItem.id);
+
+                    // الجزء الأيمن: العنوان والبيانات
+                    var mainDiv = document.createElement("div");
+                    mainDiv.className = "sub-lec-main";
+
+                    var topDiv = document.createElement("div");
+                    topDiv.className = "sub-lec-top";
+
+                    var typeBadge = document.createElement("span");
+                    if (lItem.type === "1") {
+                        typeBadge.className = "sub-badge sub-badge-live";
+                        typeBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> محاضرة مباشرة';
+                    } else {
+                        typeBadge.className = "sub-badge sub-badge-rec";
+                        typeBadge.innerHTML = '<i class="fas fa-play-circle"></i> محاضرة مسجلة';
+                    }
+                    topDiv.appendChild(typeBadge);
+
+                    if (lItem.isEnd && lItem.type === "1") {
+                        var pastBadge = document.createElement("span");
+                        pastBadge.className = "sub-badge sub-badge-past";
+                        pastBadge.textContent = "منتهية";
+                        topDiv.appendChild(pastBadge);
+                    }
+
+                    mainDiv.appendChild(topDiv);
+
+                    var h4 = document.createElement("h4");
+                    h4.className = "sub-lec-title";
+                    h4.textContent = lItem.name;
+                    mainDiv.appendChild(h4);
+
+                    var metaDiv = document.createElement("div");
+                    metaDiv.className = "sub-lec-meta";
+
+                    var timeSpan = document.createElement("span");
+                    timeSpan.innerHTML = '<i class="far fa-clock"></i> ' + (lItem.dateTime || "موعد غير محدد");
+                    metaDiv.appendChild(timeSpan);
+
+                    if (lItem.hasDoc) {
+                        var docSpan = document.createElement("span");
+                        docSpan.innerHTML = '<i class="fas fa-paperclip"></i> يوجد مرفق تعليمي';
+                        metaDiv.appendChild(docSpan);
+                    }
+
+                    mainDiv.appendChild(metaDiv);
+                    row.appendChild(mainDiv);
+
+                    // الجزء الأيسر: الإجراءات والروابط
+                    var actionsDiv = document.createElement("div");
+                    actionsDiv.className = "sub-lec-actions";
+
+                    // رابط الدخول للمحاضرة المباشرة
+                    if (lItem.type === "1" && lItem.validClient && isSafeHttps(lItem.clientUrl)) {
+                        var joinBtn = document.createElement("a");
+                        joinBtn.href = lItem.clientUrl;
+                        joinBtn.target = "_blank";
+                        joinBtn.rel = "noopener noreferrer";
+                        joinBtn.className = "sub-btn sub-btn-join";
+                        joinBtn.innerHTML = '<i class="fas fa-video"></i> دخول المحاضرة';
+                        actionsDiv.appendChild(joinBtn);
+                    }
+
+                    // رابط الفيديو المسجل
+                    if (lItem.validMedia && isSafeHttps(lItem.mediaUrl)) {
+                        var videoBtn = document.createElement("a");
+                        videoBtn.href = lItem.mediaUrl;
+                        videoBtn.target = "_blank";
+                        videoBtn.rel = "noopener noreferrer";
+                        videoBtn.className = "sub-btn sub-btn-video";
+                        videoBtn.innerHTML = '<i class="fas fa-play"></i> مشاهدة الفيديو';
+                        actionsDiv.appendChild(videoBtn);
+                    }
+
+                    // المرفق التعليمي
+                    if (lItem.hasDoc && lItem.docUrl && isSafeHttps(lItem.docUrl)) {
+                        var docBtn = document.createElement("a");
+                        docBtn.href = lItem.docUrl;
+                        docBtn.target = "_blank";
+                        docBtn.rel = "noopener noreferrer";
+                        docBtn.className = "sub-btn sub-btn-doc";
+                        docBtn.innerHTML = '<i class="fas fa-paperclip"></i> المرفق';
+                        actionsDiv.appendChild(docBtn);
+                    }
+
+                    // زر التفاصيل
+                    var detailsBtn = document.createElement("button");
+                    detailsBtn.type = "button";
+                    detailsBtn.className = "sub-btn sub-btn-details";
+                    detailsBtn.setAttribute("data-lecture-id", lItem.id);
+                    detailsBtn.innerHTML = '<i class="fas fa-info-circle"></i> التفاصيل';
+                    actionsDiv.appendChild(detailsBtn);
+
+                    row.appendChild(actionsDiv);
+                    lecturesList.appendChild(row);
+                }
+            }
+
+            function selectCourse(catId) {
+                currentCategoryId = String(catId);
+                var cards = coursesGrid ? coursesGrid.querySelectorAll(".sub-course-card") : [];
+                for (var i = 0; i < cards.length; i++) {
+                    var card = cards[i];
+                    var isSelected = card.getAttribute("data-category-id") === currentCategoryId;
+                    if (isSelected) {
+                        card.classList.add("is-active");
+                        card.setAttribute("aria-selected", "true");
+                    } else {
+                        card.classList.remove("is-active");
+                        card.setAttribute("aria-selected", "false");
+                    }
+                }
+                renderLectures();
+            }
+
+            // النقر على بطاقات المواد
+            if (coursesGrid) {
+                coursesGrid.addEventListener("click", function (e) {
+                    var card = e.target.closest(".sub-course-card");
+                    if (card) {
+                        var catId = card.getAttribute("data-category-id");
+                        if (catId) selectCourse(catId);
+                    }
+                });
+
+                coursesGrid.addEventListener("keydown", function (e) {
+                    if (e.key === "Enter" || e.key === " ") {
+                        var card = e.target.closest(".sub-course-card");
+                        if (card) {
+                            e.preventDefault();
+                            var catId = card.getAttribute("data-category-id");
+                            if (catId) selectCourse(catId);
+                        }
+                    }
+                });
+            }
+
+            // أزرار تصفية المحاضرات (الكل، مباشرة، مسجلة)
+            if (filterPills) {
+                filterPills.addEventListener("click", function (e) {
+                    var btn = e.target.closest(".sub-filter-pill");
+                    if (btn) {
+                        var filterVal = btn.getAttribute("data-filter") || "all";
+                        var allPills = filterPills.querySelectorAll(".sub-filter-pill");
+                        for (var p = 0; p < allPills.length; p++) {
+                            allPills[p].classList.remove("is-active");
+                        }
+                        btn.classList.add("is-active");
+                        currentFilter = filterVal;
+                        renderLectures();
+                    }
+                });
+            }
+
+            // النافذة المنبثقة للتفاصيل
+            function openLectureModal(lec) {
+                if (!lec || !modal || !modalPanel) return;
+                oldFocus = document.activeElement;
+
+                if (modalSubject) modalSubject.textContent = lec.courseName;
+                if (modalTitle) modalTitle.textContent = lec.name;
+                if (modalType) modalType.textContent = lec.type === "1" ? "محاضرة مباشرة" : "محاضرة مسجلة";
+                if (modalTime) modalTime.textContent = lec.dateTime;
+
+                if (modalActions) {
+                    while (modalActions.firstChild) {
+                        modalActions.removeChild(modalActions.firstChild);
+                    }
+
+                    if (lec.type === "1" && lec.validClient && isSafeHttps(lec.clientUrl)) {
+                        var aJoin = document.createElement("a");
+                        aJoin.href = lec.clientUrl;
+                        aJoin.target = "_blank";
+                        aJoin.rel = "noopener noreferrer";
+                        aJoin.className = "sub-btn sub-btn-join";
+                        aJoin.innerHTML = '<i class="fas fa-video"></i> دخول المحاضرة المباشرة';
+                        modalActions.appendChild(aJoin);
+                    }
+
+                    if (lec.validMedia && isSafeHttps(lec.mediaUrl)) {
+                        var aVideo = document.createElement("a");
+                        aVideo.href = lec.mediaUrl;
+                        aVideo.target = "_blank";
+                        aVideo.rel = "noopener noreferrer";
+                        aVideo.className = "sub-btn sub-btn-video";
+                        aVideo.innerHTML = '<i class="fas fa-play"></i> مشاهدة الفيديو المسجل';
+                        modalActions.appendChild(aVideo);
+                    }
+
+                    if (lec.hasDoc && lec.docUrl && isSafeHttps(lec.docUrl)) {
+                        var aDoc = document.createElement("a");
+                        aDoc.href = lec.docUrl;
+                        aDoc.target = "_blank";
+                        aDoc.rel = "noopener noreferrer";
+                        aDoc.className = "sub-btn sub-btn-doc";
+                        aDoc.innerHTML = '<i class="fas fa-paperclip"></i> فتح المرفق التعليمي';
+                        modalActions.appendChild(aDoc);
+                    }
+                }
+
+                modal.hidden = false;
+                modalPanel.focus();
+            }
+
+            function closeLectureModal() {
+                if (!modal || modal.hidden) return;
+                modal.hidden = true;
+                if (oldFocus && document.contains(oldFocus) && typeof oldFocus.focus === "function") {
+                    oldFocus.focus();
+                }
+                oldFocus = null;
+            }
+
+            document.addEventListener("click", function (e) {
+                var closeTarget = e.target.closest("[data-sub-modal-close]");
+                if (closeTarget && modal && modal.contains(closeTarget)) {
+                    closeLectureModal();
+                    return;
+                }
+
+                var detailsTarget = e.target.closest(".sub-btn-details, .sub-lec-row");
+                if (detailsTarget && !e.target.closest("a")) {
+                    var lecId = detailsTarget.getAttribute("data-lecture-id");
+                    if (lecId && allLecturesMap[lecId]) {
+                        openLectureModal(allLecturesMap[lecId]);
+                    }
+                }
+            });
+
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape" && modal && !modal.hidden) {
+                    e.preventDefault();
+                    closeLectureModal();
+                }
+            });
+
+            // بدء العرض الأولي
+            renderLectures();
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initStudentSubjectsPage);
+        } else {
+            initStudentSubjectsPage();
+        }
+    })();
+</script>
+
