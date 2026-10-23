@@ -1,627 +1,1338 @@
 ﻿@model IEnumerable<tabseetCourse.Models.Std_Reg_CategoryModel>
+@using System.Globalization
 
 @{
-    //ViewBag.Title = "CategoriesStd";
+    ViewBag.Title = "برامجي التعليمية";
     Layout = "~/Views/Shared/_LayoutStudent.cshtml";
+
+    var courses = Model != null ? Model.ToList() : new List<tabseetCourse.Models.Std_Reg_CategoryModel>();
+    int totalCoursesCount = courses.Count;
+    int totalLecturesCount = courses.Sum(c => c.lectureCount);
+    int totalFinishedCount = courses.Sum(c => c.lectureFinishCount);
 }
-   @*var viewmodelHomepage = (newCoures.Models_UI.HomePageModel)ViewBag.HomepageViewModel;*@
- 
 
+@functions {
+    public static bool IsSafeHttpsUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        string trimmed = url.Trim();
+        if (!trimmed.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return false;
+        Uri parsed;
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out parsed)) return false;
+        if (parsed.Scheme != Uri.UriSchemeHttps) return false;
+        string host = parsed.Host.ToLowerInvariant();
+        if (host == "localhost" || host == "127.0.0.1" || host == "::1") return false;
+        if (host.StartsWith("10.") || host.StartsWith("192.168.")) return false;
+        if (host.StartsWith("172."))
+        {
+            string[] parts = host.Split('.');
+            if (parts.Length == 4)
+            {
+                int second;
+                if (int.TryParse(parts[1], out second) && second >= 16 && second <= 31)
+                    return false;
+            }
+        }
+        return true;
+    }
+}
 
+<!-- مكتبة SweetAlert2 للتنبيهات -->
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<div class='top_baner' style="background-image: url(../Uploade/Images/slider.jpg)">
-    <center>
-        @*<span>@viewmodelHomepage.MainText</span>*@
 
-
-        @*<a href="javascript:;">للمزيد</a>*@
-    </center>
-</div>
-
-
-
+<!-- حقول مخفية لوظائف الدفع والامتحانات والتسجيل -->
 <input type="hidden" id="PayMent_Method" />
 <input type="hidden" id="examID" />
 <input type="hidden" id="Categories_ID" />
 <input type="hidden" id="PaymentValue" />
-<!-- /.card-header -->
-<!-- Start Slider -->
-<div class="sec_slider">
-    <div class="container">
-        <h1 class="sec_title">الدورات التدريبية</h1>
-        <div class="owl-carousel owl-theme">
-            @foreach (var item in Model)
-            {
-                if ((item.std_category_Ispayed == 0 && item.category_Ispayed == 0) || (item.std_category_Ispayed == 1 && item.category_Ispayed == 1))
-                {
-                    <div class="item">
-                        <div class="image">
-                            <a href="@Url.Action("Courses", "Students",new {Deplom_ID= item.Category_ID,LectureName=item.CategoryName  })">
-                                @if (item.Icon == null)
-                                {
 
+<style>
+    /* ==========================================================================
+       برامجي التعليمية – أكاديمية تبسيط
+       الهوية البصرية المتكاملة (#113464, #C5A052, Cairo Font, RTL)
+       ========================================================================== */
+    #studentProgramsPage {
+        font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+        background-color: #F8FAFC;
+        min-height: calc(100vh - 120px);
+        padding-top: 125px;
+        padding-bottom: 60px;
+        color: #1E293B;
+        direction: rtl;
+        text-align: right;
+    }
 
-                                    <img alt="course Name" src="~/Content2/img/pr-1.jpg">
-                                }
-                                else
-                                {
-                                    <img alt="course Name" src="~/Uploade/Images/@item.Icon">
-                                }
+    #studentProgramsPage .sub-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 16px;
+    }
 
+    /* شريط التبويبات الفرعية للتنقل السريع بين برامجي التعليمية وجدول الحصص */
+    .sub-page-tabs {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 22px;
+        background: #FFFFFF;
+        padding: 6px 10px;
+        border-radius: 14px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 2px 8px rgba(17, 52, 100, 0.04);
+    }
 
-                            </a>
-                        </div>
-                        <h2>@item.CategoryName</h2>
-                        <ul>
-                            <li>
+    .sub-page-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #64748B;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
 
-                                @if (@item.lectureCount > 0)
-                                {<p>المحاضرات المنتهية</p>
-                                    <span> @item.lectureCount/@item.lectureFinishCount</span>
+    .sub-page-tab:hover {
+        color: #113464;
+        background: #F1F5F9;
+        text-decoration: none;
+    }
 
-                                }
+    .sub-page-tab.is-active {
+        background: #113464;
+        color: #FFFFFF;
+        box-shadow: 0 4px 12px rgba(17, 52, 100, 0.15);
+    }
 
-                            </li>
-                            <li>
-                                <p>نوع الشهادة</p>
-                                <span>@item.categoryType_Nmae</span>
-                            </li>
-                            <li>
-                                @if (item.std_exam_isFinish == 1)
-                                {
+    .sub-page-tab.is-active i {
+        color: #C5A052;
+    }
 
-                                    <button class="btn" onclick="GetDocmntation(@item.Category_ID)">
-                                        <span class='small'>
-                                            <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 853.3 810.7" style="enable-background:new 0 0 853.3 810.7;" xml:space="preserve"><path d="M85.3,0C38,0,0,38,0,85.3V512c0,47.1,38.2,85.3,85.3,85.3h341.3v213.3l128-128l128,128V597.3H768c47.1,0,85.3-38.2,85.3-85.3V85.3C853.3,38.2,815.1,0,768,0L85.3,0 M426.7,85.3l128,85.3l128-85.3v149.3l128,64l-128,64V512l-128-85.3l-128,85.3V362.7l-128-64l128-64V85.3 M85.3,85.3h213.3v85.3H85.3V85.3 M85.3,256h128v85.3h-128V256 M85.3,426.7h213.3V512H85.3V426.7z" /></svg>
-                                            <br>
-                                            شهادة
-                                        </span>
-                                    </button>
+    /* ترويسة الصفحة والملخص الإحصائي */
+    .sub-header-card {
+        background: linear-gradient(135deg, #113464 0%, #1A4B8C 100%);
+        border-radius: 18px;
+        padding: 28px 32px;
+        color: #FFFFFF;
+        margin-bottom: 28px;
+        box-shadow: 0 10px 25px rgba(17, 52, 100, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        border: 1px solid rgba(197, 160, 82, 0.25);
+    }
 
-                                }
+    .sub-header-info {
+        flex: 1;
+        min-width: 280px;
+    }
 
+    .sub-header-title {
+        font-size: 26px;
+        font-weight: 800;
+        margin: 0 0 8px 0;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
+    .sub-header-title i {
+        color: #C5A052;
+        font-size: 24px;
+    }
 
-                                @if (item.lectureCount > 0 && item.Std_Reg_CategoryType == 1)
-                                {
-                                    <a class="btn" href="@Url.Action("Courses", "Students",new {Deplom_ID= item.Category_ID,LectureName=item.CategoryName  })">
+    .sub-header-desc {
+        font-size: 14.5px;
+        color: #E2E8F0;
+        margin: 0;
+        line-height: 1.6;
+    }
 
-                                        <span class='small'>
-                                            <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 866.8 1024" style="enable-background:new 0 0 866.8 1024;" xml:space="preserve"><path d="M820.3,125c-21.9,0-29.2,7.3-29.2,29.2v730.9c0,36.5-29.2,65.8-65.8,65.8H155.2c-36.5,0-73.1-29.2-80.4-65.8V812c7.3-36.5,43.9-58.5,73.1-58.5h533.5c21.9,0,29.2-7.3,29.2-29.2V110.4C710.7,44.6,666.8,0.8,601,0.8H155.2C89.4-6.5,31,37.3,16.3,110.4v796.6C31,965.5,82.1,1016.7,140.6,1024H718c65.8,0,116.9-58.5,131.6-116.9V147C849.5,139.7,827.6,125,820.3,125L820.3,125z" /></svg>
-                                            <br>
-                                            الدورات
-                                        </span>
+    .sub-header-badges {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
 
-                                    </a>
-                                }
-                                @if (item.lectureCount > 0 && item.Std_Reg_CategoryType == 2)
-                                {
-                                    <a class="btn" href="@Url.Action("LecturesStd", "Students",new {cat_ID= item.Category_ID,LectureName=item.CategoryName  })">
+    .sub-stat-pill {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+        padding: 10px 18px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-                                        <span class='small'>
-                                            <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 866.8 1024" style="enable-background:new 0 0 866.8 1024;" xml:space="preserve"><path d="M820.3,125c-21.9,0-29.2,7.3-29.2,29.2v730.9c0,36.5-29.2,65.8-65.8,65.8H155.2c-36.5,0-73.1-29.2-80.4-65.8V812c7.3-36.5,43.9-58.5,73.1-58.5h533.5c21.9,0,29.2-7.3,29.2-29.2V110.4C710.7,44.6,666.8,0.8,601,0.8H155.2C89.4-6.5,31,37.3,16.3,110.4v796.6C31,965.5,82.1,1016.7,140.6,1024H718c65.8,0,116.9-58.5,131.6-116.9V147C849.5,139.7,827.6,125,820.3,125L820.3,125z" /></svg>
-                                            <br>
-                                            المحاضرات
-                                        </span>
+    .sub-stat-pill i {
+        color: #C5A052;
+        font-size: 18px;
+    }
 
-                                    </a>
-                                }
-                                @if (item.Exam_ID != 0 && item.std_exam_isFinish == 0)
-                                {
-                                    <button class="btn" onclick="getExam(@item.Exam_ID,@item.Category_ID)">
-                                        <span class='small'>
-                                            <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 1024 1024" style="enable-background:new 0 0 1024 1024;" xml:space="preserve">
-                                            <path d="M124,301.6H58.4c-8.8,0-16-7.2-16-16s7.2-16,16-16H124c8.8,0,16,7.2,16,16S132.8,301.6,124,301.6z" />
-                                            <path d="M59.2,301.6h-1.6c-40.8-2.4-58.4-52.8-54.4-152.8C5.6,92,23.2,42.4,48.8,19.2C60,8.8,73.6,4,86.4,4.8c8.8,0.8,15.2,8,15.2,16.8c-0.8,8.8-8,15.2-16.8,15.2c-4,0-9.6,1.6-14.4,6.4c-16,14.4-32.8,53.6-35.2,107.2c-3.2,78.4,8.8,116,23.2,119.2c3.2-2.4,17.6-20,5.6-104.8c-0.8-4.8,0-9.6,3.2-12.8s7.2-5.6,12-5.6h58.4c8.8,0,16,7.2,16,16s-7.2,16-16,16h-40c6.4,58.4,0.8,95.2-16,112.8C73.6,299.2,65.6,301.6,59.2,301.6L59.2,301.6z M741.6,1020H142.4c-8.8,0-16-7.2-16-16s7.2-16,16-16c2.4,0,7.2,0,11.2-9.6c12.8-28.8,0-91.2-23.2-116.8c-4-4.8-5.6-11.2-3.2-17.6c2.4-5.6,8-9.6,14.4-9.6h599.2c44.8,0,81.6,41.6,81.6,92.8C823.2,978.4,786.4,1020,741.6,1020L741.6,1020z M184.8,988h556.8c27.2,0,49.6-27.2,49.6-60.8s-22.4-60.8-49.6-60.8H172C190.4,904,196.8,956,184.8,988L184.8,988z" /><path d="M288,1020H141.6c-46.4,0-80-34.4-95.2-96C9.6,773.6,48,584.8,82.4,418.4c35.2-172.8,68-336-2.4-385.6c-5.6-4-8-11.2-6.4-17.6C76,8.8,81.6,4,88.8,4h604c32,0,60.8,23.2,72,56.8c24.8,79.2,30.4,164,17.6,267.2c-0.8,8.8-8.8,15.2-17.6,13.6c-8.8-0.8-15.2-8.8-13.6-17.6c12-98.4,7.2-179.2-16.8-253.6C728,49.6,711.2,36,692.8,36H126.4c50.4,76,20.8,222.4-12.8,388.8C80,588,42.4,773.6,77.6,916.8c11.2,47.2,32.8,71.2,64,71.2H288c8.8,0,16,7.2,16,16S296.8,1020,288,1020z M694.4,866.4c-8,0-15.2-6.4-16-14.4c-8-88,4.8-175.2,17.6-240.8c2.4-11.2,4-22.4,6.4-33.6c1.6-8.8,10.4-14.4,19.2-12.8c8.8,1.6,14.4,10.4,12.8,19.2c-2.4,11.2-4.8,22.4-6.4,33.6c-12,64-24.8,148-16.8,232c0.8,8.8-5.6,16.8-14.4,17.6C695.2,866.4,694.4,866.4,694.4,866.4L694.4,866.4z" /><path d="M184.8,788c-3.2,0-5.6-1.6-7.2-4.8l-32-68.8c-1.6-4,0-8.8,4-10.4c4-1.6,8.8,0,10.4,4l21.6,46.4c12.8-64.8,29.6-128.8,51.2-190.4c0.8-2.4,3.2-4.8,5.6-4.8c2.4-0.8,5.6,0,7.2,2.4c20.8,20,32,52.8,30.4,84.8c13.6,2.4,28,1.6,40.8-3.2c3.2-0.8,6.4,0,8.8,2.4c7.2,8.8,6.4,20,5.6,30.4c0,2.4-0.8,5.6-0.8,8c0,12.8,4.8,25.6,13.6,31.2c7.2,4.8,16.8,4,24-2.4c3.2-3.2,8-2.4,11.2,0.8s2.4,8-0.8,11.2c-12.8,11.2-30.4,12.8-44,3.2c-12.8-8.8-20.8-26.4-20-44.8c0-3.2,0-5.6,0.8-8.8c0.8-4.8,0.8-10.4,0-14.4c-16.8,4.8-33.6,4.8-50.4,0c-4-0.8-6.4-4.8-5.6-8.8c2.4-24-3.2-50.4-16-68.8c-21.6,64-38.4,131.2-50.4,199.2c-0.8,3.2-3.2,6.4-7.2,6.4L184.8,788L184.8,788z M951.2,355.2c-2.4,0-4-0.8-5.6-2.4L843.2,250.4c-3.2-3.2-3.2-8,0-11.2s8-3.2,11.2,0l102.4,102.4c3.2,3.2,3.2,8,0,11.2C955.2,354.4,953.6,355.2,951.2,355.2L951.2,355.2z" /><path d="M523.2,681.6c-2.4,0-4-0.8-5.6-2.4c-3.2-3.2-3.2-8,0-11.2l376.8-376.8c3.2-3.2,8-3.2,11.2,0s3.2,8,0,11.2L528.8,679.2C527.2,680.8,524.8,681.6,523.2,681.6L523.2,681.6z" /><path d="M574.4,732.8c-2.4,0-4-0.8-5.6-2.4L465.6,628c-3.2-3.2-3.2-8,0-11.2s8-3.2,11.2,0l102.4,102.4c3.2,3.2,3.2,8,0,11.2C578.4,732,576,732.8,574.4,732.8L574.4,732.8z" /><path d="M445.6,767.2c-4,0-8-1.6-11.2-4.8c-4-4-5.6-9.6-4-14.4L456,619.2c0.8-3.2,2.4-5.6,4-8l424-424c15.2-15.2,40.8-15.2,56,0l68.8,68.8c15.2,15.2,15.2,40.8,0,56l-424,424c-2.4,2.4-4.8,4-8,4L448,766.4C448,766.4,446.4,767.2,445.6,767.2z M486.4,629.6l-20,100.8l100.8-20L988,289.6c3.2-3.2,3.2-8,0-11.2l-68.8-68.8c-3.2-3.2-8-3.2-11.2,0L486.4,629.6z M322.4,231.2h-92.8c-2.4,0-4.8-0.8-6.4-3.2c-1.6-1.6-2.4-4-1.6-6.4c6.4-29.6,6.4-60,0-89.6c-0.8-2.4,0-4.8,1.6-6.4s4-3.2,6.4-3.2h92.8c4,0,7.2,2.4,8,6.4c7.2,31.2,7.2,64.8,0,96C329.6,228.8,326.4,231.2,322.4,231.2L322.4,231.2z M240,215.2h76.8c4.8-25.6,4.8-51.2,0-76.8H240C244,164,244,190.4,240,215.2z M656.8,148.8H402.4c-4.8,0-8-3.2-8-8s3.2-8,8-8h255.2c4.8,0,8,3.2,8,8S661.6,148.8,656.8,148.8z M656.8,223.2H402.4c-4.8,0-8-3.2-8-8s3.2-8,8-8h255.2c4.8,0,8,3.2,8,8S661.6,223.2,656.8,223.2z M296,400.8h-92.8c-2.4,0-4.8-1.6-6.4-3.2c-1.6-2.4-1.6-4.8-0.8-7.2c9.6-28.8,13.6-59.2,9.6-88c0-2.4,0.8-4.8,1.6-6.4c1.6-1.6,4-2.4,5.6-2.4h92.8c4,0,7.2,3.2,8,7.2c3.2,31.2,0,64-10.4,94.4C302.4,398.4,300,400.8,296,400.8L296,400.8z M214.4,384.8h76c8-24.8,10.4-50.4,8.8-75.2h-76.8C224,333.6,221.6,360,214.4,384.8L214.4,384.8z" /><path d="M633.6,319.2H378.4c-4.8,0-8-3.2-8-8s3.2-8,8-8h255.2c4.8,0,8,3.2,8,8S637.6,319.2,633.6,319.2z" /><path d="M633.6,393.6H378.4c-4.8,0-8-3.2-8-8s3.2-8,8-8h255.2c4.8,0,8,3.2,8,8S637.6,393.6,633.6,393.6z" /><path d="M748.8,968c-2.4,0-4-0.8-5.6-2.4c-3.2-3.2-3.2-8,0-11.2c20.8-19.2,7.2-41.6,1.6-49.6h-508c-4.8,0-8-3.2-8-8s3.2-8,8-8h512c2.4,0,4.8,0.8,5.6,2.4c12,13.6,28,47.2-0.8,74.4C752.8,968,750.4,968,748.8,968L748.8,968z" /></svg>
-                                            <br>
-                                            امتحان
-                                        </span>
-                                    </button>
-                                }
-                                @if (item.DocumentBook != null)
-                                {
-                                    <a class="btn" href="~/Uploade/Images/@item.DocumentBook" target="_blank">
+    .sub-stat-num {
+        font-size: 18px;
+        font-weight: 800;
+        color: #FFFFFF;
+        line-height: 1;
+    }
 
-                                        <span class='small'>
-                                            <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 866.8 1024" style="enable-background:new 0 0 866.8 1024;" xml:space="preserve"><path d="M820.3,125c-21.9,0-29.2,7.3-29.2,29.2v730.9c0,36.5-29.2,65.8-65.8,65.8H155.2c-36.5,0-73.1-29.2-80.4-65.8V812c7.3-36.5,43.9-58.5,73.1-58.5h533.5c21.9,0,29.2-7.3,29.2-29.2V110.4C710.7,44.6,666.8,0.8,601,0.8H155.2C89.4-6.5,31,37.3,16.3,110.4v796.6C31,965.5,82.1,1016.7,140.6,1024H718c65.8,0,116.9-58.5,131.6-116.9V147C849.5,139.7,827.6,125,820.3,125L820.3,125z" /></svg>
-                                            <br>
-                                            الكتاب
-                                        </span>
+    .sub-stat-label {
+        font-size: 12px;
+        color: #CBD5E1;
+        display: block;
+        margin-top: 2px;
+    }
 
-                                    </a>
-                                }
+    /* عناوين الأقسام */
+    .sub-section-title-wrap {
+        margin-bottom: 16px;
+    }
 
-                            </li>
-                        </ul>
+    .sub-section-title {
+        font-size: 19px;
+        font-weight: 800;
+        color: #113464;
+        margin: 0 0 4px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sub-section-title i {
+        color: #C5A052;
+    }
+
+    .sub-section-hint {
+        font-size: 13.5px;
+        color: #64748B;
+        margin: 0;
+    }
+
+    /* شبكة بطاقات البرامج والدورات */
+    .sub-courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+        margin-bottom: 35px;
+    }
+
+    .sub-course-card {
+        background: #FFFFFF;
+        border-radius: 16px;
+        border: 2px solid #E2E8F0;
+        box-shadow: 0 4px 14px rgba(17, 52, 100, 0.04);
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 16px;
+        transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sub-course-card:hover {
+        transform: translateY(-3px);
+        border-color: #C5A052;
+        box-shadow: 0 10px 22px rgba(17, 52, 100, 0.09);
+    }
+
+    .sub-course-card.is-active {
+        border-color: #113464;
+        box-shadow: 0 0 0 3px rgba(17, 52, 100, 0.12), 0 10px 25px rgba(17, 52, 100, 0.08);
+        background: #FDFEFE;
+    }
+
+    .sub-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .sub-course-icon-badge {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #EBF5FF;
+        color: #113464;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 1px solid #D8E6F5;
+    }
+
+    .sub-course-icon-badge img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .sub-badges-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .sub-status-badge {
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .badge-active {
+        background: #DCFCE7;
+        color: #15803D;
+        border: 1px solid #BBF7D0;
+    }
+
+    .badge-unpaid {
+        background: #FEF2F2;
+        color: #B91C1C;
+        border: 1px solid #FECACA;
+    }
+
+    .sub-lectures-badge {
+        background: #F1F5F9;
+        color: #475569;
+        border: 1px solid #E2E8F0;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .sub-course-name {
+        font-size: 17px;
+        font-weight: 800;
+        color: #113464;
+        margin: 10px 0 6px 0;
+        line-height: 1.45;
+    }
+
+    .sub-course-teacher {
+        font-size: 13px;
+        color: #64748B;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .sub-course-teacher i {
+        color: #C5A052;
+    }
+
+    /* شريط تقدم المحاضرات */
+    .sub-progress-wrap {
+        margin-top: 10px;
+        background: #F8FAFC;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid #E2E8F0;
+    }
+
+    .sub-progress-text {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 5px;
+    }
+
+    .sub-progress-bar {
+        height: 6px;
+        background: #E2E8F0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .sub-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #C5A052 0%, #113464 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    /* أزرار الإجراءات داخل بطاقة الدورة */
+    .sub-card-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-top: 8px;
+        padding-top: 12px;
+        border-top: 1px solid #F1F5F9;
+    }
+
+    .sub-card-actions-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .sub-card-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 12.5px;
+        font-weight: 700;
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none !important;
+        transition: all 0.18s ease;
+        flex: 1;
+        min-width: 90px;
+        text-align: center;
+    }
+
+    .sub-btn-primary {
+        background: #113464;
+        color: #FFFFFF !important;
+    }
+
+    .sub-btn-primary:hover {
+        background: #1A4B8C;
+        color: #FFFFFF !important;
+    }
+
+    .sub-btn-pay {
+        background: #DC2626;
+        color: #FFFFFF !important;
+        width: 100%;
+        padding: 9px;
+        font-size: 13.5px;
+    }
+
+    .sub-btn-pay:hover {
+        background: #B91C1C;
+        color: #FFFFFF !important;
+    }
+
+    .sub-btn-book {
+        background: #FEF7E6;
+        color: #92400E !important;
+        border: 1px solid #FDE68A;
+    }
+
+    .sub-btn-book:hover {
+        background: #FDE68A;
+        color: #78350F !important;
+    }
+
+    .sub-btn-exam {
+        background: #EFF6FF;
+        color: #1D4ED8 !important;
+        border: 1px solid #BFDBFE;
+    }
+
+    .sub-btn-exam:hover {
+        background: #DBEAFE;
+        color: #1E40AF !important;
+    }
+
+    .sub-btn-cert {
+        background: #ECFDF5;
+        color: #047857 !important;
+        border: 1px solid #A7F3D0;
+    }
+
+    .sub-btn-cert:hover {
+        background: #D1FAE5;
+        color: #065F46 !important;
+    }
+
+    .sub-btn-lectures {
+        background: #F1F5F9;
+        color: #334155 !important;
+        border: 1px solid #E2E8F0;
+        width: 100%;
+    }
+
+    .sub-btn-lectures:hover {
+        background: #E2E8F0;
+        color: #1E293B !important;
+    }
+
+    /* لوحة عرض محاضرات المادة المحددة */
+    .sub-lectures-panel {
+        background: #FFFFFF;
+        border-radius: 18px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 4px 18px rgba(17, 52, 100, 0.05);
+        padding: 26px 28px;
+        margin-top: 10px;
+    }
+
+    .sub-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #F1F5F9;
+        margin-bottom: 20px;
+    }
+
+    .sub-panel-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #113464;
+        margin: 0 0 4px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sub-panel-title i {
+        color: #C5A052;
+    }
+
+    .sub-panel-subtitle {
+        font-size: 13.5px;
+        color: #64748B;
+        margin: 0;
+    }
+
+    .sub-filter-pills {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #F8FAFC;
+        padding: 4px;
+        border-radius: 10px;
+        border: 1px solid #E2E8F0;
+    }
+
+    .sub-filter-pill {
+        padding: 6px 14px;
+        border-radius: 7px;
+        border: none;
+        background: transparent;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #64748B;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .sub-filter-pill.is-active {
+        background: #113464;
+        color: #FFFFFF;
+        box-shadow: 0 2px 6px rgba(17, 52, 100, 0.15);
+    }
+
+    /* قائمة المحاضرات */
+    .sub-lectures-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .sub-lec-row {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        transition: all 0.18s ease;
+    }
+
+    .sub-lec-row:hover {
+        border-color: #CBD5E1;
+        box-shadow: 0 4px 12px rgba(17, 52, 100, 0.04);
+        background: #FDFEFE;
+    }
+
+    .sub-lec-main {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .sub-lec-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+        flex-wrap: wrap;
+    }
+
+    .sub-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .sub-badge-live {
+        background: #DCFCE7;
+        color: #15803D;
+    }
+
+    .sub-badge-rec {
+        background: #EFF6FF;
+        color: #1D4ED8;
+    }
+
+    .sub-badge-finished {
+        background: #F1F5F9;
+        color: #475569;
+    }
+
+    .sub-lec-title {
+        font-size: 15.5px;
+        font-weight: 800;
+        color: #1E293B;
+        margin: 0 0 6px 0;
+        line-height: 1.45;
+    }
+
+    .sub-lec-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 12.5px;
+        color: #64748B;
+        flex-wrap: wrap;
+    }
+
+    .sub-lec-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .sub-lec-meta i {
+        color: #94A3B8;
+    }
+
+    .sub-lec-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .sub-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 12.5px;
+        font-weight: 700;
+        padding: 8px 14px;
+        border-radius: 9px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none !important;
+        transition: all 0.18s ease;
+    }
+
+    .sub-btn-join {
+        background: #16A34A;
+        color: #FFFFFF !important;
+        box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
+    }
+
+    .sub-btn-join:hover {
+        background: #15803D;
+        color: #FFFFFF !important;
+    }
+
+    .sub-btn-video {
+        background: #2563EB;
+        color: #FFFFFF !important;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+    }
+
+    .sub-btn-video:hover {
+        background: #1D4ED8;
+        color: #FFFFFF !important;
+    }
+
+    .sub-btn-doc {
+        background: #F1F5F9;
+        color: #334155 !important;
+        border: 1px solid #E2E8F0;
+    }
+
+    .sub-btn-doc:hover {
+        background: #E2E8F0;
+        color: #0F172A !important;
+    }
+
+    .sub-btn-details {
+        background: transparent;
+        color: #113464 !important;
+        border: 1px solid #CBD5E1;
+    }
+
+    .sub-btn-details:hover {
+        background: #F8FAFC;
+        border-color: #113464;
+    }
+
+    /* حالة عدم وجود بيانات (Empty States) */
+    .sub-empty-box {
+        text-align: center;
+        padding: 60px 20px;
+        background: #FFFFFF;
+        border-radius: 18px;
+        border: 2px dashed #CBD5E1;
+        margin: 20px 0;
+    }
+
+    .sub-empty-box i {
+        font-size: 48px;
+        color: #94A3B8;
+        margin-bottom: 16px;
+    }
+
+    .sub-empty-box h3 {
+        font-size: 19px;
+        font-weight: 800;
+        color: #1E293B;
+        margin: 0 0 8px 0;
+    }
+
+    .sub-empty-box p {
+        font-size: 14px;
+        color: #64748B;
+        max-width: 480px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* نافذة تفاصيل المحاضرة المنبثقة */
+    .sub-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+
+    .sub-modal[hidden] {
+        display: none;
+    }
+
+    .sub-modal-shade {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(2px);
+    }
+
+    .sub-modal-panel {
+        position: relative;
+        background: #FFFFFF;
+        border-radius: 18px;
+        padding: 28px;
+        max-width: 520px;
+        width: 100%;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+        z-index: 1;
+        direction: rtl;
+        text-align: right;
+    }
+
+    .sub-modal-close {
+        position: absolute;
+        top: 16px;
+        left: 18px;
+        font-size: 26px;
+        line-height: 1;
+        border: none;
+        background: transparent;
+        color: #94A3B8;
+        cursor: pointer;
+    }
+
+    .sub-modal-close:hover {
+        color: #0F172A;
+    }
+
+    .sub-modal-course {
+        font-size: 13px;
+        font-weight: 700;
+        color: #C5A052;
+        margin-bottom: 6px;
+    }
+
+    .sub-modal-title {
+        font-size: 19px;
+        font-weight: 800;
+        color: #113464;
+        margin: 0 0 16px 0;
+        line-height: 1.4;
+    }
+
+    .sub-modal-meta {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+        font-size: 13.5px;
+        color: #475569;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .sub-modal-meta strong {
+        color: #1E293B;
+    }
+
+    .sub-modal-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .sub-modal-actions .sub-btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 13.5px;
+    }
+
+    /* ضبط تجاوب الشاشات الصغيرة */
+    @@media (max-width: 991px) {
+        #studentProgramsPage {
+            padding-top: 105px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .sub-header-card {
+            padding: 20px;
+        }
+
+        .sub-header-title {
+            font-size: 22px;
+        }
+
+        .sub-header-badges {
+            width: 100%;
+        }
+
+        .sub-stat-pill {
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .sub-courses-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sub-lec-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .sub-lec-actions {
+            width: 100%;
+            justify-content: stretch;
+        }
+
+        .sub-lec-actions .sub-btn {
+            flex: 1;
+        }
+    }
+</style>
+
+<div id="studentProgramsPage" class="sec_content padding_menu">
+    <div class="sub-container">
+
+        <!-- 1. شريط التبويبات للتنقل السريع بين برامجي التعليمية وجدول الحصص -->
+        <nav class="sub-page-tabs" aria-label="أقسام واجهة الطالب">
+            <a href="@Url.Action("CategoriesStd", "Students")" class="sub-page-tab is-active" aria-current="page">
+                <i class="fas fa-graduation-cap"></i>
+                <span>برامجي التعليمية</span>
+            </a>
+            <a href="@Url.Action("StdonlineCourse", "Students")" class="sub-page-tab">
+                <i class="fas fa-calendar-alt"></i>
+                <span>جدول الحصص</span>
+            </a>
+        </nav>
+
+        <!-- 2. ترويسة الصفحة والملخص الإحصائي -->
+        <header class="sub-header-card">
+            <div class="sub-header-info">
+                <h1 class="sub-header-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>برامجي التعليمية</span>
+                </h1>
+                <p class="sub-header-desc">
+                    عرض ومتابعة كافة الدورات والبرامج التعليمية المسجلة، حضور المحاضرات المباشرة، مشاهدة التسجيلات، والاختبارات وإصدار الشهادات.
+                </p>
+            </div>
+            <div class="sub-header-badges">
+                <div class="sub-stat-pill">
+                    <i class="fas fa-book-reader"></i>
+                    <div>
+                        <div class="sub-stat-num">@totalCoursesCount</div>
+                        <span class="sub-stat-label">الدورات المسجلة</span>
                     </div>
-                }
-                else
-                { <div class="item">
-                        <div class="image">
-                            <a href="javascript:;">
-                                @if (item.Icon == null)
-                                {
-
-
-                                    <img alt="course Name" src="~/Content2/img/pr-1.jpg">
-                                }
-                                else
-                                {
-                                    <img alt="course Name" src="~/Uploade/Images/@item.Icon">
-                                }
-
-                            </a>
-                        </div>
-                        <h2>@item.CategoryName</h2>
-                        <ul>
-                            <li>
-
-                                @if (@item.lectureCount > 0)
-                                {<p>المحاضرات المنتهية</p>
-                                    <span> 0/0</span>
-
-                                }
-
-                            </li>
-
-                            <li>
-
-
-                                <div class="btn-group">
-
-                                    <button class="btn btn-info" style="width:110px" data-toggle="modal" data-target="#modal-lg" onclick="assingInfo(@item.categoryPrice,@item.Category_ID)">
-                                        <i class="fas fa-credit-card"></i>
-                                        دفع
-                                    </button>
-                                    @*onclick="location.href='@Url.Action("payforcategory", "Students", new { CourseID = item.Category_ID })*@
-                                </div>
-
-
-                            </li>
-                        </ul>
+                </div>
+                <div class="sub-stat-pill">
+                    <i class="fas fa-play-circle"></i>
+                    <div>
+                        <div class="sub-stat-num">@totalLecturesCount</div>
+                        <span class="sub-stat-label">إجمالي المحاضرات</span>
                     </div>
+                </div>
+                <div class="sub-stat-pill">
+                    <i class="fas fa-check-double"></i>
+                    <div>
+                        <div class="sub-stat-num">@totalFinishedCount</div>
+                        <span class="sub-stat-label">المحاضرات المكتملة</span>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-                }
-            }
-        </div>
-    </div>
-</div>
-<!-- End Slider -->
-@* <div class="row">
-        @foreach (var item in Model)
+        @if (courses.Count == 0)
         {
-            if ((item.std_category_Ispayed == 0 && item.category_Ispayed == 0) || (item.std_category_Ispayed == 1 && item.category_Ispayed == 1))
-            {
-                <div class="col-md-4" style="max-width:25%">
-                    <!-- Widget: user widget style 2 -->
-                    <!--<div class="card card-widget widget-user-2">
+            <!-- حالة خلو البرامج المسجلة -->
+            <div class="sub-empty-box">
+                <i class="fas fa-folder-open"></i>
+                <h3>لا توجد برامج أو دورات مسجلة حاليًا</h3>
+                <p>لم يتم تسجيلك في أي دورات تدريبية حتى الآن. عند التسجيل في أي دورة ستظهر هنا مباشرة مع كافة تفاصيلها ومحاضراتها.</p>
+            </div>
+        }
+        else
+        {
+            <!-- 3. شبكة بطاقات الدورات والبرامج التعليمية -->
+            <div class="sub-section-title-wrap">
+                <h2 class="sub-section-title">
+                    <i class="fas fa-shapes"></i>
+                    <span>الدورات والبرامج المسجلة</span>
+                </h2>
+                <p class="sub-section-hint">اضغط على بطاقة أي دورة لعرض محاضراتها أدناه، أو استخدم أزرار الإجراءات السريعة للمتابعة.</p>
+            </div>
 
+            <div class="sub-courses-grid" id="subCoursesGrid" role="tablist" aria-label="قائمة البرامج التعليمية">
+                @for (int i = 0; i < courses.Count; i++)
+                {
+                    var item = courses[i];
+                    bool isFirst = i == 0;
+                    bool isPaid = (item.std_category_Ispayed == 0 && item.category_Ispayed == 0) || (item.std_category_Ispayed == 1 && item.category_Ispayed == 1);
+                    int progressPercentage = item.lectureCount > 0 ? Math.Min(100, (int)Math.Round((double)item.lectureFinishCount * 100 / item.lectureCount)) : 0;
 
-                        <div class="widget-user-header bg-warning">-->
-                            @*<div class="widget-user-image">
-                                    <img class="img-circle elevation-2" src="/Uploade/Images/15230571011.png" alt="User Avatar">
+                    <div class="sub-course-card @(isFirst ? "is-active" : "")"
+                         data-category-id="@item.Category_ID"
+                         tabindex="0"
+                         role="tab"
+                         aria-selected="@(isFirst ? "true" : "false")"
+                         aria-controls="subLecturesPanel">
+
+                        <div>
+                            <div class="sub-card-top">
+                                <div class="sub-course-icon-badge">
+                                    @if (!string.IsNullOrWhiteSpace(item.Icon))
+                                    {
+                                        <img src="~/Uploade/Images/@item.Icon" alt="@item.CategoryName" />
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-book-open"></i>
+                                    }
                                 </div>
-    <!--<!-- /.widget-user-image -->
-    <!--<h3 class="widget-user-username"> @item.CategoryName</h3>-->
-     <h5 class="widget-user-desc">Lead Developer</h5>
-    <!--</div>
-                <div class="card-footer p-0">
-                    <span class="date" style="width:400px;height:300px">
-                        <img src="/Uploade/Images/15230571011.png" style="width:400px" alt="Items" />
+                                <div class="sub-badges-group">
+                                    @if (!isPaid)
+                                    {
+                                        <span class="sub-status-badge badge-unpaid">
+                                            <i class="fas fa-exclamation-circle"></i> بانتظار السداد
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="sub-status-badge badge-active">
+                                            <i class="fas fa-check-circle"></i> @(string.IsNullOrWhiteSpace(item.categoryType_Nmae) ? "دورة تدريبية" : item.categoryType_Nmae)
+                                        </span>
+                                    }
+                                    <span class="sub-lectures-badge">
+                                        <i class="fas fa-play"></i> @item.lectureCount محاضرة
+                                    </span>
+                                </div>
+                            </div>
 
-                    </span>
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            @if (@item.lectureCount > 0)
+                            <h3 class="sub-course-name">@item.CategoryName</h3>
+
+                            <div class="sub-course-teacher">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span>@(string.IsNullOrWhiteSpace(item.TeacherName) ? "أكاديمية تبسيط" : item.TeacherName)</span>
+                            </div>
+
+                            @if (item.lectureCount > 0)
                             {
-                                <div class="progress-group">
-                                    المحاضرات المنتهية
-
-                                    <span class="float-right"><b>@item.lectureFinishCount</b>/ @item.lectureCount</span>
-                                    <div class="progress progress-sm">
-                                        <div class="progress-bar bg-primary" style="width:@((item.lectureFinishCount*100)/item.lectureCount)%"></div>
+                                <div class="sub-progress-wrap">
+                                    <div class="sub-progress-text">
+                                        <span>المحاضرات المكتملة</span>
+                                        <span>@item.lectureFinishCount / @item.lectureCount (@progressPercentage%)</span>
+                                    </div>
+                                    <div class="sub-progress-bar">
+                                        <div class="sub-progress-fill" style="width: @progressPercentage%;"></div>
                                     </div>
                                 </div>
+                            }
+                        </div>
+
+                        <!-- أزرار الإجراءات السريعة للدورة -->
+                        <div class="sub-card-actions">
+                            @if (!isPaid)
+                            {
+                                <button type="button" class="sub-card-btn sub-btn-pay" onclick="event.stopPropagation(); assingInfo(@item.categoryPrice, @item.Category_ID)" data-toggle="modal" data-target="#modal-lg">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span>سداد الرسوم (@item.categoryPrice)</span>
+                                </button>
                             }
                             else
                             {
-                                <div class="progress-group">
-                                    المحاضرات المنتهية
+                                <div class="sub-card-actions-row">
+                                    @if (item.lectureCount > 0 && item.Std_Reg_CategoryType == 1)
+                                    {
+                                        <a href="@Url.Action("Courses", "Students", new { Deplom_ID = item.Category_ID, LectureName = item.CategoryName })" class="sub-card-btn sub-btn-primary" onclick="event.stopPropagation();" title="عرض الدورات والبرامج الفرعية">
+                                            <i class="fas fa-folder-open"></i>
+                                            <span>الدورات</span>
+                                        </a>
+                                    }
+                                    @if (item.lectureCount > 0 && item.Std_Reg_CategoryType == 2)
+                                    {
+                                        <a href="@Url.Action("LecturesStd", "Students", new { cat_ID = item.Category_ID, LectureName = item.CategoryName })" class="sub-card-btn sub-btn-primary" onclick="event.stopPropagation();" title="فتح صفحة المحاضرات">
+                                            <i class="fas fa-play-circle"></i>
+                                            <span>المحاضرات</span>
+                                        </a>
+                                    }
 
-                                    <span class="float-right"><b>0</b>/0</span>
-                                    <div class="progress progress-sm">
-                                        <div class="progress-bar bg-primary" style="width:0%"></div>
-                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(item.DocumentBook))
+                                    {
+                                        <a href="~/Uploade/Images/@item.DocumentBook" target="_blank" rel="noopener noreferrer" class="sub-card-btn sub-btn-book" onclick="event.stopPropagation();" title="تحميل الكتاب">
+                                            <i class="fas fa-book"></i>
+                                            <span>الكتاب</span>
+                                        </a>
+                                    }
+
+                                    @if (item.Exam_ID != 0 && item.std_exam_isFinish == 0)
+                                    {
+                                        <button type="button" class="sub-card-btn sub-btn-exam" onclick="event.stopPropagation(); getExam(@item.Exam_ID, @item.Category_ID);" title="بدء الاختبار">
+                                            <i class="fas fa-file-alt"></i>
+                                            <span>امتحان</span>
+                                        </button>
+                                    }
+
+                                    @if (item.std_exam_isFinish == 1)
+                                    {
+                                        <button type="button" class="sub-card-btn sub-btn-cert" onclick="event.stopPropagation(); GetDocmntation(@item.Category_ID);" title="عرض الشهادة">
+                                            <i class="fas fa-award"></i>
+                                            <span>شهادة</span>
+                                        </button>
+                                    }
                                 </div>
                             }
 
-                        </li>
-                        <li>
-                            <div class="btn-group">
-                                @if (item.lectureCount > 0)
-                                {
-                                    <button class="btn btn-primary" onclick="location.href='@Url.Action("LecturesStd", "Students",new {cat_ID= item.Category_ID,LectureName=item.CategoryName  })'">
-                                        <i class="nav-icon fas fa-book">
-                                        </i>
-                                        المحاضرات
-                                    </button>
-                                }
-
-                                @if (item.std_exam_isFinish == 1)
-                                {
-                                    <button class="btn  btn-info" onclick="GetDocmntation(@item.Category_ID)">
-                                        <i class="nav-icon fas fa-pager"></i>
-                                        شهادة
-                                    </button>
-                                }
-                                else
-                                if (item.Exam_ID != 0)
-                                {
-                                    <button class="btn  btn-warning" data-toggle="modal" data-target="#Exams_ID" onclick="getExam(@item.Exam_ID)">
-                                        <i class="nav-icon fas fa-file"></i>
-                                        إمتحان
-                                    </button>
-                                }
-                            </div>
-                        </li>
-
-                    </ul>
-                </div>
+                            <button type="button" class="sub-card-btn sub-btn-lectures" data-category-id="@item.Category_ID" aria-label="عرض المحاضرات في هذه الصفحة">
+                                <i class="fas fa-list-ul"></i>
+                                <span>استعراض المحاضرات</span>
+                            </button>
+                        </div>
+                    </div>
+                }
             </div>
-        </div>
-    }
-    else
-    {
-        <div class="col-md-4" style="max-width:25%">-->
-    <!-- Widget: user widget style 2 -->
-    <!--<div class="card card-widget widget-user-2">
-        <div class="widget-user-header bg-warning">-->
-     <div class="widget-user-image">
-            <img class="img-circle elevation-2" src="/Uploade/Images/15230571011.png" alt="User Avatar">
-        </div>
-    <!--<!-- /.widget-user-image -->
-    <!--<h3 class="widget-user-username"> @item.CategoryName</h3>-->
-     <h5 class="widget-user-desc">Lead Developer</h5>
-    <!--</div>
-    <div class="card-footer p-0">
-        <span class="date" style="width:400px;height:300px">
-            <img src="/Uploade/Images/15230571011.png" style="width:400px" alt="Items" />
 
-        </span>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                @if (@item.lectureCount > 0)
-                {
-                    <div class="progress-group">
-                        المحاضرات المنتهية
-
-                        <span class="float-right"><b>@item.lectureFinishCount</b>/ @item.lectureCount</span>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-primary" style="width:@((item.lectureFinishCount*100)/item.lectureCount)%"></div>
-                        </div>
+            <!-- 4. لوحة عرض محاضرات المادة المحددة -->
+            <section class="sub-lectures-panel" id="subLecturesPanel" role="tabpanel" aria-live="polite">
+                <div class="sub-panel-head">
+                    <div>
+                        <h2 class="sub-panel-title">
+                            <i class="fas fa-layer-group"></i>
+                            <span>محاضرات: </span>
+                            <span id="subSelectedCourseTitle" style="color: #C5A052;">@courses[0].CategoryName</span>
+                        </h2>
+                        <p class="sub-panel-subtitle">جميع المحاضرات المباشرة والمسجلة الخاصة بهذه الدورة.</p>
                     </div>
-                }
-                else
-                {
-                    <div class="progress-group">
-                        المحاضرات المنتهية
-                        <span class="float-right"><b>0</b>/0</span>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-primary" style="width: 0%"></div>
-                        </div>
-                    </div>
-                }
 
-            </li>
-            <li>
-                <div class="btn-group">
-
-                    <button class="btn btn-info" style="width:110px" data-toggle="modal" data-target="#modal-lg" onclick="assingInfo(@item.categoryPrice,@item.Category_ID)">
-                        <i class="fas fa-credit-card"></i>
-                        دفع
-                    </button>-->
-    @*onclick="location.href='@Url.Action("payforcategory", "Students", new { CourseID = item.Category_ID })
-                                    </div>
-                                </li>
-
-                            </ul>
-                        </div>
+                    <div class="sub-filter-pills" id="subFilterPills">
+                        <button type="button" class="sub-filter-pill is-active" data-filter="all">الكل</button>
+                        <button type="button" class="sub-filter-pill" data-filter="live">المباشرة</button>
+                        <button type="button" class="sub-filter-pill" data-filter="recorded">المسجلة</button>
                     </div>
                 </div>
-            }
+
+                <div class="sub-lectures-list" id="subLecturesList">
+                    <!-- يتم البناء بواسطة JavaScript ديناميكيًا -->
+                </div>
+
+                <div class="sub-empty-box" id="subLecturesEmpty" style="display:none;">
+                    <i class="far fa-calendar-times"></i>
+                    <h3>لا توجد محاضرات في هذه الدورة حاليًا</h3>
+                    <p>لم يتم تسجيل محاضرات لهذه الدورة حتى الآن.</p>
+                </div>
+            </section>
         }
-    </div>*@
 
-<div class="modal fade" id="modal-lg">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">طريقة الدفع</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-
+        <!-- 5. نافذة منبثقة لتفاصيل المحاضرة -->
+        <div id="subLectureModal" class="sub-modal" role="dialog" aria-modal="true" aria-labelledby="subModalTitle" hidden>
+            <div class="sub-modal-shade" data-sub-modal-close="1"></div>
+            <div class="sub-modal-panel" id="subModalPanel" tabindex="-1">
+                <button type="button" id="subModalClose" class="sub-modal-close" aria-label="إغلاق التفاصيل" data-sub-modal-close="1">×</button>
+                <div id="subModalSubject" class="sub-modal-course"></div>
+                <h3 id="subModalTitle" class="sub-modal-title"></h3>
+                <div class="sub-modal-meta">
+                    <div><strong>نوع المحاضرة:</strong> <span id="subModalType"></span></div>
+                    <div><strong>الموعد:</strong> <span id="subModalTime"></span></div>
+                </div>
+                <div id="subModalActions" class="sub-modal-actions"></div>
             </div>
-            <div class="modal-body">
-                <table style="width:100%">
-                    <tr>
-                        <td>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <!-- select -->
-                                    <div class="form-group">
-                                        <label>الدفع عن طريق وكيل</label><br />
+        </div>
+
+        <!-- 6. نافذة الدفع وطرق السداد (Modal المحافظ عليه بالكامل من الصفحة الأصلية) -->
+        <div class="modal fade" id="modal-lg" tabindex="-1" role="dialog" aria-labelledby="modalPayTitle" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content" style="direction: rtl; text-align: right; border-radius: 16px; overflow: hidden;">
+                    <div class="modal-header bg-primary text-white" style="background-color: #113464 !important;">
+                        <h4 class="modal-title" id="modalPayTitle" style="color: #FFFFFF; font-weight: 800;">طريقة الدفع وسداد الرسوم</h4>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="color: #FFFFFF !important; opacity: 1;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="padding: 24px;">
+                        <table style="width:100%" class="table table-borderless">
+                            <tr>
+                                <td>
+                                    <div class="form-group text-center">
+                                        <label style="font-weight: 700;">الدفع عن طريق وكيل</label><br />
                                         <input type="radio" id="PaymnetbyClient" name="paymnet" value="DirectPank" onchange="RadioChange()" />
                                     </div>
-
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <!-- select -->
-                                    <div class="form-group">
-                                        <label>الدفع مباشرة</label><br />
+                                </td>
+                                <td>
+                                    <div class="form-group text-center">
+                                        <label style="font-weight: 700;">بطاقة ائتمان</label><br />
                                         <input type="radio" id="PaymnetCridetCard" name="paymnet" value="DirectPank" onchange="RadioChange()" />
                                     </div>
-
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <!-- select -->
-                                    <div class="form-group">
-                                        <label>الدفع عن طريق حوالة بنكية</label><br />
+                                </td>
+                                <td>
+                                    <div class="form-group text-center">
+                                        <label style="font-weight: 700;">حوالة بنكية</label><br />
                                         <input type="radio" id="PayMentInPank" name="paymnet" value="PanckTransfer" onchange="RadioChange()" />
-
                                     </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <!-- select -->
-                                    <div class="form-group">
-                                        <label>سودان كاش</label><br />
+                                </td>
+                                <td>
+                                    <div class="form-group text-center">
+                                        <label style="font-weight: 700;">سودان كاش</label><br />
                                         <input type="radio" id="Paymnetleater" name="paymnet" value="kachsodan" onchange="RadioChange()" />
-
                                     </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <!-- select -->
-                                    <div class="form-group">
-                                        <label>بنكك</label><br />
-                                        <input type="radio" id="Paymnetleater" name="paymnet" value="bankak" onchange="RadioChange()" />
-
+                                </td>
+                                <td>
+                                    <div class="form-group text-center">
+                                        <label style="font-weight: 700;">بنكك</label><br />
+                                        <input type="radio" id="PaymnetBankak" name="paymnet" value="bankak" onchange="RadioChange()" />
                                     </div>
-                                </div>
-                            </div>
-                        </td>
-
-                        <td>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <!-- select -->
-                                    @*<div class="form-group">
-                        <label>طلب منحة</label><br />
-                        <input type="radio" id="PaymnetCode" name="paymnet" value="Code" onchange="RadioChange()" />
-
-                    </div>*@
-                                </div>
-                            </div>
-                        </td>
-
-                    </tr>
-                    <tr>
-                        <td colspan="3">
-
-                            <div class="row" id="kachsodan">
-                                <div class="col-sm-12">
-                                    <label for="stripe-card-element">ارجو إرفاق إشعار الدفع<span class="required">*</span></label>
-                                    <div class="form-group">
-                                        <input type="file" class="form-control" id="UploadFile" onchange="Validation()">
+                                </td>
+                                <td>
+                                    <div class="form-group text-center">
+                                        <label style="font-weight: 700;">طلب منحة</label><br />
+                                        <input type="radio" id="PaymnetCode" name="paymnet" value="Code" onchange="RadioChange()" />
                                     </div>
-                                </div>
-                            </div>
-                            <div class="row" id="bankak">
-                                <div class="col-sm-12">
-                                    <label for="stripe-card-element">ارجو إرفاق إشعار الدفع<span class="required">*</span></label>
-                                    <div class="form-group">
-                                        <input type="file" class="form-control" id="UploadFile" onchange="Validation()">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="6">
+                                    <div class="row" id="kachsodan" style="display:none;">
+                                        <div class="col-sm-12">
+                                            <label>أرجو إرفاق إشعار الدفع عبر سودان كاش <span class="text-danger">*</span></label>
+                                            <div class="form-group">
+                                                <input type="file" class="form-control" id="UploadFileKash" onchange="Validation()">
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="row" id="PayMentInPank_Div">
-                                <div class="col-sm-12">
-                                    <label for="stripe-card-element"> تحويل المبلغ إلى الحساب  </label>
-                                    <div class="form-group">
-                                        <label class="form-cntrol">999999</label>
-                                        <label class="form-control">Zakarias</label>
+                                    <div class="row" id="bankak" style="display:none;">
+                                        <div class="col-sm-12">
+                                            <label>أرجو إرفاق إشعار التحويل عبر تطبيق بنكك <span class="text-danger">*</span></label>
+                                            <div class="form-group">
+                                                <input type="file" class="form-control" id="UploadFileBankak" onchange="Validation()">
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <label for="stripe-card-element">ارجو إرفاق إشعار الدفع<span class="required">*</span></label>
-                                    <div class="form-group">
-                                        <input type="file" class="form-control" id="UploadFile" onchange="Validation()">
+                                    <div class="row" id="PayMentInPank_Div" style="display:none;">
+                                        <div class="col-sm-12">
+                                            <label>تحويل المبلغ إلى الحساب البنكي</label>
+                                            <div class="form-group alert alert-info">
+                                                <strong>رقم الحساب: </strong> 999999<br />
+                                                <strong>اسم الحساب: </strong> Zakarias
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label>أرجو إرفاق إشعار التحويل البنكي <span class="text-danger">*</span></label>
+                                            <div class="form-group">
+                                                <input type="file" class="form-control" id="UploadFile" onchange="Validation()">
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="row" id="PaymnetCode_Div">
-
-                                <div class="col-sm-12">
-                                    <label for="stripe-card-element">كود المنحة<span class="required">*</span></label>
-                                    <div class="form-group">
-                                        <input type="text" class="form-control" id="Code" onchange="Validation()">
+                                    <div class="row" id="PaymnetCridetCard_Div" style="display:none;">
+                                        <div class="col-sm-6">
+                                            <label>الاسم على البطاقة <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="Card_Name" onkeyup="Validation()">
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label>رقم البطاقة <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="cr_no" onkeyup="Validation()">
+                                        </div>
+                                        <div class="col-sm-6" style="margin-top: 10px;">
+                                            <label>تاريخ الانتهاء (MM/YY) <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="exp" onkeyup="Validation()">
+                                        </div>
+                                        <div class="col-sm-6" style="margin-top: 10px;">
+                                            <label>رمز الأمان (CVC) <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="CVC" onkeyup="Validation()">
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-
-                        </td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="modal-footer">
-                <label id="PaymentValue_ID">0.00</label>
-                <input type="button" class="btn btn-success" id="btn_Pay" value="دفع" onclick="MackPayMent()" />
-            </div>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-
-
-<div class="modal fade" id="Exams_ID">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title"> معلومات الامتحان</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-
-            </div>
-            <div class="modal-body">
-                <table style="width:100%">
-                    <tr>
-                        <td>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <!-- select -->
-                                    <div class="form-group">
-                                        <label>اسم الامتحان</label><br />
-                                        <P id="Exam_Name"></P>
+                                    <div class="row" id="PaymnetCode_Div" style="display:none;">
+                                        <div class="col-sm-12">
+                                            <label>كود المنحة التعليمية <span class="text-danger">*</span></label>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" id="Code" onkeyup="Validation()">
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <!-- select -->
-                                    <div class="form-group">
-                                        <label style="color:darkred">مدة الامتحان </label><br />
-                                        <P id="ExamDuration_ID"></P>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <!-- select -->
-                                    <div class="form-group">
-                                        <label>درجة الامتحان</label><br />
-                                        <p id="ExamsDegry_ID"></p>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <!-- select -->
-                                    <div class="form-group">
-                                        <label style="color:darkred">الدرجة الواجبة للنجاح </label><br />
-                                        <P id="ExamWinDegry_ID"></P>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <!-- select -->
-                                    <div class="form-group">
-                                        <label>ملاحظات</label><br />
-                                        <p id="examDescription"></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <div class="modal-footer justify-content-between">
-                @*<button type="button" class="btn btn-default" data-dismiss="modal">الغاء</button>*@
-                <button type="button" class="btn btn-primary" onclick="btnStartExam()">بدء</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer justify-content-between" style="background: #F8FAFC; padding: 16px 24px;">
+                        <div>
+                            <strong>المبلغ المستحق: </strong>
+                            <span id="PaymentValue_ID" style="font-size: 18px; font-weight: 800; color: #113464;">0.00</span>
+                        </div>
+                        <input type="button" class="btn btn-success" id="btn_Pay" value="تأكيد وسداد الرسوم" onclick="MackPayMent()" style="padding: 8px 24px; font-weight: 700;" />
+                    </div>
+                </div>
             </div>
         </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
 
-<!-- /.card -->
+        <!-- 7. نافذة معلومات الامتحان (Modal المحافظ عليه بالكامل من الصفحة الأصلية) -->
+        <div class="modal fade" id="Exams_ID" tabindex="-1" role="dialog" aria-labelledby="modalExamTitle" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content" style="direction: rtl; text-align: right; border-radius: 16px; overflow: hidden;">
+                    <div class="modal-header text-white" style="background-color: #113464 !important;">
+                        <h4 class="modal-title" id="modalExamTitle" style="color: #FFFFFF; font-weight: 800;">معلومات وتفاصيل الامتحان</h4>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="color: #FFFFFF !important; opacity: 1;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="padding: 24px;">
+                        <table style="width:100%" class="table table-bordered">
+                            <tr>
+                                <td style="width: 25%; font-weight: 700; background: #F8FAFC;">اسم الامتحان</td>
+                                <td style="width: 25%;"><p id="Exam_Name" class="mb-0 font-weight-bold text-primary"></p></td>
+                                <td style="width: 25%; font-weight: 700; background: #F8FAFC; color: darkred;">مدة الامتحان</td>
+                                <td style="width: 25%;"><p id="ExamDuration_ID" class="mb-0 font-weight-bold text-danger"></p></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; background: #F8FAFC;">درجة الامتحان الكلية</td>
+                                <td><p id="ExamsDegry_ID" class="mb-0 font-weight-bold"></p></td>
+                                <td style="font-weight: 700; background: #F8FAFC; color: darkred;">درجة النجاح</td>
+                                <td><p id="ExamWinDegry_ID" class="mb-0 font-weight-bold text-success"></p></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; background: #F8FAFC;">ملاحظات وتعليمات</td>
+                                <td colspan="3"><p id="examDescription" class="mb-0 text-muted"></p></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer justify-content-between" style="background: #F8FAFC; padding: 16px 24px;">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                        <button type="button" class="btn btn-primary" onclick="btnStartExam()" style="background-color: #113464; border-color: #113464; padding: 8px 28px; font-weight: 700;">
+                            <i class="fas fa-play"></i> بدء الامتحان
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- 8. مخزن البيانات الآمن لجميع الدورات ومحاضراتها للقراءة محليًا في المتصفح -->
+        <div id="subCoursesDataset" style="display:none;" aria-hidden="true">
+            @foreach (var course in courses)
+            {
+                <div class="sub-data-course"
+                     data-id="@course.Category_ID"
+                     data-name="@course.CategoryName"
+                     data-teacher="@course.TeacherName"
+                     data-count="@course.lectureCount">
+                    @foreach (var lec in course.Lectures)
+                    {
+                        bool validClient = IsSafeHttpsUrl(lec.LectureLink_Client);
+                        bool validMedia = IsSafeHttpsUrl(lec.MediaLink);
+                        bool hasDoc = !string.IsNullOrWhiteSpace(lec.DocumenFile);
+                        string docUrl = hasDoc ? ("https://tbsetaca.com/Uploade/Images/" + Uri.EscapeUriString(lec.DocumenFile.Trim())) : "";
 
-<script src="~/Content/plugins/jszip/jszip.min.js"></script>
-<script src="~/Content/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="~/Content/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="~/Content/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
-<!-- AdminLTE App -->
-<script src="~/Content/dist/js/adminlte.min.js"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="~/Content/dist/js/demo.js"></script>
-
-<!-- Page specific script -->
-<script src="~/Scripts/CustomJavascript.js"></script>
-<script>
-    isLoading = true;
-
-    $(document).ready(function () {
-        //Initialize Select2 Elements
-       /* $('.select2').select2();*/
-        $('#PaymnetCridetCard_Div').hide();
-        $('#PayMentInPank_Div').hide();
-        $('#PaymnetCode_Div').hide();
-        $('#kachsodan').hide();
-        
-        document.getElementById("btn_Pay").disabled = true;
-
-
-    });
-
-    @*  function GetAllCategoryType() {
-             $.ajax({
-            async: true,
-            type: 'POST',
-            url: '@Url.Action("GetAllCategoryType", "Controlpanel")',
-                 success: function (result) {
-                var s = '<option value="-1">الكل</option>';
-                     for (var i = 0; i < result.length; i++) {
-                    s += '<option value="' + result[i].ID + '">' + result[i].NameAR+'</option>';
-                }
-
-
-                     $("#FillterCategoryType").html(s);
-                     $("#FillterCategoryType").val(@ViewBag.categoryType_ID);
-
-            },
-            error: function (response) {
-            },
-            complete: function (response) {
+                        <div class="sub-data-lecture"
+                             data-id="@lec.ID"
+                             data-category-id="@lec.Category_ID"
+                             data-course="@course.CategoryName"
+                             data-name="@lec.Lecture_Name"
+                             data-type="@lec.LectureTypeOnOff"
+                             data-datetime="@lec.DayandTime"
+                             data-is-end="@(lec.Is_Lecture_End ? "1" : "0")"
+                             data-is-finish="@lec.Is_Std_Finish_Lecture"
+                             data-valid-client="@(validClient ? "1" : "0")"
+                             data-client-url="@(validClient ? lec.LectureLink_Client.Trim() : "")"
+                             data-valid-media="@(validMedia ? "1" : "0")"
+                             data-media-url="@(validMedia ? lec.MediaLink.Trim() : "")"
+                             data-has-doc="@(hasDoc ? "1" : "0")"
+                             data-doc-name="@(hasDoc ? lec.DocumenFile.Trim() : "")"
+                             data-doc-url="@docUrl"></div>
+                    }
+                </div>
             }
-        });
-    }*@
+        </div>
 
+    </div>
+</div>
+
+<script>
+    /* ==========================================================================
+       الوظائف البرمجية المحافظ عليها من الصفحة الأصلية:
+       (الامتحانات، الشهادات، والدفع بكافة طرقه)
+       ========================================================================== */
+
+    // 1. وظائف الامتحانات
     function getExam(examID, categoryID) {
-
         $.ajax({
             async: true,
             type: 'POST',
@@ -634,48 +1345,58 @@
                     var examDuration = (result.Duration * 60).toFixed(0);
                     $("#ExamDuration_ID").html(examDuration + " دقيقة");
                     $("#Exam_Name").html(result.Name);
-
-
                     $("#ExamsDegry_ID").html(result.Exam_Degry);
                     $("#ExamWinDegry_ID").html(result.Exam_win_Degry);
-                    $("#Exams_ID").modal();
+                    $("#Exams_ID").modal('show');
                 } else {
-                    const swalWithBootstrapButtons = Swal.mixin({
-                        customClass: {
-                            confirmButton: 'btn btn-success',
-
-                        },
-                    });
-
-                    swalWithBootstrapButtons.fire({
-                        title: 'تحذير؟',
-                        text: "لا يمكن البدء بالامتحاناتِ قبلَ الانتهاء من المحاضرات والوظائف ؟",
+                    Swal.fire({
+                        title: 'تنبيه',
+                        text: "لا يمكن البدء بالامتحاناتِ قبلَ الانتهاء من كافة المحاضرات والواجبات المطلوبة.",
                         icon: 'warning',
-                        confirmButtonText: 'حسنا',
-                    })
+                        confirmButtonText: 'حسناً',
+                        confirmButtonColor: '#113464'
+                    });
                 }
-
-
-
-
-
             },
-            error: function (response) {
-            },
-            complete: function (response) {
+            error: function () {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'حدث خطأ أثناء فحص متطلبات الامتحان، يرجى المحاولة لاحقاً.',
+                    icon: 'error',
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#113464'
+                });
             }
         });
     }
 
     function btnStartExam() {
-
         var id = $("#examID").val();
-
-        window.location.href = "/Students/Exams?examID="+id;
+        if (id) {
+            window.location.href = "/Students/Exams?examID=" + id;
+        }
     }
 
+    // 2. وظائف الشهادات
     function GetDocmntation(categoryID) {
         window.location.href = "/Students/Certfications";
+    }
+
+    // 3. وظائف الدفع
+    function assingInfo(Price, category_ID) {
+        $('#PaymentValue_ID').html(Price);
+        $("#Categories_ID").val(category_ID);
+        $("#PaymentValue").val(Price);
+    }
+
+    function getSelectedRadioValue(name) {
+        var radios = document.getElementsByName(name);
+        for (var i = 0; i < radios.length; i++) {
+            if (radios[i].checked) {
+                return radios[i].value;
+            }
+        }
+        return "";
     }
 
     function RadioChange() {
@@ -685,188 +1406,488 @@
         $('#PaymnetCode_Div').hide();
         $('#kachsodan').hide();
         $('#bankak').hide();
-        $('#PaymnetbyClient').hide();
-        
-        var value = getSelectedRadioBtnBaluss('paymnet');
-        if (value == 'DirectPank') {
-            $('#PaymnetCridetCard_Div').show();
-        } else if (value == 'PanckTransfer') {
-            $('#PayMentInPank_Div').show();
-        } else if (value == 'Leater') {
-            //$('#PayMentInPank_Div').show();
-            $('#PaymnetCridetCard_Div').hide();
-            $('#PayMentInPank_Div').hide();
-            $('#PaymnetCode_Div').hide();
-        } else if (value == 'Code') {
-            $('#PaymnetCode_Div').show();
-        } else if (value ='kachsodan') {
-            $('#kachsodan').show();
-        } else if (value == 'bankak') {
-            $('#bankak').show();
-            
 
+        var value = getSelectedRadioValue('paymnet');
+        if (value === 'DirectPank') {
+            $('#PaymnetCridetCard_Div').show();
+        } else if (value === 'PanckTransfer') {
+            $('#PayMentInPank_Div').show();
+        } else if (value === 'Code') {
+            $('#PaymnetCode_Div').show();
+        } else if (value === 'kachsodan') {
+            $('#kachsodan').show();
+        } else if (value === 'bankak') {
+            $('#bankak').show();
         }
     }
 
     function Validation() {
-        var value = getSelectedRadioBtnBaluss('paymnet');
-        if (value == 'DirectPank') {
-            var Card_Name = $('#Card_Name').val();
-            var Card_Number = $('#cr_no').val();
-            var Expiry_Date = $('#exp').val();
-            var CVC = $('#CVC').val();
+        var value = getSelectedRadioValue('paymnet');
+        var btn = document.getElementById("btn_Pay");
+        if (!btn) return;
 
-            if (Card_Name != "" && Card_Number != "" && Expiry_Date != "" && CVC != "") {
-                document.getElementById("btn_Pay").disabled = false;
-            } else
-                document.getElementById("btn_Pay").disabled = true;
-
-
-        } else if (value == 'PanckTransfer') {
-            var UploadFile = $('#UploadFile')[0].files[0];
-            if (UploadFile != null) {
-                document.getElementById("btn_Pay").disabled = false;
-            } else
-                document.getElementById("btn_Pay").disabled = true;
-        } else if (value == 'Leater') {
-            document.getElementById("btn_Pay").disabled = false;
-        } else if (value == 'Code') {
-            var Code = $('#Code').val();
-            if (Code != "") {
-                document.getElementById("btn_Pay").disabled = false;
-            } else {
-                document.getElementById("btn_Pay").disabled = true;
-            }
+        if (value === 'DirectPank') {
+            var Card_Name = $('#Card_Name').val() || "";
+            var Card_Number = $('#cr_no').val() || "";
+            var Expiry_Date = $('#exp').val() || "";
+            var CVC = $('#CVC').val() || "";
+            btn.disabled = !(Card_Name.trim() && Card_Number.trim() && Expiry_Date.trim() && CVC.trim());
+        } else if (value === 'PanckTransfer') {
+            var f = $('#UploadFile')[0];
+            btn.disabled = !(f && f.files && f.files.length > 0);
+        } else if (value === 'kachsodan') {
+            var fk = $('#UploadFileKash')[0];
+            btn.disabled = !(fk && fk.files && fk.files.length > 0);
+        } else if (value === 'bankak') {
+            var fb = $('#UploadFileBankak')[0];
+            btn.disabled = !(fb && fb.files && fb.files.length > 0);
+        } else if (value === 'Code') {
+            var Code = $('#Code').val() || "";
+            btn.disabled = (Code.trim() === "");
+        } else {
+            btn.disabled = true;
         }
-    }
-
-    function assingInfo(Price,category_ID) {
-        $('#PaymentValue_ID').html(Price);
-        $("#Categories_ID").val(category_ID);
-        $("#PaymentValue").val(Price);
     }
 
     function MackPayMent() {
-
-
-        var value = getSelectedRadioBtnBaluss('paymnet');
-        if (value == 'DirectPank') {
+        var value = getSelectedRadioValue('paymnet');
+        if (value === 'DirectPank') {
             $("#PayMent_Method").val(1);
-        } else if (value == 'PanckTransfer') {
+        } else if (value === 'PanckTransfer') {
             $("#PayMent_Method").val(2);
-        } else if (value == 'Leater') {
-            $("#PayMent_Method").val(3);
-        } else if (value == 'Code') {
+        } else if (value === 'kachsodan' || value === 'bankak') {
+            $("#PayMent_Method").val(2);
+        } else if (value === 'Code') {
             $("#PayMent_Method").val(4);
         }
 
-          var fd = new FormData();
+        var fd = new FormData();
         var PayMent_Method = $("#PayMent_Method").val();
         var Categories_ID = $("#Categories_ID").val();
-        var PayMent_Value= $("#PaymentValue").val();
-        var UploadFile = $('#UploadFile')[0].files[0];
-
+        var PayMent_Value = $("#PaymentValue").val();
         var Code = $("#Code").val();
 
+        var UploadFile = null;
+        if (value === 'PanckTransfer') {
+            var f1 = $('#UploadFile')[0];
+            if (f1 && f1.files) UploadFile = f1.files[0];
+        } else if (value === 'kachsodan') {
+            var f2 = $('#UploadFileKash')[0];
+            if (f2 && f2.files) UploadFile = f2.files[0];
+        } else if (value === 'bankak') {
+            var f3 = $('#UploadFileBankak')[0];
+            if (f3 && f3.files) UploadFile = f3.files[0];
+        }
 
         fd.append("PayMent_Value", PayMent_Value);
         fd.append("PayMent_Method", PayMent_Method);
         fd.append("Category_ID", Categories_ID);
-        fd.append("FileUpload", UploadFile);
+        if (UploadFile) {
+            fd.append("FileUpload", UploadFile);
+        }
         fd.append("Code", Code);
-        //var dataJson = JSON.stringify(fd);
-        $.ajax(
-            {
-                async: true,
-                type: 'POST',
-                data: fd,
-                contentType: false,
-                processData: false,
-                url: '@Url.Action("payforcategory", "Students")',
-                success: function (data) {
-                    window.location.reload();
-                },
-                error: function (response) {
-                    alert("the problem is " + response.responseText);
-                },
-                complete: function (response) {
-                    //alert("finish call jasion " + response);
-                }
-            });
+
+        $.ajax({
+            async: true,
+            type: 'POST',
+            data: fd,
+            contentType: false,
+            processData: false,
+            url: '@Url.Action("payforcategory", "Students")',
+            success: function () {
+                window.location.reload();
+            },
+            error: function (response) {
+                alert("حدث خطأ أثناء معالجة عملية الدفع: " + (response.responseText || ""));
+            }
+        });
     }
 
-    //function ChangeCategoryType() {
-    //    var id = $("#FillterCategoryType").val();
-    //    window.location.href = "/Students/Categories?categoryType_ID=" + id;
-    //}
-</script>
+    /* ==========================================================================
+       وظائف التصميم الجديد:
+       (لوحة استعراض المحاضرات، الفلاتر، ونافذة التفاصيل)
+       ========================================================================== */
+    (function () {
+        "use strict";
 
+        $(document).ready(function () {
+            var btnPay = document.getElementById("btn_Pay");
+            if (btnPay) btnPay.disabled = true;
+        });
 
+        function isSafeHttps(url) {
+            if (!url || typeof url !== "string") return false;
+            var trimmed = url.trim();
+            if (!/^https:\/\/[^\s/$.?#].[^\s]*$/i.test(trimmed)) return false;
+            try {
+                var u = new URL(trimmed);
+                return u.protocol === "https:";
+            } catch (e) {
+                return /^https:\/\//i.test(trimmed);
+            }
+        }
 
-<script src="~/Content2/js/owl.carousel.min.js" type="text/javascript"></script>
+        function initStudentProgramsPage() {
+            var datasetRoot = document.getElementById("subCoursesDataset");
+            var coursesGrid = document.getElementById("subCoursesGrid");
+            var lecturesList = document.getElementById("subLecturesList");
+            var lecturesEmpty = document.getElementById("subLecturesEmpty");
+            var selectedCourseTitle = document.getElementById("subSelectedCourseTitle");
+            var filterPills = document.getElementById("subFilterPills");
 
-<script>
+            var modal = document.getElementById("subLectureModal");
+            var modalPanel = document.getElementById("subModalPanel");
+            var modalSubject = document.getElementById("subModalSubject");
+            var modalTitle = document.getElementById("subModalTitle");
+            var modalType = document.getElementById("subModalType");
+            var modalTime = document.getElementById("subModalTime");
+            var modalActions = document.getElementById("subModalActions");
 
+            if (!datasetRoot) return;
 
+            var courseNodes = datasetRoot.querySelectorAll(".sub-data-course");
+            var coursesData = [];
+            var allLecturesMap = {};
 
+            for (var c = 0; c < courseNodes.length; c++) {
+                var cNode = courseNodes[c];
+                var cId = cNode.getAttribute("data-id") || "";
+                var cName = cNode.getAttribute("data-name") || "دورة تعليمية";
+                var cTeacher = cNode.getAttribute("data-teacher") || "";
+                var cCount = parseInt(cNode.getAttribute("data-count") || "0", 10);
 
+                var lecs = [];
+                var lecNodes = cNode.querySelectorAll(".sub-data-lecture");
+                for (var l = 0; l < lecNodes.length; l++) {
+                    var lNode = lecNodes[l];
+                    var item = {
+                        id: lNode.getAttribute("data-id") || "",
+                        categoryId: cId,
+                        courseName: cName,
+                        name: lNode.getAttribute("data-name") || "محاضرة بدون عنوان",
+                        type: lNode.getAttribute("data-type") || "1",
+                        dateTime: lNode.getAttribute("data-datetime") || "موعد غير محدد",
+                        isEnd: lNode.getAttribute("data-is-end") === "1",
+                        isFinish: lNode.getAttribute("data-is-finish") === "1",
+                        validClient: lNode.getAttribute("data-valid-client") === "1",
+                        clientUrl: lNode.getAttribute("data-client-url") || "",
+                        validMedia: lNode.getAttribute("data-valid-media") === "1",
+                        mediaUrl: lNode.getAttribute("data-media-url") || "",
+                        hasDoc: lNode.getAttribute("data-has-doc") === "1",
+                        docName: lNode.getAttribute("data-doc-name") || "",
+                        docUrl: lNode.getAttribute("data-doc-url") || ""
+                    };
+                    lecs.push(item);
+                    allLecturesMap[item.id] = item;
+                }
 
-    $(function () {
-        // Owl Carousel
-        var owl = $(".owl-carousel");
-        owl.owlCarousel({
-            items: 3,
-            margin: 10,
-            center: true,
-            loop: true,
-            nav: true,
-            arrow: true,
-            //autoplay: true,
-            autoplayTimeout: 3000,
-            responsive: {
-                0: {
-                    items: 1,
-                    center: false,
-                    arrow: false,
-                    dots: true
-                },
-                600: {
-                    items: 1,
-                    center: false,
-                    arrow: false,
-                    dots: true
-                },
-                1024: {
-                    items: 2
-                },
-                1366: {
-                    items: 3
+                coursesData.push({
+                    id: cId,
+                    name: cName,
+                    teacher: cTeacher,
+                    count: cCount,
+                    lectures: lecs
+                });
+            }
+
+            var currentCategoryId = coursesData.length > 0 ? coursesData[0].id : null;
+            var currentFilter = "all";
+            var oldFocus = null;
+
+            function renderLectures() {
+                if (!lecturesList) return;
+
+                while (lecturesList.firstChild) {
+                    lecturesList.removeChild(lecturesList.firstChild);
+                }
+
+                var currentCourse = null;
+                for (var i = 0; i < coursesData.length; i++) {
+                    if (coursesData[i].id === currentCategoryId) {
+                        currentCourse = coursesData[i];
+                        break;
+                    }
+                }
+
+                if (!currentCourse) {
+                    if (lecturesEmpty) lecturesEmpty.style.display = "";
+                    return;
+                }
+
+                if (selectedCourseTitle) {
+                    selectedCourseTitle.textContent = currentCourse.name;
+                }
+
+                var filtered = [];
+                for (var j = 0; j < currentCourse.lectures.length; j++) {
+                    var lec = currentCourse.lectures[j];
+                    if (currentFilter === "live" && lec.type !== "1") continue;
+                    if (currentFilter === "recorded" && lec.type !== "0") continue;
+                    filtered.push(lec);
+                }
+
+                if (filtered.length === 0) {
+                    if (lecturesEmpty) lecturesEmpty.style.display = "";
+                    return;
+                }
+
+                if (lecturesEmpty) lecturesEmpty.style.display = "none";
+
+                for (var k = 0; k < filtered.length; k++) {
+                    var lItem = filtered[k];
+
+                    var row = document.createElement("article");
+                    row.className = "sub-lec-row";
+                    row.setAttribute("data-lecture-id", lItem.id);
+
+                    var mainDiv = document.createElement("div");
+                    mainDiv.className = "sub-lec-main";
+
+                    var topDiv = document.createElement("div");
+                    topDiv.className = "sub-lec-top";
+
+                    var typeBadge = document.createElement("span");
+                    if (lItem.type === "1") {
+                        typeBadge.className = "sub-badge sub-badge-live";
+                        typeBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> محاضرة مباشرة';
+                    } else {
+                        typeBadge.className = "sub-badge sub-badge-rec";
+                        typeBadge.innerHTML = '<i class="fas fa-play-circle"></i> محاضرة مسجلة';
+                    }
+                    topDiv.appendChild(typeBadge);
+
+                    if (lItem.isFinish) {
+                        var finBadge = document.createElement("span");
+                        finBadge.className = "sub-badge sub-badge-finished";
+                        finBadge.innerHTML = '<i class="fas fa-check"></i> مكتملة';
+                        topDiv.appendChild(finBadge);
+                    }
+
+                    mainDiv.appendChild(topDiv);
+
+                    var h4 = document.createElement("h4");
+                    h4.className = "sub-lec-title";
+                    h4.textContent = lItem.name;
+                    mainDiv.appendChild(h4);
+
+                    var metaDiv = document.createElement("div");
+                    metaDiv.className = "sub-lec-meta";
+
+                    var timeSpan = document.createElement("span");
+                    timeSpan.innerHTML = '<i class="far fa-clock"></i> ' + (lItem.dateTime || "موعد غير محدد");
+                    metaDiv.appendChild(timeSpan);
+
+                    if (lItem.hasDoc) {
+                        var docSpan = document.createElement("span");
+                        docSpan.innerHTML = '<i class="fas fa-paperclip"></i> يوجد مرفق تعليمي';
+                        metaDiv.appendChild(docSpan);
+                    }
+
+                    mainDiv.appendChild(metaDiv);
+                    row.appendChild(mainDiv);
+
+                    var actionsDiv = document.createElement("div");
+                    actionsDiv.className = "sub-lec-actions";
+
+                    if (lItem.type === "1" && lItem.validClient && isSafeHttps(lItem.clientUrl)) {
+                        var joinBtn = document.createElement("a");
+                        joinBtn.href = lItem.clientUrl;
+                        joinBtn.target = "_blank";
+                        joinBtn.rel = "noopener noreferrer";
+                        joinBtn.className = "sub-btn sub-btn-join";
+                        joinBtn.innerHTML = '<i class="fas fa-video"></i> دخول المحاضرة';
+                        actionsDiv.appendChild(joinBtn);
+                    }
+
+                    if (lItem.validMedia && isSafeHttps(lItem.mediaUrl)) {
+                        var videoBtn = document.createElement("a");
+                        videoBtn.href = lItem.mediaUrl;
+                        videoBtn.target = "_blank";
+                        videoBtn.rel = "noopener noreferrer";
+                        videoBtn.className = "sub-btn sub-btn-video";
+                        videoBtn.innerHTML = '<i class="fas fa-play"></i> مشاهدة الفيديو';
+                        actionsDiv.appendChild(videoBtn);
+                    }
+
+                    if (lItem.hasDoc && lItem.docUrl && isSafeHttps(lItem.docUrl)) {
+                        var docBtn = document.createElement("a");
+                        docBtn.href = lItem.docUrl;
+                        docBtn.target = "_blank";
+                        docBtn.rel = "noopener noreferrer";
+                        docBtn.className = "sub-btn sub-btn-doc";
+                        docBtn.innerHTML = '<i class="fas fa-paperclip"></i> المرفق';
+                        actionsDiv.appendChild(docBtn);
+                    }
+
+                    var detailsBtn = document.createElement("button");
+                    detailsBtn.type = "button";
+                    detailsBtn.className = "sub-btn sub-btn-details";
+                    detailsBtn.setAttribute("data-lecture-id", lItem.id);
+                    detailsBtn.innerHTML = '<i class="fas fa-info-circle"></i> التفاصيل';
+                    actionsDiv.appendChild(detailsBtn);
+
+                    row.appendChild(actionsDiv);
+                    lecturesList.appendChild(row);
                 }
             }
-        });
-    });
 
-    $(document).ready(function () {
+            function selectCourse(catId, scrollIntoView) {
+                currentCategoryId = String(catId);
+                var cards = coursesGrid ? coursesGrid.querySelectorAll(".sub-course-card") : [];
+                for (var i = 0; i < cards.length; i++) {
+                    var card = cards[i];
+                    var isSelected = card.getAttribute("data-category-id") === currentCategoryId;
+                    if (isSelected) {
+                        card.classList.add("is-active");
+                        card.setAttribute("aria-selected", "true");
+                    } else {
+                        card.classList.remove("is-active");
+                        card.setAttribute("aria-selected", "false");
+                    }
+                }
+                renderLectures();
 
-
-        /* navbar fixed */
-
-        $(window).scroll(function () {
-
-            var startScroll = 150;
-            var menuTop = $(".menu_top");
-            var scrollTop = $(window).scrollTop();
-
-            if (scrollTop >= startScroll) {
-                $(menuTop).addClass("fixed");
-            } else {
-                $(menuTop).removeClass("fixed");
+                if (scrollIntoView) {
+                    var panel = document.getElementById("subLecturesPanel");
+                    if (panel) {
+                        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
             }
-        });
-    });
 
+            if (coursesGrid) {
+                coursesGrid.addEventListener("click", function (e) {
+                    var btnLec = e.target.closest(".sub-btn-lectures");
+                    if (btnLec) {
+                        e.stopPropagation();
+                        var catIdLec = btnLec.getAttribute("data-category-id");
+                        if (catIdLec) selectCourse(catIdLec, true);
+                        return;
+                    }
 
+                    var card = e.target.closest(".sub-course-card");
+                    if (card && !e.target.closest("a, button")) {
+                        var catId = card.getAttribute("data-category-id");
+                        if (catId) selectCourse(catId, false);
+                    }
+                });
+
+                coursesGrid.addEventListener("keydown", function (e) {
+                    if (e.key === "Enter" || e.key === " ") {
+                        var card = e.target.closest(".sub-course-card");
+                        if (card && !e.target.closest("a, button")) {
+                            e.preventDefault();
+                            var catId = card.getAttribute("data-category-id");
+                            if (catId) selectCourse(catId, false);
+                        }
+                    }
+                });
+            }
+
+            if (filterPills) {
+                filterPills.addEventListener("click", function (e) {
+                    var btn = e.target.closest(".sub-filter-pill");
+                    if (btn) {
+                        var filterVal = btn.getAttribute("data-filter") || "all";
+                        var allPills = filterPills.querySelectorAll(".sub-filter-pill");
+                        for (var p = 0; p < allPills.length; p++) {
+                            allPills[p].classList.remove("is-active");
+                        }
+                        btn.classList.add("is-active");
+                        currentFilter = filterVal;
+                        renderLectures();
+                    }
+                });
+            }
+
+            function openLectureModal(lec) {
+                if (!lec || !modal || !modalPanel) return;
+                oldFocus = document.activeElement;
+
+                if (modalSubject) modalSubject.textContent = lec.courseName;
+                if (modalTitle) modalTitle.textContent = lec.name;
+                if (modalType) modalType.textContent = lec.type === "1" ? "محاضرة مباشرة" : "محاضرة مسجلة";
+                if (modalTime) modalTime.textContent = lec.dateTime;
+
+                if (modalActions) {
+                    while (modalActions.firstChild) {
+                        modalActions.removeChild(modalActions.firstChild);
+                    }
+
+                    if (lec.type === "1" && lec.validClient && isSafeHttps(lec.clientUrl)) {
+                        var aJoin = document.createElement("a");
+                        aJoin.href = lec.clientUrl;
+                        aJoin.target = "_blank";
+                        aJoin.rel = "noopener noreferrer";
+                        aJoin.className = "sub-btn sub-btn-join";
+                        aJoin.innerHTML = '<i class="fas fa-video"></i> دخول المحاضرة المباشرة';
+                        modalActions.appendChild(aJoin);
+                    }
+
+                    if (lec.validMedia && isSafeHttps(lec.mediaUrl)) {
+                        var aVideo = document.createElement("a");
+                        aVideo.href = lec.mediaUrl;
+                        aVideo.target = "_blank";
+                        aVideo.rel = "noopener noreferrer";
+                        aVideo.className = "sub-btn sub-btn-video";
+                        aVideo.innerHTML = '<i class="fas fa-play"></i> مشاهدة الفيديو المسجل';
+                        modalActions.appendChild(aVideo);
+                    }
+
+                    if (lec.hasDoc && lec.docUrl && isSafeHttps(lec.docUrl)) {
+                        var aDoc = document.createElement("a");
+                        aDoc.href = lec.docUrl;
+                        aDoc.target = "_blank";
+                        aDoc.rel = "noopener noreferrer";
+                        aDoc.className = "sub-btn sub-btn-doc";
+                        aDoc.innerHTML = '<i class="fas fa-paperclip"></i> فتح المرفق التعليمي';
+                        modalActions.appendChild(aDoc);
+                    }
+                }
+
+                modal.hidden = false;
+                modalPanel.focus();
+            }
+
+            function closeLectureModal() {
+                if (!modal || modal.hidden) return;
+                modal.hidden = true;
+                if (oldFocus && document.contains(oldFocus) && typeof oldFocus.focus === "function") {
+                    oldFocus.focus();
+                }
+                oldFocus = null;
+            }
+
+            document.addEventListener("click", function (e) {
+                var closeTarget = e.target.closest("[data-sub-modal-close]");
+                if (closeTarget && modal && modal.contains(closeTarget)) {
+                    closeLectureModal();
+                    return;
+                }
+
+                var detailsTarget = e.target.closest(".sub-btn-details, .sub-lec-row");
+                if (detailsTarget && !e.target.closest("a")) {
+                    var lecId = detailsTarget.getAttribute("data-lecture-id");
+                    if (lecId && allLecturesMap[lecId]) {
+                        openLectureModal(allLecturesMap[lecId]);
+                    }
+                }
+            });
+
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape" && modal && !modal.hidden) {
+                    e.preventDefault();
+                    closeLectureModal();
+                }
+            });
+
+            renderLectures();
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initStudentProgramsPage);
+        } else {
+            initStudentProgramsPage();
+        }
+    })();
 </script>
-<!--  End Content  -->
-<!--  Start Footer  -->
-<!--  End Footer  -->

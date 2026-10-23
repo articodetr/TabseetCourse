@@ -1,4 +1,4 @@
-@model IEnumerable<tabseetCourse.Models.LectureModel>
+﻿@model IEnumerable<tabseetCourse.Models.LectureModel>
 @using System.Globalization
 
 @{
@@ -1600,11 +1600,11 @@
 <div id="studentTimetable" class="sec_content padding_menu" dir="rtl">
     <div class="tt-container">
 
-        <!-- التنقل السريع بين المواد الدراسية وجدول الحصص -->
+        <!-- التنقل السريع بين برامجي التعليمية وجدول الحصص -->
         <nav class="tt-page-tabs" aria-label="أقسام واجهة الطالب">
-            <a href="@Url.Action("StdSubjects", "Students")" class="tt-page-tab">
-                <i class="fas fa-book-open"></i>
-                <span>المواد الدراسية</span>
+            <a href="@Url.Action("CategoriesStd", "Students")" class="tt-page-tab">
+                <i class="fas fa-graduation-cap"></i>
+                <span>برامجي التعليمية</span>
             </a>
             <a href="@Url.Action("StdonlineCourse", "Students")" class="tt-page-tab is-active" aria-current="page">
                 <i class="fas fa-calendar-alt"></i>

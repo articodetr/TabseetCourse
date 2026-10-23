@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -46,5 +46,14 @@ namespace tabseetCourse.Models
 
         public string certificate { get; set; }
         public string certificate_leave { get; set; }
+
+        public string TeacherName { get; set; }
+        public string Description { get; set; }
+        public List<LectureModel> Lectures { get; set; }
+
+        public Std_Reg_CategoryModel()
+        {
+            Lectures = new List<LectureModel>();
+        }
     }
 }

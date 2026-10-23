@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -140,6 +140,27 @@ namespace tabseetCourse.Controllers
                         }
                     }
 
+                    var teachers = dbEntity.AspNetUsers
+                        .Where(u => u.userOrTetcherOrStudent == 1 || u.AspNetRoles.Any(r => r.Name == "Teacher"))
+                        .ToList();
+
+                    var categoryTeacherMap = new Dictionary<int, string>();
+                    foreach (var t in teachers)
+                    {
+                        if (!string.IsNullOrWhiteSpace(t.Categories_ID))
+                        {
+                            var catIds = GetTeacherCategoryIds(t.Categories_ID);
+                            string tName = !string.IsNullOrWhiteSpace(t.RealName) ? t.RealName.Trim() : ((t.FirstName ?? "") + " " + (t.LastName ?? "")).Trim();
+                            foreach (var cid in catIds)
+                            {
+                                if (!categoryTeacherMap.ContainsKey(cid))
+                                {
+                                    categoryTeacherMap[cid] = tName;
+                                }
+                            }
+                        }
+                    }
+
                     foreach (var item in L_ct)
                     {
 
@@ -152,6 +173,12 @@ namespace tabseetCourse.Controllers
                         ctm.std_category_Ispayed = item.std_category_Ispayed.Value;
                         ctm.lectureCount = 0;
                         ctm.DocumentBook = item.Category.DocumentBook;
+                        ctm.Description = item.Category.Description;
+                        if (categoryTeacherMap.ContainsKey(item.Category_ID.Value))
+                        {
+                            ctm.TeacherName = categoryTeacherMap[item.Category_ID.Value];
+                        }
+
                         if (item.Category.ParentCateogry_ID == null)
                         {
 
@@ -201,6 +228,43 @@ namespace tabseetCourse.Controllers
                         {
                             ctm.std_exam_isFinish = item.std_exam_isFinish.Value;
                         }
+
+                        List<int> relatedCatIds = new List<int> { item.Category_ID.Value };
+                        if (item.Category.ParentCateogry_ID == null && item.Category.Categories1 != null)
+                        {
+                            foreach (var subCat in item.Category.Categories1)
+                            {
+                                relatedCatIds.Add(subCat.ID);
+                            }
+                        }
+
+                        var catLectures = dbEntity.Lectures
+                            .Where(l => relatedCatIds.Contains(l.Category_ID))
+                            .ToList();
+
+                        var finishedLectureIds = dbEntity.std_lecture
+                            .Where(e => e.Std_ID == CurrentUser.ID && e.IsFinish == 1 && relatedCatIds.Contains(e.Lecture.Category_ID))
+                            .Select(e => e.Lecture_ID)
+                            .ToList();
+
+                        foreach (var lec in catLectures)
+                        {
+                            LectureModel lm = new LectureModel();
+                            lm.ID = lec.ID;
+                            lm.Lecture_Name = !string.IsNullOrWhiteSpace(lec.Lecture_Name) ? lec.Lecture_Name.Trim() : "محاضرة بدون عنوان";
+                            lm.Category_ID = lec.Category_ID;
+                            lm.CategoresName = lec.Category != null ? lec.Category.NameAr : ctm.CategoryName;
+                            lm.DayandTime = lec.DayandTime;
+                            lm.LectureTypeOnOff = lec.LectureTypeOnOff;
+                            lm.LectureLink_Client = lec.LectureLink_Client;
+                            lm.LectureLink_Host = lec.LectureLink_Host;
+                            lm.MediaLink = lec.MediaLink;
+                            lm.DocumenFile = lec.DocumenFile;
+                            int minTime = 0; int.TryParse(lec.LectureMinTime, out minTime); lm.LectureMinTime = minTime;
+                            lm.Is_Std_Finish_Lecture = finishedLectureIds.Contains(lec.ID) ? 1 : 0;
+                            ctm.Lectures.Add(lm);
+                        }
+
                         L_ctm.Add(ctm);
                     }
                 }
@@ -589,174 +653,13 @@ namespace tabseetCourse.Controllers
         [HttpGet]
         public ActionResult Subjects()
         {
-            return RedirectToAction("StdSubjects");
+            return RedirectToAction("CategoriesStd");
         }
 
         [HttpGet]
         public ActionResult StdSubjects()
         {
-            List<StudentSubjectItemModel> model = new List<StudentSubjectItemModel>();
-            try
-            {
-                if (CurrentUser == null)
-                {
-                    return RedirectToAction("LogIn", "Home");
-                }
-
-                string studentId = CurrentUser.ID;
-                var registeredCategoryIds = dbEntity.Std_Reg_Category
-                    .Where(e => e.Std_ID == studentId && e.Category_ID.HasValue)
-                    .Select(e => e.Category_ID.Value)
-                    .Distinct()
-                    .ToList();
-
-                if (registeredCategoryIds == null || registeredCategoryIds.Count == 0)
-                {
-                    return View(model);
-                }
-
-                var categories = dbEntity.Categories
-                    .Where(c => registeredCategoryIds.Contains(c.ID))
-                    .OrderBy(c => c.NameAr)
-                    .ToList();
-
-                var teachers = dbEntity.AspNetUsers
-                    .Where(u => u.userOrTetcherOrStudent == 1 || u.AspNetRoles.Any(r => r.Name == "Teacher"))
-                    .ToList();
-
-                var categoryTeacherMap = new Dictionary<int, string>();
-                foreach (var t in teachers)
-                {
-                    if (!string.IsNullOrWhiteSpace(t.Categories_ID))
-                    {
-                        var catIds = GetTeacherCategoryIds(t.Categories_ID);
-                        string tName = !string.IsNullOrWhiteSpace(t.RealName) ? t.RealName.Trim() : ((t.FirstName ?? "") + " " + (t.LastName ?? "")).Trim();
-                        foreach (var cid in catIds)
-                        {
-                            if (!categoryTeacherMap.ContainsKey(cid))
-                            {
-                                categoryTeacherMap[cid] = tName;
-                            }
-                        }
-                    }
-                }
-
-                var allLectures = dbEntity.Lectures
-                    .Where(l => registeredCategoryIds.Contains(l.Category_ID))
-                    .ToList();
-
-                string[] knownFormats = new string[]
-                {
-                    "yyyy-MM-dd HH:mm:ss",
-                    "yyyy-MM-ddTHH:mm:ss",
-                    "yyyy-MM-ddTHH:mm",
-                    "yyyy-MM-dd HH:mm",
-                    "yyyy-MM-dd",
-                    "MM/dd/yyyy HH:mm:ss",
-                    "MM/dd/yyyy HH:mm",
-                    "MM/dd/yyyy h:mm tt",
-                    "MM/dd/yyyy h:mm",
-                    "MM/dd/yyyy",
-                    "dd/MM/yyyy HH:mm:ss",
-                    "dd/MM/yyyy HH:mm"
-                };
-
-                DateTime now = DateTime.Now;
-
-                foreach (var cat in categories)
-                {
-                    var item = new StudentSubjectItemModel();
-                    item.CategoryId = cat.ID;
-                    item.CategoryName = !string.IsNullOrWhiteSpace(cat.NameAr) ? cat.NameAr.Trim() : "مادة دراسية";
-                    item.Icon = cat.Icon;
-                    item.Description = cat.Description;
-                    item.TeacherName = categoryTeacherMap.ContainsKey(cat.ID) ? categoryTeacherMap[cat.ID] : null;
-
-                    var catLectures = allLectures
-                        .Where(l => l.Category_ID == cat.ID)
-                        .GroupBy(l => l.ID)
-                        .Select(g => g.First())
-                        .ToList();
-
-                    item.LectureCount = catLectures.Count;
-
-                    var parsedLectures = new List<Tuple<LectureModel, bool, DateTime>>();
-
-                    foreach (var lec in catLectures)
-                    {
-                        var lm = new LectureModel();
-                        lm.ID = lec.ID;
-                        lm.Category_ID = lec.Category_ID;
-                        lm.Lecture_Name = !string.IsNullOrWhiteSpace(lec.Lecture_Name) ? lec.Lecture_Name.Trim() : "محاضرة بدون عنوان";
-                        lm.CategoresName = item.CategoryName;
-                        lm.LectureTypeOnOff = lec.LectureTypeOnOff;
-                        lm.LectureLink_Client = lec.LectureLink_Client;
-                        lm.MediaLink = lec.MediaLink;
-                        lm.DocumenFile = lec.DocumenFile;
-                        lm.Others = lec.Others;
-
-                        int minTime = 0;
-                        if (int.TryParse(lec.LectureMinTime, out minTime))
-                        {
-                            lm.LectureMinTime = minTime;
-                        }
-
-                        bool hasValidDate = false;
-                        DateTime dt = DateTime.MinValue;
-
-                        if (!string.IsNullOrWhiteSpace(lec.DayandTime))
-                        {
-                            string trimmed = lec.DayandTime.Trim();
-                            if (DateTime.TryParseExact(trimmed, knownFormats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
-                            {
-                                hasValidDate = true;
-                            }
-                            else if (DateTime.TryParse(trimmed, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
-                            {
-                                hasValidDate = true;
-                            }
-                        }
-
-                        if (hasValidDate)
-                        {
-                            lm.DayandTime = dt.ToString("yyyy-MM-dd HH:mm");
-                            lm.Is_Lecture_End = dt.AddHours(2) < now;
-                        }
-                        else
-                        {
-                            lm.DayandTime = "موعد غير محدد";
-                            lm.Is_Lecture_End = true;
-                        }
-
-                        parsedLectures.Add(Tuple.Create(lm, hasValidDate, dt));
-                    }
-
-                    // Order: upcoming live lectures first (by date asc), then previous live lectures (by date desc), then offline/recorded/unscheduled
-                    var upcoming = parsedLectures
-                        .Where(x => x.Item2 && !x.Item1.Is_Lecture_End)
-                        .OrderBy(x => x.Item3)
-                        .Select(x => x.Item1);
-
-                    var previous = parsedLectures
-                        .Where(x => x.Item2 && x.Item1.Is_Lecture_End)
-                        .OrderByDescending(x => x.Item3)
-                        .Select(x => x.Item1);
-
-                    var noDate = parsedLectures
-                        .Where(x => !x.Item2)
-                        .Select(x => x.Item1);
-
-                    item.Lectures = upcoming.Concat(previous).Concat(noDate).ToList();
-                    model.Add(item);
-                }
-            }
-            catch (Exception ex)
-            {
-                Printerror("StdSubjects", ex.Message, ex.InnerException != null ? ex.InnerException.Message : null, ex.StackTrace);
-                ViewBag.ErrorMessage = "حدث خطأ أثناء تحميل المواد الدراسية. يرجى المحاولة لاحقًا.";
-            }
-
-            return View(model);
+            return RedirectToAction("CategoriesStd");
         }
 
         private List<int> GetTeacherCategoryIds(string categoriesString)
