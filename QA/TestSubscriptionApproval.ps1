@@ -118,7 +118,7 @@ Write-Host "==========================================================" -Foregro
 # تنظيف بقايا تشغيل سابق
 $null = Sql "DELETE FROM std_lecture WHERE Std_ID IN (SELECT Id FROM AspNetUsers WHERE Email LIKE 'qa.sub.%@example.test');"
 $null = Sql "DELETE FROM Std_Reg_Category WHERE Std_ID IN (SELECT Id FROM AspNetUsers WHERE Email LIKE 'qa.sub.%@example.test');"
-$null = Sql "DELETE FROM AspNetUserRoles WHERE AspNetUsers_Id IN (SELECT Id FROM AspNetUsers WHERE Email LIKE 'qa.sub.%@example.test');"
+$null = Sql "DELETE FROM AspNetUserRoles WHERE UserId IN (SELECT Id FROM AspNetUsers WHERE Email LIKE 'qa.sub.%@example.test');"
 $null = Sql "DELETE FROM AspNetUserClaims WHERE UserId IN (SELECT Id FROM AspNetUsers WHERE Email LIKE 'qa.sub.%@example.test');"
 $null = Sql "DELETE FROM AspNetUsers WHERE Email LIKE 'qa.sub.%@example.test';"
 
@@ -133,7 +133,7 @@ $pass = ($reg.Status -eq 200) -and ($reg.Json -ne $null) -and ($reg.Json.success
 Record-Test -TestId "T1-01" -Description "إنشاء حساب طالب عبر RegesterNewStdView ينجح دون أي بيانات دفع" -Passed $pass -Details "status=$($reg.Status) raw=$($reg.Raw.Substring(0,[Math]::Min(120,$reg.Raw.Length)))"
 
 $qaId = Sql "SELECT Id FROM AspNetUsers WHERE Email='$qaEmail';"
-$qaRole = Sql "SELECT r.Name FROM AspNetUserRoles ur JOIN AspNetRoles r ON r.Id=ur.AspNetRoles_Id WHERE ur.AspNetUsers_Id='$qaId';"
+$qaRole = Sql "SELECT r.Name FROM AspNetUserRoles ur JOIN AspNetRoles r ON r.Id=ur.RoleId WHERE ur.UserId='$qaId';"
 $qaRegs = [int](Sql "SELECT COUNT(*) FROM Std_Reg_Category WHERE Std_ID='$qaId';")
 $pass = ($qaId -ne "") -and ($qaRole -eq "Student") -and ($qaRegs -eq 0)
 Record-Test -TestId "T1-02" -Description "الحساب موجود بدور Student ولا يملك أي تسجيل في دورات" -Passed $pass -Details "id=$qaId role=$qaRole regs=$qaRegs"
@@ -425,7 +425,7 @@ Record-Test -TestId "T6-11" -Description "صفحة كل الدورات تحمّ�
 Write-Host "`n[Cleanup]" -ForegroundColor Yellow
 $null = Sql "DELETE FROM std_lecture WHERE Std_ID='$qaId';"
 $null = Sql "DELETE FROM Std_Reg_Category WHERE Std_ID='$qaId';"
-$null = Sql "DELETE FROM AspNetUserRoles WHERE AspNetUsers_Id='$qaId';"
+$null = Sql "DELETE FROM AspNetUserRoles WHERE UserId='$qaId';"
 $null = Sql "DELETE FROM AspNetUserClaims WHERE UserId='$qaId';"
 $null = Sql "DELETE FROM AspNetUsers WHERE Id='$qaId';"
 foreach ($p in $tempFiles) { Remove-Item -Path $p -Force -ErrorAction SilentlyContinue }

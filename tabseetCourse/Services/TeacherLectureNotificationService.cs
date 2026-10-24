@@ -715,8 +715,8 @@ namespace tabseetCourse.Services
             // Find active Admin users
             var sql = @"SELECT u.Id 
                         FROM AspNetUsers u 
-                        JOIN AspNetUserRoles ur ON u.Id = ur.AspNetUsers_Id 
-                        JOIN AspNetRoles r ON ur.AspNetRoles_Id = r.Id 
+                        JOIN AspNetUserRoles ur ON u.Id = ur.UserId 
+                        JOIN AspNetRoles r ON ur.RoleId = r.Id 
                         WHERE r.Name = 'Admin' AND u.IsActive = 1";
 
             var adminIds = await db.Database.SqlQuery<string>(sql).ToListAsync();

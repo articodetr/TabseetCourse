@@ -9248,6 +9248,8 @@
     <Content Include="Uploade\Images\image1.png" />
     <Content Include="Uploade\Images\slider.jpg" />
     <Content Include="Web.config" />
+    <Content Include="ConnectionStrings.config" Condition="Exists('ConnectionStrings.config')" />
+    <Content Include="ConnectionStrings.config.example" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>

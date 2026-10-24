@@ -4,7 +4,13 @@
 -- Safe, idempotent, preserves all existing tables and data.
 -- ==============================================================================
 
-USE [TabseetDB_Local];
+-- Target database: pass it with  sqlcmd -d  (tbseedDB on the server, TabseetDB_Local locally)
+-- or select it in SSMS. The guard below skips the whole script when it runs inside master.
+IF DB_NAME() = N'master'
+BEGIN
+    RAISERROR(N'Select the Tabseet database first (sqlcmd -d tbseedDB). Nothing was changed.', 16, 1);
+    SET NOEXEC ON;
+END
 GO
 
 -- 1. Table: TeacherLectureStatus
@@ -97,3 +103,5 @@ BEGIN
 END
 GO
 
+SET NOEXEC OFF;
+GO

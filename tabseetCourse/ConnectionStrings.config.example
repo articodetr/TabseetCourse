@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Template for ConnectionStrings.config (referenced from Web.config via configSource).
+  1. Copy this file to  ConnectionStrings.config  next to Web.config (on the server and on every dev machine).
+  2. Fill in the real values. ConnectionStrings.config is git-ignored and must never be committed.
+  Keep exactly these two names: TabseetConnection (ADO.NET / Identity / Code-First contexts)
+  and tbseedDBEntities (EDMX / Database-First context).
+-->
+<connectionStrings>
+  <!-- ===== Production server ===== -->
+  <add
+    name="TabseetConnection"
+    connectionString="Data Source=SERVER_HOST;Initial Catalog=DB_NAME;User ID=DB_USER;Password=DB_PASSWORD;TrustServerCertificate=True;"
+    providerName="System.Data.SqlClient" />
+  <add
+    name="tbseedDBEntities"
+    connectionString="metadata=res://*/Data.tbseedDB.csdl|res://*/Data.tbseedDB.ssdl|res://*/Data.tbseedDB.msl;provider=System.Data.SqlClient;provider connection string=&quot;Data Source=SERVER_HOST;Initial Catalog=DB_NAME;User ID=DB_USER;Password=DB_PASSWORD;MultipleActiveResultSets=True;TrustServerCertificate=True;App=EntityFramework&quot;"
+    providerName="System.Data.EntityClient" />
+
+  <!-- ===== Local development (Windows auth, TabseetDB_Local) - swap with the block above =====
+  <add
+    name="TabseetConnection"
+    connectionString="Data Source=.;Initial Catalog=TabseetDB_Local;Integrated Security=True;TrustServerCertificate=True;"
+    providerName="System.Data.SqlClient" />
+  <add
+    name="tbseedDBEntities"
+    connectionString="metadata=res://*/Data.tbseedDB.csdl|res://*/Data.tbseedDB.ssdl|res://*/Data.tbseedDB.msl;provider=System.Data.SqlClient;provider connection string=&quot;Data Source=.;Initial Catalog=TabseetDB_Local;Integrated Security=True;MultipleActiveResultSets=True;TrustServerCertificate=True;App=EntityFramework&quot;"
+    providerName="System.Data.EntityClient" />
+  -->
+</connectionStrings>

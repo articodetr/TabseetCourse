@@ -169,7 +169,7 @@ BEGIN TRY
 
     -- حذف تعيينات أدوار المستخدمين التجريبيين
     DELETE FROM dbo.AspNetUserRoles
-    WHERE AspNetUsers_Id LIKE N'TEST-USR-%';
+    WHERE UserId LIKE N'TEST-USR-%';
     PRINT N' [تم] تنظيف تعيينات AspNetUserRoles للحسابات التجريبية.';
 
     -- حذف حسابات المستخدمين التجريبيين (المدير، المدرسين، الطلاب)

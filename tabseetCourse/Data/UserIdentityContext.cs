@@ -9,19 +9,6 @@ namespace tabseetCourse.Data
     public class UserIdentityContext : IdentityDbContext<MyIdentityUser>
     {
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<IdentityUserRole>()
-                .Property(x => x.UserId)
-                .HasColumnName("AspNetUsers_Id");
-
-            modelBuilder.Entity<IdentityUserRole>()
-                .Property(x => x.RoleId)
-                .HasColumnName("AspNetRoles_Id");
-        }
-
         public UserIdentityContext() : base("TabseetConnection")
         {
 

@@ -102,7 +102,7 @@ BEGIN TRY
     INSERT INTO dbo.__TestDataManifest (TableName, RecordId) VALUES (N'AspNetUsers', N'TEST-USR-ADMIN-01');
 
     -- إسناد الأدوار للمدير
-    INSERT INTO dbo.AspNetUserRoles (AspNetRoles_Id, AspNetUsers_Id)
+    INSERT INTO dbo.AspNetUserRoles (RoleId, UserId)
     SELECT r.Id, N'TEST-USR-ADMIN-01'
     FROM dbo.AspNetRoles r
     WHERE r.Name IN (
@@ -164,7 +164,7 @@ BEGIN TRY
 
     -- إسناد دور المعلم للمدرسين الستة
     DECLARE @TeacherRoleId NVARCHAR(128) = (SELECT TOP 1 Id FROM dbo.AspNetRoles WHERE Name = N'Teacher');
-    INSERT INTO dbo.AspNetUserRoles (AspNetRoles_Id, AspNetUsers_Id)
+    INSERT INTO dbo.AspNetUserRoles (RoleId, UserId)
     VALUES
         (@TeacherRoleId, N'TEST-USR-TCH-01'), (@TeacherRoleId, N'TEST-USR-TCH-02'),
         (@TeacherRoleId, N'TEST-USR-TCH-03'), (@TeacherRoleId, N'TEST-USR-TCH-04'),
@@ -240,7 +240,7 @@ BEGIN TRY
         s.Country, s.Country + N' [TEST_TABSEET_2026]', N'طالب بأكاديمية تبسيط الدولية', N'تعلّم إلكتروني', N'أكاديمية تبسيط'
     FROM @StudentsData s;
 
-    INSERT INTO dbo.AspNetUserRoles (AspNetRoles_Id, AspNetUsers_Id)
+    INSERT INTO dbo.AspNetUserRoles (RoleId, UserId)
     SELECT @StudentRoleId, s.Id FROM @StudentsData s;
 
     INSERT INTO dbo.__TestDataManifest (TableName, RecordId)

@@ -6,7 +6,13 @@
 -- Safe, idempotent, preserves all existing rows and flags (IsFinish / IsTimeEnd / IsAssingmetFinish).
 -- ==============================================================================
 
-USE [TabseetDB_Local];
+-- Target database: pass it with  sqlcmd -d  (tbseedDB on the server, TabseetDB_Local locally)
+-- or select it in SSMS. The guard below skips the whole script when it runs inside master.
+IF DB_NAME() = N'master'
+BEGIN
+    RAISERROR(N'Select the Tabseet database first (sqlcmd -d tbseedDB). Nothing was changed.', 16, 1);
+    SET NOEXEC ON;
+END
 GO
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
@@ -69,4 +75,6 @@ BEGIN
 END
 ELSE
     PRINT 'Unique index UX_std_lecture_Std_Lecture already exists.';
+GO
+SET NOEXEC OFF;
 GO

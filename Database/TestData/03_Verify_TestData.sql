@@ -215,8 +215,8 @@ PRINT N'   - الدورات المجانية (FreeCategory): ' + CAST(@MetricFre
 PRINT N'   - الشهادات الصادرة (Certfication): ' + CAST(@MetricCerts AS NVARCHAR(10));
 
 -- TEST-16 & 17: التحقق من الصلاحيات والحدود الأمنية
-DECLARE @AdminRolesCount INT = (SELECT COUNT(*) FROM dbo.AspNetUserRoles WHERE AspNetUsers_Id = N'TEST-USR-ADMIN-01');
-DECLARE @StudentIllegalRoles INT = (SELECT COUNT(*) FROM dbo.AspNetUserRoles ur INNER JOIN dbo.AspNetRoles r ON ur.AspNetRoles_Id = r.Id WHERE ur.AspNetUsers_Id LIKE N'TEST-USR-STD-%' AND r.Name IN (N'Admin', N'Teacher'));
+DECLARE @AdminRolesCount INT = (SELECT COUNT(*) FROM dbo.AspNetUserRoles WHERE UserId = N'TEST-USR-ADMIN-01');
+DECLARE @StudentIllegalRoles INT = (SELECT COUNT(*) FROM dbo.AspNetUserRoles ur INNER JOIN dbo.AspNetRoles r ON ur.RoleId = r.Id WHERE ur.UserId LIKE N'TEST-USR-STD-%' AND r.Name IN (N'Admin', N'Teacher'));
 PRINT N'[TEST-16 & 17] الصلاحيات: المدير يمتلك ' + CAST(@AdminRolesCount AS NVARCHAR(10)) + N' دوراً إدارياً، ولا يوجد أي طالب يمتلك صلاحيات Admin أو Teacher (المخالفات: ' + CAST(@StudentIllegalRoles AS NVARCHAR(10)) + N')';
 
 -- TEST-18: التعامل مع طالب ليس لديه أي تسجيل
