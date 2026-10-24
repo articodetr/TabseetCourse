@@ -27,6 +27,69 @@ namespace tabseetCourse.Controllers
         {
             get { return _attendance ?? (_attendance = new StudentAttendanceService(dbEntity)); }
         }
+
+        private CourseAccessService _access;
+        /// <summary>الآلية الموحدة للتحقق من صلاحية الطالب في الوصول إلى دورة (Services/CourseAccessService.cs).</summary>
+        private CourseAccessService Access
+        {
+            get { return _access ?? (_access = new CourseAccessService(dbEntity)); }
+        }
+
+        #region Course access guards (حماية المحتوى المحمي على مستوى الخادم)
+        /// <summary>
+        /// تحقق لصفحات Razor: يعيد true عند السماح (اشتراك مفعّل)، وإلا يملأ denial بإعادة توجيه مناسبة
+        /// (تسجيل الدخول لغير المسجل دخوله، أو صفحة «برامجي التعليمية» مع رسالة توضح الحالة).
+        /// </summary>
+        private bool TryAuthorizeCourse(int? categoryId, out ActionResult denial)
+        {
+            denial = null;
+            if (CurrentUser == null)
+            {
+                denial = RedirectToAction("LogIn", "Home");
+                return false;
+            }
+
+            Category category = categoryId.HasValue ? dbEntity.Categories.Find(categoryId.Value) : null;
+            var state = Access.GetState(CurrentUser.ID, category);
+            if (category != null && state == SubscriptionState.Active)
+                return true;
+
+            TempData["SubscriptionMessage"] = AccessDeniedMessage(state, category != null ? category.NameAr : null);
+            TempData["SubscriptionMessageType"] = state == SubscriptionState.PendingApproval ? "info" : "warning";
+            denial = RedirectToAction("CategoriesStd");
+            return false;
+        }
+
+        /// <summary>تحقق لنقاط JSON (الاختبارات، الواجبات...): يعيد true عند السماح، وإلا 403 دون أي بيانات محمية.</summary>
+        private bool TryAuthorizeCourseJson(int? categoryId, out JsonResult error)
+        {
+            error = null;
+            if (CurrentUser == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                error = Json(new { success = false, requiresLogin = true, response = "المستخدم غير مسجل الدخول" }, JsonRequestBehavior.AllowGet);
+                return false;
+            }
+
+            Category category = categoryId.HasValue ? dbEntity.Categories.Find(categoryId.Value) : null;
+            var state = Access.GetState(CurrentUser.ID, category);
+            if (category != null && state == SubscriptionState.Active)
+                return true;
+
+            Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            error = Json(new { success = false, state = state.ToString(), response = AccessDeniedMessage(state, category != null ? category.NameAr : null) }, JsonRequestBehavior.AllowGet);
+            return false;
+        }
+
+        private static string AccessDeniedMessage(SubscriptionState state, string courseName)
+        {
+            string name = string.IsNullOrWhiteSpace(courseName) ? "هذه الدورة" : "دورة «" + courseName.Trim() + "»";
+            return state == SubscriptionState.PendingApproval
+                ? "اشتراكك في " + name + " بانتظار موافقة الإدارة. ستتمكن من دخول الدورة بعد تأكيد الإدارة."
+                : "يجب الاشتراك في " + name + " أولاً للوصول إلى محتواها.";
+        }
+        #endregion
+
         public StudentsController()
         {
             var value = dbEntity.New_Home_Page.FirstOrDefault();
@@ -177,10 +240,16 @@ namespace tabseetCourse.Controllers
                         ctm.CategoryName = item.Category.NameAr;
                         ctm.Icon = item.Category.Icon;
                         ctm.Category_ID = item.Category_ID.Value;
-                        ctm.category_Ispayed = item.category_Ispayed.Value;
-                        ctm.std_category_Ispayed = item.std_category_Ispayed.Value;
+                        ctm.category_Ispayed = item.category_Ispayed ?? 0;
+                        ctm.std_category_Ispayed = item.std_category_Ispayed ?? 0;
+                        // حالة الاشتراك تُحسب على الخادم: مجانية → مفعّلة، مدفوعة → حسب موافقة الإدارة (مع مراعاة الدبلوم الأم)
+                        var subscriptionState = Access.GetState(CurrentUser.ID, item.Category);
+                        ctm.SubscriptionState = subscriptionState.ToString();
+                        ctm.IsSubscriptionActive = subscriptionState == SubscriptionState.Active;
+                        ctm.IsSubscriptionPending = subscriptionState == SubscriptionState.PendingApproval;
                         ctm.lectureCount = 0;
-                        ctm.DocumentBook = item.Category.DocumentBook;
+                        // الكتاب وروابط المحاضرات تُرسل إلى المتصفح فقط عندما يكون الاشتراك مفعّلاً
+                        ctm.DocumentBook = ctm.IsSubscriptionActive ? item.Category.DocumentBook : null;
                         ctm.Description = item.Category.Description;
                         if (categoryTeacherMap.ContainsKey(item.Category_ID.Value))
                         {
@@ -264,10 +333,13 @@ namespace tabseetCourse.Controllers
                             lm.CategoresName = lec.Category != null ? lec.Category.NameAr : ctm.CategoryName;
                             lm.DayandTime = lec.DayandTime;
                             lm.LectureTypeOnOff = lec.LectureTypeOnOff;
-                            lm.LectureLink_Client = lec.LectureLink_Client;
-                            lm.LectureLink_Host = lec.LectureLink_Host;
-                            lm.MediaLink = lec.MediaLink;
-                            lm.DocumenFile = lec.DocumenFile;
+                            if (ctm.IsSubscriptionActive)
+                            {
+                                lm.LectureLink_Client = lec.LectureLink_Client;
+                                lm.LectureLink_Host = lec.LectureLink_Host;
+                                lm.MediaLink = lec.MediaLink;
+                                lm.DocumenFile = lec.DocumenFile;
+                            }
                             int minTime = 0; int.TryParse(lec.LectureMinTime, out minTime); lm.LectureMinTime = minTime;
                             lm.Is_Std_Finish_Lecture = finishedLectureIds.Contains(lec.ID) ? 1 : 0;
                             ctm.Lectures.Add(lm);
@@ -290,6 +362,8 @@ namespace tabseetCourse.Controllers
         [HttpGet]
         public ActionResult Courses(int Deplom_ID, string LectureName = null)
         {
+            ActionResult denial;
+            if (!TryAuthorizeCourse(Deplom_ID, out denial)) return denial;
             try
             {
                 var deploma = dbEntity.Categories.Select(e => new { e.ID, e.ParentCateogry_ID, e.Icon }).Where(e => e.ParentCateogry_ID == Deplom_ID).ToList();
@@ -312,6 +386,8 @@ namespace tabseetCourse.Controllers
         public ActionResult ShowSupDeploamCourse(int cat_ID, string CategoryName = null)
         {
             List<Std_Reg_CategoryModel> catModel = new List<Std_Reg_CategoryModel>();
+            ActionResult denial;
+            if (!TryAuthorizeCourse(cat_ID, out denial)) return denial;
             try
             {
                 var category = dbEntity.Categories.Find(cat_ID).DocumentBook;
@@ -335,6 +411,15 @@ namespace tabseetCourse.Controllers
                         cat.Exam_ID = (item.Exams.Count > 0) ? item.Exams.FirstOrDefault().ID : 0;
                         cat.lectureCount = item.Lectures.Count;
                         cat.DocumentBook = item.DocumentBook;
+                        // حالة اشتراك الطالب في الدورة الفرعية (قد تكون مدفوعة مستقلة ومعلّقة)
+                        var childState = Access.GetState(CurrentUser.ID, item);
+                        cat.SubscriptionState = childState.ToString();
+                        cat.IsSubscriptionActive = childState == SubscriptionState.Active;
+                        cat.IsSubscriptionPending = childState == SubscriptionState.PendingApproval;
+                        if (!cat.IsSubscriptionActive)
+                        {
+                            cat.DocumentBook = null;
+                        }
 
                         foreach (var itemLectur in item.Lectures)
                         {
@@ -365,6 +450,10 @@ namespace tabseetCourse.Controllers
         {
             ViewBag.LectureName = lectureName;
             ViewBag.cat_id = cat_ID;
+
+            // لا تُعرض محاضرات الدورة (ولا روابطها) إلا لاشتراك مفعّل، حتى عند كتابة الرابط مباشرة
+            ActionResult denial;
+            if (!TryAuthorizeCourse(cat_ID, out denial)) return denial;
 
             List<LectureModel> L_M = new List<LectureModel>();
             try
@@ -638,11 +727,8 @@ namespace tabseetCourse.Controllers
                 }
 
                 string studentId = CurrentUser.ID;
-                var registeredCategoryIds = dbEntity.Std_Reg_Category
-                    .Where(e => e.Std_ID == studentId)
-                    .Select(e => e.Category_ID)
-                    .Distinct()
-                    .ToList();
+                // جدول الحصص يعرض محاضرات الاشتراكات المفعّلة فقط (المعلّقة بانتظار الإدارة لا تُرسل روابطها للمتصفح)
+                var registeredCategoryIds = Access.GetAccessibleCategoryIds(studentId);
 
                 if (registeredCategoryIds == null || registeredCategoryIds.Count == 0)
                 {
@@ -825,8 +911,14 @@ namespace tabseetCourse.Controllers
         public ActionResult AssignmentQuestion(string A_Q)
         {
             ViewBag.assingID = A_Q;
-            int assid = int.Parse(A_Q);
+            int assid;
+            if (!int.TryParse(A_Q, out assid))
+            {
+                return RedirectToAction("CategoriesStd");
+            }
             var assingment = dbEntity.Assignments.Find(assid);
+            ActionResult denial;
+            if (!TryAuthorizeCourse(assingment != null && assingment.Lecture != null ? assingment.Lecture.Category_ID : (int?)null, out denial)) return denial;
             if (assingment != null)
             {
                 ViewBag.categoryAssID = assingment.Lecture.Category_ID;
@@ -841,6 +933,8 @@ namespace tabseetCourse.Controllers
             try
             {
                 var assingment = await dbEntity.Assignments.FindAsync(A_Q);
+                JsonResult accessError;
+                if (!TryAuthorizeCourseJson(assingment != null && assingment.Lecture != null ? assingment.Lecture.Category_ID : (int?)null, out accessError)) return accessError;
                 if (assingment != null)
                 {
 
@@ -917,9 +1011,18 @@ namespace tabseetCourse.Controllers
         {
             try
             {
+                // التحقق من صلاحية الدورة أولاً (قبل أي قراءة قد تفشل) حتى يُرفض الاشتراك المعلّق بـ 403 واضحة
+                var ass = await dbEntity.Assignments.FindAsync(ass_ID);
+                JsonResult accessError;
+                if (!TryAuthorizeCourseJson(ass != null && ass.Lecture != null ? ass.Lecture.Category_ID : (int?)null, out accessError)) return accessError;
+
                 var stdID = CurrentUser.ID;
                 float degry = 0;
-                int lectureID = int.Parse(TempData["Lecture_ID"].ToString());
+                int lectureID;
+                if (TempData["Lecture_ID"] == null || !int.TryParse(TempData["Lecture_ID"].ToString(), out lectureID))
+                {
+                    lectureID = ass.Lecture_ID ?? 0;
+                }
                 if (L_Degry != null)
                 {
                     for (int i = 0; i < L_Degry.Count; i++)
@@ -929,7 +1032,6 @@ namespace tabseetCourse.Controllers
                         degry += resu;
                     }
                 }
-                var ass = await dbEntity.Assignments.FindAsync(ass_ID);
                 if (ass.Assignmet_degry_Win <= degry)
                 {
                     // اجتياز الواجب يُسجَّل عبر خدمة الحضور؛ الاكتمال يبقى مشروطاً بمشاهدة المحاضرة فعلاً
@@ -962,8 +1064,17 @@ namespace tabseetCourse.Controllers
         [HttpGet]
         public ActionResult Exams(int examID)
         {
+            var exam = dbEntity.Exams.Find(examID);
+            if (exam == null)
+            {
+                return RedirectToAction("CategoriesStd");
+            }
+            // صفحة الاختبار محمية بحالة اشتراك دورة الاختبار (من بيانات الخادم)
+            ActionResult denial;
+            if (!TryAuthorizeCourse(exam.Category_ID, out denial)) return denial;
+
             ViewBag.examID = examID;
-            ViewBag.examTime = dbEntity.Exams.Find(examID).Duration;
+            ViewBag.examTime = exam.Duration;
             return View();
         }
         [HttpPost]
@@ -975,6 +1086,12 @@ namespace tabseetCourse.Controllers
                 string std_ID = getCurrentUser_ID();
                 if (std_ID != null)
                 {
+                    // الصلاحية تُقاس بدورة الاختبار المسجلة على الخادم، ثم بالدورة المرسلة إن اختلفت عنها
+                    var examEntity = await dbEntity.Exams.FindAsync(Exam_ID);
+                    JsonResult accessError;
+                    if (!TryAuthorizeCourseJson(examEntity != null ? examEntity.Category_ID : (int?)null, out accessError)) return accessError;
+                    if (examEntity.Category_ID != category_ID && !TryAuthorizeCourseJson(category_ID, out accessError)) return accessError;
+
                     var category = dbEntity.Categories.Find(category_ID);
 
                     if (category != null && category.ParentCateogry_ID != 0)
@@ -1054,6 +1171,8 @@ namespace tabseetCourse.Controllers
             try
             {
                 var exams = await dbEntity.Exams.FindAsync(exam_ID);
+                JsonResult accessError;
+                if (!TryAuthorizeCourseJson(exams != null ? exams.Category_ID : (int?)null, out accessError)) return accessError;
 
                 if (exams != null)
                 {
@@ -1141,12 +1260,19 @@ namespace tabseetCourse.Controllers
                     }
                 }
                 var exa = await dbEntity.Exams.FindAsync(Exam_ID);
+                JsonResult accessError;
+                if (!TryAuthorizeCourseJson(exa != null ? exa.Category_ID : (int?)null, out accessError)) return accessError;
                 var ExamDegry = exa.Exam_Degry;
                 var res = exa.Exam_win_Degry;
                 if (exa.Exam_win_Degry <= Stddegry)
                 {
 
                     var values = dbEntity.Std_Reg_Category.Where(e => e.Std_ID == stdID && e.Category_ID == exa.Category_ID).FirstOrDefault();
+                    if (values == null)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        return Json(new { success = false, response = "لا يوجد تسجيل مباشر لهذه الدورة لحفظ نتيجة الاختبار." }, JsonRequestBehavior.AllowGet);
+                    }
                     values.std_exam_isFinish = 1;
                     string datetime = ConvertDateCalendar(DateTime.Now.Date, "Hijri", "en-US");
                     List<string> date = SpliteString(datetime, ' ');
@@ -1192,118 +1318,113 @@ namespace tabseetCourse.Controllers
 
         #region Certfication
 
+        /// <summary>
+        /// Renders the student's certificate (type == 1, Arabic template) or ijazah (any other type, English template)
+        /// by drawing the student's data on the category's template image and returning it as a PNG download.
+        /// Any problem (missing registration, missing template, drawing failure) is logged and the student is
+        /// sent back to the certificates page with a readable message instead of a server error page.
+        /// </summary>
         [HttpGet]
         public ActionResult Certficationsstd(int Categores_ID, int type)
         {
+            bool isArabic = type == 1;
+            string documentName = isArabic ? "الشهادة" : "الإجازة";
             try
             {
-                ViewBag.stdName = CurrentUser.RealName;
-                ViewBag.categoryID = Categores_ID;
+                if (CurrentUser == null)
+                {
+                    return RedirectToAction("LogIn", "Home");
+                }
+
                 var stdID = CurrentUser.ID;
-                var result = dbEntity.Categories.Find(Categores_ID);
+                var category = dbEntity.Categories.Find(Categores_ID);
                 var stdinfo = dbEntity.Std_Reg_Category.Where(e => e.Std_ID == stdID && e.Category_ID == Categores_ID).FirstOrDefault();
-                int stdcode = int.Parse(stdinfo.Serial_Number) + 1;
-                if (type == 1)
+                if (category == null || stdinfo == null || stdinfo.std_exam_isFinish != 1)
                 {
-                    ViewBag.Certification = result.CertificationAR;
+                    return CertificateError("لا توجد " + (isArabic ? "شهادة" : "إجازة") + " متاحة لك في هذه الدورة.");
+                }
 
+                string templateName = isArabic ? category.CertificationAR : category.CertificationEN;
+                if (string.IsNullOrWhiteSpace(templateName))
+                {
+                    return CertificateError("لم يتم رفع قالب " + documentName + " لهذه الدورة بعد.");
+                }
 
+                string imageFilePath = Server.MapPath("~/Uploade/Images/" + templateName);
+                if (!System.IO.File.Exists(imageFilePath))
+                {
+                    Printerror("Certficationsstd", "Certificate template file not found: " + templateName + " (Category_ID=" + Categores_ID + ", type=" + type + ")", null, null);
+                    return CertificateError("ملف قالب " + documentName + " غير موجود على الخادم، يرجى التواصل مع الإدارة.");
+                }
 
-                    string imageFilePath = Server.MapPath($"~/Uploade/Images/" + result.CertificationAR);
-                    Image bitmap = (System.Drawing.Image)Bitmap.FromFile(imageFilePath); // set image     
+                string studentName = CurrentUser.RealName ?? string.Empty;
+                string serialNumber = (stdinfo.Serial_Number ?? string.Empty).Trim();
+                List<string> finishTime = SpliteString(stdinfo.std_exam_Finish_Time ?? string.Empty, ':');
+                string hijriDate = finishTime.Count > 0 ? finishTime[0] : string.Empty;
+                string gregorianDate = finishTime.Count > 1 ? finishTime[1] : string.Empty;
 
-                    Graphics graphicsImage = Graphics.FromImage(bitmap);
-
-                    ////Set the alignment based on the coordinates      
-                    ///Name
-                    StringFormat stringformat = new StringFormat();
-                    stringformat.Alignment = StringAlignment.Center;
-                    stringformat.LineAlignment = StringAlignment.Center;
-
-
-
-                    ////Set the font color/format/size etc..      
-                    Color StringColor = System.Drawing.ColorTranslator.FromHtml("#927123");//direct color adding    
-
-                    string Str_TextOnImage = ViewBag.stdName;//Your Text On Image    
-
-
-                    graphicsImage.DrawString(Str_TextOnImage, new Font("Andalus", 42,
-                    FontStyle.Regular), new SolidBrush(StringColor), new Point(850, 580),
-                    stringformat);
-                    ////
-                    ///
-                    /////تقدير
-                    Color NameColor = System.Drawing.ColorTranslator.FromHtml("#927123");//direct color adding    
-                    string stdreqular = stdinfo.Certificate_appreciation;//Your Text On Image    
-                    graphicsImage.DrawString(stdreqular, new Font("Andalus", 32,
-                    FontStyle.Regular), new SolidBrush(NameColor), new Point(710, 810),
-                    stringformat);
-                    ///////////////
-                    ///
-                    ///Date
-                    Color TimeColor = System.Drawing.ColorTranslator.FromHtml("#000000");//direct color adding    
-                    //string stdTime = stdinfo.std_exam_Finish_Time;//Your Text On Image    
-                    List<string> ListDatetime = SpliteString(stdinfo.std_exam_Finish_Time, ':');//Your Text On Image  
-                    graphicsImage.DrawString(ListDatetime[0], new Font("Andalus", 16,
-                    FontStyle.Regular), new SolidBrush(TimeColor), new Point(950, 950),
-                    stringformat);
-                    graphicsImage.DrawString(ListDatetime[1], new Font("Andalus", 16,
-                    FontStyle.Regular), new SolidBrush(TimeColor), new Point(650, 950),
-                    stringformat);
-                    graphicsImage.DrawString(stdcode.ToString(), new Font("Andalus", 14,
-                   FontStyle.Regular), new SolidBrush(TimeColor), new Point(1450, 1190),
-                   stringformat);
+                // Draw on a fresh 32bpp copy: Graphics.FromImage() rejects indexed-colour (8-bit) PNG templates,
+                // and the template file handle is released as soon as the copy is made.
+                using (Image template = Image.FromFile(imageFilePath))
+                using (Bitmap bitmap = new Bitmap(template.Width, template.Height, PixelFormat.Format32bppArgb))
+                {
+                    bitmap.SetResolution(template.HorizontalResolution, template.VerticalResolution);
+                    using (Graphics graphicsImage = Graphics.FromImage(bitmap))
+                    using (StringFormat stringformat = new StringFormat())
+                    using (SolidBrush goldBrush = new SolidBrush(ColorTranslator.FromHtml("#927123")))
+                    using (SolidBrush blackBrush = new SolidBrush(ColorTranslator.FromHtml("#000000")))
                     using (MemoryStream mem = new MemoryStream())
                     {
+                        graphicsImage.DrawImage(template, 0, 0, template.Width, template.Height);
+                        stringformat.Alignment = StringAlignment.Center;
+                        stringformat.LineAlignment = StringAlignment.Center;
+
+                        if (isArabic)
+                        {
+                            int serial;
+                            string arabicSerial = int.TryParse(serialNumber, out serial) ? (serial + 1).ToString() : serialNumber;
+                            DrawCertificateText(graphicsImage, studentName, 42, goldBrush, new Point(850, 580), stringformat);
+                            DrawCertificateText(graphicsImage, stdinfo.Certificate_appreciation, 32, goldBrush, new Point(710, 810), stringformat);
+                            DrawCertificateText(graphicsImage, hijriDate, 16, blackBrush, new Point(950, 950), stringformat);
+                            DrawCertificateText(graphicsImage, gregorianDate, 16, blackBrush, new Point(650, 950), stringformat);
+                            DrawCertificateText(graphicsImage, arabicSerial, 14, blackBrush, new Point(1450, 1190), stringformat);
+                        }
+                        else
+                        {
+                            DrawCertificateText(graphicsImage, studentName, 42, goldBrush, new Point(630, 610), stringformat);
+                            DrawCertificateText(graphicsImage, hijriDate, 12, blackBrush, new Point(690, 1660), stringformat);
+                            DrawCertificateText(graphicsImage, gregorianDate, 12, blackBrush, new Point(440, 1660), stringformat);
+                            DrawCertificateText(graphicsImage, serialNumber, 12, blackBrush, new Point(630, 1710), stringformat);
+                        }
+
                         bitmap.Save(mem, ImageFormat.Png);
-                        mem.Position = 0;
-                        return File(mem.ToArray(), "image/png", "Certfication.jpeg");
+                        return File(mem.ToArray(), "image/png", isArabic ? "Certificate.png" : "Ijazah.png");
                     }
                 }
-                else
-                {
-                    ViewBag.Certification = result.CertificationEN;
-                    string imageFilePath = Server.MapPath($"~/Uploade/Images/" + result.CertificationEN);
-                    Image bitmap = (System.Drawing.Image)Bitmap.FromFile(imageFilePath); // set image     
-                    Graphics graphicsImage = Graphics.FromImage(bitmap);
-                    ////Set the alignment based on the coordinates      
-                    ///Name
-                    StringFormat stringformat = new StringFormat();
-                    stringformat.Alignment = StringAlignment.Center;
-                    stringformat.LineAlignment = StringAlignment.Center;
-                    ////Set the font color/format/size etc..      
-                    Color StringColor = System.Drawing.ColorTranslator.FromHtml("#927123");//direct color adding    
-                    string Str_TextOnImage = ViewBag.stdName;//Your Text On Image    
-                    graphicsImage.DrawString(Str_TextOnImage, new Font("Andalus", 42,
-                    FontStyle.Regular), new SolidBrush(StringColor), new Point(630, 610),
-                    stringformat);
-                    Color NameColor = System.Drawing.ColorTranslator.FromHtml("#000000");//direct color adding    
-                    List<string> ListDatetime = SpliteString(stdinfo.std_exam_Finish_Time, ':');//Your Text On Image   
-                    graphicsImage.DrawString(ListDatetime[0], new Font("Andalus", 12,
-                    FontStyle.Regular), new SolidBrush(NameColor), new Point(690, 1660),
-                    stringformat);
-                    graphicsImage.DrawString(ListDatetime[1], new Font("Andalus", 12,
-                 FontStyle.Regular), new SolidBrush(NameColor), new Point(440, 1660),
-                 stringformat);
-                    graphicsImage.DrawString((stdinfo.Serial_Number), new Font("Andalus", 12,
-                FontStyle.Regular), new SolidBrush(NameColor), new Point(630, 1710),
-                stringformat);
-                    using (MemoryStream mem = new MemoryStream())
-                    {
-                        bitmap.Save(mem, ImageFormat.Png);
-                        mem.Position = 0;
-                        return File(mem.ToArray(), "image/png", "Certfication.jpeg");
-                    }
-                }
-                //return View();
             }
             catch (Exception ex)
             {
-
+                Printerror("Certficationsstd", ex.Message, ex.InnerException != null ? ex.InnerException.Message : null, ex.StackTrace);
+                return CertificateError("حدث خطأ أثناء إنشاء " + documentName + "، يرجى المحاولة لاحقاً.");
             }
+        }
 
-            return File(Response.OutputStream, "image/jpeg", "Certfication");
+        private static void DrawCertificateText(Graphics graphics, string text, float fontSize, Brush brush, Point position, StringFormat format)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+            using (Font font = new Font("Andalus", fontSize, FontStyle.Regular))
+            {
+                graphics.DrawString(text, font, brush, position, format);
+            }
+        }
+
+        private ActionResult CertificateError(string message)
+        {
+            TempData["CertificateError"] = message;
+            return RedirectToAction("Certfications");
         }
 
         [HttpGet]
@@ -1342,59 +1463,19 @@ namespace tabseetCourse.Controllers
 
         #endregion
 
-        #region Payment
+        #region Payment (مسار قديم مُعطَّل)
+        /// <summary>
+        /// [مُعطَّل] كان يستقبل من الطالب طريقة الدفع وقيمته وإيصالات التحويل وأكواد المنح ويحفظها في Std_Reg_Category.
+        /// أُلغي الدفع داخل الموقع نهائياً: الطالب لا يستطيع تغيير حالة دفعه بنفسه، ولا يُقبل أي مبلغ أو ملف أو كود.
+        /// أُبقي اسم المسار كي لا تنكسر الصفحات القديمة المفتوحة؛ يعيد 410 Gone دون أي تعديل في قاعدة البيانات،
+        /// والسجلات التاريخية (PayMent_Method / TransactionFile / Code / PayMent_Value) تبقى محفوظة كما هي.
+        /// </summary>
         [HttpPost]
-        public async Task<JsonResult> payforcategory(Std_Reg_CategoryModel src)
+        public JsonResult payforcategory()
         {
-
-            try
-            {
-
-                var value = dbEntity.Std_Reg_Category.Where(e => e.Category_ID == src.Category_ID && e.Std_ID == CurrentUser.ID).FirstOrDefault();
-                if (value != null)
-                {
-                    var payMethod = src.PayMent_Method;
-                    if (payMethod == 1)
-                    {
-                        //cridedcard
-                        value.PayMent_Method = 1;
-                    }
-                    else if (payMethod == 2)
-                    {
-                        //pancktransfer
-                        value.PayMent_Method = 2;
-                        value.TransactionFile = SaveImage(src.FileUpload);
-                    }
-                    else if (payMethod == 3)
-                    {
-                        //leater
-                        value.PayMent_Method = 3;
-                    }
-                    else if (payMethod == 4)
-                    {
-                        //code
-                        value.PayMent_Method = 4;
-                        value.Code = src.Code;
-                    }
-                    value.PayMent_Value = src.PayMent_Value;
-                    dbEntity.Std_Reg_Category.Attach(value);
-                    dbEntity.Entry(value).State = System.Data.Entity.EntityState.Modified;
-                    var result = await dbEntity.SaveChangesAsync();
-                    if (result == 1)
-                    {
-                        Response.StatusCode = (int)HttpStatusCode.OK;
-                        return Json(new { success = true, response = "" }, JsonRequestBehavior.AllowGet);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Printerror("payforcategory", ex.Message, null, ex.StackTrace);
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, response = "" }, JsonRequestBehavior.AllowGet);
-            }
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = false, response = "" }, JsonRequestBehavior.AllowGet);
+            Response.StatusCode = (int)HttpStatusCode.Gone;
+            Response.TrySkipIisCustomErrors = true;
+            return Json(new { success = false, response = "تم إيقاف الدفع داخل الموقع. اشتراكك في الدورات المدفوعة تفعّله الإدارة بعد تأكيد استلام القيمة." }, JsonRequestBehavior.AllowGet);
         }
         #endregion
 

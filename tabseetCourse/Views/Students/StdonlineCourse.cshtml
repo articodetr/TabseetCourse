@@ -148,7 +148,8 @@
             string cleanDoc = item.DocumenFile.Trim();
             entry.HasDocument = true;
             entry.DocumentFileName = cleanDoc;
-            entry.SafeDocumentUrl = "https://tbsetaca.com/Uploade/Images/" + Uri.EscapeUriString(cleanDoc);
+            // المرفق يُقدَّم من نفس الموقع عبر المعالج المحمي (Uploade/Images) للمشتركين المفعّلين فقط
+            entry.SafeDocumentUrl = Url.Content("~/Uploade/Images/") + Uri.EscapeDataString(cleanDoc);
         }
         else
         {

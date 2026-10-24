@@ -228,6 +228,9 @@
     <Compile Include="App_Start\Startup1.cs" />
     <Compile Include="Classes\SharedCalss.cs" />
     <Compile Include="Classes\YouTubeLinkHelper.cs" />
+    <Compile Include="Classes\ProtectedUploadHandler.cs" />
+    <Compile Include="Data\SubscriptionEntities.cs" />
+    <Compile Include="Services\CourseAccessService.cs" />
     <Compile Include="Data\StudentAttendanceEntities.cs" />
     <Compile Include="Services\AttendancePolicy.cs" />
     <Compile Include="Services\StudentAttendanceService.cs" />

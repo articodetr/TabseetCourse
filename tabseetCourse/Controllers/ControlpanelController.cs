@@ -16,6 +16,7 @@ using tabseetCourse.Classes;
 using tabseetCourse.Data;
 using tabseetCourse.Models;
 using tabseetCourse.Models_UI;
+using tabseetCourse.Services;
 using Microsoft.AspNet.Identity;
 
 namespace tabseetCourse.Controllers
@@ -718,7 +719,28 @@ namespace tabseetCourse.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+        #region إدارة طلبات الاشتراك (كانت: تفعيل طلبات الدفع)
+
+        /// <summary>
+        /// التحقق من صلاحية اعتماد طلبات الاشتراك من نظام Identity مباشرة (أدوار الحساب في قاعدة البيانات)،
+        /// لا من الجلسة ولا من ViewBag ولا من إخفاء الأزرار. المسموح: Admin، أو الدور المفوَّض PaymentActive.
+        /// </summary>
+        private bool IsSubscriptionApprover(out string adminUserId)
+        {
+            adminUserId = null;
+            if (User == null || User.Identity == null || !User.Identity.IsAuthenticated)
+                return false;
+            adminUserId = User.Identity.GetUserId();
+            if (string.IsNullOrEmpty(adminUserId))
+                return false;
+            var roles = userManager.GetRoles(adminUserId);
+            return roles != null && (roles.Contains(CourseAccessService.AdminRole) || roles.Contains(CourseAccessService.ApproverRole));
+        }
+
+        /// <summary>
+        /// صفحة «إدارة طلبات الاشتراك»: الطلبات المعلّقة للدورات المدفوعة (اسم الطالب، الدورة، تاريخ الطلب، السعر،
+        /// الحالة) مع زر «تأكيد الدفع وتفعيل الاشتراك». العرض لأدوار Admin / PaymentView / PaymentActive.
+        /// </summary>
         [HttpGet]
         public ActionResult ActiveCourse()
         {
@@ -730,98 +752,156 @@ namespace tabseetCourse.Controllers
                 if (username != null)
                 {
                     Session["username"] = username.RealName;
-                    var role = username.L_role;
-
                     List<string> roleaccepted = new List<string>();
                     roleaccepted.Add("Admin");
                     roleaccepted.Add("PaymentView");
                     roleaccepted.Add("PaymentActive");
                     isAuthorize = IsTrustedUser(username, roleaccepted);
-
-
                 }
                 if (isAuthorize == true)
                 {
-                    var result = dbEntity.Std_Reg_Category.Where(e => e.category_Ispayed == 1 && e.std_category_Ispayed == 0).ToList();
-                    foreach (var item in result)
+                    var access = new CourseAccessService(dbEntity);
+                    var pending = access.GetPendingRegistrations();
+                    var audit = CourseAccessService.GetAuditInfo(pending.Select(p => p.ID).ToList());
+                    var studentIds = pending.Select(p => p.Std_ID).Distinct().ToList();
+                    var students = dbEntity.AspNetUsers
+                        .Where(u => studentIds.Contains(u.Id))
+                        .Select(u => new { u.Id, u.RealName, u.FirstName, u.LastName, u.Email })
+                        .ToList()
+                        .ToDictionary(u => u.Id);
+
+                    foreach (var item in pending)
                     {
                         Std_Reg_CategoryModel srcm = new Std_Reg_CategoryModel();
                         srcm.ID = item.ID;
-                        srcm.CategoryName = item.Category.NameAr;
-                        srcm.Category_ID = item.Category_ID.Value;
-                        srcm.std_category_Ispayed = item.std_category_Ispayed.Value;
-                        srcm.category_Ispayed = item.category_Ispayed.Value;
+                        srcm.CategoryName = item.Category != null ? item.Category.NameAr : "";
+                        srcm.Category_ID = item.Category_ID ?? 0;
+                        srcm.std_category_Ispayed = item.std_category_Ispayed ?? 0;
+                        srcm.category_Ispayed = item.category_Ispayed ?? 0;
                         srcm.Std_ID = item.Std_ID;
-                        srcm.Student_Name = dbEntity.AspNetUsers.FirstOrDefault(e => e.Id == item.Std_ID).RealName;
-                        //srcm.Student_Name = item.AspNetUser.RealName;
+                        srcm.SubscriptionState = SubscriptionState.PendingApproval.ToString();
+                        srcm.IsSubscriptionPending = true;
 
+                        if (item.Std_ID != null && students.ContainsKey(item.Std_ID))
+                        {
+                            var u = students[item.Std_ID];
+                            srcm.Student_Name = !string.IsNullOrWhiteSpace(u.RealName) ? u.RealName : ((u.FirstName ?? "") + " " + (u.LastName ?? "")).Trim();
+                            srcm.Student_Email = u.Email;
+                        }
+                        else
+                        {
+                            srcm.Student_Name = "حساب غير موجود";
+                        }
+
+                        var price = CourseAccessService.GetPrice(item.Category);
+                        srcm.categoryPrice = price.HasValue ? (int)Math.Round(price.Value) : 0;
+                        srcm.PayMent_Value = price.HasValue ? price.Value.ToString("0.##") : null;
+
+                        // معلومات تاريخية من نظام الدفع القديم (للاطلاع فقط؛ لا تُجمع من الطالب بعد الآن)
                         if (item.PayMent_Method != null)
                         {
                             srcm.PayMent_Method = item.PayMent_Method.Value;
                         }
-                        srcm.PayMent_Value = item.PayMent_Value;
                         srcm.Code = item.Code;
                         srcm.TransactionFile = item.TransactionFile;
+
+                        SubscriptionAuditInfo info;
+                        if (audit.TryGetValue(item.ID, out info))
+                        {
+                            srcm.RequestedAt = info.RequestedAt.HasValue ? info.RequestedAt.Value.ToLocalTime() : (DateTime?)null;
+                        }
                         L_SRCM.Add(srcm);
                     }
+
+                    L_SRCM = L_SRCM
+                        .OrderByDescending(s => s.RequestedAt.HasValue)
+                        .ThenByDescending(s => s.RequestedAt)
+                        .ThenByDescending(s => s.ID)
+                        .ToList();
                     return View(L_SRCM);
                 }
             }
             catch (Exception ex)
             {
+                Printerror("ActiveCourse", ex.Message, ex.InnerException != null ? ex.InnerException.Message : null, ex.StackTrace);
             }
             return RedirectToAction("LogIn", "Home");
 
         }
-        //[Authorize(Roles = "Admin")]
+
+        /// <summary>
+        /// [GET قديم] كان يغيّر حالة الاشتراك عبر رابط GET؛ لم يعد يُنفّذ أي تغيير. الاعتماد يتم عبر POST فقط.
+        /// </summary>
         [HttpGet]
         public ActionResult ActiveStudenCourse(int Reg_ID)
         {
+            TempData["SubscriptionError"] = "لا يمكن تفعيل الاشتراك عبر رابط مباشر؛ استخدم زر «تأكيد الدفع وتفعيل الاشتراك» من القائمة.";
+            return RedirectToAction("ActiveCourse");
+        }
+
+        /// <summary>
+        /// تأكيد الدفع (خارج الموقع) وتفعيل اشتراك الطالب في دورة مدفوعة.
+        /// POST + رمز مكافحة التزوير، الصلاحية من Identity (Admin أو PaymentActive)، يؤثر على الطلب المحدد فقط،
+        /// آمن عند التكرار (الطلب المفعّل مسبقاً لا يتغير)، ويسجّل معرّف المدير وتاريخ الموافقة.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ActiveStudenCourse(int Reg_ID, string confirm)
+        {
+            string adminUserId;
+            if (!IsSubscriptionApprover(out adminUserId))
+            {
+                if (User == null || User.Identity == null || !User.Identity.IsAuthenticated)
+                {
+                    return RedirectToAction("LogIn", "Home");
+                }
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "Not allowed");
+            }
+
             try
             {
-                bool isAuthorize = false;
-                var username = _UsermodelModel;
-                if (username != null)
+                Std_Reg_Category registration;
+                var outcome = new CourseAccessService(dbEntity).Approve(Reg_ID, adminUserId, out registration);
+                switch (outcome)
                 {
-                    Session["username"] = username.RealName;
-                    if (username != null)
-                    {
-                        Session["username"] = username.RealName;
-                        var role = username.L_role;
-                        List<string> roleaccepted = new List<string>();
-                        roleaccepted.Add("Admin");
-                        roleaccepted.Add("PaymentActive");
-                        isAuthorize = IsTrustedUser(username, roleaccepted);
-                    }
-                }
-
-                if (isAuthorize == true)
-                {
-                    var result = dbEntity.Std_Reg_Category.Find(Reg_ID);
-
-                    if (result != null)
-                    {
-
-                        result.std_category_Ispayed = 1;
-                        dbEntity.Std_Reg_Category.Attach(result);
-                        dbEntity.Entry(result).State = EntityState.Modified;
-                        dbEntity.SaveChanges();
-                    }
+                    case ApprovalOutcome.Activated:
+                        TempData["SubscriptionMessage"] = "تم تأكيد الدفع وتفعيل اشتراك الطالب في «" + (registration.Category != null ? registration.Category.NameAr : "") + "». يمكنه الآن الدخول إلى محتوى الدورة.";
+                        break;
+                    case ApprovalOutcome.AlreadyActive:
+                        TempData["SubscriptionMessage"] = "هذا الاشتراك مفعّل مسبقاً؛ لم يتم إجراء أي تغيير.";
+                        break;
+                    case ApprovalOutcome.NotPaidCourse:
+                        TempData["SubscriptionError"] = "هذا التسجيل لدورة مجانية مفعّلة تلقائياً ولا يحتاج إلى موافقة.";
+                        break;
+                    default:
+                        TempData["SubscriptionError"] = "طلب الاشتراك غير موجود (ربما حُذف أو عولج مسبقاً).";
+                        break;
                 }
             }
             catch (Exception ex)
             {
-                Printerror("ActiveStudenCourse", ex.Message, ex.InnerException.ToString(), ex.StackTrace);
+                Printerror("ActiveStudenCourse", ex.Message, ex.InnerException != null ? ex.InnerException.Message : null, ex.StackTrace);
+                TempData["SubscriptionError"] = "تعذر تفعيل الاشتراك بسبب خطأ داخلي. تم تسجيل الخطأ، يرجى المحاولة لاحقاً.";
             }
             return RedirectToAction("ActiveCourse");
         }
+
         [HttpPost]
         public JsonResult GetActivateCourseCounter()
         {
-            int counter = dbEntity.Std_Reg_Category.Where(e => e.category_Ispayed == 1 && e.std_category_Ispayed == 0).ToList().Count;
+            int counter = 0;
+            try
+            {
+                counter = new CourseAccessService(dbEntity).CountPendingRegistrations();
+            }
+            catch (Exception)
+            {
+            }
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, Count = counter }, JsonRequestBehavior.AllowGet);
         }
+
+        #endregion
 
         #endregion
 

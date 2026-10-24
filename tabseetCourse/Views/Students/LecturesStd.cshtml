@@ -143,7 +143,7 @@
                                                     <div class="form-group">
                                                         <label for="completed">ملفات مساعدة</label>
                                                         <a href="#" class="btn btn-info"
-                                                           onclick="window.open('https://tbsetaca.com/Uploade/Images/@item.DocumenFile', '_blank');">اضغط هنا</a>
+                                                           onclick="window.open('@Url.Content("~/Uploade/Images/")@Uri.EscapeDataString(item.DocumenFile.Trim())', '_blank');">اضغط هنا</a>
                                                     </div>
                                                 }
 
@@ -305,7 +305,8 @@
     function ViewDocumentInmodel() {
         var DocumentFile = $("#DocumentFile").val();
         if (DocumentFile != 0 && DocumentFile != "" && DocumentFile != "0" && DocumentFile != null) {
-            window.open('https://tbsetaca.com/Uploade/Images/'+DocumentFile, '_blank');
+            // المرفق يُقدَّم من نفس الموقع عبر المعالج المحمي (Uploade/Images) للمشتركين المفعّلين فقط
+            window.open('@Url.Content("~/Uploade/Images/")' + encodeURIComponent(String(DocumentFile).trim()), '_blank');
         } else {
 
             //Swal.fire(

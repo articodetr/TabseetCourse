@@ -40,6 +40,7 @@
 
 
 </div>
+@Html.AntiForgeryToken()
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -98,14 +99,14 @@
                         }
                         if (lang_ID == 2) {
                             if (data[i].CanRegister == 1) {
-                                s += '<a href="#" onclick="TackThisCourse(' + data[i].ID + ')" class="read_more">Subscribe</a>';
+                                s += '<a href="#" onclick="TackThisCourse(' + data[i].ID + '); return false;" class="read_more">' + (data[i].IsPayed == 1 ? 'Request enrollment' : 'Enroll for free') + '</a>';
                             }
                             else {
                                 s += '@@Html.ActionLink("Read More", "GoPageMenu", new { PageID =' + data[i].New_Page_ID + '}, new { @@class = "read_more" })';
                             }
                         } else {
                             if (data[i].CanRegister == 1) {
-                                s += '<a href="#" onclick="TackThisCourse(' + data[i].ID + ')" class="read_more">اشترك</a>';
+                                s += '<a href="#" onclick="TackThisCourse(' + data[i].ID + '); return false;" class="read_more">' + (data[i].IsPayed == 1 ? 'طلب الاشتراك' : 'اشترك مجانًا') + '</a>';
                             }
                             else {
                                 s += '@@Html.ActionLink("اقرأ المزيد", "GoPageMenu", new { PageID =' + data[i].New_Page_ID + '}, new { @@class = "read_more" })';
@@ -132,51 +133,40 @@
     function DivClicked(pageid) {
                         window.location.href = '/Home/GoPageMenu?PageID=' + pageid;
     };
+    // طلب الاشتراك في دورة (آلية موحدة): المجانية تُفعَّل فوراً، والمدفوعة تُسجَّل بانتظار موافقة الإدارة بلا أي دفع داخل الموقع.
+    // الاستجابة من الخادم: { success, response, state, alreadyRegistered, requiresLogin, courseId }
     function TackThisCourse(Course_ID) {
-        const Toast = Swal.mixin({
-            toast: true,
-
-            position: 'top-center',
-            showConfirmButton: true,
-            timer: 9999
+        var tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+        var notify = function (icon, title, done) {
+            if (window.Swal) {
+                Swal.fire({ icon: icon, title: title, confirmButtonText: 'حسناً', confirmButtonColor: '#113464' }).then(function () { if (done) done(); });
+            } else {
+                alert(title);
+                if (done) done();
+            }
+        };
+        $.ajax({
+            async: true,
+            type: 'POST',
+            data: { course_ID: Course_ID, __RequestVerificationToken: tokenEl ? tokenEl.value : '' },
+            url: '@Url.Action("TackThisCurse", "Home")',
+            success: function (data) {
+                if (data && data.requiresLogin) {
+                    window.location.href = '@Url.Action("LogIn", "Home")?Coursid=' + Course_ID;
+                    return;
+                }
+                if (data && data.success) {
+                    notify('success', data.response, function () { window.location.href = '@Url.Action("CategoriesStd", "Students")'; });
+                } else if (data && data.alreadyRegistered) {
+                    notify('info', data.response, function () { window.location.href = '@Url.Action("CategoriesStd", "Students")'; });
+                } else {
+                    notify('warning', (data && data.response) ? data.response : 'تعذر إتمام طلب الاشتراك.');
+                }
+            },
+            error: function () {
+                notify('error', 'حدث خطأ أثناء إرسال طلب الاشتراك، يرجى تحديث الصفحة والمحاولة مجدداً.');
+            }
         });
-                $.ajax(
-                                    {
-                        async: true,
-
-                        type: 'POST',
-                        data: { course_ID: Course_ID },
-                        url: '@Url.Action("TackThisCurse", "Home")',
-                        success: function (data) {
-                                if (data.success == true) {
-                                    window.location.href = '@Url.Action("CategoriesStd", "Students")';
-                                } else {
-                                    Toast.fire({
-                                        icon: 'success',
-                                        title: 'أنت بلغعل أخذت هذا الكورس',
-                                        showClass: {
-                                            popup: 'animate__animated animate__fadeInDown'
-                                        },
-                                        confirmButtonText: '!تمام',
-
-
-                                    }).then(function () {
-                                        window.location.href = '/Home/Login?Coursid=' + result.responseJSON.responsetext;
-                                    });
-
-
-                                }
-
-
-                            },
-                        error: function (result) {
-
-                                //window.location.href = '/Home/Login?Coursid=' + result.responseJSON.responsetext;
-                            },
-                        complete: function (response) {
-                                //alert("finish call jasion " + response);
-                            }
-                        });
     }
 
 </script>

@@ -51,6 +51,15 @@ namespace tabseetCourse.Models
         public string Description { get; set; }
         public List<LectureModel> Lectures { get; set; }
 
+        /// <summary>حالة الاشتراك المحسوبة على الخادم: NotRegistered | PendingApproval | Active (Services/CourseAccessService).</summary>
+        public string SubscriptionState { get; set; }
+        public bool IsSubscriptionActive { get; set; }
+        public bool IsSubscriptionPending { get; set; }
+        /// <summary>تاريخ طلب الاشتراك (من أعمدة ترحيل 20261024_SubscriptionApproval).</summary>
+        public DateTime? RequestedAt { get; set; }
+        public DateTime? ApprovedAt { get; set; }
+        public string Student_Email { get; set; }
+
         public Std_Reg_CategoryModel()
         {
             Lectures = new List<LectureModel>();

@@ -61,18 +61,19 @@ Assert-Condition "Student01: Shows interactive lectures panel and list" ($std01P
 Assert-Condition "Student01: Contains live lecture join & recorded video support" ($std01Prog.Content.Contains("data-valid-client") -and $std01Prog.Content.Contains("data-valid-media")) "Link support attributes missing"
 
 # B. Preserved Functions & Modals in CategoriesStd
-Assert-Condition "Student01: Payment modal exists (#modal-lg)" ($std01Prog.Content.Contains('id="modal-lg"')) "Payment modal missing"
+# (2026-10-24) أُزيلت نافذة الدفع (#modal-lg) ووظائف الدفع نهائياً: الاشتراك المدفوع تفعّله الإدارة من «إدارة طلبات الاشتراك»
+Assert-Condition "Student01: Payment modal removed (#modal-lg absent)" (-not $std01Prog.Content.Contains('id="modal-lg"')) "Old payment modal still rendered"
+Assert-Condition "Student01: No payment JS (MackPayMent/payforcategory) in page" (-not ($std01Prog.Content -match 'MackPayMent|payforcategory')) "Old payment JS still rendered"
+Assert-Condition "Student01: Subscription state badges rendered (data-subscription-state)" ($std01Prog.Content.Contains('data-subscription-state=')) "Subscription state badges missing"
 Assert-Condition "Student01: Exam modal exists (#Exams_ID)" ($std01Prog.Content.Contains('id="Exams_ID"')) "Exam modal missing"
 Assert-Condition "Student01: Lecture details modal exists (#subLectureModal)" ($std01Prog.Content.Contains('id="subLectureModal"')) "Lecture modal missing"
-Assert-Condition "Student01: Required hidden inputs exist (PayMent_Method, examID, Categories_ID, PaymentValue)" (
-    $std01Prog.Content.Contains('id="PayMent_Method"') -and
+Assert-Condition "Student01: Required hidden input exists (examID) and payment inputs removed" (
     $std01Prog.Content.Contains('id="examID"') -and
-    $std01Prog.Content.Contains('id="Categories_ID"') -and
-    $std01Prog.Content.Contains('id="PaymentValue"')
-) "Hidden inputs missing"
-Assert-Condition "Student01: Core JS functions exist (getExam, MackPayMent, GetDocmntation)" (
+    -not $std01Prog.Content.Contains('id="PayMent_Method"') -and
+    -not $std01Prog.Content.Contains('id="PaymentValue"')
+) "Hidden inputs unexpected"
+Assert-Condition "Student01: Core JS functions exist (getExam, GetDocmntation)" (
     $std01Prog.Content.Contains('function getExam(') -and
-    $std01Prog.Content.Contains('function MackPayMent(') -and
     $std01Prog.Content.Contains('function GetDocmntation(')
 ) "Core JS functions missing"
 

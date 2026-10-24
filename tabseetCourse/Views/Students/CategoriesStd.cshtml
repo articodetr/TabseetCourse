@@ -9,6 +9,14 @@
     int totalCoursesCount = courses.Count;
     int totalLecturesCount = courses.Sum(c => c.lectureCount);
     int totalFinishedCount = courses.Sum(c => c.lectureFinishCount);
+
+    // حالة الاشتراك تأتي محسوبة من الخادم (CourseAccessService): المفعّلة فقط تُعرض محاضراتها وروابطها
+    var activeCourses = courses.Where(c => c.IsSubscriptionActive).ToList();
+    int pendingCoursesCount = courses.Count(c => c.IsSubscriptionPending);
+    string firstActiveCategoryId = activeCourses.Count > 0 ? activeCourses[0].Category_ID.ToString() : "";
+    string uploadsBaseUrl = Url.Content("~/Uploade/Images/");
+    string subscriptionMessage = TempData["SubscriptionMessage"] as string;
+    string subscriptionMessageType = (TempData["SubscriptionMessageType"] as string) ?? "info";
 }
 
 @functions {
@@ -42,11 +50,8 @@
 <!-- آلية موحدة لروابط YouTube ومشغّل المحاضرات المسجلة (16:9) -->
 <script src="~/Scripts/tabseet-youtube.js"></script>
 
-<!-- حقول مخفية لوظائف الدفع والامتحانات والتسجيل -->
-<input type="hidden" id="PayMent_Method" />
+<!-- حقل مخفي لوظيفة الامتحانات (أُزيلت حقول الدفع القديمة: لا يوجد دفع داخل الموقع) -->
 <input type="hidden" id="examID" />
-<input type="hidden" id="Categories_ID" />
-<input type="hidden" id="PaymentValue" />
 
 <style>
     /* ==========================================================================
@@ -309,6 +314,39 @@
         background: #FEF2F2;
         color: #B91C1C;
         border: 1px solid #FECACA;
+    }
+
+    /* اشتراك مدفوع بانتظار موافقة الإدارة */
+    .badge-pending {
+        background: #FEF7E6;
+        color: #92400E;
+        border: 1px solid #FDE68A;
+    }
+
+    .sub-pending-note {
+        width: 100%;
+        background: #FFFBEB;
+        border: 1px dashed #F59E0B;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #92400E;
+        line-height: 1.7;
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .sub-pending-note i {
+        color: #D97706;
+        margin-top: 3px;
+    }
+
+    .sub-pending-note .sub-pending-price {
+        display: block;
+        font-weight: 800;
+        color: #113464;
     }
 
     .sub-lectures-badge {
@@ -979,6 +1017,16 @@
                         <span class="sub-stat-label">المحاضرات المكتملة</span>
                     </div>
                 </div>
+                @if (pendingCoursesCount > 0)
+                {
+                    <div class="sub-stat-pill">
+                        <i class="fas fa-hourglass-half"></i>
+                        <div>
+                            <div class="sub-stat-num">@pendingCoursesCount</div>
+                            <span class="sub-stat-label">بانتظار موافقة الإدارة</span>
+                        </div>
+                    </div>
+                }
             </div>
         </header>
 
@@ -1006,8 +1054,9 @@
                 @for (int i = 0; i < courses.Count; i++)
                 {
                     var item = courses[i];
-                    bool isFirst = i == 0;
-                    bool isPaid = (item.std_category_Ispayed == 0 && item.category_Ispayed == 0) || (item.std_category_Ispayed == 1 && item.category_Ispayed == 1);
+                    bool isActive = item.IsSubscriptionActive;
+                    bool isPending = item.IsSubscriptionPending;
+                    bool isFirst = isActive && item.Category_ID.ToString() == firstActiveCategoryId;
                     int progressPercentage = item.lectureCount > 0 ? Math.Min(100, (int)Math.Round((double)item.lectureFinishCount * 100 / item.lectureCount)) : 0;
 
                     <div class="sub-course-card @(isFirst ? "is-active" : "")"
@@ -1030,16 +1079,22 @@
                                     }
                                 </div>
                                 <div class="sub-badges-group">
-                                    @if (!isPaid)
+                                    @if (isPending)
                                     {
-                                        <span class="sub-status-badge badge-unpaid">
-                                            <i class="fas fa-exclamation-circle"></i> بانتظار السداد
+                                        <span class="sub-status-badge badge-pending" data-subscription-state="PendingApproval">
+                                            <i class="fas fa-hourglass-half"></i> بانتظار موافقة الإدارة
+                                        </span>
+                                    }
+                                    else if (isActive)
+                                    {
+                                        <span class="sub-status-badge badge-active" data-subscription-state="Active">
+                                            <i class="fas fa-check-circle"></i> الاشتراك مفعّل · @(string.IsNullOrWhiteSpace(item.categoryType_Nmae) ? "دورة تدريبية" : item.categoryType_Nmae)
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="sub-status-badge badge-active">
-                                            <i class="fas fa-check-circle"></i> @(string.IsNullOrWhiteSpace(item.categoryType_Nmae) ? "دورة تدريبية" : item.categoryType_Nmae)
+                                        <span class="sub-status-badge badge-unpaid" data-subscription-state="NotRegistered">
+                                            <i class="fas fa-exclamation-circle"></i> غير مشترك
                                         </span>
                                     }
                                     <span class="sub-lectures-badge">
@@ -1071,12 +1126,25 @@
 
                         <!-- أزرار الإجراءات السريعة للدورة -->
                         <div class="sub-card-actions">
-                            @if (!isPaid)
+                            @if (isPending)
                             {
-                                <button type="button" class="sub-card-btn sub-btn-pay" onclick="event.stopPropagation(); assingInfo(@item.categoryPrice, @item.Category_ID)" data-toggle="modal" data-target="#modal-lg">
-                                    <i class="fas fa-credit-card"></i>
-                                    <span>سداد الرسوم (@item.categoryPrice)</span>
-                                </button>
+                                <div class="sub-pending-note" role="status">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>
+                                        تم استلام طلب اشتراكك. ستتمكن من دخول الدورة بعد تأكيد الإدارة.
+                                        @if (item.categoryPrice > 0)
+                                        {
+                                            <span class="sub-pending-price">قيمة الدورة: @item.categoryPrice</span>
+                                        }
+                                    </span>
+                                </div>
+                            }
+                            else if (!isActive)
+                            {
+                                <div class="sub-pending-note" role="status">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>يجب الاشتراك في هذه الدورة أولاً للوصول إلى محتواها.</span>
+                                </div>
                             }
                             else
                             {
@@ -1098,7 +1166,7 @@
 
                                     @if (!string.IsNullOrWhiteSpace(item.DocumentBook))
                                     {
-                                        <a href="~/Uploade/Images/@item.DocumentBook" target="_blank" rel="noopener noreferrer" class="sub-card-btn sub-btn-book" onclick="event.stopPropagation();" title="تحميل الكتاب">
+                                        <a href="@(uploadsBaseUrl + Uri.EscapeDataString(item.DocumentBook.Trim()))" target="_blank" rel="noopener noreferrer" class="sub-card-btn sub-btn-book" onclick="event.stopPropagation();" title="تحميل الكتاب">
                                             <i class="fas fa-book"></i>
                                             <span>الكتاب</span>
                                         </a>
@@ -1122,23 +1190,28 @@
                                 </div>
                             }
 
-                            <button type="button" class="sub-card-btn sub-btn-lectures" data-category-id="@item.Category_ID" aria-label="عرض المحاضرات في هذه الصفحة">
-                                <i class="fas fa-list-ul"></i>
-                                <span>استعراض المحاضرات</span>
-                            </button>
+                            @if (isActive)
+                            {
+                                <button type="button" class="sub-card-btn sub-btn-lectures" data-category-id="@item.Category_ID" aria-label="عرض المحاضرات في هذه الصفحة">
+                                    <i class="fas fa-list-ul"></i>
+                                    <span>استعراض المحاضرات</span>
+                                </button>
+                            }
                         </div>
                     </div>
                 }
             </div>
 
-            <!-- 4. لوحة عرض محاضرات المادة المحددة -->
+            if (activeCourses.Count > 0)
+            {
+            <!-- 4. لوحة عرض محاضرات المادة المحددة (الاشتراكات المفعّلة فقط) -->
             <section class="sub-lectures-panel" id="subLecturesPanel" role="tabpanel" aria-live="polite">
                 <div class="sub-panel-head">
                     <div>
                         <h2 class="sub-panel-title">
                             <i class="fas fa-layer-group"></i>
                             <span>محاضرات: </span>
-                            <span id="subSelectedCourseTitle" style="color: #C5A052;">@courses[0].CategoryName</span>
+                            <span id="subSelectedCourseTitle" style="color: #C5A052;">@activeCourses[0].CategoryName</span>
                         </h2>
                         <p class="sub-panel-subtitle">جميع المحاضرات المباشرة والمسجلة الخاصة بهذه الدورة.</p>
                     </div>
@@ -1160,6 +1233,7 @@
                     <p>لم يتم تسجيل محاضرات لهذه الدورة حتى الآن.</p>
                 </div>
             </section>
+            }
         }
 
         <!-- 5. نافذة منبثقة لتفاصيل المحاضرة -->
@@ -1179,129 +1253,7 @@
             </div>
         </div>
 
-        <!-- 6. نافذة الدفع وطرق السداد (Modal المحافظ عليه بالكامل من الصفحة الأصلية) -->
-        <div class="modal fade" id="modal-lg" tabindex="-1" role="dialog" aria-labelledby="modalPayTitle" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content" style="direction: rtl; text-align: right; border-radius: 16px; overflow: hidden;">
-                    <div class="modal-header bg-primary text-white" style="background-color: #113464 !important;">
-                        <h4 class="modal-title" id="modalPayTitle" style="color: #FFFFFF; font-weight: 800;">طريقة الدفع وسداد الرسوم</h4>
-                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="color: #FFFFFF !important; opacity: 1;">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body" style="padding: 24px;">
-                        <table style="width:100%" class="table table-borderless">
-                            <tr>
-                                <td>
-                                    <div class="form-group text-center">
-                                        <label style="font-weight: 700;">الدفع عن طريق وكيل</label><br />
-                                        <input type="radio" id="PaymnetbyClient" name="paymnet" value="DirectPank" onchange="RadioChange()" />
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group text-center">
-                                        <label style="font-weight: 700;">بطاقة ائتمان</label><br />
-                                        <input type="radio" id="PaymnetCridetCard" name="paymnet" value="DirectPank" onchange="RadioChange()" />
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group text-center">
-                                        <label style="font-weight: 700;">حوالة بنكية</label><br />
-                                        <input type="radio" id="PayMentInPank" name="paymnet" value="PanckTransfer" onchange="RadioChange()" />
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group text-center">
-                                        <label style="font-weight: 700;">سودان كاش</label><br />
-                                        <input type="radio" id="Paymnetleater" name="paymnet" value="kachsodan" onchange="RadioChange()" />
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group text-center">
-                                        <label style="font-weight: 700;">بنكك</label><br />
-                                        <input type="radio" id="PaymnetBankak" name="paymnet" value="bankak" onchange="RadioChange()" />
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group text-center">
-                                        <label style="font-weight: 700;">طلب منحة</label><br />
-                                        <input type="radio" id="PaymnetCode" name="paymnet" value="Code" onchange="RadioChange()" />
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="6">
-                                    <div class="row" id="kachsodan" style="display:none;">
-                                        <div class="col-sm-12">
-                                            <label>أرجو إرفاق إشعار الدفع عبر سودان كاش <span class="text-danger">*</span></label>
-                                            <div class="form-group">
-                                                <input type="file" class="form-control" id="UploadFileKash" onchange="Validation()">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row" id="bankak" style="display:none;">
-                                        <div class="col-sm-12">
-                                            <label>أرجو إرفاق إشعار التحويل عبر تطبيق بنكك <span class="text-danger">*</span></label>
-                                            <div class="form-group">
-                                                <input type="file" class="form-control" id="UploadFileBankak" onchange="Validation()">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row" id="PayMentInPank_Div" style="display:none;">
-                                        <div class="col-sm-12">
-                                            <label>تحويل المبلغ إلى الحساب البنكي</label>
-                                            <div class="form-group alert alert-info">
-                                                <strong>رقم الحساب: </strong> 999999<br />
-                                                <strong>اسم الحساب: </strong> Zakarias
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12">
-                                            <label>أرجو إرفاق إشعار التحويل البنكي <span class="text-danger">*</span></label>
-                                            <div class="form-group">
-                                                <input type="file" class="form-control" id="UploadFile" onchange="Validation()">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row" id="PaymnetCridetCard_Div" style="display:none;">
-                                        <div class="col-sm-6">
-                                            <label>الاسم على البطاقة <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="Card_Name" onkeyup="Validation()">
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label>رقم البطاقة <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="cr_no" onkeyup="Validation()">
-                                        </div>
-                                        <div class="col-sm-6" style="margin-top: 10px;">
-                                            <label>تاريخ الانتهاء (MM/YY) <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="exp" onkeyup="Validation()">
-                                        </div>
-                                        <div class="col-sm-6" style="margin-top: 10px;">
-                                            <label>رمز الأمان (CVC) <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="CVC" onkeyup="Validation()">
-                                        </div>
-                                    </div>
-                                    <div class="row" id="PaymnetCode_Div" style="display:none;">
-                                        <div class="col-sm-12">
-                                            <label>كود المنحة التعليمية <span class="text-danger">*</span></label>
-                                            <div class="form-group">
-                                                <input type="text" class="form-control" id="Code" onkeyup="Validation()">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="modal-footer justify-content-between" style="background: #F8FAFC; padding: 16px 24px;">
-                        <div>
-                            <strong>المبلغ المستحق: </strong>
-                            <span id="PaymentValue_ID" style="font-size: 18px; font-weight: 800; color: #113464;">0.00</span>
-                        </div>
-                        <input type="button" class="btn btn-success" id="btn_Pay" value="تأكيد وسداد الرسوم" onclick="MackPayMent()" style="padding: 8px 24px; font-weight: 700;" />
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- 6. (أُزيلت نافذة الدفع القديمة: لا يوجد دفع داخل الموقع؛ الاشتراك المدفوع تفعّله الإدارة بعد تأكيد استلام القيمة) -->
 
         <!-- 7. نافذة معلومات الامتحان (Modal المحافظ عليه بالكامل من الصفحة الأصلية) -->
         <div class="modal fade" id="Exams_ID" tabindex="-1" role="dialog" aria-labelledby="modalExamTitle" aria-hidden="true">
@@ -1343,9 +1295,9 @@
             </div>
         </div>
 
-        <!-- 8. مخزن البيانات الآمن لجميع الدورات ومحاضراتها للقراءة محليًا في المتصفح -->
+        <!-- 8. مخزن البيانات الآمن لمحاضرات الاشتراكات المفعّلة فقط (المعلّقة لا تُرسل روابطها إلى المتصفح) -->
         <div id="subCoursesDataset" style="display:none;" aria-hidden="true">
-            @foreach (var course in courses)
+            @foreach (var course in activeCourses)
             {
                 <div class="sub-data-course"
                      data-id="@course.Category_ID"
@@ -1357,7 +1309,7 @@
                         bool validClient = IsSafeHttpsUrl(lec.LectureLink_Client);
                         bool validMedia = IsSafeHttpsUrl(lec.MediaLink);
                         bool hasDoc = !string.IsNullOrWhiteSpace(lec.DocumenFile);
-                        string docUrl = hasDoc ? ("https://tbsetaca.com/Uploade/Images/" + Uri.EscapeUriString(lec.DocumenFile.Trim())) : "";
+                        string docUrl = hasDoc ? (uploadsBaseUrl + Uri.EscapeDataString(lec.DocumenFile.Trim())) : "";
 
                         <div class="sub-data-lecture"
                              data-id="@lec.ID"
@@ -1386,8 +1338,25 @@
 <script>
     /* ==========================================================================
        الوظائف البرمجية المحافظ عليها من الصفحة الأصلية:
-       (الامتحانات، الشهادات، والدفع بكافة طرقه)
+       (الامتحانات والشهادات). أُزيلت وظائف الدفع بالكامل: لا يوجد دفع داخل الموقع،
+       والاشتراك في الدورة المدفوعة تفعّله الإدارة بعد تأكيد استلام القيمة.
        ========================================================================== */
+
+    // 0. رسالة حالة الاشتراك (بعد طلب الاشتراك أو عند محاولة فتح دورة غير مفعّلة)
+    @if (!string.IsNullOrWhiteSpace(subscriptionMessage))
+    {
+        <text>
+    (function () {
+        var msg = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(subscriptionMessage));
+        var type = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(subscriptionMessageType));
+        if (window.Swal) {
+            Swal.fire({ icon: type, title: msg, confirmButtonText: 'حسناً', confirmButtonColor: '#113464' });
+        } else {
+            alert(msg);
+        }
+    })();
+        </text>
+    }
 
     // 1. وظائف الامتحانات
     function getExam(examID, categoryID) {
@@ -1440,138 +1409,12 @@
         window.location.href = "/Students/Certfications";
     }
 
-    // 3. وظائف الدفع
-    function assingInfo(Price, category_ID) {
-        $('#PaymentValue_ID').html(Price);
-        $("#Categories_ID").val(category_ID);
-        $("#PaymentValue").val(Price);
-    }
-
-    function getSelectedRadioValue(name) {
-        var radios = document.getElementsByName(name);
-        for (var i = 0; i < radios.length; i++) {
-            if (radios[i].checked) {
-                return radios[i].value;
-            }
-        }
-        return "";
-    }
-
-    function RadioChange() {
-        Validation();
-        $('#PaymnetCridetCard_Div').hide();
-        $('#PayMentInPank_Div').hide();
-        $('#PaymnetCode_Div').hide();
-        $('#kachsodan').hide();
-        $('#bankak').hide();
-
-        var value = getSelectedRadioValue('paymnet');
-        if (value === 'DirectPank') {
-            $('#PaymnetCridetCard_Div').show();
-        } else if (value === 'PanckTransfer') {
-            $('#PayMentInPank_Div').show();
-        } else if (value === 'Code') {
-            $('#PaymnetCode_Div').show();
-        } else if (value === 'kachsodan') {
-            $('#kachsodan').show();
-        } else if (value === 'bankak') {
-            $('#bankak').show();
-        }
-    }
-
-    function Validation() {
-        var value = getSelectedRadioValue('paymnet');
-        var btn = document.getElementById("btn_Pay");
-        if (!btn) return;
-
-        if (value === 'DirectPank') {
-            var Card_Name = $('#Card_Name').val() || "";
-            var Card_Number = $('#cr_no').val() || "";
-            var Expiry_Date = $('#exp').val() || "";
-            var CVC = $('#CVC').val() || "";
-            btn.disabled = !(Card_Name.trim() && Card_Number.trim() && Expiry_Date.trim() && CVC.trim());
-        } else if (value === 'PanckTransfer') {
-            var f = $('#UploadFile')[0];
-            btn.disabled = !(f && f.files && f.files.length > 0);
-        } else if (value === 'kachsodan') {
-            var fk = $('#UploadFileKash')[0];
-            btn.disabled = !(fk && fk.files && fk.files.length > 0);
-        } else if (value === 'bankak') {
-            var fb = $('#UploadFileBankak')[0];
-            btn.disabled = !(fb && fb.files && fb.files.length > 0);
-        } else if (value === 'Code') {
-            var Code = $('#Code').val() || "";
-            btn.disabled = (Code.trim() === "");
-        } else {
-            btn.disabled = true;
-        }
-    }
-
-    function MackPayMent() {
-        var value = getSelectedRadioValue('paymnet');
-        if (value === 'DirectPank') {
-            $("#PayMent_Method").val(1);
-        } else if (value === 'PanckTransfer') {
-            $("#PayMent_Method").val(2);
-        } else if (value === 'kachsodan' || value === 'bankak') {
-            $("#PayMent_Method").val(2);
-        } else if (value === 'Code') {
-            $("#PayMent_Method").val(4);
-        }
-
-        var fd = new FormData();
-        var PayMent_Method = $("#PayMent_Method").val();
-        var Categories_ID = $("#Categories_ID").val();
-        var PayMent_Value = $("#PaymentValue").val();
-        var Code = $("#Code").val();
-
-        var UploadFile = null;
-        if (value === 'PanckTransfer') {
-            var f1 = $('#UploadFile')[0];
-            if (f1 && f1.files) UploadFile = f1.files[0];
-        } else if (value === 'kachsodan') {
-            var f2 = $('#UploadFileKash')[0];
-            if (f2 && f2.files) UploadFile = f2.files[0];
-        } else if (value === 'bankak') {
-            var f3 = $('#UploadFileBankak')[0];
-            if (f3 && f3.files) UploadFile = f3.files[0];
-        }
-
-        fd.append("PayMent_Value", PayMent_Value);
-        fd.append("PayMent_Method", PayMent_Method);
-        fd.append("Category_ID", Categories_ID);
-        if (UploadFile) {
-            fd.append("FileUpload", UploadFile);
-        }
-        fd.append("Code", Code);
-
-        $.ajax({
-            async: true,
-            type: 'POST',
-            data: fd,
-            contentType: false,
-            processData: false,
-            url: '@Url.Action("payforcategory", "Students")',
-            success: function () {
-                window.location.reload();
-            },
-            error: function (response) {
-                alert("حدث خطأ أثناء معالجة عملية الدفع: " + (response.responseText || ""));
-            }
-        });
-    }
-
     /* ==========================================================================
        وظائف التصميم الجديد:
        (لوحة استعراض المحاضرات، الفلاتر، ونافذة التفاصيل)
        ========================================================================== */
     (function () {
         "use strict";
-
-        $(document).ready(function () {
-            var btnPay = document.getElementById("btn_Pay");
-            if (btnPay) btnPay.disabled = true;
-        });
 
         function isSafeHttps(url) {
             if (!url || typeof url !== "string") return false;
@@ -1583,6 +1426,15 @@
             } catch (e) {
                 return /^https:\/\//i.test(trimmed);
             }
+        }
+
+        // المرفقات التعليمية تُقدَّم من نفس الموقع عبر معالج محمي (Uploade/Images) أو عبر HTTPS خارجي
+        var uploadsBase = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(uploadsBaseUrl));
+        function isSafeDocUrl(url) {
+            if (!url || typeof url !== "string") return false;
+            var trimmed = url.trim();
+            if (trimmed.indexOf(uploadsBase) === 0 && trimmed.indexOf("..") === -1) return true;
+            return isSafeHttps(trimmed);
         }
 
         function initStudentProgramsPage() {
@@ -1781,7 +1633,7 @@
                         actionsDiv.appendChild(videoBtn);
                     }
 
-                    if (lItem.hasDoc && lItem.docUrl && isSafeHttps(lItem.docUrl)) {
+                    if (lItem.hasDoc && lItem.docUrl && isSafeDocUrl(lItem.docUrl)) {
                         var docBtn = document.createElement("a");
                         docBtn.href = lItem.docUrl;
                         docBtn.target = "_blank";
@@ -1983,7 +1835,7 @@
                         modalActions.appendChild(aVideo);
                     }
 
-                    if (lec.hasDoc && lec.docUrl && isSafeHttps(lec.docUrl)) {
+                    if (lec.hasDoc && lec.docUrl && isSafeDocUrl(lec.docUrl)) {
                         var aDoc = document.createElement("a");
                         aDoc.href = lec.docUrl;
                         aDoc.target = "_blank";

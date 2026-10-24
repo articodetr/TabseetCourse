@@ -2,8 +2,8 @@
 @{
     ViewBag.Title = "AssignmentQuestion";
     Layout = "~/Views/Shared/_LayoutStudent.cshtml";
-}
-   var CategoryID = ViewBag.categoryAssID;
+    // كانت هاتان السطران خارج كتلة الكود فتتعطل الصفحة بخطأ ترجمة (CategoryID غير معرّف في السطر 84)
+    var CategoryID = ViewBag.categoryAssID;
     var CategoryName = ViewBag.categoryAssName;
 }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>

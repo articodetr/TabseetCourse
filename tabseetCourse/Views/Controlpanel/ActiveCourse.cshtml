@@ -1,9 +1,14 @@
 ﻿@model IEnumerable<tabseetCourse.Models.Std_Reg_CategoryModel>
 
 @{
-    ViewBag.Title = "ActiveCourse";
+    ViewBag.Title = "إدارة طلبات الاشتراك";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var viewModel = (tabseetCourse.Models.UserModel)ViewBag._UsermodelModel;
+    bool canApprove = viewModel != null && viewModel.L_role != null
+        && viewModel.L_role.Any(r => r.RoleName == tabseetCourse.Services.CourseAccessService.AdminRole || r.RoleName == tabseetCourse.Services.CourseAccessService.ApproverRole);
+    var requests = Model != null ? Model.ToList() : new List<tabseetCourse.Models.Std_Reg_CategoryModel>();
+    string successMessage = TempData["SubscriptionMessage"] as string;
+    string errorMessage = TempData["SubscriptionError"] as string;
 }
 
 
@@ -25,7 +30,7 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1> تفعيل طلبات الدفع</h1>
+                <h1>إدارة طلبات الاشتراك</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
@@ -36,82 +41,114 @@
 </section>
 
 <div class="card">
-    <div class="card-header">
-        @*@if (viewModel != null && viewModel.L_role.Count > 0)
-            {
-                foreach (var item in viewModel.L_role)
-                {
-                    if (item.RoleName == "Admin" || item.RoleName == "PaymentView")
-                    {
-                        <input type="button" value="اضافة فئة جديد" id="addNew" data-toggle="modal" data-target="#modal-lg" class="btn btn-success float-left">
-                    }
-                }
-            }*@
+    <div class="card-header" style="direction: rtl; text-align: right;">
+        <p class="mb-1" style="font-weight: 700;">
+            <i class="fas fa-info-circle text-primary"></i>
+            طلبات الاشتراك في الدورات المدفوعة بانتظار تأكيد الإدارة. لا يوجد أي دفع داخل الموقع:
+            بعد التأكد من استلام قيمة الدورة خارج الموقع اضغط «تأكيد الدفع وتفعيل الاشتراك» ليتمكن الطالب من دخول محتوى الدورة فوراً.
+        </p>
+        <p class="mb-0 text-muted" style="font-size: 13px;">
+            الدورات المجانية تُفعَّل تلقائياً عند الاشتراك ولا تظهر هنا. عدد الطلبات المعلّقة حالياً: <strong>@requests.Count</strong>
+        </p>
     </div>
     <!-- /.card-header -->
     <div class="card-body">
-        <table id="example1" class="table table-bordered table-hover">
+        <table id="example1" class="table table-bordered table-hover" style="direction: rtl; text-align: right;">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>اسم الدورة</th>
+                    <th>#</th>
                     <th>اسم الطالب</th>
-                    <th>قيمة الدفع</th>
-                    <th>طريقة الدفع</th>
-                    <th>إشعار</th>
+                    <th>اسم الدورة</th>
+                    <th>تاريخ طلب الاشتراك</th>
+                    <th>سعر الدورة</th>
+                    <th>حالة الطلب</th>
+                    <th>ملاحظات</th>
                     <th> </th>
-
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in requests)
                 {
-                    <tr>
+                    <tr data-registration-id="@item.ID">
                         <td>@item.ID</td>
+                        <td>
+                            <strong>@item.Student_Name</strong>
+                            @if (!string.IsNullOrWhiteSpace(item.Student_Email))
+                            {
+                                <br /><small class="text-muted" dir="ltr">@item.Student_Email</small>
+                            }
+                        </td>
                         <td>@item.CategoryName</td>
-                        <td>@item.Student_Name</td>
-                        <td>@item.PayMent_Value</td>
-                        @if (item.PayMent_Method == 2)
-                        {
-                            <td> حوالة بنكية</td>
-                            <td><a href="~/Uploade/Images/@item.TransactionFile" target="_blank">اشعار الدفع</a></td>
-                        }
-                        else if (item.PayMent_Method == 3)
-                        {
-                            <td>الدفع لاحقا</td>
-                            <td> </td>
-                        }
-                        else if (item.PayMent_Method == 4)
-                        {
-                            <td> منحة</td>
-                            <td><label>@item.Code</label></td>
-                        }
-                        else if (item.PayMent_Method == 5)
-                        {
-                            <td> الدفع عن طريق وكيل</td>
-                            <td><label>@item.Code</label></td>
-                        }
-                        else
-                        {
-                            <td> لم يتم الدفع</td>
-                            <td><label></label></td>
-                        }
-
+                        <td data-order="@(item.RequestedAt.HasValue ? item.RequestedAt.Value.ToString("yyyy-MM-dd HH:mm") : "")">
+                            @if (item.RequestedAt.HasValue)
+                            {
+                                @item.RequestedAt.Value.ToString("yyyy-MM-dd HH:mm")
+                            }
+                            else
+                            {
+                                <span class="text-muted">غير مسجل (طلب قديم)</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(item.PayMent_Value))
+                            {
+                                @item.PayMent_Value
+                            }
+                            else
+                            {
+                                <span class="text-muted">غير محدد</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge badge-warning" style="font-size: 13px; padding: 6px 10px;">
+                                <i class="fas fa-hourglass-half"></i> بانتظار موافقة الإدارة
+                            </span>
+                        </td>
+                        <td>
+                            @* معلومات تاريخية من نظام الدفع القديم (للاطلاع فقط؛ لم تعد تُجمع من الطالب) *@
+                            @if (item.PayMent_Method == 2)
+                            {
+                                <small>طلب قديم: حوالة بنكية</small>
+                                if (!string.IsNullOrWhiteSpace(item.TransactionFile))
+                                {
+                                    <br /><a href="~/Uploade/Images/@item.TransactionFile" target="_blank" rel="noopener noreferrer"><small>إشعار الدفع المرفق سابقاً</small></a>
+                                }
+                            }
+                            else if (item.PayMent_Method == 3)
+                            {
+                                <small>طلب قديم: الدفع لاحقاً</small>
+                            }
+                            else if (item.PayMent_Method == 4)
+                            {
+                                <small>طلب قديم: منحة (@item.Code)</small>
+                            }
+                            else if (item.PayMent_Method == 1 || item.PayMent_Method == 5)
+                            {
+                                <small>طلب قديم: @(item.PayMent_Method == 1 ? "بطاقة ائتمان" : "عن طريق وكيل")</small>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
                         <td>
                             <div class="btn-group">
-                                @if (viewModel != null && viewModel.L_role.Count > 0)
+                                @if (canApprove)
                                 {
-                                    foreach (var item2 in viewModel.L_role)
+                                    using (Html.BeginForm("ActiveStudenCourse", "Controlpanel", FormMethod.Post, new { @class = "js-approve-form", data_student = item.Student_Name, data_course = item.CategoryName }))
                                     {
-                                        if (item2.RoleName == "Admin" || item2.RoleName == "PaymentActive")
-                                        {
-                                            <button class="btn btn-primary" onclick="location.href='@Url.Action("ActiveStudenCourse", "ControlPanel", new { Reg_ID = item.ID })'">
-                                                <i class="nav-icon fas fa-book">
-                                                </i>
-                                                تفعيل
-                                            </button>
-                                        }
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="Reg_ID" value="@item.ID" />
+                                        <input type="hidden" name="confirm" value="1" />
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-check-circle"></i>
+                                            تأكيد الدفع وتفعيل الاشتراك
+                                        </button>
                                     }
+                                }
+                                else
+                                {
+                                    <span class="text-muted"><small>عرض فقط</small></span>
                                 }
                             </div>
                         </td>
@@ -121,12 +158,13 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <th>ID</th>
-                    <th>اسم الدورة</th>
+                    <th>#</th>
                     <th>اسم الطالب</th>
-                    <th>قيمة الدفع</th>
-                    <th>طريقة الدفع</th>
-                    <th>إشعار</th>
+                    <th>اسم الدورة</th>
+                    <th>تاريخ طلب الاشتراك</th>
+                    <th>سعر الدورة</th>
+                    <th>حالة الطلب</th>
+                    <th>ملاحظات</th>
                     <th> </th>
                 </tr>
             </tfoot>
@@ -165,11 +203,6 @@
 
 <!-- Page specific script -->
 <script>
-    $(document).ready(function () {
-        //Initialize Select2 Elements
-
-    });
-
     $(function () {
         $('#example1').DataTable({
             "paging": true,
@@ -182,61 +215,42 @@
             "buttons": ["copy", /*"csv",*/ "excel", /*"pdf",*/ "print", "colvis"]
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
-    });
-
-
-
-    $('#btnSave').click(function () {
-        validationSaveForm();
-        var fd = new FormData();
-
-        var NameAR_ID = $("#NameAR_ID").val();
-        var NameEN_ID = $("#NameEN_ID").val();
-        var Type_ID = $("#Type_ID").val();
-        var IsPayed_ID = $("#IsPayed_ID").val();
-        var PayedValue_ID = $("#PayedValue_ID").val();
-        var Categories_ID = $("#Categories_ID").val();
-
-        fd.NameAR = NameAR_ID;
-        fd.NameEN = NameEN_ID;
-        fd.CategoryType_ID = Type_ID;
-        fd.IsPayed = IsPayed_ID;
-        fd.PayedValue = PayedValue_ID;
-        fd.ParentCateogry_ID = Categories_ID;
-        var dataJson = JSON.stringify(fd);
-        $.ajax(
-            {
-                async: true,
-                type: 'POST',
-                dataType: 'JSON',
-                contentType: 'application/json; charset=utf=8',
-                data: dataJson,
-                url: '@Url.Action("CreateCategories", "Controlpanel")',
-                success: function (data) {
-                    window.location.reload();
-                },
-                error: function (response) {
-                    alert("the problem is " + response.responseText);
-                },
-                complete: function (response) {
-                    //alert("finish call jasion " + response);
+        // تأكيد قبل الاعتماد (الحماية الفعلية على الخادم: POST + رمز مكافحة التزوير + صلاحية Identity)
+        $(document).on('submit', '.js-approve-form', function (e) {
+            var form = this;
+            if (form.dataset.confirmed === '1') { return true; }
+            e.preventDefault();
+            var student = form.getAttribute('data-student') || '';
+            var course = form.getAttribute('data-course') || '';
+            Swal.fire({
+                title: 'تأكيد الدفع وتفعيل الاشتراك',
+                html: 'هل تؤكد استلام قيمة دورة <b>' + $('<div>').text(course).html() + '</b> من الطالب <b>' + $('<div>').text(student).html() + '</b>؟<br>سيتمكن الطالب من دخول محتوى الدورة فوراً.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، تفعيل الاشتراك',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#28a745',
+                reverseButtons: true
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    form.dataset.confirmed = '1';
+                    form.submit();
                 }
             });
-    });
+            return false;
+        });
 
-
-
-    function validationSaveForm() {
-        var first = $("#NameAR_ID").val();
-        var value = true;
-        if (first == "") {
-
-            $("#reqNameAR_ID").html("* الاسم مطلوب");
-
-            value= false;
+        @if (!string.IsNullOrWhiteSpace(successMessage))
+        {
+            <text>
+        Swal.fire({ icon: 'success', title: 'تم', text: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(successMessage)), confirmButtonText: 'حسناً' });
+            </text>
         }
-        //if (x) {
-
-        //}
-    }
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <text>
+        Swal.fire({ icon: 'error', title: 'تنبيه', text: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(errorMessage)), confirmButtonText: 'حسناً' });
+            </text>
+        }
+    });
 </script>

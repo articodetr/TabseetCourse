@@ -112,15 +112,16 @@ namespace tabseetCourse.Services
             return lecture != null && lecture.Assignments != null && lecture.Assignments.Any();
         }
 
-        /// <summary>الطالب مسجل في دورة المحاضرة أو في الدورة الأم (الدبلوم) التي تتبعها.</summary>
+        /// <summary>
+        /// الطالب يحق له الوصول إلى دورة المحاضرة: اشتراك مفعّل (مجاني، أو مدفوع اعتمدته الإدارة) في الدورة
+        /// أو في الدورة الأم (الدبلوم). الاشتراك المعلّق بانتظار الإدارة لا يُعدّ تسجيلاً (CourseAccessService).
+        /// </summary>
         public bool IsStudentRegistered(string studentId, Lecture lecture)
         {
             if (string.IsNullOrEmpty(studentId) || lecture == null)
                 return false;
 
-            int catId = lecture.Category_ID;
-            int parentId = lecture.Category != null && lecture.Category.ParentCateogry_ID.HasValue ? lecture.Category.ParentCateogry_ID.Value : -1;
-            return _db.Std_Reg_Category.Any(r => r.Std_ID == studentId && (r.Category_ID == catId || r.Category_ID == parentId));
+            return new CourseAccessService(_db).CanAccess(studentId, lecture.Category_ID);
         }
 
         /// <summary>معرّفات الطلاب المسجلين في دورة المحاضرة أو دورتها الأم.</summary>

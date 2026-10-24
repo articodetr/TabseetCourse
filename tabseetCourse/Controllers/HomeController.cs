@@ -10,6 +10,7 @@ using tabseetCourse.Classes;
 using tabseetCourse.Data;
 using tabseetCourse.Models;
 using tabseetCourse.Models_UI;
+using tabseetCourse.Services;
 
 namespace tabseetCourse.Controllers
 {
@@ -884,10 +885,14 @@ namespace tabseetCourse.Controllers
             return Json(lr.ToList().OrderBy(s => s.Value), JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// [مسار دفع قديم مُعطَّل] لم يعد هناك أي دفع داخل الموقع؛ الاشتراك في الدورات المدفوعة يتم بطلب
+        /// تعتمده الإدارة بعد استلام القيمة خارج الموقع. يُعاد التوجيه إلى صفحة برامج الطالب.
+        /// </summary>
         [HttpGet]
         public ActionResult PayMent()
         {
-            return View();
+            return RedirectToAction("CategoriesStd", "Students");
         }
 
 
@@ -956,37 +961,17 @@ namespace tabseetCourse.Controllers
                             }
                             else if (role.ToLower() == "student".ToLower())
                             {
+                                // طلب اشتراك مؤجل (الطالب ضغط «اشترك» قبل تسجيل الدخول): يُنفَّذ بنفس الآلية الموحدة
+                                // (المجانية تُفعَّل فوراً، المدفوعة تنتظر موافقة الإدارة) دون أي معلومات دفع.
                                 var coursid = TempData["Course_ID"];
-                                if (coursid != null)
+                                int pendingCourseId;
+                                if (coursid != null && int.TryParse(coursid.ToString(), out pendingCourseId))
                                 {
-                                    int std = int.Parse(coursid.ToString());
-                                    var value = dbEntity.Std_Reg_Category.Where(e => e.Category_ID == std && e.Std_ID == user.Id).ToList();
-                                    if (value != null && value.Count > 0)
+                                    var subscription = new CourseAccessService(dbEntity).Register(user.Id, pendingCourseId);
+                                    if (!string.IsNullOrEmpty(subscription.Message))
                                     {
-                                        Response.StatusCode = (int)HttpStatusCode.OK;
-                                        return RedirectToAction("CategoriesStd", "Students");
-                                    }
-                                    var catID = int.Parse(coursid.ToString());
-                                    var category = dbEntity.Categories.Where(e => e.ID == catID || e.ParentCateogry_ID == catID).ToList();
-                                    foreach (var item in category)
-                                    {
-
-
-                                        Std_Reg_Category std_Cat = new Std_Reg_Category();
-                                        std_Cat.Category_ID = item.ID;
-                                        std_Cat.Std_ID = user.Id;
-
-                                        std_Cat.std_category_Ispayed = 0;
-                                        if (item.PayedValue != "0")
-                                        {
-                                            std_Cat.category_Ispayed = 1;
-                                        }
-                                        else
-                                        {
-                                            std_Cat.category_Ispayed = 0;
-                                        }
-                                        dbEntity.Std_Reg_Category.Add(std_Cat);
-                                        dbEntity.SaveChanges();
+                                        TempData["SubscriptionMessage"] = subscription.Message;
+                                        TempData["SubscriptionMessageType"] = subscription.Success ? "success" : "info";
                                     }
                                 }
                                 return RedirectToAction("CategoriesStd", "Students");
@@ -1271,57 +1256,51 @@ namespace tabseetCourse.Controllers
 
         }
 
+        /// <summary>
+        /// طلب الاشتراك في دورة (الطالب المسجل دخوله فقط؛ المعرف يؤخذ من جلسة Identity لا من المتصفح).
+        /// الدورة المجانية تُفعَّل تلقائياً، والمدفوعة تُسجَّل «بانتظار موافقة الإدارة» دون أي نموذج دفع.
+        /// الاستجابة: { success, response, state: NotRegistered|PendingApproval|Active, alreadyRegistered, requiresLogin, courseId }
+        /// </summary>
         [HttpPost]
-        public async Task<JsonResult> TackThisCurse(int course_ID)
+        [ValidateAntiForgeryToken]
+        public JsonResult TackThisCurse(int course_ID)
         {
             try
             {
                 var user = CurrentUser;
-                if (user != null)
+                if (user == null)
                 {
-                    Session["username"] = user.FirstName;
-                    Session["userRole"] = userManager.GetRoles(user.ID).FirstOrDefault();
-                    var value = dbEntity.Std_Reg_Category.Where(e => e.Category_ID == course_ID && e.Std_ID == user.ID).ToList();
-                    if (value != null && value.Count > 0)
-                    {
-                        Response.StatusCode = (int)HttpStatusCode.OK;
-                        return Json(new { success = false, response = "أنت بالفعل اشتركت هذا الكورس" }, JsonRequestBehavior.AllowGet);
-                    }
-                    var category = dbEntity.Categories.Where(e => e.ID == course_ID || e.ParentCateogry_ID == course_ID).ToList();
-                    foreach (var item in category)
-                    {
-                        Std_Reg_Category std_Cat = new Std_Reg_Category();
-                        std_Cat.Category_ID = item.ID;
-                        std_Cat.Std_ID = user.ID;
-                        std_Cat.std_category_Ispayed = 0;
-                        if (item.IsPayed != 0)
-                        {
-                            std_Cat.category_Ispayed = 1;
-                        }
-                        else
-                        {
-                            std_Cat.category_Ispayed = 0;
-                        }
-
-                        dbEntity.Std_Reg_Category.Add(std_Cat);
-                        dbEntity.SaveChanges();
-                    }
-                    Response.StatusCode = (int)HttpStatusCode.OK;
-                    return Json(new { success = true, response = "" }, JsonRequestBehavior.AllowGet);
-                }
-                else
-                {
+                    // يُستكمل الطلب تلقائياً بعد تسجيل الدخول (انظر LogIn POST)
                     TempData["Course_ID"] = course_ID;
-
                     Response.StatusCode = (int)HttpStatusCode.OK;
-                    return Json(new { success = true, responsetext = course_ID }, JsonRequestBehavior.AllowGet);
+                    return Json(new { success = false, requiresLogin = true, courseId = course_ID, response = "يرجى تسجيل الدخول أو إنشاء حساب مجاني لإتمام الاشتراك." }, JsonRequestBehavior.AllowGet);
                 }
+
+                bool isStudent = user.L_role != null && user.L_role.Any(r => string.Equals(r.RoleName, Roles.Student.ToString(), StringComparison.OrdinalIgnoreCase));
+                if (!isStudent)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.OK;
+                    return Json(new { success = false, requiresLogin = false, courseId = course_ID, response = "الاشتراك في الدورات متاح لحسابات الطلاب فقط." }, JsonRequestBehavior.AllowGet);
+                }
+
+                var result = new CourseAccessService(dbEntity).Register(user.ID, course_ID);
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                return Json(new
+                {
+                    success = result.Success,
+                    alreadyRegistered = result.AlreadyRegistered,
+                    requiresLogin = false,
+                    state = result.State.ToString(),
+                    courseId = course_ID,
+                    courseName = result.CategoryName,
+                    response = result.Message
+                }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                Printerror("TackThisCurse", ex.Message, ex.InnerException.Message, ex.StackTrace);
+                Printerror("TackThisCurse", ex.Message, ex.InnerException != null ? ex.InnerException.Message : null, ex.StackTrace);
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = false, response = "حدث خطأ أثناء معالجة طلب الاشتراك، يرجى المحاولة لاحقاً." }, JsonRequestBehavior.AllowGet);
             }
         }
 

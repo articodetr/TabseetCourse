@@ -67,9 +67,19 @@
                                 <b class="">@i</b>
                                 <p title="@item.CategoryName">@item.CategoryName</p>
 
+                                @if (!item.IsSubscriptionActive)
+                                {
+                                    @* دورة فرعية غير مفعّلة (مدفوعة بانتظار موافقة الإدارة أو غير مشترك فيها): لا أزرار محتوى *@
+                                    <div class="form-group">
+                                        <span class="badge badge-warning" data-subscription-state="@item.SubscriptionState" style="font-size: 12px; padding: 6px 10px; font-weight: 700;">
+                                            @(item.IsSubscriptionPending ? "بانتظار موافقة الإدارة" : "غير مشترك")
+                                        </span>
+                                    </div>
+                                }
+
                                 <div class="form-group">
 
-                                    @if (item.Exam_ID != 0)
+                                    @if (item.IsSubscriptionActive && item.Exam_ID != 0)
 
                                     {
                                         @*<label for="costs">الأمتحان</label>*@
@@ -85,7 +95,7 @@
                                 </div>
                                 <div class="form-group">
 
-                                    @if (item.lectureCount > 0)
+                                    @if (item.IsSubscriptionActive && item.lectureCount > 0)
                                     {
 
                                         @*<label for="completed">المحاضرات</label>*@

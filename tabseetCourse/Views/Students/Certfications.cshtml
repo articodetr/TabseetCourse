@@ -14,6 +14,12 @@
             <div class="text_sec content">
                 <h2>شهاداتي</h2>
 
+                @if (TempData["CertificateError"] != null)
+                {
+                    <div class="alert alert-danger text-center" role="alert" dir="rtl" style="direction:rtl">
+                        @TempData["CertificateError"]
+                    </div>
+                }
 
                 <ul class="content_list" style="direction:rtl">
                     @{
