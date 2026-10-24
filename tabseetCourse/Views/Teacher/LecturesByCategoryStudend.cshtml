@@ -47,6 +47,7 @@
                     <th>الفئة</th>
                     <th>نوع المحاضرة</th>
                     <th>رابط المحاضرة</th>
+                    <th>حالة الدرس</th>
 
 
                     <th> </th>
@@ -63,6 +64,7 @@
                     <th>الفئة</th>
                     <th>نوع المحاضرة</th>
                     <th>رابط المحاضرة</th>
+                    <th>حالة الدرس</th>
 
 
                     <th></th>
@@ -404,6 +406,8 @@
 <script src="~/Content/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="~/Content/dist/js/demo.js"></script>
+<!-- آلية موحدة للتعرف على روابط YouTube (مطابقة لـ Classes/YouTubeLinkHelper.cs) -->
+<script src="~/Scripts/tabseet-youtube.js"></script>
 
 <!-- Page specific script -->
 <script>
@@ -453,8 +457,40 @@
                                 '<td><a href="' + (data[i].LectureLink_Client || '#') + '" target="_blank"> رابط المحاضرة المسجلة </a></td>';
                         }
 
-                        s +=  '<td>' +
+                                                // Status badge column
+                        var statusBadge = '';
+                        if (data[i].Status === 'Completed') {
+                            statusBadge = '<span class="badge badge-success p-2" title="' + (data[i].ActualCompletionDateFormatted || '') + '"><i class="fas fa-check-circle ml-1"></i> مكتملة</span>';
+                        } else if (data[i].Status === 'Postponed') {
+                            statusBadge = '<span class="badge badge-warning p-2" title="' + (data[i].PostponeReason || '') + '"><i class="fas fa-clock ml-1"></i> مؤجلة</span>';
+                        } else {
+                            statusBadge = '<span class="badge badge-secondary p-2"><i class="fas fa-calendar-alt ml-1"></i> مجدولة</span>';
+                        }
+                        s += '<td>' + statusBadge + '</td>';
+
+                        var safeLecName = (data[i].Lecture_Name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        var statusBtns = '';
+                        if (data[i].Status !== 'Completed') {
+                            statusBtns = '<button class="btn btn-success" title="تأكيد إكمال الدرس" onclick="openCompleteLessonModal(' + data[i].ID + ', \'' + safeLecName + '\')">' +
+                                '<i class="fas fa-check ml-1"></i> تم إكمال الدرس' +
+                                '</button>' +
+                                '<button class="btn btn-warning" title="تأجيل المحاضرة" onclick="openPostponeLessonModal(' + data[i].ID + ', \'' + safeLecName + '\')">' +
+                                '<i class="fas fa-pause ml-1"></i> تأجيل' +
+                                '</button>';
+                        } else {
+                            statusBtns = '<button class="btn btn-outline-secondary" title="إعادة فتح وتصحيح الحالة" onclick="openReopenLessonModal(' + data[i].ID + ', \'' + safeLecName + '\')">' +
+                                '<i class="fas fa-undo ml-1"></i> تصحيح الحالة' +
+                                '</button>';
+                        }
+
+                        var attendanceBtn = '<button class="btn btn-secondary" title="حضور الطلاب في هذه المحاضرة" onclick="openAttendanceModal(' + data[i].ID + ', \'' + safeLecName + '\')">' +
+                            '<i class="fas fa-user-check ml-1"></i> الحضور' +
+                            '</button>';
+
+                        s += '<td>' +
                             '<div class="btn-group">' +
+                            attendanceBtn +
+                            statusBtns +
                             '<button class="btn btn-info" onclick="GetLectureByID(' + data[i].ID + ')" data-toggle="modal" data-target="#EditModal">' +
                             '<i class="fas fa-edit">' +
                             '</i>' +
@@ -520,13 +556,42 @@
                 url = match[1].trim();
             }
         }
+        // المحاضرة المسجلة: أي رابط YouTube مدعوم (watch / youtu.be / shorts / live / embed / الجوال) يُحوَّل إلى رابط مشاهدة موحد
+        if (String(lectureType) === "0" && window.TabseetYouTube) {
+            var yt = TabseetYouTube.parse(url);
+            if (yt.isYouTube && yt.valid) {
+                url = yt.watchUrl;
+            }
+        }
         return url;
+    }
+
+    // حماية من الإرسال المزدوج (تجنب تكرار المحاضرة عند الضغط أكثر من مرة)
+    function acquireBusy(btnId) {
+        var btn = document.getElementById(btnId);
+        if (!btn || btn.getAttribute("data-busy") === "1") return false;
+        btn.setAttribute("data-busy", "1");
+        btn.disabled = true;
+        return true;
+    }
+
+    function releaseBusy(btnId) {
+        var btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.removeAttribute("data-busy");
+        btn.disabled = false;
     }
 
     function isValidHttpsLectureUrl(rawInput, lectureType) {
         var url = extractLectureUrl(rawInput, lectureType);
         if (!url) {
             return { valid: false, reason: "empty", url: "" };
+        }
+        if (String(lectureType) === "0" && window.TabseetYouTube) {
+            var ytCheck = TabseetYouTube.parse(url);
+            if (ytCheck.isYouTube && !ytCheck.valid) {
+                return { valid: false, reason: "youtube", url: url, message: ytCheck.error };
+            }
         }
         try {
             var parsed = new URL(url);
@@ -596,6 +661,10 @@
             return;
         }
 
+        if (!acquireBusy("btnSave")) {
+            return;
+        }
+
         var fd = new FormData();
         var Lecture_Name = ($("#LectureName_ID").val() || "").trim();
         var Category_ID = $("#CategoryID").val();
@@ -658,6 +727,9 @@
                     text: msg,
                     icon: 'error'
                 });
+            },
+            complete: function () {
+                releaseBusy("btnSave");
             }
         });
     });
@@ -670,6 +742,10 @@
                 text: 'يرجى استكمال الحقول المطلوبة وإدخال رابط HTTPS صالح للمحاضرة.',
                 icon: 'warning'
             });
+            return;
+        }
+
+        if (!acquireBusy("btnUpdate")) {
             return;
         }
 
@@ -737,6 +813,9 @@
                     text: msg,
                     icon: 'error'
                 });
+            },
+            complete: function () {
+                releaseBusy("btnUpdate");
             }
         });
     });
@@ -957,6 +1036,8 @@
         } else if (!linkCheck.valid) {
             if (linkCheck.reason === "pdf_link") {
                 $("#lectureLinkError").text("ملف PDF لا يُعتبر مصدرًا للمحاضرة؛ يرجى إدخال رابط محاضرة أو فيديو صالح بصيغة HTTPS.").show();
+            } else if (linkCheck.reason === "youtube") {
+                $("#lectureLinkError").text("رابط YouTube غير صالح: " + linkCheck.message).show();
             } else {
                 $("#lectureLinkError").text("يرجى إدخال رابط HTTPS صالح ومكتمل (مثال: https://...).").show();
             }
@@ -1007,6 +1088,8 @@
         } else if (!linkCheck.valid) {
             if (linkCheck.reason === "pdf_link") {
                 $("#ElectureLinkError").text("ملف PDF لا يُعتبر مصدرًا للمحاضرة؛ يرجى إدخال رابط محاضرة أو فيديو صالح بصيغة HTTPS.").show();
+            } else if (linkCheck.reason === "youtube") {
+                $("#ElectureLinkError").text("رابط YouTube غير صالح: " + linkCheck.message).show();
             } else {
                 $("#ElectureLinkError").text("يرجى إدخال رابط HTTPS صالح ومكتمل (مثال: https://...).").show();
             }
@@ -1023,4 +1106,321 @@
 
         document.getElementById("btnUpdate").disabled = !isValid;
     }
+</script>
+
+<!-- Modal: Student Attendance -->
+<div class="modal fade" id="modalAttendance" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-user-check ml-1"></i> حضور الطلاب: <span id="attendanceLectureName"></span></h5>
+                <button type="button" class="close text-white ml-0 mr-auto" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-2">الحضور يُحتسب تلقائياً من وقت التشغيل الفعلي للمحاضرة المسجلة، أو من ضغطة الدخول ضمن موعد المحاضرة المباشرة. يمكنك تسجيل الحضور يدوياً أو إلغاءه لأي طالب.</p>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>الطالب</th>
+                                <th>البريد</th>
+                                <th>الحالة</th>
+                                <th>المشاهدة / الحضور</th>
+                                <th>المصدر</th>
+                                <th>الاكتمال</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <tr><td colspan="7" class="text-center text-muted">جارٍ التحميل...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">إغلاق</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Complete Lesson -->
+<div class="modal fade" id="modalCompleteLesson" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-check-circle ml-1"></i> تأكيد إكمال الدرس</h5>
+                <button type="button" class="close text-white ml-0 mr-auto" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="completeLectureId" />
+                <div class="alert alert-info py-2">
+                    <i class="fas fa-info-circle ml-1"></i> هل أنت متأكد من تأكيد إكمال الدرس التالي؟
+                    <div class="font-weight-bold mt-1 text-dark" id="completeLectureName"></div>
+                </div>
+                <div class="form-group">
+                    <label for="completeNotes">ملاحظات إضافية (اختياري)</label>
+                    <textarea class="form-control" id="completeNotes" rows="3" placeholder="اكتب أي ملاحظات تتعلق بتقديم الدرس أو إنجازه..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-success" id="btnConfirmComplete"><i class="fas fa-check ml-1"></i> نعم، تم إكمال الدرس</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Postpone Lesson -->
+<div class="modal fade" id="modalPostponeLesson" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-clock ml-1"></i> تأجيل المحاضرة</h5>
+                <button type="button" class="close ml-0 mr-auto" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="postponeLectureId" />
+                <div class="alert alert-warning py-2">
+                    <i class="fas fa-exclamation-triangle ml-1"></i> سيتم تسجيل تأجيل المحاضرة وإشعار الإدارة فوراً.
+                    <div class="font-weight-bold mt-1 text-dark" id="postponeLectureName"></div>
+                </div>
+                <div class="form-group">
+                    <label for="postponeReason">سبب التأجيل <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="postponeReason" rows="3" placeholder="يرجى كتابة سبب تأجيل الدرس بوضوح..." required></textarea>
+                    <small id="postponeReasonError" class="text-danger" style="display:none;">يرجى كتابة سبب التأجيل.</small>
+                </div>
+                <div class="form-group">
+                    <label for="postponeNotes">ملاحظات إضافية (اختياري)</label>
+                    <input type="text" class="form-control" id="postponeNotes" placeholder="ملاحظات إضافية..." />
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-warning font-weight-bold" id="btnConfirmPostpone"><i class="fas fa-pause ml-1"></i> تأكيد التأجيل</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Reopen / Correct Lesson -->
+<div class="modal fade" id="modalReopenLesson" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-undo ml-1"></i> تصحيح حالة المحاضرة</h5>
+                <button type="button" class="close text-white ml-0 mr-auto" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="reopenLectureId" />
+                <div class="alert alert-secondary py-2">
+                    <i class="fas fa-info-circle ml-1"></i> إعادة المحاضرة إلى حالة (مجدولة) وإلغاء حالة الإكمال مع تسجيل التصحيح.
+                    <div class="font-weight-bold mt-1 text-dark" id="reopenLectureName"></div>
+                </div>
+                <div class="form-group">
+                    <label for="reopenNotes">سبب التصحيح / ملاحظات (اختياري)</label>
+                    <textarea class="form-control" id="reopenNotes" rows="3" placeholder="اكتب سبب إعادة فتح الدرس أو تصحيح حالته..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" id="btnConfirmReopen"><i class="fas fa-undo ml-1"></i> تأكيد التصحيح</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ===================== حضور الطلاب لكل محاضرة ===================== */
+    var attendanceLectureId = 0;
+
+    function escapeHtml(value) {
+        return String(value === null || value === undefined ? '' : value)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function formatSeconds(total) {
+        total = Math.max(0, parseInt(total || 0, 10));
+        var h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = total % 60;
+        var mm = (m < 10 ? '0' : '') + m, ss = (s < 10 ? '0' : '') + s;
+        return h > 0 ? h + ':' + mm + ':' + ss : mm + ':' + ss;
+    }
+
+    function openAttendanceModal(id, name) {
+        attendanceLectureId = id;
+        $('#attendanceLectureName').text(name);
+        $('#attendanceTableBody').html('<tr><td colspan="7" class="text-center text-muted">جارٍ التحميل...</td></tr>');
+        $('#modalAttendance').modal('show');
+        loadAttendance();
+    }
+
+    function loadAttendance() {
+        $.ajax({
+            type: 'POST',
+            data: { lectureId: attendanceLectureId },
+            url: '@Url.Action("LectureAttendance", "Teacher")',
+            success: function (res) {
+                if (!res || !res.success) {
+                    $('#attendanceTableBody').html('<tr><td colspan="7" class="text-center text-danger">' + escapeHtml((res && res.response) || 'تعذر تحميل الحضور') + '</td></tr>');
+                    return;
+                }
+                if (!res.rows || res.rows.length === 0) {
+                    $('#attendanceTableBody').html('<tr><td colspan="7" class="text-center text-muted">لا يوجد طلاب مسجلون في هذه الدورة</td></tr>');
+                    return;
+                }
+                var sourceNames = { Recorded: 'مشاهدة مسجلة', Live: 'دخول مباشر', Assignment: 'واجب', Manual: 'يدوي', Legacy: 'سابق' };
+                var html = '';
+                for (var i = 0; i < res.rows.length; i++) {
+                    var r = res.rows[i];
+                    var badge = r.StatusKey === 'Finished' ? '<span class="badge badge-success p-2">مكتملة</span>'
+                        : (r.StatusKey === 'Partial' ? '<span class="badge badge-warning p-2">جزئية</span>'
+                            : '<span class="badge badge-secondary p-2">لم تبدأ</span>');
+                    var watch = res.lectureType === '0'
+                        ? (formatSeconds(r.WatchedSeconds) + ' / ' + formatSeconds(r.RequiredSeconds))
+                        : (r.IsTimeEnd ? 'حضر' : '—');
+                    if (r.HasAssignment) { watch += r.IsAssignmentFinish ? ' + الواجب ✔' : ' + الواجب ✘'; }
+                    var btn = r.IsTimeEnd
+                        ? '<button type="button" class="btn btn-sm btn-outline-danger" onclick="setAttendance(\'' + escapeHtml(r.StudentId) + '\', false)">إلغاء الحضور</button>'
+                        : '<button type="button" class="btn btn-sm btn-success" onclick="setAttendance(\'' + escapeHtml(r.StudentId) + '\', true)">تسجيل حضور</button>';
+                    html += '<tr>' +
+                        '<td>' + escapeHtml(r.StudentName) + '</td>' +
+                        '<td>' + escapeHtml(r.Email) + '</td>' +
+                        '<td>' + badge + '</td>' +
+                        '<td>' + watch + '</td>' +
+                        '<td>' + escapeHtml(sourceNames[r.Source] || (r.Source || '—')) + '</td>' +
+                        '<td>' + escapeHtml(r.CompletedAt || '—') + '</td>' +
+                        '<td>' + btn + '</td>' +
+                        '</tr>';
+                }
+                $('#attendanceTableBody').html(html);
+            },
+            error: function (xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.response) || 'تعذر تحميل الحضور';
+                $('#attendanceTableBody').html('<tr><td colspan="7" class="text-center text-danger">' + escapeHtml(msg) + '</td></tr>');
+            }
+        });
+    }
+
+    function setAttendance(studentId, attended) {
+        var token = $('input[name="__RequestVerificationToken"]').val();
+        $.ajax({
+            type: 'POST',
+            data: { __RequestVerificationToken: token, lectureId: attendanceLectureId, studentId: studentId, attended: attended },
+            url: '@Url.Action("SetLectureAttendance", "Teacher")',
+            success: function (res) {
+                if (res && res.success) {
+                    loadAttendance();
+                } else {
+                    Swal.fire({ title: 'خطأ', text: (res && res.response) || 'تعذر حفظ الحضور', icon: 'error' });
+                }
+            },
+            error: function (xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.response) || 'تعذر حفظ الحضور';
+                Swal.fire({ title: 'خطأ', text: msg, icon: 'error' });
+            }
+        });
+    }
+
+    function openCompleteLessonModal(id, name) {
+        $('#completeLectureId').val(id);
+        $('#completeLectureName').text(name);
+        $('#completeNotes').val('');
+        $('#modalCompleteLesson').modal('show');
+    }
+
+    function openPostponeLessonModal(id, name) {
+        $('#postponeLectureId').val(id);
+        $('#postponeLectureName').text(name);
+        $('#postponeReason').val('');
+        $('#postponeNotes').val('');
+        $('#postponeReasonError').hide();
+        $('#modalPostponeLesson').modal('show');
+    }
+
+    function openReopenLessonModal(id, name) {
+        $('#reopenLectureId').val(id);
+        $('#reopenLectureName').text(name);
+        $('#reopenNotes').val('');
+        $('#modalReopenLesson').modal('show');
+    }
+
+    function submitLectureStatus(lectureId, status, notes, postponeReason, modalId, btnId) {
+        var btn = $(btnId);
+        btn.prop('disabled', true);
+        var token = $('input[name="__RequestVerificationToken"]').val();
+
+        $.ajax({
+            url: '@Url.Action("UpdateLectureStatus", "Teacher")',
+            type: 'POST',
+            data: {
+                lectureId: lectureId,
+                status: status,
+                notes: notes,
+                postponeReason: postponeReason,
+                __RequestVerificationToken: token
+            },
+            success: function (res) {
+                btn.prop('disabled', false);
+                $(modalId).modal('hide');
+                if (res.success) {
+                    Swal.fire({
+                        title: 'تم بنجاح',
+                        text: res.message || 'تم تحديث حالة المحاضرة بنجاح.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(function () {
+                        GetLecture();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'تنبيه',
+                        text: res.message || 'تعذر تحديث حالة المحاضرة.',
+                        icon: 'warning'
+                    });
+                }
+            },
+            error: function (xhr) {
+                btn.prop('disabled', false);
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) || xhr.responseText || 'حدث خطأ أثناء الاتصال بالخادم.';
+                Swal.fire({
+                    title: 'خطأ',
+                    text: msg,
+                    icon: 'error'
+                });
+            }
+        });
+    }
+
+    $('#btnConfirmComplete').click(function () {
+        var id = $('#completeLectureId').val();
+        var notes = $('#completeNotes').val();
+        submitLectureStatus(id, 'Completed', notes, null, '#modalCompleteLesson', '#btnConfirmComplete');
+    });
+
+    $('#btnConfirmPostpone').click(function () {
+        var id = $('#postponeLectureId').val();
+        var reason = ($('#postponeReason').val() || '').trim();
+        var notes = $('#postponeNotes').val();
+        if (!reason) {
+            $('#postponeReasonError').show();
+            return;
+        }
+        $('#postponeReasonError').hide();
+        submitLectureStatus(id, 'Postponed', notes, reason, '#modalPostponeLesson', '#btnConfirmPostpone');
+    });
+
+    $('#btnConfirmReopen').click(function () {
+        var id = $('#reopenLectureId').val();
+        var notes = $('#reopenNotes').val();
+        submitLectureStatus(id, 'Scheduled', notes, null, '#modalReopenLesson', '#btnConfirmReopen');
+    });
 </script>

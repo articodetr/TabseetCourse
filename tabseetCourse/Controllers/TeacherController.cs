@@ -15,6 +15,14 @@ namespace tabseetCourse.Controllers
 {
     public class TeacherController : SharedCalss
     {
+        private readonly tabseetCourse.Services.ITeacherLectureNotificationService _notificationService = new tabseetCourse.Services.TeacherLectureNotificationService();
+
+        private tabseetCourse.Services.StudentAttendanceService _attendance;
+        /// <summary>خدمة حضور الطلاب (Services/StudentAttendanceService.cs).</summary>
+        private tabseetCourse.Services.StudentAttendanceService Attendance
+        {
+            get { return _attendance ?? (_attendance = new tabseetCourse.Services.StudentAttendanceService(dbEntity)); }
+        }
         // GET: Teacher
         public ActionResult Index()
         {
@@ -103,35 +111,151 @@ namespace tabseetCourse.Controllers
         public ActionResult TeacherCoursestd(int ID)
         {
             List<UserModel> L_iden = new List<UserModel>();
-            //try
-            //{
 
-            //    var result = dbEntity.Std_Reg_Category.Where(e => e.Category_ID == ID).Select(x => new { x.AspNetUser.Id, x.AspNetUser.RealName, x.AspNetUser.Email, x.Category.NameAr, x.Category.Lectures.Count, x.Category.Lectures }).ToList();
-            //    foreach (var item in result)
-            //    {
-            //        ViewBag.categoryName = item.NameAr;
-            //        UserModel myi = new UserModel();
-            //        myi.ID = item.Id;
-            //        myi.RealName = item.RealName;
-            //        myi.Email = item.Email;
-            //        myi.lectureCount = item.Count;
-            //        foreach (var item3 in item.Lectures)
-            //        {
-            //            var value = dbEntity.std_lecture.Select(e => new { e.ID, e.IsFinish, e.Std_ID, e.Lecture_ID }).Where(e => e.IsFinish == 1 && e.Std_ID == myi.ID && e.Lecture_ID == item3.ID).ToList();
-            //            foreach (var item2 in value)
-            //            {
-            //                myi.lectureFinishCount += 1;
-            //            }
-            //        }
-            //        L_iden.Add(myi);
-            //    }
+            string authError;
+            if (!IsAuthorizedForCategory(ID, out authError))
+            {
+                return RedirectToAction("TeacherCourse", "Teacher");
+            }
 
-            //}
-            //catch (Exception ex)
-            //{
-            //}
+            // تقدم الطلاب: عدد المحاضرات المكتملة (IsFinish = 1) لكل طالب مسجل في الدورة أو دورتها الأم
+            try
+            {
+                var category = dbEntity.Categories.Find(ID);
+                if (category != null)
+                {
+                    ViewBag.categoryName = category.NameAr;
+                    var lectureIds = category.Lectures.Select(l => l.ID).ToList();
+                    var studentIds = Attendance.GetRegisteredStudentIds(category);
+                    var users = dbEntity.AspNetUsers
+                        .Where(u => studentIds.Contains(u.Id))
+                        .Select(u => new { u.Id, u.RealName, u.Email })
+                        .ToList();
+
+                    var finished = dbEntity.std_lecture
+                        .Where(s => s.IsFinish == 1 && s.Lecture_ID != null && s.Std_ID != null && lectureIds.Contains(s.Lecture_ID.Value) && studentIds.Contains(s.Std_ID))
+                        .Select(s => new { s.Std_ID, s.Lecture_ID })
+                        .Distinct()
+                        .ToList()
+                        .GroupBy(s => s.Std_ID)
+                        .ToDictionary(g => g.Key, g => g.Count());
+
+                    foreach (var user in users.OrderBy(u => u.RealName))
+                    {
+                        UserModel myi = new UserModel();
+                        myi.ID = user.Id;
+                        myi.RealName = user.RealName;
+                        myi.Email = user.Email;
+                        myi.lectureCount = lectureIds.Count;
+                        int count;
+                        myi.lectureFinishCount = finished.TryGetValue(user.Id, out count) ? count : 0;
+                        L_iden.Add(myi);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
             return View(L_iden);
         }
+
+        #region Attendance (حضور الطلاب لكل محاضرة)
+        private static string FormatLocal(DateTime? utc)
+        {
+            return utc.HasValue ? DateTime.SpecifyKind(utc.Value, DateTimeKind.Utc).ToLocalTime().ToString("yyyy-MM-dd HH:mm") : null;
+        }
+
+        /// <summary>قائمة حضور محاضرة: كل الطلاب المسجلين في دورتها مع حالة كل منهم.</summary>
+        [HttpPost]
+        public JsonResult LectureAttendance(int lectureId)
+        {
+            try
+            {
+                var lecture = dbEntity.Lectures.Find(lectureId);
+                if (lecture == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, response = "المحاضرة غير موجودة" }, JsonRequestBehavior.AllowGet);
+                }
+
+                string authError;
+                if (!IsAuthorizedForCategory(lecture.Category_ID, out authError))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, response = authError }, JsonRequestBehavior.AllowGet);
+                }
+
+                var rows = Attendance.GetLectureAttendance(lecture);
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                return Json(new
+                {
+                    success = true,
+                    lectureId = lecture.ID,
+                    lectureName = lecture.Lecture_Name,
+                    lectureType = lecture.LectureTypeOnOff ?? "0",
+                    rows = rows.Select(r => new
+                    {
+                        r.StudentId,
+                        r.StudentName,
+                        r.Email,
+                        r.WatchedSeconds,
+                        r.RequiredSeconds,
+                        r.IsTimeEnd,
+                        r.HasAssignment,
+                        r.IsAssignmentFinish,
+                        r.IsFinish,
+                        r.Source,
+                        r.StatusKey,
+                        StartedAt = FormatLocal(r.StartedAt),
+                        CompletedAt = FormatLocal(r.CompletedAt)
+                    }).ToList()
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>تسجيل حضور طالب يدوياً أو إلغاؤه (للمدرس المسند إليه الدورة أو الإدارة).</summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult SetLectureAttendance(int lectureId, string studentId, bool attended)
+        {
+            try
+            {
+                var lecture = dbEntity.Lectures.Find(lectureId);
+                if (lecture == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, response = "المحاضرة غير موجودة" }, JsonRequestBehavior.AllowGet);
+                }
+
+                string authError;
+                if (!IsAuthorizedForCategory(lecture.Category_ID, out authError))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, response = authError }, JsonRequestBehavior.AllowGet);
+                }
+
+                if (string.IsNullOrWhiteSpace(studentId) || !Attendance.IsStudentRegistered(studentId.Trim(), lecture))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json(new { success = false, response = "الطالب غير مسجل في دورة هذه المحاضرة" }, JsonRequestBehavior.AllowGet);
+                }
+
+                var status = Attendance.SetManual(User.Identity.GetUserId(), lecture, studentId.Trim(), attended);
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                return Json(new { success = true, isFinish = status.IsFinish, isTimeEnd = status.IsTimeEnd, source = status.Source }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion
         private List<int> GetTeacherCategoryIds(string categoriesString)
         {
             List<int> result = new List<int>();
@@ -211,7 +335,7 @@ namespace tabseetCourse.Controllers
         }
 
         [HttpPost]
-        public JsonResult LectureByCategorysStd(int Cat_ID)
+        public async Task<JsonResult> LectureByCategorysStd(int Cat_ID)
         {
             try
             {
@@ -221,7 +345,7 @@ namespace tabseetCourse.Controllers
                     return Json(new { success = false, response = authError }, JsonRequestBehavior.AllowGet);
                 }
 
-                var values = dbEntity.Lectures.Where(i => (i.Category_ID == Cat_ID))
+                var rawLectures = await dbEntity.Lectures.Where(i => (i.Category_ID == Cat_ID))
                     .Select(i => new {
                         i.ID,
                         i.Lecture_Name,
@@ -232,19 +356,89 @@ namespace tabseetCourse.Controllers
                         LectureLink_Host = string.Empty,
                         i.LectureLink_Client,
                         i.Assignments.Count
-                    }).ToList();
-                if (values != null)
-                {
-                    Response.StatusCode = (int)HttpStatusCode.OK;
-                    return Json(values, JsonRequestBehavior.AllowGet);
-                }
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, response = "Can't find Categories" }, JsonRequestBehavior.AllowGet);
+                    }).ToListAsync();
+
+                var statusDict = await _notificationService.GetLectureStatusesForCategoryAsync(Cat_ID);
+
+                var values = rawLectures.Select(l => {
+                    statusDict.TryGetValue(l.ID, out var st);
+                    return new {
+                        l.ID,
+                        l.Lecture_Name,
+                        l.Category_ID,
+                        l.NameAr,
+                        l.NameEn,
+                        l.LectureTypeOnOff,
+                        l.LectureLink_Host,
+                        l.LectureLink_Client,
+                        l.Count,
+                        Status = st != null ? st.CurrentStatus : "Scheduled",
+                        StatusArabic = st != null ? st.StatusArabic : "مجدولة",
+                        ActualCompletionDateFormatted = st != null ? st.ActualCompletionDateFormatted : null,
+                        Notes = st != null ? st.Notes : null,
+                        PostponeReason = st != null ? st.PostponeReason : null
+                    };
+                }).ToList();
+
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                return Json(values, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> UpdateLectureStatus(int lectureId, string status, string notes, string postponeReason)
+        {
+            try
+            {
+                if (!Request.IsAuthenticated || User == null || User.Identity == null || !User.Identity.IsAuthenticated)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, message = "المستخدم غير مسجل الدخول" }, JsonRequestBehavior.AllowGet);
+                }
+
+                string userId = User.Identity.GetUserId();
+                var user = userManager.FindById(userId);
+                if (user == null || user.IsActive != 1)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, message = "حساب المستخدم غير فعال أو غير موجود" }, JsonRequestBehavior.AllowGet);
+                }
+
+                var lecture = dbEntity.Lectures.Find(lectureId);
+                if (lecture == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, message = "المحاضرة غير موجودة" }, JsonRequestBehavior.AllowGet);
+                }
+
+                if (!IsAuthorizedForCategory(lecture.Category_ID, out string authError))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, message = authError }, JsonRequestBehavior.AllowGet);
+                }
+
+                string teacherName = user.RealName ?? user.UserName;
+                var result = await _notificationService.UpdateLectureStatusAsync(lectureId, status, userId, teacherName, notes, postponeReason);
+
+                if (!result.Success)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json(new { success = false, message = result.Message }, JsonRequestBehavior.AllowGet);
+                }
+
+                var updatedStatus = await _notificationService.GetLectureStatusAsync(lectureId);
+                return Json(new { success = true, message = result.Message, status = updatedStatus }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
         [HttpPost]

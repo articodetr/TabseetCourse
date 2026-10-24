@@ -227,7 +227,15 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup1.cs" />
     <Compile Include="Classes\SharedCalss.cs" />
+    <Compile Include="Classes\YouTubeLinkHelper.cs" />
+    <Compile Include="Data\StudentAttendanceEntities.cs" />
+    <Compile Include="Services\AttendancePolicy.cs" />
+    <Compile Include="Services\StudentAttendanceService.cs" />
+    <Compile Include="Controllers\AdminNotificationsController.cs" />
     <Compile Include="Controllers\ControlpanelController.cs" />
+    <Compile Include="Data\TeacherNotificationEntities.cs" />
+    <Compile Include="Models\TeacherLectureNotificationViewModels.cs" />
+    <Compile Include="Services\TeacherLectureNotificationService.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotFoundController.cs" />
     <Compile Include="Controllers\StudentsController.cs" />
@@ -6820,6 +6828,9 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.bundle.js" />
+    <Content Include="Scripts\tabseet-youtube.js" />
+    <Content Include="Scripts\tabseet-attendance.js" />
+    <Content Include="Views\Controlpanel\AttendanceReport.cshtml" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
     <Content Include="Scripts\bootstrap.esm.min.js" />
@@ -9320,6 +9331,7 @@
     <Content Include="Views\Students\Certfications.cshtml" />
     <Content Include="Views\Teacher\TeacherCourse.cshtml" />
     <Content Include="Views\Teacher\TeacherCoursestd.cshtml" />
+    <Content Include="Views\AdminNotifications\Index.cshtml" />
     <Content Include="Views\Teacher\LecturesByCategoryStudend.cshtml" />
     <Content Include="Views\Teacher\StdonlineCourse.cshtml" />
     <Content Include="Views\Teacher\AddAssignment.cshtml" />

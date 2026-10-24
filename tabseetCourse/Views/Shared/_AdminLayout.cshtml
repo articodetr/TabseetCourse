@@ -147,6 +147,36 @@
     <div class="wrapper">
 
 
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light" style="margin-left:0;margin-right:250px;">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+            </ul>
+
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Notifications Dropdown Menu -->
+                <li class="nav-item dropdown" id="adminNotifDropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false" id="notifBellLink" title="إشعارات المدرسين">
+                        <i class="far fa-bell" style="font-size: 1.25rem;"></i>
+                        <span class="badge badge-warning navbar-badge" id="adminNotifBellCount" style="display:none; font-size: 0.75rem;">0</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-left" style="min-width: 330px; text-align: right;" id="adminNotifDropdownMenu">
+                        <span class="dropdown-item dropdown-header font-weight-bold" id="adminNotifDropdownHeader">لا توجد إشعارات جديدة</span>
+                        <div class="dropdown-divider"></div>
+                        <div id="adminNotifDropdownList" style="max-height: 280px; overflow-y: auto;">
+                            <!-- Injected via AJAX -->
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="@Url.Action("Index", "AdminNotifications")" class="dropdown-item dropdown-footer text-center font-weight-bold">
+                            عرض جميع الإشعارات
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
         <!-- /.navbar -->
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4" style="direction:rtl;right:0" dir="rtl">
@@ -323,6 +353,21 @@
                                                 <a href="@Url.Action("Lectures", "ControlPanel")" class="nav-link">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>المحاضرات</p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item" style="margin-bottom:15px">
+                                                <a href="@Url.Action("Index", "AdminNotifications")" class="nav-link">
+                                                    <i class="fas fa-bell nav-icon text-warning"></i>
+                                                    <p>
+                                                        إشعارات المدرسين
+                                                        <span class="right badge badge-danger" id="AdminNotifCountBadge" style="display:none;">0</span>
+                                                    </p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item" style="margin-bottom:15px">
+                                                <a href="@Url.Action("AttendanceReport", "Controlpanel")" class="nav-link">
+                                                    <i class="fas fa-user-check nav-icon text-success"></i>
+                                                    <p>تقرير حضور الطلاب</p>
                                                 </a>
                                             </li>
                                             break;
@@ -542,15 +587,60 @@
                     success: function (data) {
 
                         $("#ActiveCourse_ID").text(data.Count);
-
                     },
                     error: function (response) {
-                        //alert("the problem is " + response.responseText);
                     },
                     complete: function (response) {
-                        //alert("finish call jasion " + response);
                     }
                 });
+
+            // Admin Notifications Bell Poller
+            function checkAdminNotifications() {
+                $.ajax({
+                    async: true,
+                    type: 'GET',
+                    url: '@Url.Action("GetLatest", "AdminNotifications")?count=5',
+                    success: function (data) {
+                        if (data && data.success) {
+                            var count = data.unreadCount || 0;
+                            var badge = $('#adminNotifBellCount');
+                            var sidebarBadge = $('#AdminNotifCountBadge');
+                            if (count > 0) {
+                                badge.text(count).show();
+                                if (sidebarBadge.length) sidebarBadge.text(count).show();
+                                $('#adminNotifDropdownHeader').text(count + ' إشعار جديد');
+                            } else {
+                                badge.hide();
+                                if (sidebarBadge.length) sidebarBadge.hide();
+                                $('#adminNotifDropdownHeader').text('لا توجد إشعارات جديدة');
+                            }
+
+                            var listHtml = '';
+                            if (data.items && data.items.length > 0) {
+                                data.items.forEach(function (item) {
+                                    var bgStyle = item.IsRead ? '' : 'background-color: #f1f8ff;';
+                                    listHtml += '<a href="@Url.Action("Index", "AdminNotifications")" class="dropdown-item" style="' + bgStyle + ' white-space: normal; padding: 10px 15px;">' +
+                                        '<div class="d-flex justify-content-between align-items-center mb-1">' +
+                                        '<strong class="text-dark small" style="max-width: 200px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">' + item.Title + '</strong>' +
+                                        '<span class="badge ' + (item.ActionBadgeClass || 'badge-secondary') + ' mr-1" style="font-size: 0.7rem;">' + (item.ActionTypeArabic || '') + '</span>' +
+                                        '</div>' +
+                                        '<div class="text-muted small mb-1" style="font-size: 0.8rem; line-height: 1.2;">' + (item.Details || '') + '</div>' +
+                                        '<div class="text-left text-secondary" style="font-size: 0.75rem;"><i class="far fa-clock ml-1"></i>' + (item.TimeAgo || '') + '</div>' +
+                                        '</a><div class="dropdown-divider"></div>';
+                                });
+                            } else {
+                                listHtml = '<div class="text-center py-3 text-muted small">لا توجد إشعارات حالياً</div>';
+                            }
+                            $('#adminNotifDropdownList').html(listHtml);
+                        }
+                    },
+                    error: function () {
+                    }
+                });
+            }
+
+            checkAdminNotifications();
+            setInterval(checkAdminNotifications, 30000);
 
 
 
@@ -565,7 +655,7 @@
 
                     },
                     error: function (response) {
-                        //alert("the problem is " + response.responseText);
+
                     },
                     complete: function (response) {
                         //alert("finish call jasion " + response);

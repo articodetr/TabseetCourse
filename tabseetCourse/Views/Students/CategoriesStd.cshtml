@@ -39,6 +39,8 @@
 
 <!-- مكتبة SweetAlert2 للتنبيهات -->
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- آلية موحدة لروابط YouTube ومشغّل المحاضرات المسجلة (16:9) -->
+<script src="~/Scripts/tabseet-youtube.js"></script>
 
 <!-- حقول مخفية لوظائف الدفع والامتحانات والتسجيل -->
 <input type="hidden" id="PayMent_Method" />
@@ -739,11 +741,15 @@
     .sub-modal {
         position: fixed;
         inset: 0;
-        z-index: 1050;
+        /* أعلى من الشريط العلوي الثابت (.menu_top z-index: 9999) حتى لا يحجب رأس النافذة */
+        z-index: 10050;
         display: flex;
-        align-items: center;
+        /* flex-start + margin:auto على اللوحة: توسيط عند توفر المساحة، وتمرير بدل الاقتطاع عندما تكون النافذة أطول من الشاشة */
+        align-items: flex-start;
         justify-content: center;
         padding: 16px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .sub-modal[hidden] {
@@ -764,6 +770,7 @@
         padding: 28px;
         max-width: 520px;
         width: 100%;
+        margin: auto;
         box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
         z-index: 1;
         direction: rtl;
@@ -828,6 +835,55 @@
         width: 100%;
         padding: 10px;
         font-size: 13.5px;
+    }
+
+    /* زر تشغيل المحاضرة المسجلة (مصدره LectureLink_Client) */
+    .sub-btn-play {
+        background: #113464;
+        color: #FFFFFF !important;
+        box-shadow: 0 2px 8px rgba(17, 52, 100, 0.25);
+    }
+
+    .sub-btn-play:hover {
+        background: #0C2748;
+        color: #FFFFFF !important;
+    }
+
+    /* مشغّل الفيديو المتجاوب 16:9 داخل نافذة التفاصيل:
+       يُضيَّق عرض اللوحة على الشاشات القصيرة حتى يظهر المشغّل مع رأس النافذة وأزرارها دون الحاجة للتمرير غالباً */
+    .sub-modal-panel.has-player {
+        max-width: 880px;
+        max-width: clamp(520px, calc((100vh - 320px) * 16 / 9), 880px);
+    }
+
+    .sub-modal-player {
+        margin-bottom: 18px;
+    }
+
+    .sub-modal-player[hidden] {
+        display: none;
+    }
+
+    /* شريط حالة الحضور تحت المشغّل */
+    .sub-modal-attendance {
+        margin: -6px 0 16px 0;
+        padding: 9px 14px;
+        border-radius: 10px;
+        background: #EFF6FF;
+        border: 1px solid #BFDBFE;
+        color: #113464;
+        font-size: 13.5px;
+        font-weight: 700;
+    }
+
+    .sub-modal-attendance.is-finished {
+        background: #DCFCE7;
+        border-color: #BBF7D0;
+        color: #166534;
+    }
+
+    .sub-modal-attendance[hidden] {
+        display: none;
     }
 
     /* ضبط تجاوب الشاشات الصغيرة */
@@ -1117,6 +1173,8 @@
                     <div><strong>نوع المحاضرة:</strong> <span id="subModalType"></span></div>
                     <div><strong>الموعد:</strong> <span id="subModalTime"></span></div>
                 </div>
+                <div id="subModalPlayer" class="sub-modal-player" hidden></div>
+                <div id="subModalAttendance" class="sub-modal-attendance" hidden></div>
                 <div id="subModalActions" class="sub-modal-actions"></div>
             </div>
         </div>
@@ -1542,6 +1600,8 @@
             var modalType = document.getElementById("subModalType");
             var modalTime = document.getElementById("subModalTime");
             var modalActions = document.getElementById("subModalActions");
+            var modalPlayer = document.getElementById("subModalPlayer");
+            var modalAttendance = document.getElementById("subModalAttendance");
 
             if (!datasetRoot) return;
 
@@ -1694,18 +1754,30 @@
                         joinBtn.href = lItem.clientUrl;
                         joinBtn.target = "_blank";
                         joinBtn.rel = "noopener noreferrer";
-                        joinBtn.className = "sub-btn sub-btn-join";
+                        joinBtn.className = "sub-btn sub-btn-join js-join-live";
+                        joinBtn.setAttribute("data-lecture-id", lItem.id); // تسجيل حضور المحاضرة المباشرة عند الضغط
                         joinBtn.innerHTML = '<i class="fas fa-video"></i> دخول المحاضرة';
                         actionsDiv.appendChild(joinBtn);
                     }
 
+                    // المحاضرة المسجلة: مصدر الفيديو الأساسي هو LectureLink_Client ويُشغَّل داخل نافذة المحاضرة
+                    if (lItem.type === "0" && lItem.validClient && isSafeHttps(lItem.clientUrl)) {
+                        var playBtn = document.createElement("button");
+                        playBtn.type = "button";
+                        playBtn.className = "sub-btn sub-btn-play";
+                        playBtn.setAttribute("data-lecture-id", lItem.id);
+                        playBtn.innerHTML = '<i class="fas fa-play-circle"></i> تشغيل المحاضرة';
+                        actionsDiv.appendChild(playBtn);
+                    }
+
+                    // MediaLink: رابط إضافي اختياري (ليس مصدر الفيديو)
                     if (lItem.validMedia && isSafeHttps(lItem.mediaUrl)) {
                         var videoBtn = document.createElement("a");
                         videoBtn.href = lItem.mediaUrl;
                         videoBtn.target = "_blank";
                         videoBtn.rel = "noopener noreferrer";
                         videoBtn.className = "sub-btn sub-btn-video";
-                        videoBtn.innerHTML = '<i class="fas fa-play"></i> مشاهدة الفيديو';
+                        videoBtn.innerHTML = '<i class="fas fa-link"></i> رابط إضافي';
                         actionsDiv.appendChild(videoBtn);
                     }
 
@@ -1800,7 +1872,61 @@
                 });
             }
 
-            function openLectureModal(lec) {
+            function renderAttendance(status) {
+                if (!modalAttendance) return;
+                if (!status) {
+                    modalAttendance.hidden = true;
+                    modalAttendance.textContent = "";
+                    modalAttendance.classList.remove("is-finished");
+                    return;
+                }
+                var fmt = window.TabseetAttendance ? TabseetAttendance.formatDuration : function (s) { return s; };
+                modalAttendance.hidden = false;
+                if (status.isFinish) {
+                    modalAttendance.classList.add("is-finished");
+                    modalAttendance.textContent = "تم احتساب حضور هذه المحاضرة ✔";
+                } else if (status.isTimeEnd && status.hasAssignment && !status.isAssignmentFinish) {
+                    modalAttendance.classList.remove("is-finished");
+                    modalAttendance.textContent = "اكتملت المشاهدة؛ يبقى اجتياز واجب المحاضرة لاحتسابها";
+                } else {
+                    modalAttendance.classList.remove("is-finished");
+                    modalAttendance.textContent = "المشاهدة المحتسبة: " + fmt(status.watchedSeconds || 0) + " من " + fmt(status.requiredSeconds || 0) + " (" + (status.progressPercent || 0) + "%)";
+                }
+            }
+
+            function updateCourseProgress(catId) {
+                var course = null;
+                for (var i = 0; i < coursesData.length; i++) {
+                    if (coursesData[i].id === String(catId)) { course = coursesData[i]; break; }
+                }
+                if (!course) return;
+                var finished = 0;
+                for (var j = 0; j < course.lectures.length; j++) {
+                    if (course.lectures[j].isFinish) finished++;
+                }
+                var total = course.count || course.lectures.length;
+                var pct = total > 0 ? Math.min(100, Math.round(finished * 100 / total)) : 0;
+                var card = coursesGrid ? coursesGrid.querySelector('.sub-course-card[data-category-id="' + course.id + '"]') : null;
+                if (!card) return;
+                var text = card.querySelector(".sub-progress-text span:last-child");
+                if (text) text.textContent = finished + " / " + total + " (" + pct + "%)";
+                var fill = card.querySelector(".sub-progress-fill");
+                if (fill) fill.style.width = pct + "%";
+            }
+
+            function applyAttendanceStatus(lec, status) {
+                renderAttendance(status);
+                if (status && status.isFinish && !lec.isFinish) {
+                    lec.isFinish = true;
+                    renderLectures();
+                    updateCourseProgress(lec.categoryId);
+                    if (window.Swal) {
+                        Swal.fire({ toast: true, position: 'top', icon: 'success', title: 'تم احتساب حضور المحاضرة', showConfirmButton: false, timer: 3500 });
+                    }
+                }
+            }
+
+            function openLectureModal(lec, autoplay) {
                 if (!lec || !modal || !modalPanel) return;
                 oldFocus = document.activeElement;
 
@@ -1808,6 +1934,28 @@
                 if (modalTitle) modalTitle.textContent = lec.name;
                 if (modalType) modalType.textContent = lec.type === "1" ? "محاضرة مباشرة" : "محاضرة مسجلة";
                 if (modalTime) modalTime.textContent = lec.dateTime;
+
+                if (window.TabseetAttendance) TabseetAttendance.stop();
+                renderAttendance(null);
+
+                // مشغّل المحاضرة المسجلة (YouTube يُضمَّن تلقائياً من LectureLink_Client؛ autoplay عندما يكون الضغط على زر التشغيل نفسه)
+                if (modalPlayer && window.TabseetYouTube) {
+                    TabseetYouTube.destroy(modalPlayer);
+                    var showPlayer = lec.type === "0" && lec.validClient && isSafeHttps(lec.clientUrl);
+                    if (showPlayer) {
+                        modalPlayer.hidden = false;
+                        modalPanel.classList.add("has-player");
+                        TabseetYouTube.mount(modalPlayer, { url: lec.clientUrl, title: lec.name, autoplay: autoplay === true });
+                        // احتساب الحضور بوقت التشغيل الفعلي (الخادم يقرر الاكتمال)
+                        if (window.TabseetAttendance) {
+                            renderAttendance(lec.isFinish ? { isFinish: true } : null);
+                            TabseetAttendance.track(modalPlayer, { lectureId: lec.id, onStatus: function (status) { applyAttendanceStatus(lec, status); } });
+                        }
+                    } else {
+                        modalPlayer.hidden = true;
+                        modalPanel.classList.remove("has-player");
+                    }
+                }
 
                 if (modalActions) {
                     while (modalActions.firstChild) {
@@ -1819,7 +1967,8 @@
                         aJoin.href = lec.clientUrl;
                         aJoin.target = "_blank";
                         aJoin.rel = "noopener noreferrer";
-                        aJoin.className = "sub-btn sub-btn-join";
+                        aJoin.className = "sub-btn sub-btn-join js-join-live";
+                        aJoin.setAttribute("data-lecture-id", lec.id); // تسجيل حضور المحاضرة المباشرة عند الضغط
                         aJoin.innerHTML = '<i class="fas fa-video"></i> دخول المحاضرة المباشرة';
                         modalActions.appendChild(aJoin);
                     }
@@ -1830,7 +1979,7 @@
                         aVideo.target = "_blank";
                         aVideo.rel = "noopener noreferrer";
                         aVideo.className = "sub-btn sub-btn-video";
-                        aVideo.innerHTML = '<i class="fas fa-play"></i> مشاهدة الفيديو المسجل';
+                        aVideo.innerHTML = '<i class="fas fa-link"></i> فتح الرابط الإضافي';
                         modalActions.appendChild(aVideo);
                     }
 
@@ -1852,6 +2001,14 @@
             function closeLectureModal() {
                 if (!modal || modal.hidden) return;
                 modal.hidden = true;
+                // إرسال ما تبقى من وقت المشاهدة ثم إيقاف التشغيل وإزالة المشغّل عند الإغلاق
+                if (window.TabseetAttendance) TabseetAttendance.stop();
+                renderAttendance(null);
+                if (modalPlayer) {
+                    if (window.TabseetYouTube) TabseetYouTube.destroy(modalPlayer);
+                    modalPlayer.hidden = true;
+                }
+                if (modalPanel) modalPanel.classList.remove("has-player");
                 if (oldFocus && document.contains(oldFocus) && typeof oldFocus.focus === "function") {
                     oldFocus.focus();
                 }
@@ -1862,6 +2019,15 @@
                 var closeTarget = e.target.closest("[data-sub-modal-close]");
                 if (closeTarget && modal && modal.contains(closeTarget)) {
                     closeLectureModal();
+                    return;
+                }
+
+                var playTarget = e.target.closest(".sub-btn-play");
+                if (playTarget) {
+                    var playId = playTarget.getAttribute("data-lecture-id");
+                    if (playId && allLecturesMap[playId]) {
+                        openLectureModal(allLecturesMap[playId], true);
+                    }
                     return;
                 }
 

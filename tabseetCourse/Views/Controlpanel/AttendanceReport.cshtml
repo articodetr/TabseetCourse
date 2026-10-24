@@ -1,0 +1,167 @@
+﻿@model IEnumerable<tabseetCourse.Services.AttendanceReportRowModel>
+@{
+    ViewBag.Title = "تقرير حضور الطلاب";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var categories = ViewBag.Categories as List<SelectListItem> ?? new List<SelectListItem>();
+    int categoryId = ViewBag.CategoryId ?? 0;
+    string categoryName = ViewBag.CategoryName as string;
+    var rows = Model != null ? Model.ToList() : new List<tabseetCourse.Services.AttendanceReportRowModel>();
+    int finishedCount = rows.Count(r => r.IsFinish);
+}
+
+@functions {
+    public static string FormatSeconds(int total)
+    {
+        if (total < 0) total = 0;
+        int h = total / 3600, m = (total % 3600) / 60, s = total % 60;
+        return h > 0 ? string.Format("{0}:{1:00}:{2:00}", h, m, s) : string.Format("{0:00}:{1:00}", m, s);
+    }
+
+    public static string SourceName(string source)
+    {
+        switch (source)
+        {
+            case "Recorded": return "مشاهدة مسجلة";
+            case "Live": return "دخول مباشر";
+            case "Assignment": return "واجب";
+            case "Manual": return "يدوي";
+            case "Legacy": return "سابق";
+            default: return "—";
+        }
+    }
+
+    public static string LocalTime(DateTime? utc)
+    {
+        return utc.HasValue ? DateTime.SpecifyKind(utc.Value, DateTimeKind.Utc).ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "—";
+    }
+}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<link rel="stylesheet" href="~/Content/plugins/fontawesome-free/css/all.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/dist/css/adminlte.min.css">
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1><i class="fas fa-user-check ml-1"></i> تقرير حضور الطلاب</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="card">
+    <div class="card-header">
+        <form method="get" action="@Url.Action("AttendanceReport", "Controlpanel")" class="form-inline">
+            <label for="categoryId" class="ml-2">الدورة:</label>
+            <select name="categoryId" id="categoryId" class="form-control ml-2" style="min-width:260px">
+                <option value="0">— اختر الدورة —</option>
+                @foreach (var c in categories)
+                {
+                    <option value="@c.Value" @(c.Selected ? "selected" : "")>@c.Text</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search ml-1"></i> عرض</button>
+        </form>
+        @if (categoryId > 0)
+        {
+            <div class="mt-3 text-muted">
+                <span class="badge badge-info p-2">الدورة: @categoryName</span>
+                <span class="badge badge-secondary p-2">الصفوف: @rows.Count</span>
+                <span class="badge badge-success p-2">المكتملة: @finishedCount</span>
+                <span class="ml-2">الحضور يُحتسب من وقت التشغيل الفعلي للمحاضرات المسجلة، ومن ضغطة الدخول ضمن الموعد للمحاضرات المباشرة، أو يدوياً من المدرس.</span>
+            </div>
+        }
+    </div>
+    <div class="card-body">
+        @if (categoryId <= 0)
+        {
+            <p class="text-muted mb-0">اختر دورة لعرض حضور طلابها.</p>
+        }
+        else
+        {
+            <table id="attendanceTable" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>الطالب</th>
+                        <th>البريد</th>
+                        <th>المحاضرة</th>
+                        <th>النوع</th>
+                        <th>الحالة</th>
+                        <th>المشاهدة المحتسبة</th>
+                        <th>المطلوب</th>
+                        <th>الواجب</th>
+                        <th>المصدر</th>
+                        <th>البدء</th>
+                        <th>الاكتمال</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in rows)
+                    {
+                        <tr>
+                            <td>@r.StudentName</td>
+                            <td>@r.Email</td>
+                            <td>@r.LectureName</td>
+                            <td>@(r.LectureType == "1" ? "مباشرة" : "مسجلة")</td>
+                            <td>
+                                @if (r.StatusKey == "Finished")
+                                {
+                                    <span class="badge badge-success p-2">مكتملة</span>
+                                }
+                                else if (r.StatusKey == "Partial")
+                                {
+                                    <span class="badge badge-warning p-2">جزئية</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary p-2">لم تبدأ</span>
+                                }
+                            </td>
+                            <td>@(r.LectureType == "1" ? (r.IsTimeEnd ? "حضر" : "—") : FormatSeconds(r.WatchedSeconds))</td>
+                            <td>@(r.LectureType == "1" ? "—" : FormatSeconds(r.RequiredSeconds))</td>
+                            <td>@(r.HasAssignment ? (r.IsAssignmentFinish ? "مُجتاز" : "غير مُجتاز") : "لا يوجد")</td>
+                            <td>@SourceName(r.Source)</td>
+                            <td>@LocalTime(r.StartedAt)</td>
+                            <td>@LocalTime(r.CompletedAt)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<script src="~/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script>
+    $(function () {
+        if ($('#attendanceTable').length && $.fn.DataTable) {
+            $('#attendanceTable').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "buttons": ["copy", "excel", "print", "colvis"]
+            }).buttons().container().appendTo('#attendanceTable_wrapper .col-md-6:eq(0)');
+        }
+    });
+</script>

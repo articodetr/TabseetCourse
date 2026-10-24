@@ -22,6 +22,7 @@ namespace tabseetCourse.Controllers
 {
     public class ControlpanelController : SharedCalss
     {
+        private readonly tabseetCourse.Services.ITeacherLectureNotificationService _notificationService = new tabseetCourse.Services.TeacherLectureNotificationService();
         public UserModel _UsermodelModel { get; set; }
         public ControlpanelController()
         {
@@ -852,6 +853,47 @@ namespace tabseetCourse.Controllers
             }
             return RedirectToAction("LogIn", "Home");
         }
+
+        /// <summary>تقرير حضور الطلاب لدورة محددة: كل طالب مسجل × كل محاضرة، مع مدة المشاهدة ومصدر الاكتمال.</summary>
+        [HttpGet]
+        public ActionResult AttendanceReport(int categoryId = 0)
+        {
+            bool isAuthorize = false;
+            var username = _UsermodelModel;
+            if (username != null)
+            {
+                Session["username"] = username.RealName;
+                List<string> roleaccepted = new List<string> { "Admin", "LectureView", "LectureEdit", "LectureDelete" };
+                isAuthorize = IsTrustedUser(username, roleaccepted);
+            }
+            if (!isAuthorize)
+            {
+                return RedirectToAction("LogIn", "Home");
+            }
+
+            ViewBag.Categories = dbEntity.Categories
+                .Select(c => new { c.ID, c.NameAr })
+                .OrderBy(c => c.NameAr)
+                .ToList()
+                .Select(c => new SelectListItem { Value = c.ID.ToString(), Text = c.NameAr, Selected = c.ID == categoryId })
+                .ToList();
+            ViewBag.CategoryId = categoryId;
+            ViewBag.CategoryName = null;
+
+            var rows = new List<tabseetCourse.Services.AttendanceReportRowModel>();
+            if (categoryId > 0)
+            {
+                var category = dbEntity.Categories.Find(categoryId);
+                if (category != null)
+                {
+                    ViewBag.CategoryName = category.NameAr;
+                    var service = new tabseetCourse.Services.StudentAttendanceService(dbEntity);
+                    rows = service.GetCategoryAttendanceReport(category);
+                }
+            }
+            return View(rows);
+        }
+
         //[Authorize(Roles = "Admin, LectureView")]
         [HttpGet]
         public ActionResult LecturesByCategory(int Category_ID, string categoryName)
@@ -966,6 +1008,33 @@ namespace tabseetCourse.Controllers
 
             normalizedUrl = uri.AbsoluteUri;
             return true;
+        }
+
+        /// <summary>
+        /// تحقق موحد لرابط المحاضرة المسجلة: يتعرف على روابط YouTube بجميع صيغها (watch / youtu.be / shorts / live / embed / الجوال)
+        /// ويحوّلها إلى رابط مشاهدة موحد https://www.youtube.com/watch?v=ID قبل الحفظ (رابط التضمين يُبنى عند العرض)،
+        /// ويرفض روابط YouTube التي لا تحوي معرّف فيديو صالحاً أو القادمة من نطاقات مزيفة،
+        /// ثم يطبّق فحوصات HTTPS العامة نفسها على بقية المصادر (Google Drive, Vimeo ...) دون تغيير.
+        /// الروابط المباشرة (Zoom, Google Meet ...) لا تمر من هنا إطلاقاً.
+        /// </summary>
+        private static bool IsValidRecordedLectureUrl(string url, out string normalizedUrl, out string errorMessage)
+        {
+            normalizedUrl = null;
+            errorMessage = null;
+
+            var youTube = YouTubeLinkHelper.Parse(url);
+            if (youTube.IsYouTubeHost)
+            {
+                if (!youTube.IsValid)
+                {
+                    errorMessage = youTube.Error;
+                    return false;
+                }
+
+                url = youTube.WatchUrl;
+            }
+
+            return IsValidLectureUrl(url, out normalizedUrl, out errorMessage);
         }
 
         private static bool IsValidPdfAttachment(HttpPostedFileBase file, out string errorMessage)
@@ -1210,7 +1279,7 @@ namespace tabseetCourse.Controllers
                         return Json(new { success = false, responseText = "رابط المحاضرة المسجلة مطلوب (يجب توفير مصدر فيديو صالح)" }, JsonRequestBehavior.AllowGet);
                     }
 
-                    if (!IsValidLectureUrl(LM.LectureLink_Client, out string normalizedUrl, out string urlError))
+                    if (!IsValidRecordedLectureUrl(LM.LectureLink_Client, out string normalizedUrl, out string urlError))
                     {
                         Response.StatusCode = (int)HttpStatusCode.OK;
                         return Json(new { success = false, responseText = "رابط المحاضرة المسجلة غير صالح: " + urlError }, JsonRequestBehavior.AllowGet);
@@ -1234,6 +1303,29 @@ namespace tabseetCourse.Controllers
 
                 dbEntity.Lectures.Add(l);
                 await dbEntity.SaveChangesAsync();
+
+                if (role == "Teacher")
+                {
+                    try
+                    {
+                        var course = dbEntity.Categories.Find(l.Category_ID);
+                        string courseName = course != null ? course.NameAr : "دورة تعليمية";
+                        string teacherName = user.RealName ?? user.UserName;
+                        await _notificationService.RecordLectureCreatedAsync(
+                            l.ID,
+                            l.Lecture_Name,
+                            l.Category_ID,
+                            courseName,
+                            user.Id,
+                            teacherName,
+                            l.LectureTypeOnOff,
+                            l.DayandTime,
+                            l.LectureLink_Client
+                        );
+                    }
+                    catch { }
+                }
+
                 Response.StatusCode = (int)HttpStatusCode.OK;
                 return Json(new { success = true, responseText = "تمت إضافة المحاضرة بنجاح" }, JsonRequestBehavior.AllowGet);
             }
@@ -1326,6 +1418,11 @@ namespace tabseetCourse.Controllers
                     return Json(new { success = false, responseText = "المحاضرة غير موجودة" }, JsonRequestBehavior.AllowGet);
                 }
 
+                string oldTitle = l.Lecture_Name;
+                string oldTime = l.DayandTime;
+                string oldLink = l.LectureLink_Client;
+                string oldType = l.LectureTypeOnOff;
+
                 int actualCategoryId = l.Category_ID;
                 if (role == "Teacher" && !allowedCatIds.Contains(actualCategoryId))
                 {
@@ -1401,7 +1498,7 @@ namespace tabseetCourse.Controllers
                         return Json(new { success = false, responseText = "رابط المحاضرة المسجلة مطلوب (يجب توفير مصدر فيديو صالح)" }, JsonRequestBehavior.AllowGet);
                     }
 
-                    if (!IsValidLectureUrl(LM.LectureLink_Client, out string normalizedUrl, out string urlError))
+                    if (!IsValidRecordedLectureUrl(LM.LectureLink_Client, out string normalizedUrl, out string urlError))
                     {
                         Response.StatusCode = (int)HttpStatusCode.OK;
                         return Json(new { success = false, responseText = "رابط المحاضرة المسجلة غير صالح: " + urlError }, JsonRequestBehavior.AllowGet);
@@ -1424,6 +1521,33 @@ namespace tabseetCourse.Controllers
                 dbEntity.Lectures.Attach(l);
                 dbEntity.Entry(l).State = System.Data.Entity.EntityState.Modified;
                 await dbEntity.SaveChangesAsync();
+
+                if (role == "Teacher")
+                {
+                    try
+                    {
+                        var course = dbEntity.Categories.Find(l.Category_ID);
+                        string courseName = course != null ? course.NameAr : "دورة تعليمية";
+                        string teacherName = user.RealName ?? user.UserName;
+                        await _notificationService.RecordLectureUpdatedAsync(
+                            l.ID,
+                            oldTitle,
+                            l.Lecture_Name,
+                            l.Category_ID,
+                            courseName,
+                            user.Id,
+                            teacherName,
+                            oldTime,
+                            l.DayandTime,
+                            oldLink,
+                            l.LectureLink_Client,
+                            oldType,
+                            l.LectureTypeOnOff
+                        );
+                    }
+                    catch { }
+                }
+
                 Response.StatusCode = (int)HttpStatusCode.OK;
                 return Json(new { success = true, responseText = "تم تعديل المحاضرة بنجاح", response = "" }, JsonRequestBehavior.AllowGet);
             }
@@ -1436,7 +1560,7 @@ namespace tabseetCourse.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public JsonResult DeleteLecture(int ID)
+        public async Task<JsonResult> DeleteLecture(int ID)
         {
             try
             {
@@ -1460,8 +1584,32 @@ namespace tabseetCourse.Controllers
                     return Json(new { success = false, response = "غير مصرح لك بحذف محاضرة في هذه الدورة" }, JsonRequestBehavior.AllowGet);
                 }
 
+                string delLectureTitle = value.Lecture_Name;
+                int delCategoryId = value.Category_ID;
+                var delCourse = dbEntity.Categories.Find(delCategoryId);
+                string delCourseName = delCourse != null ? delCourse.NameAr : "دورة تعليمية";
+                string delTeacherName = user.RealName ?? user.UserName;
+                string delTeacherId = user.Id;
+
                 dbEntity.Lectures.Remove(value);
                 dbEntity.SaveChanges();
+
+                if (role == "Teacher")
+                {
+                    try
+                    {
+                        await _notificationService.RecordLectureDeletedAsync(
+                            ID,
+                            delLectureTitle,
+                            delCategoryId,
+                            delCourseName,
+                            delTeacherId,
+                            delTeacherName
+                        );
+                    }
+                    catch { }
+                }
+
                 Response.StatusCode = (int)HttpStatusCode.OK;
                 return Json(new { success = true, response = "تم حذف المحاضرة بنجاح" }, JsonRequestBehavior.AllowGet);
             }

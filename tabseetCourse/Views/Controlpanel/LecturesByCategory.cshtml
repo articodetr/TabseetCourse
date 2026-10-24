@@ -441,6 +441,8 @@
 <script src="~/Content/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="~/Content/dist/js/demo.js"></script>
+<!-- آلية موحدة للتعرف على روابط YouTube (مطابقة لـ Classes/YouTubeLinkHelper.cs) -->
+<script src="~/Scripts/tabseet-youtube.js"></script>
 
 <!-- Page specific script -->
 <script>
@@ -459,13 +461,42 @@
                 url = match[1].trim();
             }
         }
+        // المحاضرة المسجلة: أي رابط YouTube مدعوم (watch / youtu.be / shorts / live / embed / الجوال) يُحوَّل إلى رابط مشاهدة موحد
+        if (String(lectureType) === "0" && window.TabseetYouTube) {
+            var yt = TabseetYouTube.parse(url);
+            if (yt.isYouTube && yt.valid) {
+                url = yt.watchUrl;
+            }
+        }
         return url;
+    }
+
+    // حماية من الإرسال المزدوج (تجنب تكرار المحاضرة عند الضغط أكثر من مرة)
+    function acquireBusy(btnId) {
+        var btn = document.getElementById(btnId);
+        if (!btn || btn.getAttribute("data-busy") === "1") return false;
+        btn.setAttribute("data-busy", "1");
+        btn.disabled = true;
+        return true;
+    }
+
+    function releaseBusy(btnId) {
+        var btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.removeAttribute("data-busy");
+        btn.disabled = false;
     }
 
     function isValidHttpsLectureUrl(rawInput, lectureType) {
         var url = extractLectureUrl(rawInput, lectureType);
         if (!url) {
             return { valid: false, reason: "empty", url: "" };
+        }
+        if (String(lectureType) === "0" && window.TabseetYouTube) {
+            var ytCheck = TabseetYouTube.parse(url);
+            if (ytCheck.isYouTube && !ytCheck.valid) {
+                return { valid: false, reason: "youtube", url: url, message: ytCheck.error };
+            }
         }
         try {
             var parsed = new URL(url);
@@ -557,6 +588,8 @@
         } else if (!linkCheck.valid) {
             if (linkCheck.reason === "pdf_link") {
                 $("#lectureLinkError").text("ملف PDF لا يُعتبر مصدرًا للمحاضرة؛ يرجى إدخال رابط محاضرة أو فيديو صالح بصيغة HTTPS.").show();
+            } else if (linkCheck.reason === "youtube") {
+                $("#lectureLinkError").text("رابط YouTube غير صالح: " + linkCheck.message).show();
             } else {
                 $("#lectureLinkError").text("يرجى إدخال رابط HTTPS صالح ومكتمل (مثال: https://...).").show();
             }
@@ -607,6 +640,8 @@
         } else if (!linkCheck.valid) {
             if (linkCheck.reason === "pdf_link") {
                 $("#ElectureLinkError").text("ملف PDF لا يُعتبر مصدرًا للمحاضرة؛ يرجى إدخال رابط محاضرة أو فيديو صالح بصيغة HTTPS.").show();
+            } else if (linkCheck.reason === "youtube") {
+                $("#ElectureLinkError").text("رابط YouTube غير صالح: " + linkCheck.message).show();
             } else {
                 $("#ElectureLinkError").text("يرجى إدخال رابط HTTPS صالح ومكتمل (مثال: https://...).").show();
             }
@@ -739,6 +774,10 @@
             return;
         }
 
+        if (!acquireBusy("btnSave")) {
+            return;
+        }
+
         var fd = new FormData();
 
         var Lecture_Name = ($("#LectureName_ID").val() || "").trim();
@@ -796,6 +835,7 @@
                 complete: function (response) {
                     $("div.spanner").removeClass("show").addClass("hide");
                     $("div.overlay").removeClass("show").addClass("hide");
+                    releaseBusy("btnSave");
                 }
             });
     });
@@ -804,6 +844,10 @@
         validationEdit();
         if (document.getElementById("btnUpdate").disabled) {
             alert("يرجى استكمال الحقول المطلوبة وإدخال رابط HTTPS صالح للمحاضرة.");
+            return;
+        }
+
+        if (!acquireBusy("btnUpdate")) {
             return;
         }
 
@@ -868,6 +912,7 @@
                 complete: function (response) {
                     $("div.spanner").removeClass("show").addClass("hide");
                     $("div.overlay").removeClass("show").addClass("hide");
+                    releaseBusy("btnUpdate");
                 }
             });
     });

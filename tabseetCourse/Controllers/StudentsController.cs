@@ -12,6 +12,7 @@ using tabseetCourse.Classes;
 using tabseetCourse.Data;
 using tabseetCourse.Models;
 using tabseetCourse.Models_UI;
+using tabseetCourse.Services;
 
 namespace tabseetCourse.Controllers
 {
@@ -19,6 +20,13 @@ namespace tabseetCourse.Controllers
     {
         // GET: Students
         public HomePageModel HomepageViewModel { get; set; }
+
+        private StudentAttendanceService _attendance;
+        /// <summary>خدمة احتساب الحضور بوقت التشغيل الفعلي (Services/StudentAttendanceService.cs).</summary>
+        private StudentAttendanceService Attendance
+        {
+            get { return _attendance ?? (_attendance = new StudentAttendanceService(dbEntity)); }
+        }
         public StudentsController()
         {
             var value = dbEntity.New_Home_Page.FirstOrDefault();
@@ -428,54 +436,159 @@ namespace tabseetCourse.Controllers
         }
 
 
+        /// <summary>
+        /// [للتوافق مع الصفحات المفتوحة قديماً فقط] أُلغي احتساب الحضور بالمؤقّت من المتصفح؛ الحضور يُحتسب الآن عبر
+        /// StartLecture / LectureHeartbeat بوقت التشغيل الفعلي. تعيد هذه النقطة الحالة الحالية دون أي تعديل في قاعدة البيانات.
+        /// </summary>
         [HttpPost]
         public JsonResult LecutreTimeEnd(int Lect_ID)
         {
             try
             {
-                var stdID = CurrentUser.ID;
-                if (stdID != null)
+                if (CurrentUser != null && !string.IsNullOrEmpty(CurrentUser.ID))
                 {
-                    var lec = dbEntity.std_lecture.Where(e => e.Lecture_ID == Lect_ID && e.Std_ID == stdID).FirstOrDefault();
-                    if (lec != null)
+                    var lecture = dbEntity.Lectures.Find(Lect_ID);
+                    if (lecture != null && Attendance.IsStudentRegistered(CurrentUser.ID, lecture))
                     {
-                        lec.IsTimeEnd = 1;
-                        var value = lec.Lecture.Assignments.FirstOrDefault();
-                        if (value != null)
-                        {
-                            if (lec.IsAssingmetFinish == 1)
-                            {
-                                lec.IsFinish = 1;
-                            }
-                        }
-                        else
-                        {
-                            lec.IsFinish = 1;
-                        }
-                        dbEntity.std_lecture.Attach(lec);
-                        dbEntity.Entry(lec).State = System.Data.Entity.EntityState.Modified;
-                        dbEntity.SaveChanges();
-
-                    }
-                    else
-                    {
-                        std_lecture lecture = new std_lecture();
-                        lecture.Std_ID = stdID;
-                        lecture.IsTimeEnd = 1;
-                        lecture.Lecture_ID = Lect_ID;
-                        dbEntity.std_lecture.Add(lecture);
-                        dbEntity.SaveChanges();
+                        var status = Attendance.GetStatus(CurrentUser.ID, lecture);
+                        Response.StatusCode = (int)HttpStatusCode.OK;
+                        return Json(new { success = true, response = "", status = ToClientStatus(status) }, JsonRequestBehavior.AllowGet);
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-
             }
 
             Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = true, response = "" }, JsonRequestBehavior.AllowGet);
+            return Json(new { success = false, response = "" }, JsonRequestBehavior.AllowGet);
         }
+
+        #region Attendance (احتساب الحضور بوقت التشغيل الفعلي)
+        private static object ToClientStatus(AttendanceStatusModel s)
+        {
+            if (s == null) return null;
+            return new
+            {
+                lectureId = s.LectureId,
+                watchedSeconds = s.WatchedSeconds,
+                requiredSeconds = s.RequiredSeconds,
+                progressPercent = s.ProgressPercent,
+                isTimeEnd = s.IsTimeEnd,
+                hasAssignment = s.HasAssignment,
+                isAssignmentFinish = s.IsAssignmentFinish,
+                isFinish = s.IsFinish,
+                source = s.Source
+            };
+        }
+
+        /// <summary>تحقق موحد: طالب مسجل الدخول، المحاضرة موجودة، الطالب مسجل في دورتها، ونوعها يطابق العملية.</summary>
+        private bool TryGetAttendanceLecture(int lectureId, string requiredType, out Lecture lecture, out string studentId, out JsonResult error)
+        {
+            lecture = null;
+            studentId = CurrentUser != null ? CurrentUser.ID : null;
+            error = null;
+
+            if (string.IsNullOrEmpty(studentId))
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                error = Json(new { success = false, response = "المستخدم غير مسجل الدخول" }, JsonRequestBehavior.AllowGet);
+                return false;
+            }
+
+            lecture = dbEntity.Lectures.Find(lectureId);
+            if (lecture == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.NotFound;
+                error = Json(new { success = false, response = "المحاضرة غير موجودة" }, JsonRequestBehavior.AllowGet);
+                return false;
+            }
+
+            if (!Attendance.IsStudentRegistered(studentId, lecture))
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                error = Json(new { success = false, response = "أنت غير مسجل في دورة هذه المحاضرة" }, JsonRequestBehavior.AllowGet);
+                return false;
+            }
+
+            if (requiredType != null && (lecture.LectureTypeOnOff ?? "0") != requiredType)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                error = Json(new { success = false, response = "نوع المحاضرة لا يطابق هذه العملية" }, JsonRequestBehavior.AllowGet);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>بدء (أو استئناف) مشاهدة محاضرة مسجلة؛ يُستدعى من المشغّل عند أول تشغيل ويعيد الثواني المطلوبة والمحتسبة.</summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult StartLecture(int lectureId, int? durationSeconds)
+        {
+            try
+            {
+                Lecture lecture; string studentId; JsonResult error;
+                if (!TryGetAttendanceLecture(lectureId, "0", out lecture, out studentId, out error)) return error;
+
+                var status = Attendance.StartRecorded(studentId, lecture, durationSeconds);
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                return Json(new { success = true, status = ToClientStatus(status) }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>نبضة أثناء التشغيل: الثواني التي شُغّل فيها الفيديو فعلاً منذ النبضة السابقة (الخادم يقيّدها بالزمن الفعلي).</summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult LectureHeartbeat(int lectureId, int playedSeconds, int? durationSeconds)
+        {
+            try
+            {
+                Lecture lecture; string studentId; JsonResult error;
+                if (!TryGetAttendanceLecture(lectureId, "0", out lecture, out studentId, out error)) return error;
+
+                var status = Attendance.Heartbeat(studentId, lecture, playedSeconds, durationSeconds);
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                return Json(new { success = true, status = ToClientStatus(status) }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>تسجيل دخول محاضرة مباشرة عند الضغط على زر الدخول (يُقبل ضمن نافذة موعد المحاضرة فقط).</summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult JoinLiveLecture(int lectureId)
+        {
+            try
+            {
+                Lecture lecture; string studentId; JsonResult error;
+                if (!TryGetAttendanceLecture(lectureId, "1", out lecture, out studentId, out error)) return error;
+
+                string joinError;
+                var status = Attendance.JoinLive(studentId, lecture, DateTime.Now, out joinError);
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                if (status == null)
+                {
+                    return Json(new { success = false, response = joinError }, JsonRequestBehavior.AllowGet);
+                }
+                return Json(new { success = true, status = ToClientStatus(status) }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion
         //[HttpPost]
         //public JsonResult StdLectureEnd(List<int> Lcat_ID)
         //{
@@ -819,28 +932,12 @@ namespace tabseetCourse.Controllers
                 var ass = await dbEntity.Assignments.FindAsync(ass_ID);
                 if (ass.Assignmet_degry_Win <= degry)
                 {
-                    var lec = dbEntity.std_lecture.Where(e => e.Lecture_ID == lectureID && e.Std_ID == stdID).FirstOrDefault();
-                    if (lec != null)
+                    // اجتياز الواجب يُسجَّل عبر خدمة الحضور؛ الاكتمال يبقى مشروطاً بمشاهدة المحاضرة فعلاً
+                    // (ما لم تُفعَّل Attendance:AssignmentAloneCompletes في Web.config).
+                    var lecture = dbEntity.Lectures.Find(lectureID) ?? ass.Lecture;
+                    if (lecture != null)
                     {
-                        lec.IsAssingmetFinish = 1;
-                        if (lec.IsTimeEnd == 1)
-                        {
-                            lec.IsFinish = 1;
-                        }
-                        dbEntity.std_lecture.Attach(lec);
-                        dbEntity.Entry(lec).State = System.Data.Entity.EntityState.Modified;
-                        dbEntity.SaveChanges();
-
-                    }
-                    else
-                    {
-                        std_lecture lecture = new std_lecture();
-                        lecture.Std_ID = stdID;
-                        lecture.IsAssingmetFinish = 1;
-                        lecture.IsTimeEnd = 1;
-                        lecture.Lecture_ID = lectureID;
-                        dbEntity.std_lecture.Add(lecture);
-                        dbEntity.SaveChanges();
+                        Attendance.RecordAssignmentPassed(stdID, lecture);
                     }
 
                     Response.StatusCode = (int)HttpStatusCode.OK;

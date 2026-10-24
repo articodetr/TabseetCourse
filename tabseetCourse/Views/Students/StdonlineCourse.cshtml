@@ -2416,7 +2416,8 @@
                     joinLink.href = lec.link;
                     joinLink.target = "_blank";
                     joinLink.rel = "noopener noreferrer";
-                    joinLink.className = "tt-join-btn";
+                    joinLink.className = "tt-join-btn js-join-live";
+                    joinLink.setAttribute("data-lecture-id", lec.id); // تسجيل حضور المحاضرة المباشرة عند الضغط
 
                     var icon = document.createElement("i");
                     icon.className = "fas fa-video";
@@ -2935,6 +2936,8 @@
 
                     var join = lec.validLink ? buildModalLink(lec.statusKey === "past" ? "فتح رابط الاجتماع المحفوظ" : "دخول المحاضرة", lec.link, "tt-join-btn", "fas fa-video") : null;
                     if (join) {
+                        join.classList.add("js-join-live");
+                        join.setAttribute("data-lecture-id", lec.id); // تسجيل حضور المحاضرة المباشرة عند الضغط
                         modalActions.appendChild(join);
                     } else {
                         var unavailable = document.createElement("span");

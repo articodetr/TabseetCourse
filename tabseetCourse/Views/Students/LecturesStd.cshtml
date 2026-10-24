@@ -6,6 +6,45 @@
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.css" integrity="sha512-OodagY/LAbXf1TAkypAk+8OWjR+wGA8k3H7TGH+gku7+VsOmJRCQ2pTQJoTo/bATGwTOFdypCXqMV8snRZkC+w==" crossorigin="anonymous" />
+<style>
+    /* مشغّل المحاضرة المتجاوب داخل نافذة المحاضرة (الكمبيوتر والهاتف) */
+    #courseModal .lecture-player-host {
+        width: 100%;
+    }
+
+    /* شريط حالة الحضور تحت المشغّل */
+    #courseModal .attendance-progress {
+        margin-top: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #113464;
+        font-size: 14px;
+        font-weight: 700;
+        text-align: right;
+        direction: rtl;
+    }
+
+    #courseModal .attendance-progress.is-finished {
+        background: #DCFCE7;
+        color: #166534;
+    }
+
+    @@media (max-width: 900px) {
+        #courseModal .slider_sec {
+            float: none;
+            width: 100%;
+        }
+
+        #courseModal .text_sec {
+            position: static;
+            float: none;
+            width: 100%;
+            height: auto;
+            margin-top: 15px;
+        }
+    }
+</style>
 <input type="text" value="@ViewBag.CategoryID" hidden="hidden" id="CategoryID" />
 <input type="text" hidden="hidden" id="Lecture_ID" />
 <input type="text" hidden="hidden" id="Lec_mini_Time" />
@@ -76,7 +115,7 @@
                                         <div class="form-group">
                                             <label for="costs">تشغيل</label>
 
-                                            <button class="btn btn-info" data-toggle="modal" data-target="#courseModal" onclick="assingLectureInfo('@item.ID', '@item.LectureLink_Client', '@item.Assingn_ID', '@item.LectureMinTime', '@item.Others', '@item.DocumenFile', '@item.MediaLink', '@item.Lecture_Name')">
+                                            <button type="button" class="btn btn-info js-open-lecture" data-toggle="modal" data-target="#courseModal" data-id="@item.ID" data-link="@item.LectureLink_Client" data-assign="@item.Assingn_ID" data-min="@item.LectureMinTime" data-others="@item.Others" data-doc="@item.DocumenFile" data-media="@item.MediaLink" data-name="@item.Lecture_Name">
 
                                                 <i class="fas fa-play-circle"></i>
 
@@ -124,7 +163,7 @@
                                                 <div class="form-group">
                                                     <label for="costs">تشغيل</label>
 
-                                                    <button class="btn btn-info" data-toggle="modal" data-target="#courseModal" onclick="assingLectureInfo('@item.ID' ,'@item.LectureLink_Client' ,'@item.Assingn_ID' ,'@item.LectureMinTime' ,'@item.Others' ,'@item.DocumenFile' ,'@item.MediaLink', '@item.Lecture_Name')">
+                                                    <button type="button" class="btn btn-info js-open-lecture" data-toggle="modal" data-target="#courseModal" data-id="@item.ID" data-link="@item.LectureLink_Client" data-assign="@item.Assingn_ID" data-min="@item.LectureMinTime" data-others="@item.Others" data-doc="@item.DocumenFile" data-media="@item.MediaLink" data-name="@item.Lecture_Name">
 
                                                         <i class="fas fa-play-circle"></i>
 
@@ -181,14 +220,9 @@
             <div class="modal-body">
 
                 <div class="slider_sec">
-                    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-
-                        @*<div class="carousel-inner">*@
-                        @*<iframe width="1440" height="700" id="Video_ID" src=" " title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>*@
-                        <iframe height="600" style="width:100%" src="" id="Video_ID" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        @*</div>*@
-
-                    </div>
+                    @* مشغّل الفيديو المتجاوب (16:9): يُبنى عند فتح النافذة من LectureLink_Client عبر Scripts/tabseet-youtube.js ويُزال عند الإغلاق *@
+                    <div id="lecturePlayer" class="lecture-player-host"></div>
+                    <div id="attendanceProgress" class="attendance-progress" hidden></div>
                 </div>
 
                 <div class="text_sec">
@@ -234,6 +268,7 @@
 <!-- /.content -->
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="~/Scripts/tabseet-youtube.js"></script>
 
 <!-- AdminLTE for demo purposes -->
 <!-- Page specific script -->
@@ -243,7 +278,28 @@
         $(".menu_top").addClass("fixed");
         //var category_ID = $("#Category_ID").val();
 
+        // فتح المحاضرة من بيانات الزر (data-*) بدلاً من تمرير النصوص داخل onclick
+        $(document).on("click", ".js-open-lecture", function () {
+            var d = this.dataset;
+            assingLectureInfo(d.id, d.link, d.assign, d.min, d.others, d.doc, d.media, d.name);
+        });
 
+        // عند إغلاق نافذة المحاضرة: إرسال ما تبقى من وقت المشاهدة، ثم إيقاف التشغيل وإزالة المشغّل بصورة سليمة
+        $("#courseModal").on("hidden.bs.modal", function () {
+            if (window.TabseetAttendance) {
+                TabseetAttendance.stop();
+            }
+            var playerHost = document.getElementById("lecturePlayer");
+            if (playerHost && window.TabseetYouTube) {
+                TabseetYouTube.destroy(playerHost);
+            }
+            renderAttendanceProgress(null);
+            if (lectureCompletedNow) {
+                // اكتملت المحاضرة الآن: إعادة التحميل لفتح المحاضرة التالية بالتسلسل
+                lectureCompletedNow = false;
+                window.location.reload();
+            }
+        });
     });
 
     function ViewDocumentInmodel() {
@@ -318,7 +374,12 @@
 
     function assingLectureInfo(ID, LectureLink_Client, LectureAssingment, LectureMinTime, Others, DocumenFile, MediaLink,LectureName)
     {
-        $("#Video_ID").attr("src", LectureLink_Client);
+        // YouTube: يُستخرج معرّف الفيديو ويُبنى رابط التضمين تلقائياً (مع رسالة واضحة وزر "مشاهدة على YouTube" عند تعذر التشغيل)؛
+        // المصادر الأخرى (Google Drive, Vimeo ...) تُعرض داخل iframe كما كان سابقاً.
+        var playerHost = document.getElementById("lecturePlayer");
+        if (playerHost && window.TabseetYouTube) {
+            TabseetYouTube.mount(playerHost, { url: LectureLink_Client, title: LectureName });
+        }
 
         $("#assingm_ID").val(LectureAssingment);
         $("#Lecture_ID").val(ID);
@@ -329,34 +390,47 @@
         $("#DocumentFile").val(DocumenFile);
         $("#MediaLink").val(MediaLink);
 
-        btnStartLecture();
+        // احتساب الحضور بوقت التشغيل الفعلي (بدل المؤقّت القديم الذي كان يبدأ بمجرد فتح النافذة)
+        lectureCompletedNow = false;
+        renderAttendanceProgress(null);
+        if (playerHost && window.TabseetAttendance) {
+            TabseetAttendance.track(playerHost, { lectureId: ID, onStatus: onAttendanceStatus });
+        }
     }
 
-    function btnStartLecture() {
-        let timeout = $("#Lec_mini_Time").val();
-        let lecture_ID = $("#Lecture_ID").val();
+    var lectureCompletedNow = false;
 
-        let minit = timeout * 60000;
-        console.log("time start");
-        let timeOut = setTimeout(() => {
-            console.log("time end");
-            $.ajax(
-                {
-                    async: true,
-                    type: 'POST',
-                    data: { Lect_ID: lecture_ID },
-                    url: '@Url.Action("LecutreTimeEnd", "Students")',
-                    success: function (data) {
-                        //window.location.reload();
-                    },
-                    error: function (response) {
-                    },
-                    complete: function (response) {
-                        //alert("finish call jasion " + response);
-                    }
-                });
-        }, minit);
+    function renderAttendanceProgress(status) {
+        var box = document.getElementById("attendanceProgress");
+        if (!box) return;
+        if (!status) {
+            box.hidden = true;
+            box.textContent = "";
+            box.classList.remove("is-finished");
+            return;
+        }
+        var fmt = window.TabseetAttendance ? TabseetAttendance.formatDuration : function (s) { return s; };
+        box.hidden = false;
+        if (status.isFinish) {
+            box.classList.add("is-finished");
+            box.textContent = "تم احتساب حضور هذه المحاضرة ✔";
+        } else if (status.isTimeEnd && status.hasAssignment && !status.isAssignmentFinish) {
+            box.classList.remove("is-finished");
+            box.textContent = "اكتملت المشاهدة؛ يبقى اجتياز واجب المحاضرة لاحتسابها";
+        } else {
+            box.classList.remove("is-finished");
+            box.textContent = "المشاهدة المحتسبة: " + fmt(status.watchedSeconds || 0) + " من " + fmt(status.requiredSeconds || 0) + " (" + (status.progressPercent || 0) + "%)";
+        }
+    }
 
+    function onAttendanceStatus(status) {
+        renderAttendanceProgress(status);
+        if (status && status.isFinish && !lectureCompletedNow) {
+            lectureCompletedNow = true;
+            if (window.Swal) {
+                Swal.fire({ toast: true, position: 'top', icon: 'success', title: 'تم احتساب حضور المحاضرة', showConfirmButton: false, timer: 3500 });
+            }
+        }
     }
 </script>
 

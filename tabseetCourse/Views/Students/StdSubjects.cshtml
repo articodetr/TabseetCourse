@@ -1,4 +1,4 @@
-@model IEnumerable<tabseetCourse.Models.StudentSubjectItemModel>
+﻿@model IEnumerable<tabseetCourse.Models.StudentSubjectItemModel>
 @using System.Globalization
 
 @{
@@ -1134,7 +1134,8 @@
                         joinBtn.href = lItem.clientUrl;
                         joinBtn.target = "_blank";
                         joinBtn.rel = "noopener noreferrer";
-                        joinBtn.className = "sub-btn sub-btn-join";
+                        joinBtn.className = "sub-btn sub-btn-join js-join-live";
+                        joinBtn.setAttribute("data-lecture-id", lItem.id); // تسجيل حضور المحاضرة المباشرة عند الضغط
                         joinBtn.innerHTML = '<i class="fas fa-video"></i> دخول المحاضرة';
                         actionsDiv.appendChild(joinBtn);
                     }
@@ -1250,7 +1251,8 @@
                         aJoin.href = lec.clientUrl;
                         aJoin.target = "_blank";
                         aJoin.rel = "noopener noreferrer";
-                        aJoin.className = "sub-btn sub-btn-join";
+                        aJoin.className = "sub-btn sub-btn-join js-join-live";
+                        aJoin.setAttribute("data-lecture-id", lec.id); // تسجيل حضور المحاضرة المباشرة عند الضغط
                         aJoin.innerHTML = '<i class="fas fa-video"></i> دخول المحاضرة المباشرة';
                         modalActions.appendChild(aJoin);
                     }
