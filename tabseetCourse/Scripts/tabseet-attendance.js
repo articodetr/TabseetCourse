@@ -5,6 +5,7 @@
  *   TabseetAttendance.track(playerContainer, { lectureId, onStatus })  → يتابع أحداث مشغّل TabseetYouTube ويرسل النبضات
  *   TabseetAttendance.stop()                                           → إيقاف المتابعة وإرسال ما تبقى (عند إغلاق النافذة)
  *   TabseetAttendance.joinLive(lectureId)                              → تسجيل دخول محاضرة مباشرة (يعمل تلقائياً للروابط a.js-join-live[data-lecture-id])
+ *                                                                        وعند النجاح يُطلق الحدث document "tabseet:livejoined" {lectureId, status} ويستدعي cfg.onLiveJoined
  * الخادم هو الحكم: يقيّد الثواني المحتسبة بالزمن الفعلي ويقرر الاكتمال (Services/StudentAttendanceService.cs).
  */
 (function (global) {
@@ -17,7 +18,8 @@
         heartbeatSeconds: 30,
         tokenSelector: 'input[name="__RequestVerificationToken"]',
         post: null,   // لأغراض الاختبار: دالة بديلة للإرسال
-        now: null     // لأغراض الاختبار: مصدر بديل للوقت
+        now: null,    // لأغراض الاختبار: مصدر بديل للوقت
+        onLiveJoined: null // اختياري: (lectureId, status) بعد نجاح تسجيل دخول محاضرة مباشرة
     };
 
     var tracker = null;
@@ -217,7 +219,22 @@
 
     function joinLive(lectureId) {
         if (!cfg.joinUrl || !lectureId) return Promise.resolve(null);
-        return post(cfg.joinUrl, { lectureId: lectureId }, { keepalive: true });
+        return post(cfg.joinUrl, { lectureId: lectureId }, { keepalive: true }).then(function (res) {
+            // إبلاغ الصفحة بحالة الحضور بعد الدخول (مثلاً لإظهار اختبار المحاضرة المباشرة فور تسجيل الدخول)
+            if (res && res.success && res.status) emitLiveJoined(lectureId, res.status);
+            return res;
+        });
+    }
+
+    function emitLiveJoined(lectureId, status) {
+        if (typeof cfg.onLiveJoined === "function") {
+            try { cfg.onLiveJoined(lectureId, status); } catch (e) { }
+        }
+        if (typeof document !== "undefined" && typeof global.CustomEvent === "function") {
+            try {
+                document.dispatchEvent(new global.CustomEvent("tabseet:livejoined", { detail: { lectureId: lectureId, status: status } }));
+            } catch (e) { }
+        }
     }
 
     function formatDuration(totalSeconds) {

@@ -501,20 +501,19 @@
                             '</i>' +
                             'حذف' +
                             '</button>';
-                        if (data[i].LectureTypeOnOff == 0) {
-                            if (data[i].Count > 0) {
-                                s += '<button class="btn btn-primary" onclick="ViewAssingment(' + data[i].ID + ')">' +
-                                    '<i class="nav-icon fas fa-book">' +
-                                    '</i>' +
-                                    'عرض الوظيفة' +
-                                    '</button>';
-                            } else {
-                                s += '<button class="btn btn-default" onclick="addassignment(' + data[i].ID + ')">' +
-                                    '<i class="nav-icon fas fa-book">' +
-                                    '</i>' +
-                                    'اضافة وظيفة' +
-                                    '</button>';
-                            }
+                        // الوظيفة (الاختبار) متاحة للمحاضرات المسجلة والمباشرة معاً؛ في المباشرة تُتاح للطالب بعد تسجيل دخوله إليها
+                        if (data[i].Count > 0) {
+                            s += '<button class="btn btn-primary" onclick="ViewAssingment(' + data[i].ID + ')">' +
+                                '<i class="nav-icon fas fa-book">' +
+                                '</i>' +
+                                'عرض الوظيفة' +
+                                '</button>';
+                        } else {
+                            s += '<button class="btn btn-default" onclick="addassignment(' + data[i].ID + ')">' +
+                                '<i class="nav-icon fas fa-book">' +
+                                '</i>' +
+                                'اضافة وظيفة' +
+                                '</button>';
                         }
                         s += '</div>' +
                              '</td>' +

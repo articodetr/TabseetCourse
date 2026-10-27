@@ -269,6 +269,13 @@ $f = Get-Page -Session $std -Url "$BaseUrl/Uploade/Images/slides_arb_01.pdf" -No
 $pass = ($lec.Status -eq 200) -and ($r.Status -eq 200) -and ($f.Status -eq 200)
 Record-Test -TestId "T4-06" -Description "بعد الموافقة: المحاضرات (200) والاختبار API (200) والمرفق المحمي (200)" -Passed $pass -Details "lectures=$($lec.Status) exam=$($r.Status) file=$($f.Status)"
 
+# بعد الموافقة: نقاط الحضور التي رُفضت بـ 403 في T3-08 تقبل الطالب الآن (بدء محاضرة مسجلة يُنشئ صف حضور؛ دخول المباشرة يُقيَّم بموعدها لا بالاشتراك)
+$r1 = Invoke-Post -Session $std -Url "$BaseUrl/Students/StartLecture" -Body @{ lectureId = $PAID_LECTURE_RECORDED; durationSeconds = 600; __RequestVerificationToken = $stdToken }
+$r2 = Invoke-Post -Session $std -Url "$BaseUrl/Students/JoinLiveLecture" -Body @{ lectureId = $PAID_LECTURE_LIVE; __RequestVerificationToken = $stdToken }
+$started = Sql "SELECT COUNT(*) FROM std_lecture WHERE Std_ID='$qaId' AND Lecture_ID=$PAID_LECTURE_RECORDED AND StartedAt IS NOT NULL;"
+$pass = ($r1.Status -eq 200) -and ($r1.Json.success -eq $true) -and ([int]$started -eq 1) -and ($r2.Status -eq 200) -and ($null -ne $r2.Json) -and ($r2.Json.PSObject.Properties.Name -contains 'success')
+Record-Test -TestId "T4-08" -Description "بعد الموافقة: الطالب يبدأ محاضرة مسجلة في الدورة المعتمدة (StartLecture 200 + صف حضور) ودخول المباشرة لم يعد 403" -Passed $pass -Details "start=$($r1.Status) started=$started join=$($r2.Status) joinSuccess=$($r2.Json.success) joinMsg=$($r2.Json.response)"
+
 $r = Invoke-Post -Session $admin -Url "$BaseUrl/Controlpanel/ActiveStudenCourse" -Body @{ Reg_ID = $STD01_PENDING_MATH; confirm = 1; __RequestVerificationToken = $adminToken } -NoRedirect
 $row = Sql "SELECT ISNULL(std_category_Ispayed,0) FROM Std_Reg_Category WHERE ID=$STD01_PENDING_MATH;"
 $pass = ($r.Status -eq 302) -and ($row -eq "1")

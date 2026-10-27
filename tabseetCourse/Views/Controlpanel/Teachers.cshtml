@@ -518,15 +518,21 @@
 
                     $("#EEmail_ID").val(data.Email);
                     $("#EPassword_ID").val(data.Password);
-                    var category = data.Categories_ID;
-                    const myArr = category.split(",");;
-                    var L_MuCh = new Array();
-                    for (var i = 0; i < myArr.length; i++) {
-                        const categories = myArr[i];
-                        L_MuCh.push(categories[0]);
+                    // Categories_ID is stored as "id/name,id/name,..." (see btnSave/btnUpdate).
+                    // Use the whole id before "/" (not only its first character) so ids >= 10 are selected too.
+                    var category = data.Categories_ID || '';
+                    var categoryParts = category.split(",");
+                    var selectedCategoryIds = [];
+                    for (var i = 0; i < categoryParts.length; i++) {
+                        var part = categoryParts[i].trim();
+                        if (part === '') { continue; }
+                        var categoryId = part.split("/")[0].trim();
+                        if (categoryId !== '' && selectedCategoryIds.indexOf(categoryId) === -1) {
+                            selectedCategoryIds.push(categoryId);
+                        }
                     }
 
-                    $("#ECategories_ID").val(L_MuCh).change();
+                    $("#ECategories_ID").val(selectedCategoryIds).trigger('change');
 
                 },
                 error: function (response) {

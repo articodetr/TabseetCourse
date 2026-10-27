@@ -26,6 +26,10 @@ namespace tabseetCourse.Models
         public int LectureMinTime { get; set; }
         public int Assingn_ID { get; set; }
         public int Is_Std_Finish_Lecture { get; set; }
+        /// <summary>1 عندما أتم الطالب المشاهدة المطلوبة (مسجلة) أو سجّل دخوله (مباشرة): شرط إتاحة اختبار المحاضرة</summary>
+        public int Is_Std_TimeEnd { get; set; }
+        /// <summary>1 عندما اجتاز الطالب وظيفة (اختبار) المحاضرة</summary>
+        public int Is_Std_Assignment_Finish { get; set; }
         public bool Is_Lecture_End { get; set; }
         public  CategoryModel Category { get; set; }
         public string Code { get; set; }

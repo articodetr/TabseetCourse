@@ -340,7 +340,8 @@
             }});
     }
     function btnOkAssingment(catid, lecName) {
-        window.location.href ='@Url.Action("LecturesStd", "Students", new { cat_ID = CategoryID, lectureName = CategoryName })';
+        // العودة إلى "برامجي التعليمية": تعرض المحاضرات المسجلة والمباشرة معاً وتحدّث حالة الاختبار والحضور
+        window.location.href ='@Url.Action("CategoriesStd", "Students")';
         // '/Students/LecturesStd?cat_ID =' + catid + '&' + 'lectureName =' + lecName;
         //window.location.href = '/Home/GoPageMenu?PageID=' + pageid;
     }

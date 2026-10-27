@@ -319,10 +319,27 @@ namespace tabseetCourse.Controllers
                             .Where(l => relatedCatIds.Contains(l.Category_ID))
                             .ToList();
 
-                        var finishedLectureIds = dbEntity.std_lecture
-                            .Where(e => e.Std_ID == CurrentUser.ID && e.IsFinish == 1 && relatedCatIds.Contains(e.Lecture.Category_ID))
-                            .Select(e => e.Lecture_ID)
-                            .ToList();
+                        // حالة الطالب لكل محاضرة: الاكتمال، إتمام المشاهدة/الدخول (IsTimeEnd)، واجتياز الوظيفة (IsAssingmetFinish)
+                        var lectureStates = dbEntity.std_lecture
+                            .Where(e => e.Std_ID == CurrentUser.ID && e.Lecture_ID != null && relatedCatIds.Contains(e.Lecture.Category_ID))
+                            .Select(e => new { e.Lecture_ID, e.IsFinish, e.IsTimeEnd, e.IsAssingmetFinish })
+                            .ToList()
+                            .GroupBy(e => e.Lecture_ID.Value)
+                            .ToDictionary(g => g.Key, g => new
+                            {
+                                IsFinish = g.Any(x => x.IsFinish == 1),
+                                IsTimeEnd = g.Any(x => x.IsTimeEnd == 1),
+                                IsAssignmentFinish = g.Any(x => x.IsAssingmetFinish == 1)
+                            });
+
+                        // وظيفة (اختبار) كل محاضرة، مسجلة أو مباشرة، لعرض زر الاختبار للطالب في هذه الصفحة
+                        var lectureIds = catLectures.Select(l => l.ID).ToList();
+                        var lectureAssignments = dbEntity.Assignments
+                            .Where(a => a.Lecture_ID != null && lectureIds.Contains(a.Lecture_ID.Value))
+                            .Select(a => new { a.ID, a.Name, a.Lecture_ID })
+                            .ToList()
+                            .GroupBy(a => a.Lecture_ID.Value)
+                            .ToDictionary(g => g.Key, g => g.OrderBy(a => a.ID).First());
 
                         foreach (var lec in catLectures)
                         {
@@ -341,7 +358,18 @@ namespace tabseetCourse.Controllers
                                 lm.DocumenFile = lec.DocumenFile;
                             }
                             int minTime = 0; int.TryParse(lec.LectureMinTime, out minTime); lm.LectureMinTime = minTime;
-                            lm.Is_Std_Finish_Lecture = finishedLectureIds.Contains(lec.ID) ? 1 : 0;
+                            if (lectureStates.TryGetValue(lec.ID, out var state))
+                            {
+                                lm.Is_Std_Finish_Lecture = state.IsFinish ? 1 : 0;
+                                lm.Is_Std_TimeEnd = state.IsTimeEnd ? 1 : 0;
+                                lm.Is_Std_Assignment_Finish = state.IsAssignmentFinish ? 1 : 0;
+                            }
+                            // معرّف الوظيفة يُرسل فقط لاشتراك مفعّل (كروابط المحاضرة)؛ صفحة الحل محمية خادمياً أيضاً
+                            if (ctm.IsSubscriptionActive && lectureAssignments.TryGetValue(lec.ID, out var assignment))
+                            {
+                                lm.Assingn_ID = assignment.ID;
+                                lm.Assingment = assignment.Name;
+                            }
                             ctm.Lectures.Add(lm);
                         }
 

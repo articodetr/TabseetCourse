@@ -744,6 +744,45 @@
         border-color: #113464;
     }
 
+    /* اختبار (وظيفة) المحاضرة: زر وشارات وتلميح الإتاحة */
+    .sub-btn-lecexam {
+        background: #D97706;
+        color: #FFFFFF !important;
+        box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);
+    }
+
+    .sub-btn-lecexam:hover {
+        background: #B45309;
+        color: #FFFFFF !important;
+    }
+
+    .sub-badge-lecexam {
+        background: #FEF3C7;
+        color: #B45309;
+    }
+
+    .sub-badge-lecexam-done {
+        background: #DCFCE7;
+        color: #15803D;
+    }
+
+    .sub-lec-exam-hint {
+        color: #B45309;
+        font-weight: 600;
+    }
+
+    .sub-modal-exam-hint {
+        margin: 0;
+        padding: 10px 12px;
+        border-radius: 9px;
+        background: #FFFBEB;
+        border: 1px solid #FDE68A;
+        color: #92400E;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+    }
+
     /* حالة عدم وجود بيانات (Empty States) */
     .sub-empty-box {
         text-align: center;
@@ -1320,6 +1359,10 @@
                              data-datetime="@lec.DayandTime"
                              data-is-end="@(lec.Is_Lecture_End ? "1" : "0")"
                              data-is-finish="@lec.Is_Std_Finish_Lecture"
+                             data-time-end="@lec.Is_Std_TimeEnd"
+                             data-assign-id="@lec.Assingn_ID"
+                             data-assign-name="@lec.Assingment"
+                             data-assign-done="@lec.Is_Std_Assignment_Finish"
                              data-valid-client="@(validClient ? "1" : "0")"
                              data-client-url="@(validClient ? lec.LectureLink_Client.Trim() : "")"
                              data-valid-media="@(validMedia ? "1" : "0")"
@@ -1481,6 +1524,10 @@
                         dateTime: lNode.getAttribute("data-datetime") || "موعد غير محدد",
                         isEnd: lNode.getAttribute("data-is-end") === "1",
                         isFinish: lNode.getAttribute("data-is-finish") === "1",
+                        timeEnd: lNode.getAttribute("data-time-end") === "1",
+                        assignId: parseInt(lNode.getAttribute("data-assign-id") || "0", 10) || 0,
+                        assignName: lNode.getAttribute("data-assign-name") || "",
+                        assignDone: lNode.getAttribute("data-assign-done") === "1",
                         validClient: lNode.getAttribute("data-valid-client") === "1",
                         clientUrl: lNode.getAttribute("data-client-url") || "",
                         validMedia: lNode.getAttribute("data-valid-media") === "1",
@@ -1505,6 +1552,38 @@
             var currentCategoryId = coursesData.length > 0 ? coursesData[0].id : null;
             var currentFilter = "all";
             var oldFocus = null;
+
+            // اختبار (وظيفة) المحاضرة: يُتاح بعد إتمام المشاهدة المطلوبة (مسجلة) أو تسجيل الدخول إليها (مباشرة)، ويختفي بعد اجتيازه.
+            // الخادم يتحقق من الاشتراك عند فتح صفحة الحل (Students/AssignmentQuestion) وعند تسليم الإجابات.
+            var assignmentUrlBase = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Url.Action("AssignmentQuestion", "Students")));
+            function hasExam(lec) { return !!lec && lec.assignId > 0; }
+            function canTakeExam(lec) { return hasExam(lec) && !lec.assignDone && lec.timeEnd; }
+            function examUrl(lec) { return assignmentUrlBase + "?A_Q=" + encodeURIComponent(lec.assignId); }
+            function examHint(lec) {
+                if (!hasExam(lec)) return "";
+                if (lec.assignDone) return "تم اجتياز اختبار المحاضرة";
+                if (lec.timeEnd) return "اختبار المحاضرة متاح الآن";
+                return lec.type === "1" ? "يُتاح اختبار المحاضرة بعد تسجيل دخولك إليها" : "يُتاح اختبار المحاضرة بعد إكمال مشاهدتها";
+            }
+            function createExamButton(lec, label) {
+                var a = document.createElement("a");
+                a.href = examUrl(lec);
+                a.className = "sub-btn sub-btn-lecexam";
+                a.setAttribute("data-lecture-id", lec.id);
+                var icon = document.createElement("i");
+                icon.className = "fas fa-file-alt";
+                a.appendChild(icon);
+                a.appendChild(document.createTextNode(" " + label));
+                return a;
+            }
+            function applyServerStatus(lec, status) {
+                if (!lec || !status) return false;
+                var changed = false;
+                if (status.isTimeEnd && !lec.timeEnd) { lec.timeEnd = true; changed = true; }
+                if (status.isAssignmentFinish && !lec.assignDone) { lec.assignDone = true; changed = true; }
+                if (status.isFinish && !lec.isFinish) { lec.isFinish = true; changed = true; }
+                return changed;
+            }
 
             function renderLectures() {
                 if (!lecturesList) return;
@@ -1575,6 +1654,13 @@
                         topDiv.appendChild(finBadge);
                     }
 
+                    if (hasExam(lItem)) {
+                        var examBadge = document.createElement("span");
+                        examBadge.className = "sub-badge " + (lItem.assignDone ? "sub-badge-lecexam-done" : "sub-badge-lecexam");
+                        examBadge.innerHTML = lItem.assignDone ? '<i class="fas fa-check-double"></i> اجتاز الاختبار' : '<i class="fas fa-file-alt"></i> يوجد اختبار';
+                        topDiv.appendChild(examBadge);
+                    }
+
                     mainDiv.appendChild(topDiv);
 
                     var h4 = document.createElement("h4");
@@ -1593,6 +1679,13 @@
                         var docSpan = document.createElement("span");
                         docSpan.innerHTML = '<i class="fas fa-paperclip"></i> يوجد مرفق تعليمي';
                         metaDiv.appendChild(docSpan);
+                    }
+
+                    if (hasExam(lItem) && !lItem.assignDone) {
+                        var examSpan = document.createElement("span");
+                        examSpan.className = "sub-lec-exam-hint";
+                        examSpan.innerHTML = '<i class="fas fa-file-alt"></i> ' + examHint(lItem);
+                        metaDiv.appendChild(examSpan);
                     }
 
                     mainDiv.appendChild(metaDiv);
@@ -1641,6 +1734,10 @@
                         docBtn.className = "sub-btn sub-btn-doc";
                         docBtn.innerHTML = '<i class="fas fa-paperclip"></i> المرفق';
                         actionsDiv.appendChild(docBtn);
+                    }
+
+                    if (canTakeExam(lItem)) {
+                        actionsDiv.appendChild(createExamButton(lItem, "الاختبار"));
                     }
 
                     var detailsBtn = document.createElement("button");
@@ -1766,15 +1863,38 @@
                 if (fill) fill.style.width = pct + "%";
             }
 
+            // زر/تلميح اختبار المحاضرة داخل نافذة التفاصيل (يُعاد رسمه عند كل تحديث لحالة الحضور)
+            function renderModalExam(lec) {
+                if (!modalActions || !lec) return;
+                var olds = modalActions.querySelectorAll(".sub-btn-lecexam, .sub-modal-exam-hint");
+                for (var i = 0; i < olds.length; i++) olds[i].parentNode.removeChild(olds[i]);
+                if (!hasExam(lec)) return;
+                if (canTakeExam(lec)) {
+                    modalActions.appendChild(createExamButton(lec, "بدء اختبار المحاضرة" + (lec.assignName ? ": " + lec.assignName : "")));
+                } else if (!lec.assignDone) {
+                    var hint = document.createElement("p");
+                    hint.className = "sub-modal-exam-hint";
+                    hint.innerHTML = '<i class="fas fa-lock"></i> ' + examHint(lec);
+                    modalActions.appendChild(hint);
+                }
+            }
+
             function applyAttendanceStatus(lec, status) {
                 renderAttendance(status);
-                if (status && status.isFinish && !lec.isFinish) {
-                    lec.isFinish = true;
+                if (!lec || !status) return;
+                var wasFinished = lec.isFinish;
+                var couldTakeExam = canTakeExam(lec);
+                if (applyServerStatus(lec, status)) {
                     renderLectures();
+                    renderModalExam(lec);
+                }
+                if (lec.isFinish && !wasFinished) {
                     updateCourseProgress(lec.categoryId);
                     if (window.Swal) {
                         Swal.fire({ toast: true, position: 'top', icon: 'success', title: 'تم احتساب حضور المحاضرة', showConfirmButton: false, timer: 3500 });
                     }
+                } else if (canTakeExam(lec) && !couldTakeExam && window.Swal) {
+                    Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'أصبح اختبار المحاضرة متاحاً', showConfirmButton: false, timer: 4000 });
                 }
             }
 
@@ -1844,6 +1964,8 @@
                         aDoc.innerHTML = '<i class="fas fa-paperclip"></i> فتح المرفق التعليمي';
                         modalActions.appendChild(aDoc);
                     }
+
+                    renderModalExam(lec);
                 }
 
                 modal.hidden = false;
@@ -1897,6 +2019,13 @@
                     e.preventDefault();
                     closeLectureModal();
                 }
+            });
+
+            // بعد نجاح تسجيل دخول محاضرة مباشرة (tabseet-attendance.js) يصبح اختبارها متاحاً فوراً دون إعادة تحميل
+            document.addEventListener("tabseet:livejoined", function (e) {
+                var d = (e && e.detail) || {};
+                var lec = allLecturesMap[String(d.lectureId)];
+                if (lec) applyAttendanceStatus(lec, d.status);
             });
 
             renderLectures();

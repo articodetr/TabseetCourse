@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
@@ -8,9 +10,14 @@ using tabseetCourse.Services;
 
 namespace tabseetCourse.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    /// <summary>
+    /// إشعارات المدرسين للإدارة. لا تُستخدم هنا السمة [Authorize(Roles = "Admin")]: فحص الأدوار القياسي يمر عبر
+    /// مدير الأدوار القديم فيحاول إنشاء aspnetdb.mdf ويعطي "Failed to generate a user instance of SQL Server".
+    /// التحقق يتم في OnActionExecuting بنفس آلية بقية لوحة التحكم (أدوار المستخدم الحالي من ASP.NET Identity).
+    /// </summary>
     public class AdminNotificationsController : SharedCalss
     {
+        private static readonly List<string> AllowedRoles = new List<string> { "Admin" };
         private readonly ITeacherLectureNotificationService _notificationService;
 
         public AdminNotificationsController()
@@ -36,11 +43,25 @@ namespace tabseetCourse.Controllers
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             base.OnActionExecuting(filterContext);
-            if (CurrentUser != null)
+
+            // المسموح: مستخدم مسجّل الدخول يحمل دور Admin (الأدوار من AspNetUserRoles عبر UserManager)
+            if (CurrentUser == null || !IsTrustedUser(CurrentUser, AllowedRoles))
             {
-                ViewData["_UsermodelModel"] = CurrentUser;
-                ViewBag._UsermodelModel = CurrentUser;
+                bool isPage = string.Equals(filterContext.ActionDescriptor.ActionName, "Index", StringComparison.OrdinalIgnoreCase);
+                if (isPage)
+                {
+                    filterContext.Result = RedirectToAction("LogIn", "Home");
+                }
+                else
+                {
+                    filterContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    filterContext.Result = Json(new { success = false, count = 0, unreadCount = 0, message = "غير مصرح" }, JsonRequestBehavior.AllowGet);
+                }
+                return;
             }
+
+            ViewData["_UsermodelModel"] = CurrentUser;
+            ViewBag._UsermodelModel = CurrentUser;
         }
 
         // GET: AdminNotifications
