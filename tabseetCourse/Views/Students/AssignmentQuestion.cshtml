@@ -118,6 +118,18 @@
 
 <script src="~/Scripts/CustomJavascript.js"></script>
 <script>
+    // رمز الحماية من التزوير (يطبعه القالب _LayoutStudent) يُرفق مع جلب الأسئلة وتسليم الإجابات
+    function getAntiForgeryToken() {
+        return $('input[name="__RequestVerificationToken"]').val() || "";
+    }
+    // رفض الخادم (403: اشتراك معلّق، لم يُحضر الدرس، اجتياز سابق...): رسالة عربية ثم العودة إلى «برامجي التعليمية»
+    function showExamDenied(response) {
+        var r = response && response.responseJSON ? response.responseJSON : null;
+        if (!r || !(r.response || r.title)) return false;
+        Swal.fire({ icon: 'warning', title: r.title || 'لا يمكن الدخول إلى الاختبار', text: r.response || '', confirmButtonText: 'حسناً', confirmButtonColor: '#113464' })
+            .then(function () { window.location.href = '@Url.Action("CategoriesStd", "Students")'; });
+        return true;
+    }
     $(document).ready(function () {
         var assingID = $('#Assingment_ID').val();
 
@@ -125,7 +137,7 @@
             {
                 async: true,
                 type: 'POST',
-                data: { A_Q: assingID},
+                data: { A_Q: assingID, __RequestVerificationToken: getAntiForgeryToken() },
                 url: '@Url.Action("GetAssignmentQuestion", "Students")',
                 success: function (data) {
                     $("#Submet_ID").val(data.length);
@@ -244,6 +256,7 @@
                     }
                 },
                 error: function (response) {
+                    if (showExamDenied(response)) return;
                     alert("the problem is " + response.responseText);
                 },
                 complete: function (response) {
@@ -313,7 +326,7 @@
                 $.ajax({
                     async: true,
                     type: 'POST',
-                    data: { L_Degry: selectedGender, ass_ID: assingID },
+                    data: { L_Degry: selectedGender, ass_ID: assingID, __RequestVerificationToken: getAntiForgeryToken() },
                     url: '@Url.Action("SubmetQuestion", "Students")',
                     success: function (result) {
                         if (result.success == true) {
@@ -331,7 +344,8 @@
 
                     },
                     error: function (response) {
-
+                        if (showExamDenied(response)) return;
+                        Swal.fire({ icon: 'error', title: 'تعذر تسليم الإجابات', text: 'حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى.', confirmButtonText: 'حسناً', confirmButtonColor: '#113464' });
                     },
                     complete: function (response) {
                     }

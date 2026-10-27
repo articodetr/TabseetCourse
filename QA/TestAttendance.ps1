@@ -157,12 +157,17 @@ $r = Invoke-Post -Session $std -Url $joinUrl -Body @{ "__RequestVerificationToke
 $pass = ($r.Status -eq 200) -and ($r.Json.success -eq $false) -and ((Count-Rows $student $liveFuture) -eq 0)
 Record-Test -TestId "ATT-11" -Description "JoinLiveLecture خارج الموعد (بعد يومين) يُرفض بلا صف" -Passed $pass -Details "resp=$($r.Raw)"
 
-Write-Host "`n[5] Assignment path (passing the assignment alone must not complete the lecture)" -ForegroundColor Yellow
-$null = Invoke-Post -Session $std -Url "$BaseUrl/Students/GetAssignmentQuestion" -Body @{ A_Q = 2 }
-$r = Invoke-Post -Session $std -Url "$BaseUrl/Students/SubmetQuestion" -Body "L_Degry=10&L_Degry=10&ass_ID=2"
+Write-Host "`n[5] Assignment path (exam independent of attendance: passing alone must not complete the lecture)" -ForegroundColor Yellow
+# الاختبار مستقل عن الحضور (2026-10-27): الأسئلة والتسليم متاحان دون حضور، لكن الاجتياز وحده لا يكمل المحاضرة (الاكتمال = حضور + اجتياز)
+$r0 = Invoke-Post -Session $std -Url "$BaseUrl/Students/GetAssignmentQuestion" -Body @{ A_Q = 2; "__RequestVerificationToken" = $stdToken }
+$r = Invoke-Post -Session $std -Url "$BaseUrl/Students/SubmetQuestion" -Body "L_Degry=10&L_Degry=10&ass_ID=2&__RequestVerificationToken=$([uri]::EscapeDataString($stdToken))"
 $row = Get-Row $student $LEC_ASSIGN
-$pass = ($r.Status -eq 200) -and $r.Json.success -and $row -and ($row.IsAssign -eq 1) -and ($row.IsTimeEnd -eq 0) -and ($row.IsFinish -eq 0)
-Record-Test -TestId "ATT-12" -Description "اجتياز الواجب يضبط IsAssingmetFinish فقط ولا يكمل المحاضرة دون مشاهدة" -Passed $pass -Details "resp=$($r.Raw) | row=$($row | ConvertTo-Json -Compress)"
+$pass = ($r0.Status -eq 200) -and ($r.Status -eq 200) -and $r.Json.success -and $row -and ($row.IsAssign -eq 1) -and ($row.IsTimeEnd -eq 0) -and ($row.IsFinish -eq 0)
+Record-Test -TestId "ATT-12" -Description "اجتياز الواجب دون حضور يضبط IsAssingmetFinish فقط ولا يكمل المحاضرة" -Passed $pass -Details "get=$($r0.Status) resp=$($r.Raw) | row=$($row | ConvertTo-Json -Compress)"
+
+$r = Invoke-Post -Session $std -Url "$BaseUrl/Students/SubmetQuestion" -Body @{ ass_ID = 2; L_Degry = 10; "__RequestVerificationToken" = $stdToken }
+$pass = ($r.Status -eq 403) -and ($r.Json.code -eq "AlreadyPassed")
+Record-Test -TestId "ATT-12b" -Description "إعادة تسليم واجب مُجتاز تُرفض (403 AlreadyPassed)" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw)"
 
 Write-Host "`n[6] Teacher: attendance list + manual marking" -ForegroundColor Yellow
 $teacher = Get-AuthSession -Email "teacher.ibrahim@example.test" -Password "Teach@Tabseet2026!"

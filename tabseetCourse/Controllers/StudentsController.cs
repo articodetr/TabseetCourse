@@ -35,6 +35,13 @@ namespace tabseetCourse.Controllers
             get { return _access ?? (_access = new CourseAccessService(dbEntity)); }
         }
 
+        private LectureExamAccessService _examAccess;
+        /// <summary>فحص أهلية الطالب لدخول اختبار (وظيفة) المحاضرة من بيانات قاعدة البيانات (Services/LectureExamAccessService.cs).</summary>
+        private LectureExamAccessService ExamAccess
+        {
+            get { return _examAccess ?? (_examAccess = new LectureExamAccessService(Access, Attendance)); }
+        }
+
         #region Course access guards (حماية المحتوى المحمي على مستوى الخادم)
         /// <summary>
         /// تحقق لصفحات Razor: يعيد true عند السماح (اشتراك مفعّل)، وإلا يملأ denial بإعادة توجيه مناسبة
@@ -87,6 +94,37 @@ namespace tabseetCourse.Controllers
             return state == SubscriptionState.PendingApproval
                 ? "اشتراكك في " + name + " بانتظار موافقة الإدارة. ستتمكن من دخول الدورة بعد تأكيد الإدارة."
                 : "يجب الاشتراك في " + name + " أولاً للوصول إلى محتواها.";
+        }
+
+        /// <summary>
+        /// حماية صفحة حل اختبار المحاضرة من الدخول المباشر بالرابط: نفس فحص الأهلية الذي يجريه زر «الاختبار»
+        /// (الاشتراك، وجود الاختبار وارتباطه بالدرس، واجتياز سابق؛ الاختبار مستقل عن الحضور). عند الرفض يُعاد الطالب إلى «برامجي التعليمية» مع السبب.
+        /// </summary>
+        private bool TryAuthorizeLectureExam(Assignment assignment, out ActionResult denial)
+        {
+            denial = null;
+            var access = ExamAccess.EvaluateForAssignment(CurrentUser != null ? CurrentUser.ID : null, assignment);
+            if (access.Allowed)
+                return true;
+
+            TempData["SubscriptionMessage"] = access.Title;
+            TempData["SubscriptionMessageText"] = access.Message;
+            TempData["SubscriptionMessageType"] = access.Icon;
+            denial = RedirectToAction("CategoriesStd");
+            return false;
+        }
+
+        /// <summary>نفس الفحص لنقاط JSON الخاصة بالاختبار (جلب الأسئلة والتسليم): 403 مع السبب دون أي أسئلة.</summary>
+        private bool TryAuthorizeLectureExamJson(Assignment assignment, out JsonResult error)
+        {
+            error = null;
+            var access = ExamAccess.EvaluateForAssignment(CurrentUser != null ? CurrentUser.ID : null, assignment);
+            if (access.Allowed)
+                return true;
+
+            Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            error = Json(new { success = false, code = access.Code, title = access.Title, response = access.Message }, JsonRequestBehavior.AllowGet);
+            return false;
         }
         #endregion
 
@@ -194,9 +232,9 @@ namespace tabseetCourse.Controllers
                 {
                     Session["photo"] = CurrentUser.Per_Photo;
                     Session["username"] = CurrentUser.RealName;
-                    var values = dbEntity.Std_Reg_Category.Where(e => e.Std_ID == CurrentUser.ID && e.Category.ParentCateogry_ID == null).OrderByDescending(i => i.std_category_Ispayed).ToList();
+                    var values = dbEntity.Std_Reg_Category.Where(e => e.Std_ID == CurrentUser.ID && e.Category.ParentCateogry_ID == null).OrderByDescending(i => i.std_category_Ispayed).ThenByDescending(i => i.ID).ToList();
                     L_ct.AddRange(values);
-                    var values2 = dbEntity.Std_Reg_Category.Where(e => e.Std_ID == CurrentUser.ID && e.Category.ParentCateogry_ID != null).ToList();
+                    var values2 = dbEntity.Std_Reg_Category.Where(e => e.Std_ID == CurrentUser.ID && e.Category.ParentCateogry_ID != null).OrderByDescending(i => i.ID).ToList();
                     L_ct.AddRange(values2);
 
 
@@ -332,10 +370,11 @@ namespace tabseetCourse.Controllers
                                 IsAssignmentFinish = g.Any(x => x.IsAssingmetFinish == 1)
                             });
 
-                        // وظيفة (اختبار) كل محاضرة، مسجلة أو مباشرة، لعرض زر الاختبار للطالب في هذه الصفحة
+                        // وظيفة (اختبار) كل محاضرة، مسجلة أو مباشرة، لعرض زر الاختبار للطالب في هذه الصفحة.
+                        // يُرسل فقط الاختبار الذي له أسئلة: الدرس الذي لم يضف له المدرس اختباراً (أو اختباره فارغ) لا يظهر زره إطلاقاً.
                         var lectureIds = catLectures.Select(l => l.ID).ToList();
                         var lectureAssignments = dbEntity.Assignments
-                            .Where(a => a.Lecture_ID != null && lectureIds.Contains(a.Lecture_ID.Value))
+                            .Where(a => a.Lecture_ID != null && lectureIds.Contains(a.Lecture_ID.Value) && a.Assignment_Q.Any())
                             .Select(a => new { a.ID, a.Name, a.Lecture_ID })
                             .ToList()
                             .GroupBy(a => a.Lecture_ID.Value)
@@ -935,6 +974,52 @@ namespace tabseetCourse.Controllers
             return Json(em, JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// فحص أهلية الطالب لدخول اختبار المحاضرة عند الضغط على زر «الاختبار» (الزر يظهر دائماً بجانب كل محاضرة):
+        /// هوية الطالب من جلسة الدخول، والمحاضرة من قاعدة البيانات بمعرّفها، ثم الاشتراك ووجود الاختبار واجتياز سابق (لا يُشترط الحضور).
+        /// يعيد رابط صفحة الحل عند السماح أو سبباً عربياً محدداً عند الرفض؛ لا يعتمد على أي حالة مرسلة من المتصفح.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult CheckLectureExamAccess(int lectureId)
+        {
+            try
+            {
+                if (CurrentUser == null || string.IsNullOrEmpty(CurrentUser.ID))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, requiresLogin = true, response = "المستخدم غير مسجل الدخول" }, JsonRequestBehavior.AllowGet);
+                }
+
+                var lecture = dbEntity.Lectures.Find(lectureId);
+                if (lecture == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, response = "المحاضرة غير موجودة" }, JsonRequestBehavior.AllowGet);
+                }
+
+                var access = ExamAccess.EvaluateForLecture(CurrentUser.ID, lecture);
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                return Json(new
+                {
+                    success = true,
+                    allowed = access.Allowed,
+                    code = access.Code,
+                    title = access.Title,
+                    message = access.Message,
+                    icon = access.Icon,
+                    assignmentId = access.Allowed ? access.AssignmentId : 0,
+                    url = access.Allowed ? Url.Action("AssignmentQuestion", "Students", new { A_Q = access.AssignmentId }) : null
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Printerror("CheckLectureExamAccess", ex.Message, ex.InnerException != null ? ex.InnerException.Message : null, ex.StackTrace);
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = "تعذر التحقق من إمكانية دخول الاختبار حالياً، يرجى المحاولة لاحقاً." }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpGet]
         public ActionResult AssignmentQuestion(string A_Q)
         {
@@ -947,6 +1032,8 @@ namespace tabseetCourse.Controllers
             var assingment = dbEntity.Assignments.Find(assid);
             ActionResult denial;
             if (!TryAuthorizeCourse(assingment != null && assingment.Lecture != null ? assingment.Lecture.Category_ID : (int?)null, out denial)) return denial;
+            // الدخول بالرابط المباشر لا يتجاوز شروط الاختبار (اجتياز سابق، وجود الاختبار بأسئلته وارتباطه بالدرس)
+            if (!TryAuthorizeLectureExam(assingment, out denial)) return denial;
             if (assingment != null)
             {
                 ViewBag.categoryAssID = assingment.Lecture.Category_ID;
@@ -955,6 +1042,7 @@ namespace tabseetCourse.Controllers
             return View();
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<JsonResult> GetAssignmentQuestion(int A_Q)
         {
             List<QuestionsModel> L_Q = new List<QuestionsModel>();
@@ -963,10 +1051,10 @@ namespace tabseetCourse.Controllers
                 var assingment = await dbEntity.Assignments.FindAsync(A_Q);
                 JsonResult accessError;
                 if (!TryAuthorizeCourseJson(assingment != null && assingment.Lecture != null ? assingment.Lecture.Category_ID : (int?)null, out accessError)) return accessError;
+                // لا تُرسل الأسئلة إلا لطالب مستوفٍ لشروط دخول الاختبار (نفس فحص زر «الاختبار» وصفحة الحل)
+                if (!TryAuthorizeLectureExamJson(assingment, out accessError)) return accessError;
                 if (assingment != null)
                 {
-
-                    TempData["Lecture_ID"] = assingment.Lecture_ID;
                     var value = assingment.Assignment_Q.ToList();
                     if (value != null)
                     {
@@ -1035,6 +1123,7 @@ namespace tabseetCourse.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<JsonResult> SubmetQuestion(List<string> L_Degry, int ass_ID)
         {
             try
@@ -1043,14 +1132,11 @@ namespace tabseetCourse.Controllers
                 var ass = await dbEntity.Assignments.FindAsync(ass_ID);
                 JsonResult accessError;
                 if (!TryAuthorizeCourseJson(ass != null && ass.Lecture != null ? ass.Lecture.Category_ID : (int?)null, out accessError)) return accessError;
+                // لا يُقبل التسليم إلا لطالب مستوفٍ لشروط الاختبار (لم يجتزه سابقاً، الاختبار مرتبط بدرسه وله أسئلة)
+                if (!TryAuthorizeLectureExamJson(ass, out accessError)) return accessError;
 
                 var stdID = CurrentUser.ID;
                 float degry = 0;
-                int lectureID;
-                if (TempData["Lecture_ID"] == null || !int.TryParse(TempData["Lecture_ID"].ToString(), out lectureID))
-                {
-                    lectureID = ass.Lecture_ID ?? 0;
-                }
                 if (L_Degry != null)
                 {
                     for (int i = 0; i < L_Degry.Count; i++)
@@ -1062,9 +1148,9 @@ namespace tabseetCourse.Controllers
                 }
                 if (ass.Assignmet_degry_Win <= degry)
                 {
-                    // اجتياز الواجب يُسجَّل عبر خدمة الحضور؛ الاكتمال يبقى مشروطاً بمشاهدة المحاضرة فعلاً
-                    // (ما لم تُفعَّل Attendance:AssignmentAloneCompletes في Web.config).
-                    var lecture = dbEntity.Lectures.Find(lectureID) ?? ass.Lecture;
+                    // اجتياز الواجب يُسجَّل عبر خدمة الحضور على درس الاختبار نفسه كما هو مخزّن في قاعدة البيانات (لا على TempData)؛
+                    // الاكتمال يبقى مشروطاً بمشاهدة المحاضرة فعلاً (ما لم تُفعَّل Attendance:AssignmentAloneCompletes في Web.config).
+                    var lecture = ass.Lecture;
                     if (lecture != null)
                     {
                         Attendance.RecordAssignmentPassed(stdID, lecture);

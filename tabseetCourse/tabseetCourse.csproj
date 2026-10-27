@@ -234,6 +234,8 @@
     <Compile Include="Data\StudentAttendanceEntities.cs" />
     <Compile Include="Services\AttendancePolicy.cs" />
     <Compile Include="Services\StudentAttendanceService.cs" />
+    <Compile Include="Services\LectureExamAccessService.cs" />
+    <Compile Include="Services\NewestFirstOrdering.cs" />
     <Compile Include="Controllers\AdminNotificationsController.cs" />
     <Compile Include="Controllers\ControlpanelController.cs" />
     <Compile Include="Data\TeacherNotificationEntities.cs" />

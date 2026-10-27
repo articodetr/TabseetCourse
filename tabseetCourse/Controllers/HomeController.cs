@@ -442,7 +442,7 @@ namespace tabseetCourse.Controllers
                 Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
             }
             int Lang_ID = int.Parse(Session["Lang_ID"].ToString());
-            var value = dbEntity.New_news.Where(e=>e.Lang_ID==Lang_ID).ToList();
+            var value = dbEntity.New_news.Where(e=>e.Lang_ID==Lang_ID).OrderByDescending(e => e.ID).ToList();
             List<NewsModel> L_new = new List<NewsModel>();
             try
             {
@@ -475,7 +475,7 @@ namespace tabseetCourse.Controllers
                 Session["Direction_ID"] = dbEntity.New_lang.Where(e => e.DefultLang == 1).FirstOrDefault().Direction;
             }
             int Lang_ID = int.Parse(Session["Lang_ID"].ToString());
-            var value = dbEntity.New_news.Where(e=>e.Lang_ID==Lang_ID).ToList();
+            var value = dbEntity.New_news.Where(e=>e.Lang_ID==Lang_ID).OrderByDescending(e => e.ID).ToList();
             List<NewsModel> Lf = new List<NewsModel>();
             foreach (var item in value)
             {
@@ -1188,11 +1188,11 @@ namespace tabseetCourse.Controllers
                 List<Category> values;
                 if (CourseName != null)
                 {
-                    values = dbEntity.Categories.Where(e => e.CanRegister == 1 && e.NameAr.Contains(CourseName)).ToList();
+                    values = dbEntity.Categories.Where(e => e.CanRegister == 1 && e.NameAr.Contains(CourseName)).OrderByDescending(e => e.ID).ToList();
                 }
                 else
                 {
-                    values = dbEntity.Categories.Where(e => e.CanRegister == 1).ToList();
+                    values = dbEntity.Categories.Where(e => e.CanRegister == 1).OrderByDescending(e => e.ID).ToList();
                 }
                 foreach (var item in values)
                 {

@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using tabseetCourse.Classes;
 using tabseetCourse.Data;
 using tabseetCourse.Models;
+using tabseetCourse.Services;
 using Microsoft.AspNet.Identity;
 
 namespace tabseetCourse.Controllers
@@ -104,6 +105,7 @@ namespace tabseetCourse.Controllers
             catch (Exception ex)
             {
             }
+            L_cat = L_cat.OrderByDescending(c => c.ID).ToList();
             return View(L_cat);
         }
 
@@ -140,7 +142,15 @@ namespace tabseetCourse.Controllers
                         .GroupBy(s => s.Std_ID)
                         .ToDictionary(g => g.Key, g => g.Count());
 
-                    foreach (var user in users.OrderBy(u => u.RealName))
+                    // «الأحدث أولاً»: آخر طالب اشترك في الدورة (أو دورتها الأم) يظهر أولاً، لا الترتيب الأبجدي
+                    int parentCatId = category.ParentCateogry_ID ?? -1;
+                    var latestReg = dbEntity.Std_Reg_Category
+                        .Where(r => r.Std_ID != null && (r.Category_ID == ID || r.Category_ID == parentCatId))
+                        .GroupBy(r => r.Std_ID)
+                        .Select(g => new { StdId = g.Key, RegId = g.Max(r => r.ID) })
+                        .ToList()
+                        .ToDictionary(x => x.StdId, x => x.RegId);
+                    foreach (var user in users.OrderByDescending(u => latestReg.ContainsKey(u.Id) ? latestReg[u.Id] : 0).ThenBy(u => u.Id, StringComparer.Ordinal))
                     {
                         UserModel myi = new UserModel();
                         myi.ID = user.Id;
@@ -346,6 +356,7 @@ namespace tabseetCourse.Controllers
                 }
 
                 var rawLectures = await dbEntity.Lectures.Where(i => (i.Category_ID == Cat_ID))
+                    .OrderByDescending(i => i.ID)
                     .Select(i => new {
                         i.ID,
                         i.Lecture_Name,
@@ -528,6 +539,7 @@ namespace tabseetCourse.Controllers
             }
 
 
+            LM = LM.OrderByDescending(l => l.ID).ToList();
             return View(LM);
         }
         #endregion
@@ -546,7 +558,7 @@ namespace tabseetCourse.Controllers
             List<AssignmentModel> L_am = new List<AssignmentModel>();
             try
             {
-                var value = dbEntity.Assignments.ToList();
+                var value = dbEntity.Assignments.OrderByDescending(i => i.ID).ToList();
                 if (value != null)
                 {
                     foreach (var item in value)
@@ -648,6 +660,14 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult AssingQuestionToAssignment(AssignmentModel am)
         {
+            // تحقق قبل الحفظ: الوظيفة مرتبطة بمحاضرة موجودة فعلاً (Lecture_ID) ولها سؤال واحد على الأقل، وإلا لا يظهر الاختبار للطالب
+            string validationError = LectureExamAccessService.ValidateAssignmentForSave(dbEntity, am);
+            if (validationError != null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = validationError }, JsonRequestBehavior.AllowGet);
+            }
+
             using (var context = new tbseedDBEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
@@ -814,6 +834,7 @@ namespace tabseetCourse.Controllers
                    (Duration == 0 && category == 0)
                 || (Duration != 0 && category == 0 && i.Duration == Duration)
                 || (Duration == 0 && category != 0 && i.Category_ID == category))
+                    .OrderByDescending(i => i.ID)
                     .Select(e => new { e.ID, e.Name, e.Start_Time, e.Category_ID, e.Day_Time, e.Duration }).ToList();
                 if (exams != null)
                 {
@@ -1066,7 +1087,7 @@ namespace tabseetCourse.Controllers
                 List<Question> L_q = new List<Question>();
                 //foreach (var item in catid)
                 //{
-                var value = dbEntity.Questions.Where(i => i.Category_ID == cat_ID).ToList();
+                var value = dbEntity.Questions.Where(i => i.Category_ID == cat_ID).OrderByDescending(i => i.ID).ToList();
                 L_q.AddRange(value);
                 //}
 
@@ -1131,6 +1152,7 @@ namespace tabseetCourse.Controllers
                         var value = dbEntity.Questions.Where(i => i.Category_ID == item).ToList();
                         L_q.AddRange(value);
                     }
+                    L_q = L_q.OrderByDescending(q => q.ID).ToList();
 
                     if (L_q != null)
                     {

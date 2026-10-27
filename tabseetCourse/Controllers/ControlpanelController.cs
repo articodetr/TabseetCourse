@@ -95,7 +95,7 @@ namespace tabseetCourse.Controllers
             List<CategoryTypeModel> L_ctm = new List<CategoryTypeModel>();
             try
             {
-                var values = dbEntity.CategoryTypes.ToList();
+                var values = dbEntity.CategoryTypes.OrderByDescending(i => i.ID).ToList();
                 foreach (var item in values)
                 {
                     CategoryTypeModel ctm = new CategoryTypeModel();
@@ -1245,6 +1245,7 @@ namespace tabseetCourse.Controllers
 
                     var teacherLectures = dbEntity.Lectures
                         .Where(i => allowedCatIds.Contains(i.Category_ID) && (byCategorie == 0 || i.Category_ID == byCategorie))
+                        .OrderByDescending(i => i.ID)
                         .Select(i => new {
                             i.ID,
                             i.Lecture_Name,
@@ -1262,6 +1263,7 @@ namespace tabseetCourse.Controllers
                 }
 
                 var values = dbEntity.Lectures.Where(i => (byCategorie == 0 && byCategorieType == 0) || (byCategorie == 0 && i.Category.CategoryType_ID == byCategorieType) || (i.Category.CategoryType_ID == byCategorieType || i.Category_ID == byCategorie))
+                    .OrderByDescending(i => i.ID)
                     .Select(i => new { i.ID, i.Lecture_Name, i.Category_ID, i.Category.NameAr, i.Category.NameEn, i.LectureTypeOnOff, i.LectureLink_Host, i.LectureLink_Client, i.Assignments.Count }).ToList();
                 if (values != null)
                 {
@@ -1727,6 +1729,7 @@ namespace tabseetCourse.Controllers
                   var result =  from s in dbEntity.Std_Reg_Category
                     join ca in dbEntity.Categories on s.Category_ID equals ca.ID
                     where s.Std_ID == std_ID
+                    orderby s.ID descending
                     select ca;
                     //var result = dbEntity.Std_Reg_Category.Where(e=>e.Std_ID== std_ID).ToList();
                     //foreach (var item in result)
@@ -1785,7 +1788,7 @@ namespace tabseetCourse.Controllers
             List<QuestionsModel> Lqm = new List<QuestionsModel>();
             try
             {
-                var value = dbEntity.Questions.Where(i => (type == 0 && category_ID == 0) || (category_ID == 0 && i.Type == type) || (type == 0 && i.Category_ID == category_ID)).ToList();
+                var value = dbEntity.Questions.Where(i => (type == 0 && category_ID == 0) || (category_ID == 0 && i.Type == type) || (type == 0 && i.Category_ID == category_ID)).OrderByDescending(i => i.ID).ToList();
                 if (value != null)
                 {
                     foreach (var item in value)
@@ -2525,7 +2528,7 @@ namespace tabseetCourse.Controllers
             List<AssignmentModel> L_am = new List<AssignmentModel>();
             try
             {
-                var value = dbEntity.Assignments.ToList();
+                var value = dbEntity.Assignments.OrderByDescending(i => i.ID).ToList();
                 if (value != null)
                 {
                     foreach (var item in value)
@@ -2625,6 +2628,14 @@ namespace tabseetCourse.Controllers
         [HttpPost]
         public JsonResult AssingQuestionToAssignment(AssignmentModel am)
         {
+            // تحقق قبل الحفظ: الوظيفة مرتبطة بمحاضرة موجودة فعلاً (Lecture_ID) ولها سؤال واحد على الأقل، وإلا لا يظهر الاختبار للطالب
+            string validationError = LectureExamAccessService.ValidateAssignmentForSave(dbEntity, am);
+            if (validationError != null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, response = validationError }, JsonRequestBehavior.AllowGet);
+            }
+
             using (var context = new tbseedDBEntities())
             {
                 using (DbContextTransaction dbTran = context.Database.BeginTransaction())
@@ -2853,6 +2864,7 @@ namespace tabseetCourse.Controllers
                    (Duration == 0 && category == 0)
                 || (Duration != 0 && category == 0 && i.Duration == Duration)
                 || (Duration == 0 && category != 0 && i.Category_ID == category))
+                    .OrderByDescending(i => i.ID)
                     .Select(e => new { e.ID, e.Name, e.Start_Time, e.Category_ID, e.Day_Time, e.Duration }).ToList();
                 if (exams != null)
                 {
@@ -3144,7 +3156,7 @@ namespace tabseetCourse.Controllers
             List<UserModel> L_User = new List<UserModel>();
             try
             {
-                var value = userManager.Users.Where(e => e.userOrTetcherOrStudent == 0).Select(i => new { i.Id, i.RealName, i.Email, i.PhoneNumber, i.Password }).ToList();
+                var value = NewestFirstOrdering.Users(userManager.Users.Where(e => e.userOrTetcherOrStudent == 0).Select(i => new { i.Id, i.RealName, i.Email, i.PhoneNumber, i.Password }).ToList(), i => i.Id, dbEntity);
                 if (value != null)
                 {
                     foreach (var item in value)
@@ -3396,7 +3408,7 @@ namespace tabseetCourse.Controllers
         public JsonResult GetTeachers()
         {
             List<MyIdentityUser> L_cat = new List<MyIdentityUser>();
-            var value = userManager.Users.Where(e => e.userOrTetcherOrStudent == 1).Select(i => new { i.Categories_ID, i.Id, i.FirstName, i.Email, i.PhoneNumber, i.Per_Photo }).ToList();
+            var value = NewestFirstOrdering.Users(userManager.Users.Where(e => e.userOrTetcherOrStudent == 1).Select(i => new { i.Categories_ID, i.Id, i.FirstName, i.Email, i.PhoneNumber, i.Per_Photo }).ToList(), i => i.Id, dbEntity);
             try
             {
                 foreach (var item in value)
@@ -3455,7 +3467,7 @@ namespace tabseetCourse.Controllers
                 }
                 if (isAuthorize)
                 {
-                    myid = userManager.Users.Where(e => e.userOrTetcherOrStudent == 2).ToList();
+                    myid = NewestFirstOrdering.Users(userManager.Users.Where(e => e.userOrTetcherOrStudent == 2).ToList(), u => u.Id, dbEntity);
                     return View(myid);
                 }
             }
@@ -4042,7 +4054,7 @@ namespace tabseetCourse.Controllers
                 }
                 if (isAuthorize)
                 {
-                    var value = dbEntity.CodeGenerateds.ToList();
+                    var value = dbEntity.CodeGenerateds.OrderByDescending(i => i.ID).ToList();
                     foreach (var item in value)
                     {
                         CodeGeneratedModel cg = new CodeGeneratedModel();
@@ -5579,7 +5591,7 @@ namespace tabseetCourse.Controllers
         [HttpGet]
         public ActionResult News()
         {
-            List<New_news> L_news = dbEntity.New_news.ToList();
+            List<New_news> L_news = dbEntity.New_news.OrderByDescending(i => i.ID).ToList();
             List<NewsModel> Lvalue = new List<NewsModel>();
             foreach (var item in L_news)
             {
@@ -5721,7 +5733,7 @@ namespace tabseetCourse.Controllers
             List<New_FastNewsModel> L_NFNM = new List<New_FastNewsModel>();
             try
             {
-                var valus = dbEntity.New_FastNews.ToList();
+                var valus = dbEntity.New_FastNews.OrderByDescending(i => i.ID).ToList();
                 foreach (var item in valus)
                 {
                     New_FastNewsModel fn = new New_FastNewsModel();
@@ -5823,7 +5835,7 @@ namespace tabseetCourse.Controllers
         [HttpGet]
         public ActionResult Pracktes()
         {
-            List<New_pracktes> L_news = dbEntity.New_pracktes.ToList();
+            List<New_pracktes> L_news = dbEntity.New_pracktes.OrderByDescending(i => i.ID).ToList();
             List<PracktesModel> Lvalue = new List<PracktesModel>();
             foreach (var item in L_news)
             {
@@ -6229,7 +6241,7 @@ namespace tabseetCourse.Controllers
         [HttpGet]
         public ActionResult StoreCategory()
         {
-            var result = dbEntity.StoreCategories.ToList();
+            var result = dbEntity.StoreCategories.OrderByDescending(i => i.ID).ToList();
             List<StoreCategoryesModel> Lsgm = new List<StoreCategoryesModel>();
             foreach (var item in result)
             {
@@ -6319,7 +6331,7 @@ namespace tabseetCourse.Controllers
             try
             {
 
-                var result = dbEntity.StoreProducts.ToList();
+                var result = dbEntity.StoreProducts.OrderByDescending(i => i.ID).ToList();
                 foreach (var item in result)
                 {
                     StoreProductModel sp = new StoreProductModel();

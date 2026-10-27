@@ -215,8 +215,8 @@ $examFlag = Sql "SELECT ISNULL(std_exam_isFinish,-1) FROM Std_Reg_Category WHERE
 $pass = ($r1.Status -eq 403) -and ($r2.Status -eq 403) -and ($r3.Status -eq 403) -and ($examFlag -eq "-1") -and ($r2.Raw -notmatch 'Q_Text')
 Record-Test -TestId "T3-06" -Description "API الاختبار (StdExams/GetExamQuestion/SubmetExamQuestion) ترفض الدورة المعلّقة بـ 403 دون تسريب أسئلة" -Passed $pass -Details "stdExams=$($r1.Status) getQ=$($r2.Status) submit=$($r3.Status) examFlag=$examFlag"
 
-$r1 = Invoke-Post -Session $std -Url "$BaseUrl/Students/GetAssignmentQuestion" -Body @{ A_Q = $PAID_ASSIGNMENT }
-$r2 = Invoke-Post -Session $std -Url "$BaseUrl/Students/SubmetQuestion" -Body @{ ass_ID = $PAID_ASSIGNMENT; "L_Degry[0]" = "100" }
+$r1 = Invoke-Post -Session $std -Url "$BaseUrl/Students/GetAssignmentQuestion" -Body @{ A_Q = $PAID_ASSIGNMENT; __RequestVerificationToken = $stdToken }
+$r2 = Invoke-Post -Session $std -Url "$BaseUrl/Students/SubmetQuestion" -Body @{ ass_ID = $PAID_ASSIGNMENT; "L_Degry[0]" = "100"; __RequestVerificationToken = $stdToken }
 $pass = ($r1.Status -eq 403) -and ($r2.Status -eq 403)
 Record-Test -TestId "T3-07" -Description "API الواجبات (GetAssignmentQuestion/SubmetQuestion) ترفض الدورة المعلّقة بـ 403" -Passed $pass -Details "get=$($r1.Status) submit=$($r2.Status)"
 
@@ -388,8 +388,11 @@ $r = Invoke-Post -Session $std01Session -Url "$BaseUrl/Students/JoinLiveLecture"
 $pass = ($sched01.Status -eq 200) -and ($sched01.Content -match 'join/math') -and ($sched01.Content -match 'join/cs') -and ($sched01.Content -notmatch 'join/eng') -and ($r.Status -eq 200) -and ($r.Json -ne $null) -and ($r.Json.PSObject.Properties.Name -contains 'success')
 Record-Test -TestId "T6-03" -Description "روابط Zoom للدورات المفعّلة تظهر في الجدول وتسجيل الدخول للمحاضرة المباشرة يستجيب (200)" -Passed $pass -Details "sched=$($sched01.Status) math=$($sched01.Content -match 'join/math') eng(pending)=$($sched01.Content -match 'join/eng') join=$($r.Status) joinSuccess=$($r.Json.success)"
 
+# student01 اجتاز واجب المحاضرة 1 سابقاً (بيانات محلية) والخادم يمنع إعادة دخول اختبار مُجتاز؛ يُعاد العلم مؤقتاً لاختبار الصفحة ثم يُسترجع
+$null = Sql "UPDATE std_lecture SET IsAssingmetFinish=0 WHERE Std_ID='$STD01' AND Lecture_ID=1;"
 $ap = Get-Page -Session $std01Session -Url "$BaseUrl/Students/AssignmentQuestion?A_Q=1"
-$r = Invoke-Post -Session $std01Session -Url "$BaseUrl/Students/GetAssignmentQuestion" -Body @{ A_Q = 1 }
+$r = Invoke-Post -Session $std01Session -Url "$BaseUrl/Students/GetAssignmentQuestion" -Body @{ A_Q = 1; __RequestVerificationToken = $std01Token }
+$null = Sql "UPDATE std_lecture SET IsAssingmetFinish=1 WHERE Std_ID='$STD01' AND Lecture_ID=1;"
 $pass = ($ap.Status -eq 200) -and (-not (Has-ServerError $ap.Content)) -and ($r.Status -eq 200) -and ($r.Json -is [array]) -and (@($r.Json).Count -gt 0)
 Record-Test -TestId "T6-04" -Description "صفحة الواجب وأسئلته تعمل للدورة المفعّلة (أُصلح خطأ ترجمة قديم في الصفحة)" -Passed $pass -Details "page=$($ap.Status) api=$($r.Status) q=$(@($r.Json).Count)"
 

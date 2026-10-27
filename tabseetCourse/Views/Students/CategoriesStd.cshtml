@@ -16,6 +16,7 @@
     string firstActiveCategoryId = activeCourses.Count > 0 ? activeCourses[0].Category_ID.ToString() : "";
     string uploadsBaseUrl = Url.Content("~/Uploade/Images/");
     string subscriptionMessage = TempData["SubscriptionMessage"] as string;
+    string subscriptionMessageText = TempData["SubscriptionMessageText"] as string; // نص إضافي اختياري (سبب رفض دخول اختبار المحاضرة بالرابط المباشر)
     string subscriptionMessageType = (TempData["SubscriptionMessageType"] as string) ?? "info";
 }
 
@@ -756,6 +757,11 @@
         color: #FFFFFF !important;
     }
 
+    .sub-btn-lecexam[disabled] {
+        opacity: 0.7;
+        cursor: progress;
+    }
+
     .sub-badge-lecexam {
         background: #FEF3C7;
         color: #B45309;
@@ -766,22 +772,6 @@
         color: #15803D;
     }
 
-    .sub-lec-exam-hint {
-        color: #B45309;
-        font-weight: 600;
-    }
-
-    .sub-modal-exam-hint {
-        margin: 0;
-        padding: 10px 12px;
-        border-radius: 9px;
-        background: #FFFBEB;
-        border: 1px solid #FDE68A;
-        color: #92400E;
-        font-size: 13px;
-        font-weight: 600;
-        text-align: center;
-    }
 
     /* حالة عدم وجود بيانات (Empty States) */
     .sub-empty-box {
@@ -1391,11 +1381,12 @@
         <text>
     (function () {
         var msg = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(subscriptionMessage));
+        var msgText = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(subscriptionMessageText ?? ""));
         var type = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(subscriptionMessageType));
         if (window.Swal) {
-            Swal.fire({ icon: type, title: msg, confirmButtonText: 'حسناً', confirmButtonColor: '#113464' });
+            Swal.fire({ icon: type, title: msg, text: msgText, confirmButtonText: 'حسناً', confirmButtonColor: '#113464' });
         } else {
-            alert(msg);
+            alert(msg + (msgText ? "\n" + msgText : ""));
         }
     })();
         </text>
@@ -1553,28 +1544,85 @@
             var currentFilter = "all";
             var oldFocus = null;
 
-            // اختبار (وظيفة) المحاضرة: يُتاح بعد إتمام المشاهدة المطلوبة (مسجلة) أو تسجيل الدخول إليها (مباشرة)، ويختفي بعد اجتيازه.
-            // الخادم يتحقق من الاشتراك عند فتح صفحة الحل (Students/AssignmentQuestion) وعند تسليم الإجابات.
-            var assignmentUrlBase = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Url.Action("AssignmentQuestion", "Students")));
+            // زر «الاختبار» يظهر بجانب المحاضرة (مسجلة أو مباشرة، حضرها الطالب أم لا) فقط عندما أضاف المدرس لها اختباراً بأسئلة
+            // (الخادم يرسل data-assign-id عندئذٍ فقط). الاختبار مستقل عن الحضور: القرار يصدره الخادم عند الضغط
+            // (Students/CheckLectureExamAccess) من قاعدة البيانات (الاشتراك، وجود الاختبار بأسئلته، واجتياز سابق)
+            // فيُنقل الطالب إلى صفحة الحل أو تظهر له رسالة عربية بالسبب. data-time-end للشارات فقط، لا لتقرير الصلاحية.
+            var examCheckUrl = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Url.Action("CheckLectureExamAccess", "Students")));
+            var loginUrl = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Url.Action("LogIn", "Home")));
             function hasExam(lec) { return !!lec && lec.assignId > 0; }
-            function canTakeExam(lec) { return hasExam(lec) && !lec.assignDone && lec.timeEnd; }
-            function examUrl(lec) { return assignmentUrlBase + "?A_Q=" + encodeURIComponent(lec.assignId); }
-            function examHint(lec) {
-                if (!hasExam(lec)) return "";
-                if (lec.assignDone) return "تم اجتياز اختبار المحاضرة";
-                if (lec.timeEnd) return "اختبار المحاضرة متاح الآن";
-                return lec.type === "1" ? "يُتاح اختبار المحاضرة بعد تسجيل دخولك إليها" : "يُتاح اختبار المحاضرة بعد إكمال مشاهدتها";
-            }
             function createExamButton(lec, label) {
-                var a = document.createElement("a");
-                a.href = examUrl(lec);
-                a.className = "sub-btn sub-btn-lecexam";
-                a.setAttribute("data-lecture-id", lec.id);
+                var b = document.createElement("button");
+                b.type = "button";
+                b.className = "sub-btn sub-btn-lecexam js-lec-exam";
+                b.setAttribute("data-lecture-id", lec.id);
+                b.title = "الدخول إلى اختبار المحاضرة";
                 var icon = document.createElement("i");
                 icon.className = "fas fa-file-alt";
-                a.appendChild(icon);
-                a.appendChild(document.createTextNode(" " + label));
-                return a;
+                b.appendChild(icon);
+                b.appendChild(document.createTextNode(" " + label));
+                return b;
+            }
+            function getAntiForgeryToken() {
+                var el = document.querySelector('input[name="__RequestVerificationToken"]');
+                return el ? el.value : "";
+            }
+            function postForm(url, data, callback) {
+                var parts = [];
+                for (var key in data) {
+                    if (Object.prototype.hasOwnProperty.call(data, key)) parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
+                }
+                var x = new XMLHttpRequest();
+                x.open("POST", url, true);
+                x.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                x.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                x.onload = function () {
+                    var json = null;
+                    try { json = JSON.parse(x.responseText); } catch (err) { }
+                    callback(x.status, json);
+                };
+                x.onerror = function () { callback(0, null); };
+                x.send(parts.join("&"));
+            }
+            function showExamVerdict(res) {
+                var icon = res && res.icon ? res.icon : "info";
+                var title = res && res.title ? res.title : "لا يمكن الدخول إلى الاختبار";
+                var text = res ? (res.message || res.response || "") : "";
+                if (window.Swal) {
+                    Swal.fire({ icon: icon, title: title, text: text, confirmButtonText: 'حسناً', confirmButtonColor: '#113464' });
+                } else {
+                    alert(title + (text ? "\n" + text : ""));
+                }
+            }
+            function setExamButtonsBusy(lectureId, busy) {
+                var buttons = document.querySelectorAll('.js-lec-exam[data-lecture-id="' + lectureId + '"]');
+                for (var i = 0; i < buttons.length; i++) buttons[i].disabled = busy;
+            }
+            // الضغط على «الاختبار»: الخادم يفحص الأهلية من قاعدة البيانات ويعيد رابط صفحة الحل أو سبب الرفض
+            function requestLectureExam(lectureId) {
+                var lec = allLecturesMap[String(lectureId)];
+                if (!lec) return;
+                var busyButtons = document.querySelectorAll('.js-lec-exam[data-lecture-id="' + lec.id + '"]');
+                if (busyButtons.length && busyButtons[0].disabled) return;
+                setExamButtonsBusy(lec.id, true);
+                postForm(examCheckUrl, { __RequestVerificationToken: getAntiForgeryToken(), lectureId: lec.id }, function (status, res) {
+                    if (status === 200 && res && res.success && res.allowed && res.url) {
+                        window.location.href = res.url; // الطالب مستوفٍ للشروط: صفحة حل الاختبار الحالية
+                        return;
+                    }
+                    setExamButtonsBusy(lec.id, false);
+                    if (res && res.requiresLogin) { window.location.href = loginUrl; return; }
+                    if (status === 200 && res && res.success) {
+                        if (res.code === "AlreadyPassed" && !lec.assignDone) { lec.assignDone = true; renderLectures(); renderModalExam(lec); }
+                        showExamVerdict(res);
+                        return;
+                    }
+                    showExamVerdict({
+                        icon: "error",
+                        title: "تعذر التحقق من إمكانية دخول الاختبار",
+                        message: res && res.response ? res.response : "حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة لاحقاً."
+                    });
+                });
             }
             function applyServerStatus(lec, status) {
                 if (!lec || !status) return false;
@@ -1681,13 +1729,6 @@
                         metaDiv.appendChild(docSpan);
                     }
 
-                    if (hasExam(lItem) && !lItem.assignDone) {
-                        var examSpan = document.createElement("span");
-                        examSpan.className = "sub-lec-exam-hint";
-                        examSpan.innerHTML = '<i class="fas fa-file-alt"></i> ' + examHint(lItem);
-                        metaDiv.appendChild(examSpan);
-                    }
-
                     mainDiv.appendChild(metaDiv);
                     row.appendChild(mainDiv);
 
@@ -1736,7 +1777,8 @@
                         actionsDiv.appendChild(docBtn);
                     }
 
-                    if (canTakeExam(lItem)) {
+                    // زر «الاختبار» يظهر فقط عندما أضاف المدرس اختباراً لهذا الدرس؛ الخادم يقرر عند الضغط (دخول أو رسالة بالسبب)
+                    if (hasExam(lItem)) {
                         actionsDiv.appendChild(createExamButton(lItem, "الاختبار"));
                     }
 
@@ -1866,24 +1908,17 @@
             // زر/تلميح اختبار المحاضرة داخل نافذة التفاصيل (يُعاد رسمه عند كل تحديث لحالة الحضور)
             function renderModalExam(lec) {
                 if (!modalActions || !lec) return;
-                var olds = modalActions.querySelectorAll(".sub-btn-lecexam, .sub-modal-exam-hint");
+                var olds = modalActions.querySelectorAll(".sub-btn-lecexam");
                 for (var i = 0; i < olds.length; i++) olds[i].parentNode.removeChild(olds[i]);
+                // زر «الاختبار» في نافذة التفاصيل أيضاً عند وجود اختبار للدرس فقط؛ القرار للخادم عند الضغط
                 if (!hasExam(lec)) return;
-                if (canTakeExam(lec)) {
-                    modalActions.appendChild(createExamButton(lec, "بدء اختبار المحاضرة" + (lec.assignName ? ": " + lec.assignName : "")));
-                } else if (!lec.assignDone) {
-                    var hint = document.createElement("p");
-                    hint.className = "sub-modal-exam-hint";
-                    hint.innerHTML = '<i class="fas fa-lock"></i> ' + examHint(lec);
-                    modalActions.appendChild(hint);
-                }
+                modalActions.appendChild(createExamButton(lec, "الاختبار" + (lec.assignName ? ": " + lec.assignName : "")));
             }
 
             function applyAttendanceStatus(lec, status) {
                 renderAttendance(status);
                 if (!lec || !status) return;
                 var wasFinished = lec.isFinish;
-                var couldTakeExam = canTakeExam(lec);
                 if (applyServerStatus(lec, status)) {
                     renderLectures();
                     renderModalExam(lec);
@@ -1893,8 +1928,6 @@
                     if (window.Swal) {
                         Swal.fire({ toast: true, position: 'top', icon: 'success', title: 'تم احتساب حضور المحاضرة', showConfirmButton: false, timer: 3500 });
                     }
-                } else if (canTakeExam(lec) && !couldTakeExam && window.Swal) {
-                    Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'أصبح اختبار المحاضرة متاحاً', showConfirmButton: false, timer: 4000 });
                 }
             }
 
@@ -2002,6 +2035,14 @@
                     if (playId && allLecturesMap[playId]) {
                         openLectureModal(allLecturesMap[playId], true);
                     }
+                    return;
+                }
+
+                // زر «الاختبار» (في البطاقة أو نافذة التفاصيل): فحص الأهلية من الخادم ثم الدخول أو عرض السبب
+                var examTarget = e.target.closest(".js-lec-exam");
+                if (examTarget) {
+                    e.preventDefault();
+                    requestLectureExam(examTarget.getAttribute("data-lecture-id"));
                     return;
                 }
 

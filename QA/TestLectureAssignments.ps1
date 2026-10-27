@@ -11,7 +11,10 @@
 #   [3] اختبار المحاضرة المباشرة يُتاح بعد تسجيل الدخول إليها، واجتيازه يكمل المحاضرة.
 #   [4] حفظ وظيفة بأسئلة من بنك الأسئلة على محاضرة مباشرة عبر نقطتي الإدارة والمعلم الحقيقيتين (AssingQuestionToAssignment)،
 #       ثم ظهورها للطالب في "برامجي التعليمية" وإعادة أسئلتها كاملة له بعد دخول المحاضرة (2026-10-27).
-# يستخدم student01 (مسجل في الدورة 6) وينشئ محاضرات/وظائف باسم QA_ASG_* في الدورة 6 ثم يحذفها.
+#   [5] زر «الاختبار» يظهر دائماً للطالب والخادم يفحص الأهلية عند الضغط (Students/CheckLectureExamAccess). الاختبار مستقل عن
+#       الحضور (قرار المالك 2026-10-27): يُفتح في أي وقت لمشترك فعّال ما دام للدرس اختبار بأسئلة ولم يجتزه؛ اجتيازه لا يكمل الدرس
+#       وحده (الاكتمال = حضور + اجتياز). المنع فقط: بلا اختبار/بلا أسئلة، اشتراك معلّق، اجتياز سابق، والرابط المباشر محمي مع CSRF.
+# يستخدم student01 (مسجل في الدورة 6 ومعلّق في الدورة 4) وينشئ محاضرات/وظائف باسم QA_ASG_* في الدورة 6 ثم يحذفها.
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
@@ -168,6 +171,34 @@ $LEC_SAVE = [int](Sql "SELECT ID FROM Lectures WHERE Lecture_Name='QA_ASG_LIVE_S
 $LEC_TSAVE = [int](Sql "SELECT ID FROM Lectures WHERE Lecture_Name='QA_ASG_LIVE_TSAVE';")
 if ($LEC_SAVE -eq 0 -or $LEC_TSAVE -eq 0) { throw "Fixture creation failed (QA_ASG_LIVE_SAVE / QA_ASG_LIVE_TSAVE)" }
 
+# الاختبار لا يُعدّ متاحاً بلا أسئلة (الخادم يرفضه): تُربط أسئلة من بنك الدورة بالوظائف الجاهزة
+$Q_TF = [int](Sql "SELECT ISNULL(MIN(ID),0) FROM Questions WHERE Category_ID=$CAT AND Type=1;")
+$Q_MC = [int](Sql "SELECT ISNULL(MIN(ID),0) FROM Questions WHERE Category_ID=$CAT AND Type=2;")
+if ($Q_TF -eq 0 -or $Q_MC -eq 0) { throw "Need a true/false and a multiple-choice bank question in category $CAT" }
+$null = Sql "INSERT INTO Assignment_Q (Q_ID, Assignment_ID) VALUES ($Q_TF, $A_REC), ($Q_TF, $A_LIVE);"
+
+# محاضرات/وظائف سيناريوهات زر «الاختبار» (القسم [8]): مباشرة الآن، مباشرة انتهى موعدها قبل 4 ساعات، مسجلة، بلا وظيفة، وظيفة بلا أسئلة
+$oldStr = (Get-Date).AddHours(-4).ToString("yyyy-MM-dd HH:mm:ss")
+$null = Sql "INSERT INTO Lectures (Category_ID, Lecture_Name, LectureTypeOnOff, DayandTime, LectureLink_Client, LectureLink_Host, LectureMinTime) VALUES ($CAT, 'QA_ASG_EX_LIVE', '1', '$nowStr', 'https://meet.google.com/qa-asg-exlive', '', '0');"
+$null = Sql "INSERT INTO Lectures (Category_ID, Lecture_Name, LectureTypeOnOff, DayandTime, LectureLink_Client, LectureLink_Host, LectureMinTime) VALUES ($CAT, 'QA_ASG_EX_LIVE_OLD', '1', '$oldStr', 'https://meet.google.com/qa-asg-exold', '', '0');"
+$null = Sql "INSERT INTO Lectures (Category_ID, Lecture_Name, LectureTypeOnOff, DayandTime, LectureLink_Client, LectureLink_Host, LectureMinTime) VALUES ($CAT, 'QA_ASG_EX_REC', '0', '', 'https://www.youtube.com/watch?v=qa_asg_exrec', '', '1');"
+$null = Sql "INSERT INTO Lectures (Category_ID, Lecture_Name, LectureTypeOnOff, DayandTime, LectureLink_Client, LectureLink_Host, LectureMinTime) VALUES ($CAT, 'QA_ASG_EX_NOASG', '0', '', 'https://www.youtube.com/watch?v=qa_asg_exno', '', '1');"
+$null = Sql "INSERT INTO Lectures (Category_ID, Lecture_Name, LectureTypeOnOff, DayandTime, LectureLink_Client, LectureLink_Host, LectureMinTime) VALUES ($CAT, 'QA_ASG_EX_NOQ', '0', '', 'https://www.youtube.com/watch?v=qa_asg_exnoq', '', '1');"
+$LEC_EX_LIVE = [int](Sql "SELECT ID FROM Lectures WHERE Lecture_Name='QA_ASG_EX_LIVE';")
+$LEC_EX_LIVE_OLD = [int](Sql "SELECT ID FROM Lectures WHERE Lecture_Name='QA_ASG_EX_LIVE_OLD';")
+$LEC_EX_REC = [int](Sql "SELECT ID FROM Lectures WHERE Lecture_Name='QA_ASG_EX_REC';")
+$LEC_EX_NOASG = [int](Sql "SELECT ID FROM Lectures WHERE Lecture_Name='QA_ASG_EX_NOASG';")
+$LEC_EX_NOQ = [int](Sql "SELECT ID FROM Lectures WHERE Lecture_Name='QA_ASG_EX_NOQ';")
+if ($LEC_EX_LIVE -eq 0 -or $LEC_EX_LIVE_OLD -eq 0 -or $LEC_EX_REC -eq 0 -or $LEC_EX_NOASG -eq 0 -or $LEC_EX_NOQ -eq 0) { throw "Fixture creation failed (QA_ASG_EX_*)" }
+$null = Sql "INSERT INTO Assignments (Name, Description, Lecture_ID, Assignmet_Degry, Assignmet_degry_Win) VALUES ('QA_ASG_A_EX_LIVE', 'QA', $LEC_EX_LIVE, 10, 1), ('QA_ASG_A_EX_LIVE_OLD', 'QA', $LEC_EX_LIVE_OLD, 10, 1), ('QA_ASG_A_EX_REC', 'QA', $LEC_EX_REC, 10, 1), ('QA_ASG_A_EX_NOQ', 'QA', $LEC_EX_NOQ, 10, 1);"
+$A_EX_LIVE = [int](Sql "SELECT ID FROM Assignments WHERE Name='QA_ASG_A_EX_LIVE';")
+$A_EX_LIVE_OLD = [int](Sql "SELECT ID FROM Assignments WHERE Name='QA_ASG_A_EX_LIVE_OLD';")
+$A_EX_REC = [int](Sql "SELECT ID FROM Assignments WHERE Name='QA_ASG_A_EX_REC';")
+$A_EX_NOQ = [int](Sql "SELECT ID FROM Assignments WHERE Name='QA_ASG_A_EX_NOQ';")
+if ($A_EX_LIVE -eq 0 -or $A_EX_LIVE_OLD -eq 0 -or $A_EX_REC -eq 0 -or $A_EX_NOQ -eq 0) { throw "Fixture creation failed (QA_ASG_A_EX_*)" }
+$null = Sql "INSERT INTO Assignment_Q (Q_ID, Assignment_ID) VALUES ($Q_TF, $A_EX_LIVE), ($Q_MC, $A_EX_LIVE), ($Q_TF, $A_EX_LIVE_OLD), ($Q_TF, $A_EX_REC);"
+Write-Host "Exam fixtures: exLive=$LEC_EX_LIVE exOld=$LEC_EX_LIVE_OLD exRec=$LEC_EX_REC noAsg=$LEC_EX_NOASG noQ=$LEC_EX_NOQ"
+
 $stdToken = Get-VerificationToken -Session $std -Url "$BaseUrl/Students/CategoriesStd"
 if (-not $stdToken) { throw "Student token not found on CategoriesStd" }
 $pageUrl = "$BaseUrl/Students/CategoriesStd"
@@ -176,20 +207,20 @@ Write-Host "`n[3] Student programs page exposes lecture assignments" -Foreground
 $page = Invoke-Get -Session $std -Url $pageUrl
 $a = Get-LectureAttrs -Html $page.Raw -LectureId $LEC_REC
 $pass = $a -and ($a.Type -eq "0") -and ($a.AssignId -eq "$A_REC") -and ($a.AssignName -eq "QA_ASG_A_REC") -and ($a.TimeEnd -eq "0") -and ($a.AssignDone -eq "0") -and ($a.IsFinish -eq "0")
-Record-Test -TestId "ST-01" -Description "محاضرة مسجلة ذات وظيفة: الصفحة ترسل معرّف الوظيفة واسمها (قبل المشاهدة: الاختبار غير متاح بعد)" -Passed $pass -Details "attrs=$($a | ConvertTo-Json -Compress)"
+Record-Test -TestId "ST-01" -Description "محاضرة مسجلة ذات وظيفة: الصفحة ترسل معرّف الوظيفة واسمها وحالة الحضور (للشارات فقط)" -Passed $pass -Details "attrs=$($a | ConvertTo-Json -Compress)"
 
 $a = Get-LectureAttrs -Html $page.Raw -LectureId $LEC_LIVE
 $pass = $a -and ($a.Type -eq "1") -and ($a.AssignId -eq "$A_LIVE") -and ($a.TimeEnd -eq "0") -and ($a.AssignDone -eq "0")
-Record-Test -TestId "ST-02" -Description "محاضرة مباشرة ذات وظيفة: الصفحة ترسل معرّف الوظيفة (قبل الدخول: الاختبار غير متاح بعد)" -Passed $pass -Details "attrs=$($a | ConvertTo-Json -Compress)"
+Record-Test -TestId "ST-02" -Description "محاضرة مباشرة ذات وظيفة: الصفحة ترسل معرّف الوظيفة وحالة الحضور (للشارات فقط)" -Passed $pass -Details "attrs=$($a | ConvertTo-Json -Compress)"
 
 $a = Get-LectureAttrs -Html $page.Raw -LectureId $LEC_LIVE2
 $pass = $a -and ($a.AssignId -eq "0")
 Record-Test -TestId "ST-03" -Description "محاضرة مباشرة بلا وظيفة: assign-id = 0" -Passed $pass -Details "attrs=$($a | ConvertTo-Json -Compress)"
 
-$pass = ($page.Raw -match 'sub-btn-lecexam') -and ($page.Raw -match 'tabseet:livejoined') -and ($page.Raw -match 'canTakeExam') -and ($page.Raw -match '/Students/AssignmentQuestion')
-Record-Test -TestId "ST-04" -Description "سكربت الصفحة يحوي زر الاختبار، شرط الإتاحة، ومستمع دخول المحاضرة المباشرة" -Passed $pass -Details "len=$($page.Raw.Length)"
+$pass = ($page.Raw -match 'sub-btn-lecexam') -and ($page.Raw -match 'tabseet:livejoined') -and ($page.Raw -match 'js-lec-exam') -and ($page.Raw -match '/Students/CheckLectureExamAccess') -and ($page.Raw -match 'requestLectureExam')
+Record-Test -TestId "ST-04" -Description "سكربت الصفحة يحوي زر «الاختبار» الدائم، طلب فحص الأهلية من الخادم، ومستمع دخول المحاضرة المباشرة" -Passed $pass -Details "len=$($page.Raw.Length)"
 
-Write-Host "`n[4] Live lecture: exam available after joining; passing it completes the lecture" -ForegroundColor Yellow
+Write-Host "`n[4] Live lecture: joining marks attendance; passing the exam then completes the lecture" -ForegroundColor Yellow
 $joinUrl = "$BaseUrl/Students/JoinLiveLecture"
 $submitUrl = "$BaseUrl/Students/SubmetQuestion"
 $r = Invoke-Post -Session $std -Url $joinUrl -Body @{ "__RequestVerificationToken" = $stdToken; lectureId = $LEC_LIVE }
@@ -203,13 +234,13 @@ Record-Test -TestId "LV-02" -Description "قاعدة البيانات: صف ال
 $page = Invoke-Get -Session $std -Url $pageUrl
 $a = Get-LectureAttrs -Html $page.Raw -LectureId $LEC_LIVE
 $pass = $a -and ($a.TimeEnd -eq "1") -and ($a.AssignDone -eq "0") -and ($a.IsFinish -eq "0") -and ($a.AssignId -eq "$A_LIVE")
-Record-Test -TestId "LV-03" -Description "بعد الدخول: الصفحة ترسل time-end=1 → زر اختبار المحاضرة المباشرة يظهر" -Passed $pass -Details "attrs=$($a | ConvertTo-Json -Compress)"
+Record-Test -TestId "LV-03" -Description "بعد الدخول: الصفحة ترسل time-end=1 (حالة الحضور للشارات)" -Passed $pass -Details "attrs=$($a | ConvertTo-Json -Compress)"
 
 $r = Invoke-Get -Session $std -Url "$BaseUrl/Students/AssignmentQuestion?A_Q=$A_LIVE"
 $pass = ($r.Status -eq 200) -and ($r.Raw -match 'GetAssignmentQuestion')
 Record-Test -TestId "LV-04" -Description "صفحة حل وظيفة المحاضرة المباشرة تفتح للطالب" -Passed $pass -Details "status=$($r.Status) len=$($r.Raw.Length)"
 
-$r = Invoke-Post -Session $std -Url $submitUrl -Body "L_Degry=5&ass_ID=$A_LIVE" -ContentType "application/x-www-form-urlencoded"
+$r = Invoke-Post -Session $std -Url $submitUrl -Body @{ "__RequestVerificationToken" = $stdToken; L_Degry = 5; ass_ID = $A_LIVE }
 $pass = ($r.Status -eq 200) -and ($r.Json.success -eq $true)
 Record-Test -TestId "LV-05" -Description "تسليم وظيفة المباشرة بدرجة نجاح → success" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw)"
 
@@ -226,7 +257,7 @@ $r = Invoke-Post -Session $std -Url $joinUrl -Body @{ "__RequestVerificationToke
 $pass = ($r.Status -eq 200) -and $r.Json.success -and $r.Json.status.isFinish -and (-not $r.Json.status.hasAssignment)
 Record-Test -TestId "LV-08" -Description "محاضرة مباشرة بلا وظيفة: تكتمل بمجرد الدخول (السلوك السابق بلا تغيير)" -Passed $pass -Details "resp=$($r.Raw)"
 
-Write-Host "`n[5] Recorded lecture: exam available after required watch time" -ForegroundColor Yellow
+Write-Host "`n[5] Recorded lecture: required watch time marks attendance; passing the exam then completes the lecture" -ForegroundColor Yellow
 $startUrl = "$BaseUrl/Students/StartLecture"
 $hbUrl = "$BaseUrl/Students/LectureHeartbeat"
 $r = Invoke-Post -Session $std -Url $startUrl -Body @{ "__RequestVerificationToken" = $stdToken; lectureId = $LEC_REC; durationSeconds = 3600 }
@@ -238,14 +269,14 @@ Record-Test -TestId "RC-01" -Description "إكمال مشاهدة مسجلة ذ�
 $page = Invoke-Get -Session $std -Url $pageUrl
 $a = Get-LectureAttrs -Html $page.Raw -LectureId $LEC_REC
 $pass = $a -and ($a.TimeEnd -eq "1") -and ($a.AssignDone -eq "0") -and ($a.IsFinish -eq "0")
-Record-Test -TestId "RC-02" -Description "بعد المشاهدة: الصفحة ترسل time-end=1 → زر الاختبار يظهر للمسجلة" -Passed $pass -Details "attrs=$($a | ConvertTo-Json -Compress)"
+Record-Test -TestId "RC-02" -Description "بعد المشاهدة: الصفحة ترسل time-end=1 (حالة الحضور للشارات)" -Passed $pass -Details "attrs=$($a | ConvertTo-Json -Compress)"
 
-$r = Invoke-Post -Session $std -Url $submitUrl -Body "L_Degry=0&ass_ID=$A_REC" -ContentType "application/x-www-form-urlencoded"
+$r = Invoke-Post -Session $std -Url $submitUrl -Body @{ "__RequestVerificationToken" = $stdToken; L_Degry = 0; ass_ID = $A_REC }
 $row = Get-Row $student $LEC_REC
 $pass = ($r.Status -eq 200) -and ($r.Json.success -eq $false) -and $row -and ($row.IsAssign -eq 0) -and ($row.IsFinish -eq 0)
 Record-Test -TestId "RC-03" -Description "رسوب في الوظيفة: لا يُسجَّل اجتياز ولا اكتمال" -Passed $pass -Details "resp=$($r.Raw) row=$($row | ConvertTo-Json -Compress)"
 
-$r = Invoke-Post -Session $std -Url $submitUrl -Body "L_Degry=5&ass_ID=$A_REC" -ContentType "application/x-www-form-urlencoded"
+$r = Invoke-Post -Session $std -Url $submitUrl -Body @{ "__RequestVerificationToken" = $stdToken; L_Degry = 5; ass_ID = $A_REC }
 $row = Get-Row $student $LEC_REC
 $pass = ($r.Status -eq 200) -and ($r.Json.success -eq $true) -and $row -and ($row.IsAssign -eq 1) -and ($row.IsFinish -eq 1)
 Record-Test -TestId "RC-04" -Description "اجتياز وظيفة المسجلة يكمل المحاضرة" -Passed $pass -Details "resp=$($r.Raw) row=$($row | ConvertTo-Json -Compress)"
@@ -319,7 +350,8 @@ $b = Get-LectureAttrs -Html $page.Raw -LectureId $LEC_TSAVE
 $pass = $a -and ($a.Type -eq "1") -and ($a.AssignId -eq "$A_SAVED") -and ($a.AssignName -eq "QA_ASG_A_SAVED") -and ($a.TimeEnd -eq "0") -and ($a.AssignDone -eq "0") -and $b -and ($b.AssignId -eq "$A_TSAVED") -and ($b.AssignName -eq "QA_ASG_A_TSAVED")
 Record-Test -TestId "SV-06" -Description "الطالب: الصفحة تعرض الوظيفتين المحفوظتين على المحاضرتين المباشرتين (قبل الدخول: الاختبار غير متاح بعد)" -Passed $pass -Details "a=$($a | ConvertTo-Json -Compress) b=$($b | ConvertTo-Json -Compress)"
 
-$r = Invoke-Post -Session $std -Url "$BaseUrl/Students/GetAssignmentQuestion" -Body @{ A_Q = $A_SAVED }
+# قبل دخول المحاضرة المباشرة: الاختبار مستقل عن الحضور فتُعاد الأسئلة كاملة
+$r = Invoke-Post -Session $std -Url "$BaseUrl/Students/GetAssignmentQuestion" -Body @{ "__RequestVerificationToken" = $stdToken; A_Q = $A_SAVED }
 $aqIds = @((Sql "SELECT ID FROM Assignment_Q WHERE Assignment_ID=$A_SAVED ORDER BY ID;") -split '\s+' | Where-Object { $_ } | ForEach-Object { [int]$_ })
 $items = @()
 if ($r.Json) { $items = @($r.Json) }
@@ -327,27 +359,184 @@ $retIds = @($items | ForEach-Object { [int]$_.ID })
 $tf = $items | Where-Object { [int]$_.Type -eq 1 } | Select-Object -First 1
 $mc = $items | Where-Object { [int]$_.Type -eq 2 } | Select-Object -First 1
 $pass = ($r.Status -eq 200) -and ($items.Count -eq 2) -and ($aqIds.Count -eq 2) -and ($retIds -contains $aqIds[0]) -and ($retIds -contains $aqIds[1]) -and $tf -and $mc -and (-not [string]::IsNullOrWhiteSpace($tf.Q_Name)) -and ($null -ne $tf.Q_TrueOrFalse) -and (@($mc.Q_MultiChoice).Count -gt 0)
-Record-Test -TestId "SV-07" -Description "الطالب: أسئلة الوظيفة المحفوظة تُعاد كاملة (صح/خطأ + اختيار من متعدد بخياراته) من GetAssignmentQuestion" -Passed $pass -Details "status=$($r.Status) count=$($items.Count) ids=$($retIds -join ',') expected=$($aqIds -join ',')"
+Record-Test -TestId "SV-07" -Description "الطالب: أسئلة الوظيفة المحفوظة تُعاد كاملة قبل دخول المحاضرة المباشرة (صح/خطأ + اختيار من متعدد بخياراته)" -Passed $pass -Details "status=$($r.Status) count=$($items.Count) ids=$($retIds -join ',') expected=$($aqIds -join ',')"
 
 $r = Invoke-Post -Session $std -Url $joinUrl -Body @{ "__RequestVerificationToken" = $stdToken; lectureId = $LEC_SAVE }
 $pass = ($r.Status -eq 200) -and $r.Json.success -and $r.Json.status.isTimeEnd -and $r.Json.status.hasAssignment -and (-not $r.Json.status.isAssignmentFinish) -and (-not $r.Json.status.isFinish)
 Record-Test -TestId "SV-08" -Description "الطالب: بعد دخول المحاضرة المباشرة يصبح اختبارها المحفوظ متاحاً (isTimeEnd=1, hasAssignment=1) والاكتمال معلّق عليه" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw)"
 
+$r = Invoke-Post -Session $std -Url "$BaseUrl/Students/GetAssignmentQuestion" -Body @{ "__RequestVerificationToken" = $stdToken; A_Q = $A_SAVED }
+$pass = ($r.Status -eq 200) -and (@($r.Json).Count -eq 2)
+Record-Test -TestId "SV-08b" -Description "الطالب: بعد الدخول ما زالت الأسئلة تُعاد كاملة من GetAssignmentQuestion" -Passed $pass -Details "status=$($r.Status) count=$(@($r.Json).Count)"
+
 $page = Invoke-Get -Session $std -Url $pageUrl
 $a = Get-LectureAttrs -Html $page.Raw -LectureId $LEC_SAVE
 $pass = $a -and ($a.TimeEnd -eq "1") -and ($a.AssignDone -eq "0") -and ($a.AssignId -eq "$A_SAVED")
-Record-Test -TestId "SV-09" -Description "الطالب: الصفحة ترسل time-end=1 مع معرّف الوظيفة → زر «الاختبار» يظهر للمحاضرة المباشرة" -Passed $pass -Details "attrs=$($a | ConvertTo-Json -Compress)"
+Record-Test -TestId "SV-09" -Description "الطالب: الصفحة ترسل time-end=1 مع معرّف الوظيفة بعد الدخول (شارات الحضور)" -Passed $pass -Details "attrs=$($a | ConvertTo-Json -Compress)"
 
 $r = Invoke-Get -Session $std -Url "$BaseUrl/Students/AssignmentQuestion?A_Q=$A_SAVED"
 $pass = ($r.Status -eq 200) -and ($r.Raw -match 'GetAssignmentQuestion') -and ($r.Raw -notmatch 'Server Error')
 Record-Test -TestId "SV-10" -Description "الطالب: صفحة حل الوظيفة المحفوظة تفتح" -Passed $pass -Details "status=$($r.Status) len=$($r.Raw.Length)"
 
-$r = Invoke-Post -Session $std -Url $submitUrl -Body "L_Degry=5&ass_ID=$A_SAVED" -ContentType "application/x-www-form-urlencoded"
+$r = Invoke-Post -Session $std -Url $submitUrl -Body @{ "__RequestVerificationToken" = $stdToken; L_Degry = 5; ass_ID = $A_SAVED }
 $row = Get-Row $student $LEC_SAVE
 $pass = ($r.Status -eq 200) -and ($r.Json.success -eq $true) -and $row -and ($row.IsAssign -eq 1) -and ($row.IsFinish -eq 1)
 Record-Test -TestId "SV-11" -Description "الطالب: اجتياز الوظيفة المحفوظة يكمل المحاضرة المباشرة" -Passed $pass -Details "resp=$($r.Raw) row=$($row | ConvertTo-Json -Compress)"
 
-Write-Host "`n[7] Cleanup" -ForegroundColor Yellow
+Write-Host "`n[8] Exam button: exam independent of attendance (CheckLectureExamAccess) + remaining server rules on direct URLs" -ForegroundColor Yellow
+$checkUrl = "$BaseUrl/Students/CheckLectureExamAccess"
+$getQUrl = "$BaseUrl/Students/GetAssignmentQuestion"
+$examPageUrl = "$BaseUrl/Students/AssignmentQuestion"
+function Check-Exam { param($Session, [int]$LectureId, [string]$Token) return Invoke-Post -Session $Session -Url $checkUrl -Body @{ "__RequestVerificationToken" = $Token; lectureId = $LectureId } }
+
+$page = Invoke-Get -Session $std -Url $pageUrl
+$a = Get-LectureAttrs -Html $page.Raw -LectureId $LEC_EX_NOASG
+$b = Get-LectureAttrs -Html $page.Raw -LectureId $LEC_EX_NOQ
+$c = Get-LectureAttrs -Html $page.Raw -LectureId $LEC_EX_LIVE
+$pass = $a -and ($a.AssignId -eq "0") -and $b -and ($b.AssignId -eq "0") -and $c -and ($c.AssignId -eq "$A_EX_LIVE") -and ($c.TimeEnd -eq "0") -and ($page.Raw -match 'if \(hasExam\(lItem\)\) \{\s*actionsDiv\.appendChild\(createExamButton\(lItem, "الاختبار"\)\);') -and ($page.Raw -match 'if \(!hasExam\(lec\)\) return;\s*modalActions\.appendChild\(createExamButton\(lec') -and ($page.Raw -notmatch 'canTakeExam') -and ($page.Raw -notmatch 'sub-lec-exam-hint') -and ($page.Raw -notmatch 'يُتاح اختبار المحاضرة بعد') -and ($page.Raw -match 'closest\("\.js-lec-exam"\)')
+Record-Test -TestId "EX-01" -Description "زر «الاختبار» يُرسم (بطاقة + تفاصيل) فقط للدرس الذي له اختبار بأسئلة: بلا اختبار وبلا أسئلة assign-id=0، ومع اختبار يُرسل معرّفه دون شرط حضور" -Passed $pass -Details "noAsg=$($a.AssignId) noQ=$($b.AssignId) live=$($c.AssignId)"
+
+$r = Check-Exam $std $LEC_EX_NOASG $stdToken
+$pass = ($r.Status -eq 200) -and ($r.Json.success -eq $true) -and ($r.Json.allowed -eq $false) -and ($r.Json.code -eq "NoAssignment") -and ($r.Json.title -eq "الاختبار غير متاح بعد") -and (-not $r.Json.url)
+Record-Test -TestId "EX-02" -Description "درس بلا اختبار → «الاختبار غير متاح بعد» (لم يقم المدرس بإضافة اختبار)" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw)"
+
+$r = Check-Exam $std $LEC_EX_NOQ $stdToken
+$pass = ($r.Status -eq 200) -and ($r.Json.allowed -eq $false) -and ($r.Json.code -eq "NoQuestions") -and ($r.Json.title -eq "الاختبار غير متاح بعد")
+Record-Test -TestId "EX-03" -Description "وظيفة محفوظة بلا أسئلة → «الاختبار غير متاح بعد» (لا تُفتح صفحة حل فارغة)" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw)"
+
+$r = Check-Exam $std $LEC_EX_LIVE $stdToken
+$row = Get-Row $student $LEC_EX_LIVE
+$pass = ($r.Status -eq 200) -and ($r.Json.allowed -eq $true) -and ($r.Json.code -eq "Allowed") -and ($r.Json.assignmentId -eq $A_EX_LIVE) -and ($r.Json.url -match "AssignmentQuestion\?A_Q=$A_EX_LIVE$") -and (-not $row)
+Record-Test -TestId "EX-04" -Description "درس مباشر له اختبار ولم يحضره الطالب (لا صف حضور) → مسموح بالدخول: الاختبار مستقل عن الحضور" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw) row=$($row | ConvertTo-Json -Compress)"
+
+$r = Invoke-Get -Session $std -Url "$examPageUrl`?A_Q=$A_EX_LIVE"
+$r2 = Invoke-Post -Session $std -Url $getQUrl -Body @{ "__RequestVerificationToken" = $stdToken; A_Q = $A_EX_LIVE }
+$pass = ($r.Status -eq 200) -and ($r.Raw -match 'GetAssignmentQuestion') -and ($r.Raw -notmatch 'Server Error') -and ($r2.Status -eq 200) -and (@($r2.Json).Count -eq 2)
+Record-Test -TestId "EX-05" -Description "صفحة الحل تفتح وتُعاد الأسئلة دون أي حضور" -Passed $pass -Details "page=$($r.Status) api=$($r2.Status) q=$(@($r2.Json).Count)"
+
+$p = Invoke-Get -Session $std -Url "$examPageUrl`?A_Q=$A_EX_NOQ" -NoRedirect
+$r2 = Invoke-Post -Session $std -Url $getQUrl -Body @{ "__RequestVerificationToken" = $stdToken; A_Q = $A_EX_NOQ }
+$r3 = Invoke-Post -Session $std -Url $submitUrl -Body @{ "__RequestVerificationToken" = $stdToken; L_Degry = 5; ass_ID = $A_EX_NOQ }
+$row = Get-Row $student $LEC_EX_NOQ
+$pass = ($p.Status -eq 302) -and ($p.Location -match 'CategoriesStd') -and ($r2.Status -eq 403) -and ($r2.Json.code -eq "NoQuestions") -and ($r2.Raw -notmatch 'Q_Text') -and ($r3.Status -eq 403) -and ((-not $row) -or ($row.IsAssign -eq 0))
+Record-Test -TestId "EX-06" -Description "اختبار بلا أسئلة بالرابط المباشر: صفحة الحل تُحوَّل (302) وجلب الأسئلة والتسليم مرفوضان (403) بلا تسجيل اجتياز" -Passed $pass -Details "page=$($p.Status) get=$($r2.Status) submit=$($r3.Status)"
+
+# كما يفعل المتصفح: طلب الرابط المباشر (302) ثم فتح الصفحة المحوَّل إليها في الجلسة نفسها (PowerShell لا يتابع هذا التحويل تلقائياً)
+$null = Invoke-Get -Session $std -Url "$examPageUrl`?A_Q=$A_EX_NOQ" -NoRedirect
+$page = Invoke-Get -Session $std -Url $pageUrl
+$pass = ($page.Status -eq 200) -and ($page.Raw -match 'الاختبار غير متاح بعد') -and ($page.Raw -match 'أسئلة لهذا الاختبار')
+Record-Test -TestId "EX-07" -Description "بعد التحويل تعرض صفحة برامجي التعليمية سبب المنع للطالب (رسالة SweetAlert)" -Passed $pass -Details "status=$($page.Status)"
+
+$r = Invoke-Post -Session $std -Url $submitUrl -Body @{ "__RequestVerificationToken" = $stdToken; L_Degry = 5; ass_ID = $A_EX_LIVE }
+$row = Get-Row $student $LEC_EX_LIVE
+$pass = ($r.Status -eq 200) -and ($r.Json.success -eq $true) -and $row -and ($row.IsAssign -eq 1) -and ($row.IsTimeEnd -eq 0) -and ($row.IsFinish -eq 0)
+Record-Test -TestId "EX-08" -Description "اجتياز اختبار المباشرة دون حضور → يُسجَّل الاجتياز (IsAssingmetFinish=1) ويبقى الدرس غير مكتمل (IsFinish=0)" -Passed $pass -Details "resp=$($r.Raw) row=$($row | ConvertTo-Json -Compress)"
+
+$r2 = Check-Exam $std $LEC_EX_LIVE $stdToken
+$pass = ($r2.Status -eq 200) -and ($r2.Json.allowed -eq $false) -and ($r2.Json.code -eq "AlreadyPassed") -and ($r2.Json.title -eq "تم اجتياز الاختبار بنجاح") -and ($r2.Json.icon -eq "success")
+Record-Test -TestId "EX-09" -Description "بعد الاجتياز → حالة النجاح «تم اجتياز الاختبار بنجاح»" -Passed $pass -Details "check=$($r2.Raw)"
+
+$r = Invoke-Get -Session $std -Url "$examPageUrl`?A_Q=$A_EX_LIVE" -NoRedirect
+$r2 = Invoke-Post -Session $std -Url $submitUrl -Body @{ "__RequestVerificationToken" = $stdToken; L_Degry = 5; ass_ID = $A_EX_LIVE }
+$pass = ($r.Status -eq 302) -and ($r2.Status -eq 403) -and ($r2.Json.code -eq "AlreadyPassed")
+Record-Test -TestId "EX-10" -Description "بعد الاجتياز: الرابط المباشر يُحوَّل وإعادة التسليم تُرفض (403)" -Passed $pass -Details "page=$($r.Status) submit=$($r2.Status)"
+
+$r = Invoke-Post -Session $std -Url $joinUrl -Body @{ "__RequestVerificationToken" = $stdToken; lectureId = $LEC_EX_LIVE }
+$row = Get-Row $student $LEC_EX_LIVE
+$pass = ($r.Status -eq 200) -and ($r.Json.success -eq $true) -and $row -and ($row.IsTimeEnd -eq 1) -and ($row.IsAssign -eq 1) -and ($row.IsFinish -eq 1)
+Record-Test -TestId "EX-11" -Description "تسجيل الحضور بعد الاجتياز يكمل الدرس (قاعدة الاكتمال: حضور + اجتياز لم تتغير)" -Passed $pass -Details "resp=$($r.Raw) row=$($row | ConvertTo-Json -Compress)"
+
+$r = Check-Exam $std $LEC_EX_LIVE_OLD $stdToken
+$pass = ($r.Status -eq 200) -and ($r.Json.allowed -eq $true) -and ($r.Json.code -eq "Allowed") -and ($r.Json.assignmentId -eq $A_EX_LIVE_OLD)
+Record-Test -TestId "EX-12" -Description "درس مباشر انتهى موعده (قبل 4 ساعات) ولم يحضره الطالب → الاختبار متاح" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw)"
+
+$r = Invoke-Post -Session $std -Url $joinUrl -Body @{ "__RequestVerificationToken" = $stdToken; lectureId = $LEC_EX_LIVE_OLD }
+$r2 = Check-Exam $std $LEC_EX_LIVE_OLD $stdToken
+$pass = ($r.Status -eq 200) -and ($r.Json.success -eq $false) -and ($r2.Json.allowed -eq $true)
+Record-Test -TestId "EX-13" -Description "تسجيل الحضور خارج الموعد ما زال مرفوضاً (نظام الحضور لم يتغير) والاختبار متاح رغم ذلك" -Passed $pass -Details "join=$($r.Raw) check=$($r2.Raw)"
+
+$teacherToken = Get-VerificationToken -Session $teacher -Url "$BaseUrl/Teacher/LecturesByCategoryStudend?Cat_ID=$CAT&categoryName=QA"
+$m1 = Invoke-Post -Session $teacher -Url "$BaseUrl/Teacher/SetLectureAttendance" -Body @{ "__RequestVerificationToken" = $teacherToken; lectureId = $LEC_EX_LIVE_OLD; studentId = $student; attended = "true" }
+$c1 = Check-Exam $std $LEC_EX_LIVE_OLD $stdToken
+$m2 = Invoke-Post -Session $teacher -Url "$BaseUrl/Teacher/SetLectureAttendance" -Body @{ "__RequestVerificationToken" = $teacherToken; lectureId = $LEC_EX_LIVE_OLD; studentId = $student; attended = "false" }
+$c2 = Check-Exam $std $LEC_EX_LIVE_OLD $stdToken
+$pass = ($m1.Status -eq 200) -and ($m1.Json.success -eq $true) -and ($c1.Json.allowed -eq $true) -and ($m2.Status -eq 200) -and ($c2.Json.allowed -eq $true)
+Record-Test -TestId "EX-14" -Description "تسجيل المدرس للحضور أو إلغاؤه لا يغيّر إتاحة الاختبار (مستقل عن الحضور)" -Passed $pass -Details "mark=$($m1.Status)/$($m2.Status) check=$($c1.Json.code)/$($c2.Json.code)"
+
+$r = Check-Exam $std $LEC_EX_REC $stdToken
+$p = Invoke-Get -Session $std -Url "$examPageUrl`?A_Q=$A_EX_REC"
+$row = Get-Row $student $LEC_EX_REC
+$pass = ($r.Status -eq 200) -and ($r.Json.allowed -eq $true) -and ($r.Json.assignmentId -eq $A_EX_REC) -and ($p.Status -eq 200) -and ($p.Raw -match 'GetAssignmentQuestion') -and (-not $row)
+Record-Test -TestId "EX-15" -Description "درس مسجل لم تبدأ مشاهدته → الاختبار متاح وصفحة الحل تفتح" -Passed $pass -Details "check=$($r.Raw) page=$($p.Status)"
+
+$r = Invoke-Post -Session $std -Url $submitUrl -Body @{ "__RequestVerificationToken" = $stdToken; L_Degry = 5; ass_ID = $A_EX_REC }
+$row = Get-Row $student $LEC_EX_REC
+$pass = ($r.Status -eq 200) -and ($r.Json.success -eq $true) -and $row -and ($row.IsAssign -eq 1) -and ($row.IsTimeEnd -eq 0) -and ($row.IsFinish -eq 0)
+Record-Test -TestId "EX-16" -Description "اجتياز اختبار المسجلة دون مشاهدة → اجتياز مسجَّل والدرس غير مكتمل" -Passed $pass -Details "resp=$($r.Raw) row=$($row | ConvertTo-Json -Compress)"
+
+$r = Invoke-Post -Session $std -Url $startUrl -Body @{ "__RequestVerificationToken" = $stdToken; lectureId = $LEC_EX_REC; durationSeconds = 3600 }
+$null = Sql "UPDATE std_lecture SET LastHeartbeatAt = DATEADD(minute, -2, SYSUTCDATETIME()) WHERE Std_ID='$student' AND Lecture_ID=$LEC_EX_REC;"
+$r = Invoke-Post -Session $std -Url $hbUrl -Body @{ "__RequestVerificationToken" = $stdToken; lectureId = $LEC_EX_REC; playedSeconds = 60; durationSeconds = 3600 }
+$row = Get-Row $student $LEC_EX_REC
+$pass = ($r.Status -eq 200) -and ($r.Json.status.isTimeEnd -eq $true) -and ($r.Json.status.isFinish -eq $true) -and $row -and ($row.IsTimeEnd -eq 1) -and ($row.IsFinish -eq 1)
+Record-Test -TestId "EX-17" -Description "إكمال المشاهدة بعد الاجتياز يكمل الدرس المسجّل (IsFinish=1)" -Passed $pass -Details "hb=$($r.Raw) row=$($row | ConvertTo-Json -Compress)"
+
+$r = Invoke-Post -Session $std -Url $submitUrl -Body @{ "__RequestVerificationToken" = $stdToken; L_Degry = 5; ass_ID = $A_EX_REC }
+$r2 = Check-Exam $std $LEC_EX_REC $stdToken
+$pass = ($r.Status -eq 403) -and ($r.Json.code -eq "AlreadyPassed") -and ($r2.Json.allowed -eq $false) -and ($r2.Json.code -eq "AlreadyPassed")
+Record-Test -TestId "EX-18" -Description "درس مسجّل مُجتاز: إعادة التسليم مرفوضة (403 AlreadyPassed) والزر يعرض حالة النجاح" -Passed $pass -Details "submit=$($r.Status) check=$($r2.Json.code)"
+
+$PEND_CAT = 4
+$PEND_LEC = [int](Sql "SELECT ISNULL(MIN(ID),0) FROM Lectures WHERE Category_ID=$PEND_CAT;")
+$PEND_ASG = [int](Sql "SELECT ISNULL(MIN(ID),0) FROM Assignments WHERE Lecture_ID=$PEND_LEC;")
+$pendState = Sql "SELECT CAST(ISNULL(category_Ispayed,0) AS varchar) + '/' + CAST(ISNULL(std_category_Ispayed,0) AS varchar) FROM Std_Reg_Category WHERE Std_ID='$student' AND Category_ID=$PEND_CAT;"
+if ($PEND_LEC -gt 0 -and $PEND_ASG -gt 0 -and $pendState -eq "1/0") {
+    $r = Check-Exam $std $PEND_LEC $stdToken
+    $pass = ($r.Status -eq 200) -and ($r.Json.allowed -eq $false) -and ($r.Json.code -eq "SubscriptionPending") -and ($r.Json.title -eq "الاشتراك بانتظار الموافقة") -and ($r.Json.assignmentId -eq 0)
+    Record-Test -TestId "EX-19" -Description "اشتراك بانتظار موافقة الإدارة → رسالة واضحة دون كشف معرّف الاختبار" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw)"
+    $p = Invoke-Get -Session $std -Url "$examPageUrl`?A_Q=$PEND_ASG" -NoRedirect
+    $r2 = Invoke-Post -Session $std -Url $getQUrl -Body @{ "__RequestVerificationToken" = $stdToken; A_Q = $PEND_ASG }
+    $pass = ($p.Status -eq 302) -and ($r2.Status -eq 403) -and ($r2.Raw -notmatch 'Q_Text')
+    Record-Test -TestId "EX-20" -Description "الرابط المباشر وجلب الأسئلة للدورة المعلّقة مرفوضان" -Passed $pass -Details "page=$($p.Status) api=$($r2.Status)"
+} else {
+    Record-Test -TestId "EX-19" -Description "اشتراك معلّق (يحتاج student01 معلّقاً في الدورة 4 محلياً)" -Passed $false -Details "lec=$PEND_LEC asg=$PEND_ASG state=$pendState"
+    Record-Test -TestId "EX-20" -Description "الرابط المباشر للدورة المعلّقة (تخطّي: لا بيانات)" -Passed $false -Details "no fixture"
+}
+
+$r = Invoke-Post -Session $std -Url $checkUrl -Body @{ lectureId = $LEC_EX_REC }
+$pass = ($r.Status -ne 200) -and ($r.Raw -notmatch '"allowed"')
+Record-Test -TestId "EX-21" -Description "CheckLectureExamAccess بلا رمز الحماية من التزوير → مرفوض" -Passed $pass -Details "status=$($r.Status)"
+
+$anon2 = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+$anonToken = Get-VerificationToken -Session $anon2 -Url "$BaseUrl/Home/LogIn"
+$r = Invoke-Post -Session $anon2 -Url $checkUrl -Body @{ "__RequestVerificationToken" = $anonToken; lectureId = $LEC_EX_REC }
+$pass = ($r.Status -eq 403) -and ($r.Json.requiresLogin -eq $true)
+Record-Test -TestId "EX-22" -Description "زائر غير مسجّل الدخول → 403 requiresLogin" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw)"
+
+$r = Check-Exam $std 999999 $stdToken
+$pass = ($r.Status -eq 404) -and ($r.Json.success -eq $false)
+Record-Test -TestId "EX-23" -Description "درس غير موجود → 404 دون خطأ خادم" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw)"
+
+Write-Host "`n[9] Saving an assignment: lecture link and questions are validated (Teacher/ControlPanel AssingQuestionToAssignment)" -ForegroundColor Yellow
+$body = @{ Name = "QA_ASG_BAD_NOLEC"; Description = "QA"; Lecture_ID = 0; Assignmet_Degry = 10; Assignmet_degry_Win = 1; L_Assignment_Q = @(@{ Q_ID = $Q_TF }) } | ConvertTo-Json -Compress -Depth 4
+$r = Invoke-Post -Session $teacher -Url "$BaseUrl/Teacher/AssingQuestionToAssignment" -Body $body -ContentType "application/json; charset=utf-8"
+$cnt = [int](Sql "SELECT COUNT(*) FROM Assignments WHERE Name='QA_ASG_BAD_NOLEC';")
+$pass = ($r.Status -eq 400) -and ($r.Json.success -eq $false) -and ($r.Json.response -match 'المحاضرة المرتبطة') -and ($cnt -eq 0)
+Record-Test -TestId "TS-01" -Description "المعلم: حفظ وظيفة بلا محاضرة (Lecture_ID=0) → 400 برسالة واضحة ولا يُحفظ شيء" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw) rows=$cnt"
+
+$body = @{ Name = "QA_ASG_BAD_NOLEC2"; Description = "QA"; Lecture_ID = 999999; Assignmet_Degry = 10; Assignmet_degry_Win = 1; L_Assignment_Q = @(@{ Q_ID = $Q_TF }) } | ConvertTo-Json -Compress -Depth 4
+$r = Invoke-Post -Session $admin -Url "$BaseUrl/ControlPanel/AssingQuestionToAssignment" -Body $body -ContentType "application/json; charset=utf-8"
+$cnt = [int](Sql "SELECT COUNT(*) FROM Assignments WHERE Name='QA_ASG_BAD_NOLEC2';")
+$pass = ($r.Status -eq 400) -and ($r.Json.success -eq $false) -and ($r.Json.response -match 'المحاضرة المرتبطة') -and ($cnt -eq 0)
+Record-Test -TestId "TS-02" -Description "الإدارة: حفظ وظيفة على محاضرة غير موجودة → 400 ولا يُحفظ شيء" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw) rows=$cnt"
+
+$body = @{ Name = "QA_ASG_BAD_NOQ"; Description = "QA"; Lecture_ID = $LEC_EX_NOASG; Assignmet_Degry = 10; Assignmet_degry_Win = 1; L_Assignment_Q = @() } | ConvertTo-Json -Compress -Depth 4
+$r = Invoke-Post -Session $teacher -Url "$BaseUrl/Teacher/AssingQuestionToAssignment" -Body $body -ContentType "application/json; charset=utf-8"
+$cnt = [int](Sql "SELECT COUNT(*) FROM Assignments WHERE Name='QA_ASG_BAD_NOQ';")
+$pass = ($r.Status -eq 400) -and ($r.Json.success -eq $false) -and ($r.Json.response -match 'سؤال واحد على الأقل') -and ($cnt -eq 0)
+Record-Test -TestId "TS-03" -Description "المعلم: حفظ وظيفة بلا أسئلة → 400 «يجب إضافة سؤال واحد على الأقل»" -Passed $pass -Details "status=$($r.Status) resp=$($r.Raw) rows=$cnt"
+
+Write-Host "`n[10] Cleanup" -ForegroundColor Yellow
 $null = Sql "DELETE FROM std_lecture WHERE Lecture_ID IN (SELECT ID FROM Lectures WHERE Lecture_Name LIKE 'QA_ASG_%');"
 $null = Sql "DELETE FROM Assignment_Q WHERE Assignment_ID IN (SELECT ID FROM Assignments WHERE Name LIKE 'QA_ASG_%');"
 $null = Sql "DELETE FROM Assignments WHERE Name LIKE 'QA_ASG_%' OR Lecture_ID IN (SELECT ID FROM Lectures WHERE Lecture_Name LIKE 'QA_ASG_%');"
