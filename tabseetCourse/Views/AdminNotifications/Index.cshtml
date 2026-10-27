@@ -3,203 +3,154 @@
 @{
     ViewBag.Title = "إشعارات المدرسين";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var filter = Model.Filter;
+    // بعد "تحديد كمقروء" نعود إلى نفس التبويب والبحث والصفحة
+    string returnUrl = Request.RawUrl;
+    string emptyText = !string.IsNullOrWhiteSpace(filter.Search) ? "لا توجد نتائج مطابقة للبحث"
+        : filter.Status == "unread" ? "لا توجد إشعارات غير مقروءة"
+        : filter.Status == "read" ? "لا توجد إشعارات مقروءة"
+        : "لا توجد إشعارات بعد. ستظهر هنا تغييرات المدرسين على المحاضرات.";
 }
 
-@Html.AntiForgeryToken()
+@* الـ layout الإداري لا يحمّل jQuery بنفسه؛ كل صفحة تحمّله قبل سكربتات الـ layout (الجرس والقوائم). بدونه يتعطل كل JavaScript في الصفحة. *@
+<script src="~/Content/plugins/jquery/jquery.min.js"></script>
 
 <style>
-    .notif-card {
-        transition: all 0.2s ease-in-out;
-        border-right: 4px solid #ced4da;
-    }
-    .notif-card.unread {
-        border-right: 4px solid #007bff;
-        background-color: #f8fbff;
-    }
-    .notif-card:hover {
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-    .notif-title {
-        font-size: 1.05rem;
-        font-weight: 600;
-        color: #212529;
-    }
-    .notif-meta {
-        font-size: 0.875rem;
-        color: #6c757d;
-    }
-    .notif-meta span {
-        margin-left: 15px;
-    }
-    .notif-unread-dot {
-        width: 10px;
-        height: 10px;
-        background-color: #007bff;
-        border-radius: 50%;
-        display: inline-block;
-        margin-left: 6px;
-    }
-    .filter-box {
-        background: #fff;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-    }
+    .notif-item { border-right: 4px solid transparent; }
+    .notif-item.unread { border-right-color: #007bff; background-color: #f5f9ff; }
+    .notif-title { font-weight: 600; color: #212529; }
+    .notif-meta { color: #6c757d; font-size: 0.875rem; }
+    .notif-meta span + span::before { content: "•"; margin: 0 8px; color: #adb5bd; }
+    .notif-tabs .nav-link { color: #495057; }
+    .notif-tabs .nav-link.active { font-weight: 600; }
 </style>
 
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2 align-items-center">
-            <div class="col-sm-6">
-                <h1 class="m-0 text-dark">
-                    <i class="fas fa-bell text-warning ml-2"></i> إشعارات المدرسين
-                </h1>
-            </div>
-            <div class="col-sm-6 text-left">
-                <button type="button" class="btn btn-outline-primary btn-sm" id="btnMarkAllRead" @(Model.TotalUnreadCount == 0 ? "disabled" : "")>
-                    <i class="fas fa-check-double ml-1"></i> تحديد الكل كمقروء
-                </button>
-            </div>
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <h1 class="m-0 text-dark"><i class="fas fa-bell text-warning ml-2"></i> إشعارات المدرسين</h1>
+            @if (Model.TotalUnreadCount > 0)
+            {
+                using (Html.BeginForm("MarkAllAsRead", "AdminNotifications", FormMethod.Post, new { @class = "m-0" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-check-double ml-1"></i> تحديد الكل كمقروء (@Model.TotalUnreadCount)
+                    </button>
+                }
+            }
         </div>
     </div>
 </div>
 
 <div class="container-fluid">
-    <!-- Filter Card -->
-    <div class="card card-outline card-primary filter-box">
-        <div class="card-header pb-1 pt-1">
-            <h3 class="card-title" style="font-size: 1rem;"><i class="fas fa-filter ml-1"></i> تصفية وبحث</h3>
-        </div>
-        <div class="card-body">
-            <form method="get" action="@Url.Action("Index", "AdminNotifications")" id="filterForm">
-                <div class="row">
-                    <div class="col-md-3 col-sm-6 form-group">
-                        <label for="TeacherName">اسم المدرس</label>
-                        <select name="TeacherName" id="TeacherName" class="form-control select2">
-                            <option value="">-- جميع المدرسين --</option>
-                            @foreach (var t in Model.AvailableTeachers)
-                            {
-                                <option value="@t" @(Model.Filter.TeacherName == t ? "selected" : "")>@t</option>
-                            }
-                        </select>
-                    </div>
+    @if (TempData["NotificationError"] != null)
+    {
+        <div class="alert alert-danger">@TempData["NotificationError"]</div>
+    }
 
-                    <div class="col-md-3 col-sm-6 form-group">
-                        <label for="CourseName">الدورة</label>
-                        <select name="CourseName" id="CourseName" class="form-control select2">
-                            <option value="">-- جميع الدورات --</option>
-                            @foreach (var c in Model.AvailableCourses)
-                            {
-                                <option value="@c" @(Model.Filter.CourseName == c ? "selected" : "")>@c</option>
-                            }
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 col-sm-6 form-group">
-                        <label for="ActionType">نوع الإشعار</label>
-                        <select name="ActionType" id="ActionType" class="form-control">
-                            <option value="all">-- جميع الأنواع --</option>
-                            @foreach (var kvp in Model.AvailableActionTypes)
-                            {
-                                <option value="@kvp.Key" @(Model.Filter.ActionType == kvp.Key ? "selected" : "")>@kvp.Value</option>
-                            }
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 col-sm-6 form-group">
-                        <label for="Status">حالة القراءة</label>
-                        <select name="Status" id="Status" class="form-control">
-                            <option value="all" @(Model.Filter.Status == "all" ? "selected" : "")>الكل</option>
-                            <option value="unread" @(Model.Filter.Status == "unread" ? "selected" : "")>غير مقروءة فقط</option>
-                            <option value="read" @(Model.Filter.Status == "read" ? "selected" : "")>مقروءة فقط</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 col-sm-12 form-group d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary btn-block">
-                            <i class="fas fa-search ml-1"></i> تصفية
-                        </button>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-3 col-sm-6 form-group">
-                        <label for="DateFrom">من تاريخ</label>
-                        <input type="date" name="DateFrom" id="DateFrom" class="form-control" value="@Model.Filter.DateFrom" />
-                    </div>
-                    <div class="col-md-3 col-sm-6 form-group">
-                        <label for="DateTo">إلى تاريخ</label>
-                        <input type="date" name="DateTo" id="DateTo" class="form-control" value="@Model.Filter.DateTo" />
-                    </div>
-                    <div class="col-md-2 col-sm-6 form-group d-flex align-items-end">
-                        <a href="@Url.Action("Index", "AdminNotifications")" class="btn btn-default btn-block">
-                            <i class="fas fa-redo ml-1"></i> إعادة ضبط
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Notifications List -->
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title">
-                قائمة الإشعارات (@Model.TotalItems إشعار)
-                @if (Model.TotalUnreadCount > 0)
-                {
-                    <span class="badge badge-warning mr-2">@Model.TotalUnreadCount غير مقروء</span>
-                }
-            </h3>
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <ul class="nav nav-pills notif-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link @(filter.Status == "all" ? "active" : "")" href="@Url.Action("Index", new { Status = "all", Search = filter.Search })">
+                            الكل <span class="badge badge-light">@Model.TotalAllCount</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(filter.Status == "unread" ? "active" : "")" href="@Url.Action("Index", new { Status = "unread", Search = filter.Search })">
+                            غير مقروءة <span class="badge badge-warning">@Model.TotalUnreadCount</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(filter.Status == "read" ? "active" : "")" href="@Url.Action("Index", new { Status = "read", Search = filter.Search })">
+                            مقروءة <span class="badge badge-light">@Model.TotalReadCount</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <form method="get" action="@Url.Action("Index", "AdminNotifications")" class="form-inline">
+                    <input type="hidden" name="Status" value="@filter.Status" />
+                    <input type="text" name="Search" value="@filter.Search" class="form-control form-control-sm ml-1" placeholder="بحث باسم المدرس أو الدورة أو المحاضرة" style="min-width: 260px;" />
+                    <button type="submit" class="btn btn-sm btn-default"><i class="fas fa-search"></i></button>
+                    @if (!string.IsNullOrWhiteSpace(filter.Search))
+                    {
+                        <a href="@Url.Action("Index", new { Status = filter.Status })" class="btn btn-sm btn-link">مسح البحث</a>
+                    }
+                </form>
+            </div>
         </div>
+
         <div class="card-body p-0">
             @if (!Model.Items.Any())
             {
-                <div class="text-center py-5">
-                    <i class="far fa-bell-slash text-muted" style="font-size: 3.5rem;"></i>
-                    <h5 class="mt-3 text-muted">لا توجد إشعارات مطابقة لمعايير البحث</h5>
-                    <p class="text-secondary small">ستظهر هنا أي إشعارات جديدة عند قيام المدرسين بإجراء تغييرات على المحاضرات أو إنجازها.</p>
+                <div class="text-center py-5 text-muted">
+                    <i class="far fa-bell-slash" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">@emptyText</h5>
                 </div>
             }
             else
             {
-                <div class="list-group list-group-flush" id="notificationsList">
+                <div class="list-group list-group-flush">
                     @foreach (var item in Model.Items)
                     {
-                        <div class="list-group-item notif-card @(item.IsRead ? "read" : "unread") p-3" id="notif-item-@item.NotificationId">
-                            <div class="d-flex w-100 justify-content-between align-items-start">
+                        <div class="list-group-item notif-item @(item.IsRead ? "" : "unread")" id="notif-item-@item.NotificationId">
+                            <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     @if (!item.IsRead)
                                     {
-                                        <span class="notif-unread-dot" id="dot-@item.NotificationId" title="غير مقروء"></span>
+                                        <span class="badge badge-primary ml-1">جديد</span>
                                     }
                                     <span class="notif-title">@item.Title</span>
-                                    <span class="@item.ActionBadgeClass mr-2">@item.ActionTypeArabic</span>
+                                    <span class="@item.ActionBadgeClass mr-1">@item.ActionTypeArabic</span>
                                 </div>
-                                <div class="text-muted small">
-                                    <i class="far fa-clock ml-1"></i> @item.CreatedAtFormatted
-                                    <span class="badge badge-light border mr-1">@item.TimeAgo</span>
-                                </div>
+                                <small class="text-muted text-nowrap" title="@item.CreatedAtFormatted">
+                                    <i class="far fa-clock ml-1"></i>@item.TimeAgo
+                                </small>
                             </div>
 
-                            <p class="mb-1 text-secondary mt-1">@item.Details</p>
+                            <p class="mb-1 mt-1">@item.Details</p>
 
-                            <div class="d-flex justify-content-between align-items-center mt-2 notif-meta">
-                                <div>
-                                    <span><i class="fas fa-user-tie ml-1"></i> <strong>المدرس:</strong> @item.TeacherName</span>
-                                    <span><i class="fas fa-book ml-1"></i> <strong>الدورة:</strong> @item.CourseName</span>
-                                    <span><i class="fas fa-video ml-1"></i> <strong>المحاضرة:</strong> @item.LectureTitle</span>
+                            @if (!string.IsNullOrWhiteSpace(item.OldValue) || !string.IsNullOrWhiteSpace(item.NewValue))
+                            {
+                                <div class="notif-meta">
+                                    @if (!string.IsNullOrWhiteSpace(item.OldValue))
+                                    {
+                                        <span>قبل: @item.OldValue</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(item.NewValue))
+                                    {
+                                        <span>بعد: @item.NewValue</span>
+                                    }
                                 </div>
-                                <div>
-                                    <button type="button" class="btn btn-outline-info btn-sm ml-2" onclick="showNotificationDetails(@item.NotificationId)">
-                                        <i class="fas fa-eye ml-1"></i> التفاصيل
-                                    </button>
+                            }
+
+                            <div class="d-flex justify-content-between align-items-center flex-wrap mt-2">
+                                <div class="notif-meta">
+                                    <span><i class="fas fa-user-tie ml-1"></i>@item.TeacherName</span>
+                                    <span><i class="fas fa-book ml-1"></i>@item.CourseName</span>
+                                    <span><i class="fas fa-video ml-1"></i>@item.LectureTitle</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    @if (item.LectureExists && item.CategoryId.HasValue)
+                                    {
+                                        <a href="@Url.Action("LecturesByCategory", "Controlpanel", new { Category_ID = item.CategoryId.Value, categoryName = item.CourseName })" class="btn btn-outline-secondary btn-sm ml-2">
+                                            <i class="fas fa-external-link-alt ml-1"></i> فتح المحاضرة
+                                        </a>
+                                    }
                                     @if (!item.IsRead)
                                     {
-                                        <button type="button" class="btn btn-outline-success btn-sm btn-mark-read" id="btn-read-@item.NotificationId" onclick="markAsRead(@item.NotificationId)">
-                                            <i class="fas fa-check ml-1"></i> تحديد كمقروء
-                                        </button>
+                                        using (Html.BeginForm("MarkAsRead", "AdminNotifications", FormMethod.Post, new { @class = "m-0" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.NotificationId" />
+                                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check ml-1"></i> تحديد كمقروء
+                                            </button>
+                                        }
                                     }
                                 </div>
                             </div>
@@ -211,240 +162,29 @@
 
         @if (Model.TotalPages > 1)
         {
-            <div class="card-footer clearfix">
-                <ul class="pagination pagination-sm m-0 float-right">
-                    @if (Model.CurrentPage > 1)
-                    {
-                        <li class="page-item">
-                            <a class="page-link" href="@Url.Action("Index", "AdminNotifications", new { Page = Model.CurrentPage - 1, TeacherName = Model.Filter.TeacherName, CourseName = Model.Filter.CourseName, ActionType = Model.Filter.ActionType, Status = Model.Filter.Status, DateFrom = Model.Filter.DateFrom, DateTo = Model.Filter.DateTo })">&laquo; السابق</a>
-                        </li>
-                    }
-
-                    @for (int p = 1; p <= Model.TotalPages; p++)
-                    {
-                        <li class="page-item @(p == Model.CurrentPage ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("Index", "AdminNotifications", new { Page = p, TeacherName = Model.Filter.TeacherName, CourseName = Model.Filter.CourseName, ActionType = Model.Filter.ActionType, Status = Model.Filter.Status, DateFrom = Model.Filter.DateFrom, DateTo = Model.Filter.DateTo })">@p</a>
-                        </li>
-                    }
-
-                    @if (Model.CurrentPage < Model.TotalPages)
-                    {
-                        <li class="page-item">
-                            <a class="page-link" href="@Url.Action("Index", "AdminNotifications", new { Page = Model.CurrentPage + 1, TeacherName = Model.Filter.TeacherName, CourseName = Model.Filter.CourseName, ActionType = Model.Filter.ActionType, Status = Model.Filter.Status, DateFrom = Model.Filter.DateFrom, DateTo = Model.Filter.DateTo })">التالي &raquo;</a>
-                        </li>
-                    }
-                </ul>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                @if (Model.CurrentPage > 1)
+                {
+                    <a class="btn btn-default btn-sm" href="@Url.Action("Index", new { Status = filter.Status, Search = filter.Search, Page = Model.CurrentPage - 1 })">
+                        <i class="fas fa-chevron-right ml-1"></i> السابق
+                    </a>
+                }
+                else
+                {
+                    <span></span>
+                }
+                <span class="text-muted">صفحة @Model.CurrentPage من @Model.TotalPages (@Model.TotalItems إشعار)</span>
+                @if (Model.CurrentPage < Model.TotalPages)
+                {
+                    <a class="btn btn-default btn-sm" href="@Url.Action("Index", new { Status = filter.Status, Search = filter.Search, Page = Model.CurrentPage + 1 })">
+                        التالي <i class="fas fa-chevron-left mr-1"></i>
+                    </a>
+                }
+                else
+                {
+                    <span></span>
+                }
             </div>
         }
     </div>
 </div>
-
-<!-- Details Modal -->
-<div class="modal fade" id="modalNotificationDetails" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-light">
-                <h5 class="modal-title font-weight-bold" id="modalNotifTitle">تفاصيل الإشعار</h5>
-                <button type="button" class="close ml-0 mr-auto" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped mb-0">
-                        <tbody>
-                            <tr>
-                                <th style="width: 25%;">نوع الإجراء</th>
-                                <td id="modalNotifActionType"></td>
-                            </tr>
-                            <tr>
-                                <th>اسم المدرس</th>
-                                <td id="modalNotifTeacher"></td>
-                            </tr>
-                            <tr>
-                                <th>الدورة التعليمية</th>
-                                <td id="modalNotifCourse"></td>
-                            </tr>
-                            <tr>
-                                <th>اسم المحاضرة</th>
-                                <td id="modalNotifLecture"></td>
-                            </tr>
-                            <tr>
-                                <th>تفاصيل الحدث</th>
-                                <td id="modalNotifDetails" class="text-wrap"></td>
-                            </tr>
-                            <tr id="rowOldValue" style="display:none;">
-                                <th>القيمة السابقة</th>
-                                <td id="modalNotifOldValue"></td>
-                            </tr>
-                            <tr id="rowNewValue" style="display:none;">
-                                <th>القيمة الجديدة</th>
-                                <td id="modalNotifNewValue"></td>
-                            </tr>
-                            <tr id="rowNotes" style="display:none;">
-                                <th>الملاحظات</th>
-                                <td id="modalNotifNotes"></td>
-                            </tr>
-                            <tr>
-                                <th>تاريخ ووقت الإشعار</th>
-                                <td id="modalNotifDate"></td>
-                            </tr>
-                            <tr>
-                                <th>رابط المحاضرة في النظام</th>
-                                <td id="modalNotifLectureLink"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">إغلاق</button>
-                <div id="modalActionContainer"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function getVerificationToken() {
-        return $('input[name="__RequestVerificationToken"]').val();
-    }
-
-    function markAsRead(notificationId) {
-        $.ajax({
-            url: '@Url.Action("MarkAsRead", "AdminNotifications")',
-            type: 'POST',
-            data: {
-                id: notificationId,
-                __RequestVerificationToken: getVerificationToken()
-            },
-            success: function (res) {
-                if (res.success) {
-                    var card = $('#notif-item-' + notificationId);
-                    card.removeClass('unread').addClass('read');
-                    $('#dot-' + notificationId).remove();
-                    $('#btn-read-' + notificationId).remove();
-
-                    // Update bell count in navbar
-                    updateBellBadge(res.unreadCount);
-                }
-            }
-        });
-    }
-
-    $('#btnMarkAllRead').click(function () {
-        Swal.fire({
-            title: 'تأكيد',
-            text: 'هل أنت متأكد من تحديد جميع الإشعارات كمقروءة؟',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'نعم، تحديد الكل',
-            cancelButtonText: 'إلغاء'
-        }).then(function (result) {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: '@Url.Action("MarkAllAsRead", "AdminNotifications")',
-                    type: 'POST',
-                    data: {
-                        __RequestVerificationToken: getVerificationToken()
-                    },
-                    success: function (res) {
-                        if (res.success) {
-                            $('.notif-card').removeClass('unread').addClass('read');
-                            $('.notif-unread-dot').remove();
-                            $('.btn-mark-read').remove();
-                            $('#btnMarkAllRead').prop('disabled', true);
-                            updateBellBadge(0);
-
-                            Swal.fire({
-                                title: 'تم',
-                                text: 'تم تحديد جميع الإشعارات كمقروءة بنجاح.',
-                                icon: 'success',
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                        }
-                    }
-                });
-            }
-        });
-    });
-
-    function showNotificationDetails(notificationId) {
-        $.ajax({
-            url: '@Url.Action("GetDetails", "AdminNotifications")',
-            type: 'GET',
-            data: { id: notificationId },
-            success: function (res) {
-                if (res.success && res.details) {
-                    var d = res.details;
-                    $('#modalNotifTitle').text(d.Title);
-                    $('#modalNotifActionType').html('<span class="' + d.ActionBadgeClass + '">' + d.ActionTypeArabic + '</span>');
-                    $('#modalNotifTeacher').text(d.TeacherName);
-                    $('#modalNotifCourse').text(d.CourseName);
-                    $('#modalNotifLecture').text(d.LectureTitle);
-                    $('#modalNotifDetails').text(d.Details);
-
-                    if (d.OldValue) {
-                        $('#modalNotifOldValue').text(d.OldValue);
-                        $('#rowOldValue').show();
-                    } else {
-                        $('#rowOldValue').hide();
-                    }
-
-                    if (d.NewValue) {
-                        $('#modalNotifNewValue').text(d.NewValue);
-                        $('#rowNewValue').show();
-                    } else {
-                        $('#rowNewValue').hide();
-                    }
-
-                    if (d.Notes) {
-                        $('#modalNotifNotes').text(d.Notes);
-                        $('#rowNotes').show();
-                    } else {
-                        $('#rowNotes').hide();
-                    }
-
-                    $('#modalNotifDate').text(d.CreatedAtFormatted + ' (' + d.TimeAgo + ')');
-
-                    if (d.LectureExists && d.LectureId && d.CategoryId) {
-                        var editUrl = '@Url.Action("LecturesByCategory", "Controlpanel")?Category_ID=' + d.CategoryId + '&categoryName=' + encodeURIComponent(d.CourseName);
-                        $('#modalNotifLectureLink').html('<a href="' + editUrl + '" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fas fa-external-link-alt ml-1"></i> الانتقال للمحاضرة في لوحة التحكم</a>');
-                    } else {
-                        $('#modalNotifLectureLink').html('<span class="badge badge-secondary p-1"><i class="fas fa-info-circle ml-1"></i> المحاضرة محذوفة أو غير متاحة</span>');
-                    }
-
-                    // Mark as read in UI
-                    var card = $('#notif-item-' + notificationId);
-                    card.removeClass('unread').addClass('read');
-                    $('#dot-' + notificationId).remove();
-                    $('#btn-read-' + notificationId).remove();
-                    updateBellBadge(res.unreadCount);
-
-                    $('#modalNotificationDetails').modal('show');
-                } else {
-                    Swal.fire('خطأ', res.message || 'تعذر تحميل التفاصيل', 'error');
-                }
-            }
-        });
-    }
-
-    function updateBellBadge(count) {
-        var badge = $('#adminNotifBellCount');
-        var sidebarBadge = $('#AdminNotifCountBadge');
-        if (count > 0) {
-            badge.text(count).show();
-            if (sidebarBadge.length) {
-                sidebarBadge.text(count).show();
-            }
-        } else {
-            badge.hide();
-            if (sidebarBadge.length) {
-                sidebarBadge.hide();
-            }
-        }
-    }
-</script>
-

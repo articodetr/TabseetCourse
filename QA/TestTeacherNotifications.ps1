@@ -67,7 +67,11 @@ $admin1Auth   = Get-AuthSession -Email "admin.test@example.test"   -Password "Ad
 $admin2Auth   = Get-AuthSession -Email "admin2.test@example.test"  -Password "Admin@Tabseet2026!"
 $studentAuth  = Get-AuthSession -Email "student01@example.test"    -Password "Std@Tabseet2026!"
 
-$teacherPageUrl = "$BaseUrl/Teacher/LecturesByCategoryStudend?Cat_ID=1&categoryName=Quran"
+# فئة المدرس الأول تُقرأ من قاعدة البيانات (Categories_ID مثل "6/الرياضيات,9/...") بدل افتراض الفئة 1
+$teacher1CatsRaw = (& sqlcmd -S . -d TabseetDB_Local -h -1 -W -Q "SET NOCOUNT ON; SELECT Categories_ID FROM AspNetUsers WHERE Email = 'teacher.ibrahim@example.test';") -join ''
+$Teacher1Cat = [int]((($teacher1CatsRaw.Trim() -split ',')[0]) -split '/')[0]
+Write-Host "Teacher 1 category from DB: $Teacher1Cat"
+$teacherPageUrl = "$BaseUrl/Teacher/LecturesByCategoryStudend?Cat_ID=$Teacher1Cat&categoryName=Cat$Teacher1Cat"
 $teacher1Token = Get-VerificationToken -Session $teacher1Auth.Session -Url $teacherPageUrl
 $teacher2Token = Get-VerificationToken -Session $teacher2Auth.Session -Url "$BaseUrl/Teacher/LecturesByCategoryStudend?Cat_ID=2&categoryName=Noor"
 $admin1Token   = Get-VerificationToken -Session $admin1Auth.Session -Url "$BaseUrl/AdminNotifications/Index"
@@ -93,7 +97,7 @@ Write-Host "`n[2/4] Executing Teacher & Lecture Event Tests..." -ForegroundColor
 # -------------------------------------------------------------
 $t01Body = @{
     "__RequestVerificationToken" = $teacher1Token
-    "Category_ID"                = 1
+    "Category_ID"                = $Teacher1Cat
     "Lecture_Name"               = "NOTIF_TEST_01_Lecture"
     "LectureTypeOnOff"           = "1"
     "DayandTime"                 = "2026-11-10 10:00:00"
@@ -117,7 +121,7 @@ Record-Test -TestId "TEST-NOTIF-01" -Description "إنشاء محاضرة جدي
 $t02Body = @{
     "__RequestVerificationToken" = $teacher1Token
     "ID"                         = [int]$t01LecId
-    "Category_ID"                = 1
+    "Category_ID"                = $Teacher1Cat
     "Lecture_Name"               = "NOTIF_TEST_01_Lecture"
     "LectureTypeOnOff"           = "1"
     "DayandTime"                 = "2026-11-11 15:30:00"
@@ -137,7 +141,7 @@ Record-Test -TestId "TEST-NOTIF-02" -Description "تعديل موعد محاضر
 $t03Body = @{
     "__RequestVerificationToken" = $teacher1Token
     "ID"                         = [int]$t01LecId
-    "Category_ID"                = 1
+    "Category_ID"                = $Teacher1Cat
     "Lecture_Name"               = "NOTIF_TEST_01_Lecture"
     "LectureTypeOnOff"           = "1"
     "DayandTime"                 = "2026-11-11 15:30:00"
@@ -259,7 +263,7 @@ Record-Test -TestId "TEST-NOTIF-09" -Description "حذف المحاضرة مع �
 # -------------------------------------------------------------
 $t10CreateBody = @{
     "__RequestVerificationToken" = $teacher1Token
-    "Category_ID"                = 1
+    "Category_ID"                = $Teacher1Cat
     "Lecture_Name"               = "NOTIF_TEST_10_Ibrahim_Only"
     "LectureTypeOnOff"           = "1"
     "DayandTime"                 = "2026-11-12 10:00:00"
@@ -289,11 +293,35 @@ Record-Test -TestId "TEST-NOTIF-10" -Description "منع المدرس من تغ�
 Write-Host "`n[3/4] Executing Admin Notification Page & Bell Tests..." -ForegroundColor Yellow
 
 # -------------------------------------------------------------
-# TEST-NOTIF-11: Admin Notifications Page loads (200 OK) with Arabic layout
+# TEST-NOTIF-11: Admin Notifications Page loads (200 OK): tabs, "mark as read" forms,
+#                and jQuery loaded BEFORE the layout scripts (the layout does not load it itself)
 # -------------------------------------------------------------
 $t11Res = Invoke-WebRequest -Uri "$BaseUrl/AdminNotifications/Index" -WebSession $admin1Auth.Session -UseBasicParsing
-$t11Pass = ($t11Res.StatusCode -eq 200) -and ($t11Res.Content -match "إشعارات المدرسين") -and ($t11Res.Content -match "modalNotificationDetails")
-Record-Test -TestId "TEST-NOTIF-11" -Description "فتح صفحة إشعارات الإدارة (200 OK) والتأكد من عناصر الواجهة" -Passed $t11Pass -Details "Status: $($t11Res.StatusCode) | Title match: True"
+$t11JqueryAt   = $t11Res.Content.IndexOf('plugins/jquery/jquery.min.js')
+$t11JqueryUiAt = $t11Res.Content.IndexOf('jquery-ui.min.js')
+$t11JqueryOk   = ($t11JqueryAt -ge 0) -and ($t11JqueryUiAt -gt $t11JqueryAt)
+$t11Pass = ($t11Res.StatusCode -eq 200) -and ($t11Res.Content -match "إشعارات المدرسين") -and ($t11Res.Content -match "notif-tabs") -and ($t11Res.Content -match "AdminNotifications/MarkAsRead") -and $t11JqueryOk
+Record-Test -TestId "TEST-NOTIF-11" -Description "فتح صفحة إشعارات الإدارة (200 OK): التبويبات ونماذج 'تحديد كمقروء' وتحميل jQuery قبل سكربتات الـ layout" -Passed $t11Pass -Details "Status: $($t11Res.StatusCode) | jQuery before jquery-ui: $t11JqueryOk"
+
+# POST نموذج HTML عادي بدون اتباع التحويل؛ يعيد رمز الحالة ورأس Location
+function Invoke-FormPost {
+    param($Session, [string]$Url, [hashtable]$Body)
+    $status = 0; $location = ""
+    # ترويسات -Headers تلتصق بجلسة WebRequestSession في PowerShell 7؛ نزيل ترويسة AJAX كي يُعامل الطلب كنموذج HTML عادي
+    if ($Session.Headers.ContainsKey("X-Requested-With")) { $null = $Session.Headers.Remove("X-Requested-With") }
+    try {
+        $res = Invoke-WebRequest -Uri $Url -Method POST -Body $Body -ContentType "application/x-www-form-urlencoded" -WebSession $Session -UseBasicParsing -MaximumRedirection 0 -ErrorAction Stop
+        $status = [int]$res.StatusCode
+        if ($res.Headers.Location) { $location = [string]$res.Headers.Location }
+    } catch {
+        if ($_.Exception.Response) {
+            $status = [int]$_.Exception.Response.StatusCode
+            try { $location = [string]$_.Exception.Response.Headers.Location } catch { }
+        }
+    }
+    return @{ Status = $status; Location = $location }
+}
+$ajaxHeaders = @{ "X-Requested-With" = "XMLHttpRequest" }
 
 # -------------------------------------------------------------
 # TEST-NOTIF-12: Unread count API for Admin
@@ -321,7 +349,7 @@ $t14Pass = ($t14Json.success -eq $true) -and ($t14Json.details.NotificationId -e
 Record-Test -TestId "TEST-NOTIF-14" -Description "عرض تفاصيل إشعار محدد مع بيانات الحدث والمدرس والدورة" -Passed $t14Pass -Details "NotifId: $firstNotifId | Teacher: $($t14Json.details.TeacherName)"
 
 # -------------------------------------------------------------
-# TEST-NOTIF-15: Mark single notification as read
+# TEST-NOTIF-15: Mark single notification as read (AJAX / JSON path)
 # -------------------------------------------------------------
 # Get fresh token for admin
 $adminFreshToken = Get-VerificationToken -Session $admin1Auth.Session -Url "$BaseUrl/AdminNotifications/Index"
@@ -332,11 +360,26 @@ $t15Body = @{
     "__RequestVerificationToken" = $adminFreshToken
     "id"                         = $unreadId
 }
-$t15Res = Invoke-WebRequest -Uri "$BaseUrl/AdminNotifications/MarkAsRead" -Method POST -Body $t15Body -WebSession $admin1Auth.Session -UseBasicParsing
+$t15Res = Invoke-WebRequest -Uri "$BaseUrl/AdminNotifications/MarkAsRead" -Method POST -Body $t15Body -Headers $ajaxHeaders -WebSession $admin1Auth.Session -UseBasicParsing
 $t15Json = $t15Res.Content | ConvertFrom-Json
 $t15Db = (& sqlcmd -S . -d TabseetDB_Local -h -1 -W -Q "SELECT IsRead FROM AdminNotifications WHERE NotificationId = $unreadId;") -join ' '
 $t15Pass = ($t15Json.success -eq $true) -and ($t15Db -match "1")
-Record-Test -TestId "TEST-NOTIF-15" -Description "تحديد إشعار واحد كمقروء واستمرار الحالة في قاعدة البيانات" -Passed $t15Pass -Details "Id: $unreadId | IsRead: $t15Db"
+Record-Test -TestId "TEST-NOTIF-15" -Description "تحديد إشعار واحد كمقروء عبر AJAX (JSON) واستمرار الحالة في قاعدة البيانات" -Passed $t15Pass -Details "Id: $unreadId | IsRead: $t15Db"
+
+# -------------------------------------------------------------
+# TEST-NOTIF-15B: "تحديد كمقروء" from the page's plain HTML form (no JavaScript):
+#                 302 back to the same list (returnUrl) and IsRead = 1 in the database
+# -------------------------------------------------------------
+$unreadNotif2 = $t13Json.items | Where-Object { $_.IsRead -eq $false -and $_.NotificationId -ne $unreadId } | Select-Object -First 1
+$unreadId2 = if ($unreadNotif2) { $unreadNotif2.NotificationId } else { $unreadId }
+$t15b = Invoke-FormPost -Session $admin1Auth.Session -Url "$BaseUrl/AdminNotifications/MarkAsRead" -Body @{
+    "__RequestVerificationToken" = $adminFreshToken
+    "id"                         = $unreadId2
+    "returnUrl"                  = "/AdminNotifications/Index?Status=unread"
+}
+$t15bDb = (& sqlcmd -S . -d TabseetDB_Local -h -1 -W -Q "SELECT IsRead FROM AdminNotifications WHERE NotificationId = $unreadId2;") -join ' '
+$t15bPass = ($t15b.Status -eq 302) -and ($t15b.Location -match 'AdminNotifications/Index\?Status=unread') -and ($t15bDb -match "1")
+Record-Test -TestId "TEST-NOTIF-15B" -Description "تحديد كمقروء من نموذج الصفحة (بدون JavaScript): تحويل 302 لنفس القائمة وحفظ الحالة" -Passed $t15bPass -Details "Id: $unreadId2 | Status: $($t15b.Status) | Location: $($t15b.Location) | IsRead: $t15bDb"
 
 # -------------------------------------------------------------
 # TEST-NOTIF-16: Multi-Admin Isolation (Reading by Admin 1 does NOT affect Admin 2)
@@ -346,23 +389,51 @@ $t16Pass = [bool]($admin2Notif -match "0")
 Record-Test -TestId "TEST-NOTIF-16" -Description "استقلالية قراءة الإشعار لكل حساب إدارة (قراءة مدير لا تغير حالة مدير آخر)" -Passed $t16Pass -Details "Admin2 IsRead: $admin2Notif"
 
 # -------------------------------------------------------------
-# TEST-NOTIF-17: Mark ALL notifications as read
+# TEST-NOTIF-17: Mark ALL notifications as read (AJAX / JSON path)
 # -------------------------------------------------------------
 $t17Body = @{
     "__RequestVerificationToken" = $adminFreshToken
 }
-$t17Res = Invoke-WebRequest -Uri "$BaseUrl/AdminNotifications/MarkAllAsRead" -Method POST -Body $t17Body -WebSession $admin1Auth.Session -UseBasicParsing
+$t17Res = Invoke-WebRequest -Uri "$BaseUrl/AdminNotifications/MarkAllAsRead" -Method POST -Body $t17Body -Headers $ajaxHeaders -WebSession $admin1Auth.Session -UseBasicParsing
 $t17Json = $t17Res.Content | ConvertFrom-Json
 $t17Remaining = (& sqlcmd -S . -d TabseetDB_Local -h -1 -W -Q "SELECT COUNT(*) FROM AdminNotifications WHERE AdminUserId = 'TEST-USR-ADMIN-01' AND IsRead = 0;") -join ' '
 $t17Pass = ($t17Json.success -eq $true) -and ([int]($t17Remaining.Trim() -split '\s+')[0] -eq 0)
-Record-Test -TestId "TEST-NOTIF-17" -Description "تحديد جميع الإشعارات كمقروءة دفعة واحدة" -Passed $t17Pass -Details "Unread remaining for Admin1: $t17Remaining"
+Record-Test -TestId "TEST-NOTIF-17" -Description "تحديد جميع الإشعارات كمقروءة دفعة واحدة (AJAX)" -Passed $t17Pass -Details "Unread remaining for Admin1: $t17Remaining"
 
 # -------------------------------------------------------------
-# TEST-NOTIF-18: Search and Filter in Admin Notifications
+# TEST-NOTIF-17B: "تحديد الكل كمقروء" from the page form: 302 back to returnUrl
 # -------------------------------------------------------------
-$t18Res = Invoke-WebRequest -Uri "$BaseUrl/AdminNotifications/Index?TeacherName=$([System.Uri]::EscapeDataString('إبراهيم'))&Status=read" -WebSession $admin1Auth.Session -UseBasicParsing
-$t18Pass = ($t18Res.StatusCode -eq 200) -and ($t18Res.Content -match "إبراهيم")
-Record-Test -TestId "TEST-NOTIF-18" -Description "عمل تصفية وبحث الإشعارات بحسب المدرس وحالة القراءة" -Passed $t18Pass -Details "Status: $($t18Res.StatusCode)"
+$t17b = Invoke-FormPost -Session $admin1Auth.Session -Url "$BaseUrl/AdminNotifications/MarkAllAsRead" -Body @{
+    "__RequestVerificationToken" = $adminFreshToken
+    "returnUrl"                  = "/AdminNotifications/Index?Status=all"
+}
+$t17bPass = ($t17b.Status -eq 302) -and ($t17b.Location -match 'AdminNotifications/Index\?Status=all')
+Record-Test -TestId "TEST-NOTIF-17B" -Description "تحديد الكل كمقروء من نموذج الصفحة: تحويل 302 إلى نفس القائمة" -Passed $t17bPass -Details "Status: $($t17b.Status) | Location: $($t17b.Location)"
+
+# -------------------------------------------------------------
+# TEST-NOTIF-18: Search box + read-status tab
+# -------------------------------------------------------------
+$t18Res = Invoke-WebRequest -Uri "$BaseUrl/AdminNotifications/Index?Search=$([System.Uri]::EscapeDataString('إبراهيم'))&Status=read" -WebSession $admin1Auth.Session -UseBasicParsing
+$t18Pass = ($t18Res.StatusCode -eq 200) -and ($t18Res.Content -match 'id="notif-item-') -and ($t18Res.Content -match "إبراهيم")
+Record-Test -TestId "TEST-NOTIF-18" -Description "البحث باسم المدرس مع تبويب المقروءة يعرض نتائج" -Passed $t18Pass -Details "Status: $($t18Res.StatusCode)"
+
+# -------------------------------------------------------------
+# TEST-NOTIF-18B: Search with no match -> empty state, no items rendered
+# -------------------------------------------------------------
+$t18bRes = Invoke-WebRequest -Uri "$BaseUrl/AdminNotifications/Index?Search=ZZZ_NO_SUCH_NOTIFICATION_ZZZ" -WebSession $admin1Auth.Session -UseBasicParsing
+$t18bPass = ($t18bRes.StatusCode -eq 200) -and ($t18bRes.Content -notmatch 'id="notif-item-') -and ($t18bRes.Content -match "لا توجد نتائج مطابقة للبحث")
+Record-Test -TestId "TEST-NOTIF-18B" -Description "بحث بلا نتائج يعرض رسالة فارغة واضحة بدون عناصر" -Passed $t18bPass -Details "Status: $($t18bRes.StatusCode)"
+
+# -------------------------------------------------------------
+# TEST-NOTIF-18C: Open-redirect protection: an external returnUrl falls back to Index
+# -------------------------------------------------------------
+$t18c = Invoke-FormPost -Session $admin1Auth.Session -Url "$BaseUrl/AdminNotifications/MarkAsRead" -Body @{
+    "__RequestVerificationToken" = $adminFreshToken
+    "id"                         = $unreadId
+    "returnUrl"                  = "https://evil.example/phish"
+}
+$t18cPass = ($t18c.Status -eq 302) -and ($t18c.Location -notmatch "evil") -and ($t18c.Location -match "AdminNotifications")
+Record-Test -TestId "TEST-NOTIF-18C" -Description "حماية من التحويل الخارجي: returnUrl خارجي يعود إلى صفحة الإشعارات" -Passed $t18cPass -Details "Status: $($t18c.Status) | Location: $($t18c.Location)"
 
 # -------------------------------------------------------------
 # TEST-NOTIF-19: Security: Students blocked from Admin Notifications
@@ -398,14 +469,14 @@ Write-Host "`n[4/4] Executing Regression Stability Tests..." -ForegroundColor Ye
 # -------------------------------------------------------------
 # TEST-NOTIF-21: Teacher lectures page loads and returns statuses
 # -------------------------------------------------------------
-$t21Res = Invoke-WebRequest -Uri "$BaseUrl/Teacher/LecturesByCategoryStudend?Cat_ID=1&categoryName=Quran" -WebSession $teacher1Auth.Session -UseBasicParsing
+$t21Res = Invoke-WebRequest -Uri "$BaseUrl/Teacher/LecturesByCategoryStudend?Cat_ID=$Teacher1Cat&categoryName=Cat$Teacher1Cat" -WebSession $teacher1Auth.Session -UseBasicParsing
 $t21Pass = ($t21Res.StatusCode -eq 200) -and ($t21Res.Content -match "حالة الدرس") -and ($t21Res.Content -match "modalCompleteLesson")
 Record-Test -TestId "TEST-NOTIF-21" -Description "استقرار صفحة محاضرات المدرس واحتوائها على عمود حالة الدرس ونوافذ الإنجاز" -Passed $t21Pass -Details "Status: $($t21Res.StatusCode)"
 
 # -------------------------------------------------------------
 # TEST-NOTIF-22: Teacher LectureByCategorysStd API returns Status and StatusArabic
 # -------------------------------------------------------------
-$t22Body = @{ "Cat_ID" = 1 }
+$t22Body = @{ "Cat_ID" = $Teacher1Cat }
 $t22Res = Invoke-WebRequest -Uri "$BaseUrl/Teacher/LectureByCategorysStd" -Method POST -Body $t22Body -WebSession $teacher1Auth.Session -UseBasicParsing
 $t22Json = $t22Res.Content | ConvertFrom-Json
 $t22Pass = ($t22Json.Count -gt 0) -and ($t22Json[0].Status -ne $null) -and ($t22Json[0].StatusArabic -ne $null)

@@ -520,6 +520,7 @@ namespace tabseetCourse.Services
                     .AsNoTracking()
                     .Where(n => n.AdminUserId == adminUserId)
                     .OrderByDescending(n => n.CreatedAt)
+                    .ThenByDescending(n => n.NotificationId)
                     .Take(count)
                     .ToListAsync();
 
@@ -534,8 +535,10 @@ namespace tabseetCourse.Services
                 Filter = filter ?? new NotificationFilterViewModel()
             };
 
+            if (string.IsNullOrWhiteSpace(result.Filter.Status)) result.Filter.Status = "all";
             if (result.Filter.Page < 1) result.Filter.Page = 1;
             if (result.Filter.PageSize < 1) result.Filter.PageSize = 15;
+            if (result.Filter.PageSize > 100) result.Filter.PageSize = 100;
 
             using (var db = new NotificationDbContext())
             using (var efDb = new tbseedDBEntities())
@@ -545,94 +548,57 @@ namespace tabseetCourse.Services
                     .AsNoTracking()
                     .Where(n => n.AdminUserId == adminUserId);
 
-                // Unread Count for this admin
+                // أعداد التبويبات (الكل / غير مقروءة / مقروءة) تُحسب قبل تطبيق التصفية
+                result.TotalAllCount = await query.CountAsync();
                 result.TotalUnreadCount = await query.CountAsync(n => !n.IsRead);
 
-                // Apply Filters
-                if (!string.IsNullOrWhiteSpace(result.Filter.TeacherName))
+                if (result.Filter.Status == "unread")
                 {
-                    string tName = result.Filter.TeacherName.Trim();
-                    query = query.Where(n => n.Event.TeacherName.Contains(tName));
+                    query = query.Where(n => !n.IsRead);
+                }
+                else if (result.Filter.Status == "read")
+                {
+                    query = query.Where(n => n.IsRead);
                 }
 
-                if (!string.IsNullOrWhiteSpace(result.Filter.CourseName))
+                if (!string.IsNullOrWhiteSpace(result.Filter.Search))
                 {
-                    string cName = result.Filter.CourseName.Trim();
-                    query = query.Where(n => n.Event.CourseName.Contains(cName));
-                }
-
-                if (!string.IsNullOrWhiteSpace(result.Filter.ActionType) && result.Filter.ActionType != "all")
-                {
-                    string aType = result.Filter.ActionType.Trim();
-                    query = query.Where(n => n.Event.ActionType == aType);
-                }
-
-                if (!string.IsNullOrWhiteSpace(result.Filter.Status))
-                {
-                    if (result.Filter.Status == "unread")
-                    {
-                        query = query.Where(n => !n.IsRead);
-                    }
-                    else if (result.Filter.Status == "read")
-                    {
-                        query = query.Where(n => n.IsRead);
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(result.Filter.DateFrom) && DateTime.TryParse(result.Filter.DateFrom, out DateTime dtFrom))
-                {
-                    // Convert dateFrom to UTC start of day
-                    DateTime utcFrom = dtFrom.Date.ToUniversalTime();
-                    query = query.Where(n => n.CreatedAt >= utcFrom);
-                }
-
-                if (!string.IsNullOrWhiteSpace(result.Filter.DateTo) && DateTime.TryParse(result.Filter.DateTo, out DateTime dtTo))
-                {
-                    // Convert dateTo to UTC end of day
-                    DateTime utcTo = dtTo.Date.AddDays(1).AddTicks(-1).ToUniversalTime();
-                    query = query.Where(n => n.CreatedAt <= utcTo);
+                    string search = result.Filter.Search.Trim();
+                    query = query.Where(n => n.Title.Contains(search)
+                        || n.Event.TeacherName.Contains(search)
+                        || n.Event.CourseName.Contains(search)
+                        || n.Event.LectureTitle.Contains(search));
                 }
 
                 result.TotalItems = await query.CountAsync();
                 result.PageSize = result.Filter.PageSize;
-                result.CurrentPage = result.Filter.Page;
-                result.TotalPages = (int)Math.Ceiling((double)result.TotalItems / result.PageSize);
-                if (result.TotalPages == 0) result.TotalPages = 1;
+                result.TotalPages = Math.Max(1, (int)Math.Ceiling((double)result.TotalItems / result.PageSize));
+                // بعد "تحديد كمقروء" في تبويب غير المقروءة قد تختفي الصفحة الأخيرة، فنعود لآخر صفحة موجودة
+                result.CurrentPage = Math.Min(result.Filter.Page, result.TotalPages);
 
                 var pagedEntities = await query
                     .OrderByDescending(n => n.CreatedAt)
+                    .ThenByDescending(n => n.NotificationId)
                     .Skip((result.CurrentPage - 1) * result.PageSize)
                     .Take(result.PageSize)
                     .ToListAsync();
 
-                // Check which lectures still exist in database
-                var activeLectureIds = new HashSet<int>(
-                    await efDb.Lectures.Select(l => l.ID).ToListAsync()
-                );
+                // هل المحاضرة ما زالت موجودة؟ (لإظهار رابط "فتح المحاضرة")
+                var lectureIds = pagedEntities
+                    .Where(n => n.Event != null && n.Event.LectureId.HasValue)
+                    .Select(n => n.Event.LectureId.Value)
+                    .Distinct()
+                    .ToList();
+                var existingLectureIds = lectureIds.Count == 0
+                    ? new HashSet<int>()
+                    : new HashSet<int>(await efDb.Lectures.Where(l => lectureIds.Contains(l.ID)).Select(l => l.ID).ToListAsync());
 
                 result.Items = pagedEntities.Select(n =>
                 {
                     var vm = MapToViewModel(n);
-                    vm.LectureExists = vm.LectureId.HasValue && activeLectureIds.Contains(vm.LectureId.Value);
+                    vm.LectureExists = vm.LectureId.HasValue && existingLectureIds.Contains(vm.LectureId.Value);
                     return vm;
                 }).ToList();
-
-                // Dropdown filter population
-                result.AvailableTeachers = await db.TeacherLectureEvents
-                    .AsNoTracking()
-                    .Select(e => e.TeacherName)
-                    .Distinct()
-                    .OrderBy(t => t)
-                    .ToListAsync();
-
-                result.AvailableCourses = await db.TeacherLectureEvents
-                    .AsNoTracking()
-                    .Select(e => e.CourseName)
-                    .Distinct()
-                    .OrderBy(c => c)
-                    .ToListAsync();
-
-                result.AvailableActionTypes = ActionMeta.ToDictionary(k => k.Key, v => v.Value.Arabic);
             }
 
             return result;

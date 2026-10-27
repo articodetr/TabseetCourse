@@ -51,14 +51,11 @@ namespace tabseetCourse.Models
         public bool LectureExists { get; set; }
     }
 
+    /// <summary>تصفية صفحة إشعارات الإدارة: حالة القراءة + كلمة بحث واحدة (مدرس / دورة / محاضرة / عنوان).</summary>
     public class NotificationFilterViewModel
     {
-        public string TeacherName { get; set; }
-        public string CourseName { get; set; }
-        public string ActionType { get; set; }
         public string Status { get; set; } = "all"; // all, unread, read
-        public string DateFrom { get; set; }
-        public string DateTo { get; set; }
+        public string Search { get; set; }
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 15;
     }
@@ -67,14 +64,13 @@ namespace tabseetCourse.Models
     {
         public List<AdminNotificationItemViewModel> Items { get; set; } = new List<AdminNotificationItemViewModel>();
         public NotificationFilterViewModel Filter { get; set; } = new NotificationFilterViewModel();
-        public int TotalItems { get; set; }
+        public int TotalItems { get; set; }      // عدد النتائج بعد التصفية
         public int TotalPages { get; set; }
         public int CurrentPage { get; set; }
         public int PageSize { get; set; }
+        public int TotalAllCount { get; set; }   // كل إشعارات هذا المدير (لأعداد التبويبات)
         public int TotalUnreadCount { get; set; }
-        public List<string> AvailableTeachers { get; set; } = new List<string>();
-        public List<string> AvailableCourses { get; set; } = new List<string>();
-        public Dictionary<string, string> AvailableActionTypes { get; set; } = new Dictionary<string, string>();
+        public int TotalReadCount => TotalAllCount - TotalUnreadCount;
     }
 
     public class NotificationOperationResult

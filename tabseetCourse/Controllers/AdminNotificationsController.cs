@@ -14,6 +14,9 @@ namespace tabseetCourse.Controllers
     /// إشعارات المدرسين للإدارة. لا تُستخدم هنا السمة [Authorize(Roles = "Admin")]: فحص الأدوار القياسي يمر عبر
     /// مدير الأدوار القديم فيحاول إنشاء aspnetdb.mdf ويعطي "Failed to generate a user instance of SQL Server".
     /// التحقق يتم في OnActionExecuting بنفس آلية بقية لوحة التحكم (أدوار المستخدم الحالي من ASP.NET Identity).
+    ///
+    /// صفحة Index تعمل بنماذج HTML عادية بدون JavaScript: "تحديد كمقروء" يرسل POST ثم يعود لنفس الصفحة والتصفية.
+    /// جرس الإشعارات في الـ layout يستدعي GetLatest عبر AJAX، لذا تعيد إجراءات POST نتيجة JSON عندما يكون الطلب AJAX.
     /// </summary>
     public class AdminNotificationsController : SharedCalss
     {
@@ -47,8 +50,11 @@ namespace tabseetCourse.Controllers
             // المسموح: مستخدم مسجّل الدخول يحمل دور Admin (الأدوار من AspNetUserRoles عبر UserManager)
             if (CurrentUser == null || !IsTrustedUser(CurrentUser, AllowedRoles))
             {
+                // صفحة Index ونماذج POST العادية (بدون AJAX) تُحوَّل إلى تسجيل الدخول؛ واجهات JSON (الجرس) تأخذ 403
+                var request = filterContext.HttpContext.Request;
                 bool isPage = string.Equals(filterContext.ActionDescriptor.ActionName, "Index", StringComparison.OrdinalIgnoreCase);
-                if (isPage)
+                bool isPlainForm = request.HttpMethod == "POST" && !request.IsAjaxRequest();
+                if (isPage || isPlainForm)
                 {
                     filterContext.Result = RedirectToAction("LogIn", "Home");
                 }
@@ -64,7 +70,7 @@ namespace tabseetCourse.Controllers
             ViewBag._UsermodelModel = CurrentUser;
         }
 
-        // GET: AdminNotifications
+        // GET: AdminNotifications?Status=unread&Search=...&Page=2
         [HttpGet]
         public async Task<ActionResult> Index(NotificationFilterViewModel filter)
         {
@@ -73,7 +79,7 @@ namespace tabseetCourse.Controllers
             return View(model);
         }
 
-        // GET: AdminNotifications/GetLatest?count=5
+        // GET: AdminNotifications/GetLatest?count=5  (جرس الإشعارات في الـ layout)
         [HttpGet]
         public async Task<JsonResult> GetLatest(int count = 5)
         {
@@ -107,44 +113,57 @@ namespace tabseetCourse.Controllers
             }
         }
 
-        // POST: AdminNotifications/MarkAsRead
+        // POST: AdminNotifications/MarkAsRead  (id, returnUrl)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<JsonResult> MarkAsRead(int id)
+        public async Task<ActionResult> MarkAsRead(int id, string returnUrl = null)
         {
+            string adminUserId = User.Identity.GetUserId();
             try
             {
-                string adminUserId = User.Identity.GetUserId();
                 bool result = await _notificationService.MarkAsReadAsync(id, adminUserId);
-                int unreadCount = await _notificationService.GetUnreadCountAsync(adminUserId);
 
-                return Json(new { success = result, unreadCount });
+                if (Request.IsAjaxRequest())
+                {
+                    int unreadCount = await _notificationService.GetUnreadCountAsync(adminUserId);
+                    return Json(new { success = result, unreadCount });
+                }
+
+                if (!result)
+                {
+                    TempData["NotificationError"] = "الإشعار غير موجود.";
+                }
+                return RedirectBackToList(returnUrl);
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Failure(ex, returnUrl);
             }
         }
 
-        // POST: AdminNotifications/MarkAllAsRead
+        // POST: AdminNotifications/MarkAllAsRead  (returnUrl)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<JsonResult> MarkAllAsRead()
+        public async Task<ActionResult> MarkAllAsRead(string returnUrl = null)
         {
+            string adminUserId = User.Identity.GetUserId();
             try
             {
-                string adminUserId = User.Identity.GetUserId();
                 int count = await _notificationService.MarkAllAsReadAsync(adminUserId);
 
-                return Json(new { success = true, markedCount = count, unreadCount = 0 });
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = true, markedCount = count, unreadCount = 0 });
+                }
+                return RedirectBackToList(returnUrl);
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Failure(ex, returnUrl);
             }
         }
 
-        // GET: AdminNotifications/GetDetails/5
+        // GET: AdminNotifications/GetDetails?id=5  (واجهة JSON؛ عرض التفاصيل يحدد الإشعار كمقروء)
         [HttpGet]
         public async Task<JsonResult> GetDetails(int id)
         {
@@ -165,6 +184,25 @@ namespace tabseetCourse.Controllers
                 return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        /// <summary>العودة إلى نفس الصفحة والتصفية التي أتى منها المستخدم؛ تُقبل الروابط المحلية فقط.</summary>
+        private ActionResult RedirectBackToList(string returnUrl)
+        {
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction("Index");
+        }
+
+        private ActionResult Failure(Exception ex, string returnUrl)
+        {
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+            TempData["NotificationError"] = "تعذر تحديث حالة الإشعار: " + ex.Message;
+            return RedirectBackToList(returnUrl);
+        }
     }
 }
-
